@@ -1,0 +1,16 @@
+.cOB_FinalSummary .slds-p-around_small {
+    text-align : justify;
+    vertical-align : middle;
+    text-align-last: left;
+}
+
+.THIS .InfoIcon{
+    font-size: 50px;
+	vertical-align: middle;
+    text-align : center;
+    text-align-last: center;
+}
+
+.THIS .slds-icon-text-default {
+    width: 170%
+}

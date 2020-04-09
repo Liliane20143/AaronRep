@@ -1,0 +1,72 @@
+.THIS .selected{
+    color:orange;
+}
+
+.THIS .slds-button_icon-bare { 
+    display: none;    
+}
+
+.THIS .myClass{
+    width: 99% !important;
+}
+.THIS .export{
+    position: absolute;
+    padding-left: 30rem;
+    padding-top: 1.2rem;
+    
+}
+
+.THIS .slds-scrollable_x {
+    overflow-y:hide !important;
+    overflow-x:hide !important;
+}
+
+.THIS .slds-scrollable_y {
+    overflow-y:hide !important;
+    overflow-x:hide !important;
+}
+
+.THIS .emptyTable{
+    font-size: x-large;
+    color:black;
+}
+
+.THIS #ob-top-buttons button
+{
+    white-space: nowrap!important;
+    min-width: 140px;
+    text-align: center;
+}
+/* R1F2-266 Micol Ferrari <micol.ferrari@accenture.com>, 14/06/2019 - START */
+.THIS .slds-table_header-fixed_container:before{
+    border-bottom: none !important;
+} 
+.THIS .slds-table--header-fixed_container:before{
+    border-bottom: none !important;
+}
+.THIS .slds-table{
+    border-top: 1px solid rgb(212, 212, 212) !important;
+}
+/* R1F2-266 Micol Ferrari <micol.ferrari@accenture.com>, 14/06/2019 - STOP */
+/*giovanni spinelli start 10/10/2019*/
+.THIS .CTAStyle {
+	font-size: 1.2em!important;
+	text-transform: uppercase!important;
+	font-weight: 600!important;
+	border-color: rgb(48, 58, 178);
+	border-width: 0,5px;
+	border-width: 1px;
+	color: rgb(48, 58, 178);
+	font-family: arial;
+}
+.THIS .reset_link{
+    color:  rgb(48, 58, 178);
+    text-transform: uppercase;
+    font-size: .9em;
+    font-weight: bold;
+    vertical-align: sub;
+}
+.THIS .align_right{
+    float: right;
+}
+/*giovanni spinelli end 10/10/2019*/

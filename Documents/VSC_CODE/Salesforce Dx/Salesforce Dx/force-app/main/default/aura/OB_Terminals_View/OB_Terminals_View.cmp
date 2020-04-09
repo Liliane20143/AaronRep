@@ -1,0 +1,107 @@
+<aura:component controller = "OB_Active_Asset_View" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes">
+        <aura:attribute name="pos"  type="Object" access="global"/>
+        <aura:attribute name="enablementsList"  type="List" access="global"/>
+        <aura:attribute name="openTab"  type="String" access="global" default="close"/>
+        <aura:attribute name="attributesList"  type="Object" access="global"/>
+        <aura:attribute name="attributeColumns"  type="List" access="global"/>
+        <aura:attribute name="isToShowAttribute" type="Boolean" default="false"/> 
+        <aura:attribute name="showOffer" type="Boolean" default="false"/>
+        <aura:attribute name="bundleIdMap" type="Object" />
+        <aura:attribute name="mapItem" type="Object"/>
+        <aura:attribute name="posList"  type="List" access="global"/>
+        <aura:attribute name="pagoList"  type="List" access="global"/>
+        <aura:attribute name="orderParameter" type="String"/>
+        <aura:attribute name="proposerABI" type="String"/>
+        <aura:attribute name="offerid" type="String"/>
+        <aura:attribute name="recordId" type="String" /> 
+        <aura:attribute name="showTable" type="Boolean"/>
+        <aura:attribute name="accountName" type="String" /> 
+        <aura:attribute name="FlowData" type="string"  />
+        <aura:attribute name="FlowStep" type="string"  />
+        <aura:attribute name="mapAbi" type="Object"/>
+        <aura:attribute name="mapAssetConfig" type="Object"/>
+        <aura:attribute name="mapAssetBundleConfig" type="Object"/>
+        <aura:attribute name="bundleConfiguration" type="string"  />
+        <aura:attribute name="myBaseURL" type="String"   default=""/>
+        <aura:attribute name="showLink" type="Boolean" default ="false"/>
+        <aura:attribute name="orderId" type="Boolean" default ="false"/>
+        
+        <aura:handler name = "init" value = "{! this}" action = "{!c.init}"/>
+        
+        <!-- Start **** Simone Misani mail: simone.misani@accenture.it fix css -->
+        <tr >
+               
+               
+                <td class="border">
+                        <div>
+                                <lightning:buttonIcon variant="bare" value="{!v.pos.id}" aura:id="{!v.pos.id}" onclick="{!c.showOffer}" class="slds-input__icon slds-show searchIcon slds-col_bump-left" iconName="utility:search" size="xx-small"  alternativeText="Search"/> 
+                        </div>
+                </td>
+                <td class="border">
+                <aura:if isTrue="{!v.orderId}">
+                        <aura:if isTrue="{!v.showLink}">
+                                <a onclick="{!c.showTerminal}" style="font-size: 12px">{!v.pos.orderName}</a>
+                                
+                        </aura:if>
+                </aura:if>
+                <aura:if isTrue="{!!v.orderId}">
+                        <td class="border"></td>
+                        <td class="border"></td>                    
+
+                </aura:if>
+        </td>
+                <td class="border">
+                        <div>
+
+                            <lightning:buttonIcon variant="bare" value="{!v.pos.id}" aura:id="{!v.pos.id}" onclick="{!c.showDetails}" class="slds-input__icon slds-show searchIcon slds-col_bump-left" iconName="utility:chevrondown" size="xx-small"  alternativeText="View More"/>
+                        </div>    
+                </td>
+                <!-- End **** Simone Misani mail: simone.misani@accenture.it fix css -->
+                <td class="border">{!v.pos.prodName}</td>
+                <td class="border">{!v.pos.termId}</td>
+                <td class="border">{!v.pos.codiceSia}</td>
+                <td class="border">{!v.pos.dataInstallazione}</td>
+                <td class="border">{!v.pos.dataDinstallazione}</td>               
+                <td class="border">{!v.pos.abi}</td>
+                <td class="border">{!v.pos.codSocietaMonetica}</td>
+                <td class="border">{!v.pos.codiceStab}</td>
+                <td class="border">{!v.pos.codiceConv}</td>
+                <td class="border">{!v.pos.gtPos}</td>
+                <td class="border">{!v.pos.stato}</td>
+                <td><div aura:id = "cer" class="rim"/></td>
+                <td> 
+                        <lightning:buttonIcon  variant="bare" value="{!v.pos.id}" aura:id="{!v.pos.id}"  onclick="{!c.showAttribute}" class="slds-input__icon slds-show searchIcon slds-align_absolute-center" iconName="utility:search" size="xx-small"  alternativeText="Search"/> 
+                </td>
+
+        </tr>
+        {!v.body}
+
+        <aura:if isTrue="{!v.isToShowAttribute}">
+                <c:strike_modal title="Attributi" size="large" primaryButtonLabel="Ok" secondaryButtonLabel="Cancel" showHeader="true" showFooter="false" showClose="true" showModal="{!v.isToShowAttribute}" >
+                       
+                        <div >
+                                <lightning:datatable
+                                columns="{! v.attributeColumns }"
+                                data="{! v.attributesList }"
+                                keyField="Id"
+                                aura:id="attributeTable"
+                                hideCheckboxColumn = "true"
+                                />
+                        </div>
+                        <div > 
+                                <lightning:button onclick="{! c.closeModal }" label="Annulla" class="slds-button slds-button_neutral slds-button--brand"></lightning:button>
+                        </div>
+                </c:strike_modal>
+        </aura:if>
+       
+        <aura:if isTrue="{!v.showOffer}">
+                                <!-- Simone Misani 18/04/2019  add label on titile for stike modal  -->
+
+                <c:strike_modal title="{!$Label.c.OB_OfferAsset}" size="large" primaryButtonLabel="Ok" secondaryButtonLabel="Cancel" showHeader="true" showFooter="false" showClose="true" showModal="{!v.showOffer}" >
+                        <c:OB_Maintenance_Summary recordId="{!v.recordId}" FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}" ViewMode="EDIT" modifyServicePointId="{!v.recordId}" proposerABI="{!v.proposerABI}"
+                        showMainAnag="false" bundleConfiguration="{!v.bundleConfiguration}" hideBackToSearch="true"/>
+                        <!--  antonio.vatrano antonio.vatrano@accenture.com add:paramater to hide button 'backToSearch' in strikeModal --> 
+                </c:strike_modal>
+        </aura:if>
+
+</aura:component>

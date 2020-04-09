@@ -1,0 +1,114 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" 
+                access="global"
+                controller="OB_PrivacySectionController" >
+    
+    <!-- ATTRIBUTE SECTION -->
+    <aura:attribute name="objectDataMap"            type="Object"       default="{}"        access="global"/>
+
+    <aura:attribute name="showPrivacyRadioGroup"    type="Boolean"      default="true"      access="global" description="Boolean used to show input section"/>
+    <aura:attribute name="options" type="List" default="[{'label': 'Sì', 'value': 'true'}, {'label': 'No', 'value': 'false'}]"/>
+
+        <!-- SINGLE RADIO GROUP VALUE - NEED TO DECLARE ATTRIBUTE BECAUSE AS DEFAULT IT MUST BE EMPTY-->
+        <aura:attribute name="valueC3"    type="Boolean"      default=""      access="global"/>
+        <aura:attribute name="valueC4"    type="Boolean"      default=""      access="global"/>
+        <aura:attribute name="valueC5"    type="Boolean"      default=""      access="global"/>
+        <!-- / SINGLE RADIO GROUP VALUE -->
+
+        <!-- LABEL INPUT ATTRIBUTES-->    
+        <aura:attribute name="privacyC3"    type="String"      default=""      access="global"/>
+        <aura:attribute name="privacyC4"    type="String"      default=""      access="global"/>
+        <aura:attribute name="privacyC5"    type="String"      default=""      access="global"/>
+        <!-- /LABEL INPUT ATTRIBUTES-->
+
+         <!-- ERROR MESSAGE ATTRIBUTES -->
+         <aura:attribute name="errorOn_OB_Privacy_C3__c"    type="Boolean"   default="false"      access="global"/>
+         <aura:attribute name="errorOn_OB_Privacy_C4__c"    type="Boolean"   default="false"      access="global"/>
+         <aura:attribute name="errorOn_OB_Privacy_C5__c"    type="Boolean"   default="false"      access="global"/>
+
+         <aura:attribute name="errorMessage"    type="String"   default=""      access="global"/>
+
+         <aura:attribute name="errorC3"    type="String"      default=""      access="global"/>
+         <aura:attribute name="errorC4"    type="String"      default=""      access="global"/>
+         <aura:attribute name="errorC5"    type="String"      default=""      access="global"/>
+         <!-- / ERROR MESSAGE ATTRIBUTES -->
+         <!-- START gianluigi.virga 20/09/2019 -->
+         <aura:attribute name="isPrivacyOk" type="Boolean" access="global"/> 
+         <!-- END gianluigi.virga 20/09/2019 -->
+    <!-- / ATTRIBUTE SECTION-->
+
+    <!-- HANDLER SECTION -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler   name="change" value="{!v.objectDataMap.setRedBorder}" action="{!c.setRedBorder}"/> 
+    <!-- / HANDLER SECTION-->
+
+    <!-- BODY SECTION -->
+    <aura:if isTrue="{!v.showPrivacyRadioGroup}" >
+        <div class="{!v.objectDataMap.isPreventivo == true ? 'slds-size--3-of-3 slds-grid':'slds-size--1-of-3 slds-grid'}"> <!-- gianluigi.virga 20/09/2019 - change slds grid for quote -->										
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="{!v.objectDataMap.isPreventivo == true ? 'slds-p-around--medium slds-form-element centerContent':'slds-p-around--medium slds-form-element'}" style="margin-top: -0.3rem;"> <!-- gianluigi.virga 20/09/2019 - change class for quote -->
+                    <label class="slds-form-element__label" for="inputNameSample1" >
+                        <abbr class="slds-required" title="required">*</abbr>{!v.privacyC3}
+                    </label>
+                    
+                    <lightning:radioGroup   name="OB_Privacy_C3__c"
+                                            class="OB_Privacy_C3__c" 
+                                            aura:id="OB_Privacy_C3__c"
+                                            options="{! v.options }"
+                                            value="{!v.valueC3}"
+                                            type="button"
+                                            onchange="{!c.privacySelection}" />
+
+                    <aura:if isTrue="{!v.errorOn_OB_Privacy_C3__c}">
+                        <div aura:id="errorOn_OB_Privacy_C3__c" class="error-input-message">
+                            {!v.errorMessage}
+                        </div>
+                    </aura:if>
+                </div>
+            </div>
+        </div>
+        <div class="{!v.objectDataMap.isPreventivo == true ? 'slds-size--3-of-3 slds-grid centerContent':'slds-size--1-of-3 slds-grid'}"> <!-- gianluigi.virga 20/09/2019 - change slds grid for quote -->						
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="{!v.objectDataMap.isPreventivo == true ? 'slds-p-around--medium slds-form-element centerContent':'slds-p-around--medium slds-form-element'}" style="margin-top: -0.3rem;"> <!-- gianluigi.virga 20/09/2019 - change class for quote -->
+                    <label class="slds-form-element__label" for="inputNameSample1" >
+                        <abbr class="slds-required" title="required">*</abbr>{!v.privacyC4}
+                    </label>
+                    <lightning:radioGroup   name="OB_Privacy_C4__c"
+                                            class="OB_Privacy_C4__c" 
+                                            aura:id="OB_Privacy_C4__c"
+                                            options="{! v.options }"
+                                            value="{!v.valueC4}"
+                                            type="button"
+                                            onchange="{!c.privacySelection}" />
+                    
+                    <aura:if isTrue="{!v.errorOn_OB_Privacy_C4__c}">
+                            <div aura:id="errorOn_OB_Privacy_C4__c" class="error-input-message">
+                                    {!v.errorMessage}
+                            </div>
+                    </aura:if>
+                </div>
+            </div>
+        </div>
+        <div class="{!v.objectDataMap.isPreventivo == true ? 'slds-size--3-of-3 slds-grid centerContent':'slds-size--1-of-3 slds-grid'}"> <!-- gianluigi.virga 20/09/2019 - change slds grid for quote -->				
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="{!v.objectDataMap.isPreventivo == true ? 'slds-p-around--medium slds-form-element centerContent':'slds-p-around--medium slds-form-element'}" style="margin-top: -0.3rem;"> <!-- gianluigi.virga 20/09/2019 - change class for quote -->
+                    <label class="slds-form-element__label" for="inputNameSample1" >
+                        <abbr class="slds-required" title="required">*</abbr>{!v.privacyC5}
+                    </label>
+                    <lightning:radioGroup   name="OB_Privacy_C5__c"
+                                            class="OB_Privacy_C5__c" 
+                                            aura:id="OB_Privacy_C5__c"
+                                            options="{! v.options }"
+                                            value="{!v.valueC5}"
+                                            type="button"
+                                            onchange="{!c.privacySelection}"/>
+                    <aura:if isTrue="{!v.errorOn_OB_Privacy_C5__c}">
+                        <div aura:id="errorOn_OB_Privacy_C5__c" class="error-input-message">
+                                {!v.errorMessage}
+                        </div>
+                    </aura:if>
+                </div>
+            </div>					
+        </div>
+    </aura:if>
+    <!-- / BODY SECTION -->
+</aura:component>

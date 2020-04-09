@@ -1,0 +1,17 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId" > 
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="responseMerchant" type="Object" />
+    
+    <div class="spinner-container" style="height: 6rem;">
+        <div role="status" class="slds-spinner slds-spinner_brand slds-spinner_large">
+          <span class="slds-assistive-text">Loading</span>
+          <div class="slds-spinner__dot-a"></div>
+          <div class="slds-spinner__dot-b"></div>
+        </div>
+    </div>
+    
+    
+    <c:OB_ContinuationBrokercomponentTest /> 
+    <c:OB_RetrieveAnagraficaMerchant recordId="{!v.recordId}" isContainerRendered="{!v.isContainerRendered}" />
+
+</aura:component>

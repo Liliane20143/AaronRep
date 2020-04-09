@@ -1,0 +1,67 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="AutoCompleteComponentController">
+    
+    <aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="objectKey" type="String" default="" access="global"/>
+    <aura:attribute name="identifier" type="String" default="" access="global"/>
+    <aura:attribute name="field" type="Object" default="{}" access="global"/>
+    
+    <aura:attribute name="acquiring" type="Boolean" default="false" access="global" />
+    <aura:attribute name="pos" type="Boolean" default="false" access="global" />
+    <aura:attribute name="response" type="Object"  default="{}" access="global"/>
+
+
+    
+    <!--<aura:handler name="init" value="{!this}" action="{!c.doInit}" /> -->
+    
+    <div class="slds-grid--align-end slds-grid_vertical">
+        <div class="slds-col">
+            <span>
+                <lightning:input type="checkbox" name="select" id="rad" label="ACQUIRING" value="ACQUIRING" onchange="{!c.handleChange}" />
+            </span>
+        </div>
+        <div class="slds-col slds-m-top_medium" >
+            <!--<lightning:layout verticalAlign="end">
+                <lightning:layoutItem size="3">-->
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col" style="margin-top:10%" >
+                    <lightning:input type="checkbox" name="select" id="rad" label="POS" value="POS" onchange="{!c.handleChange}" />
+                </div>
+                <div class="slds-col">
+                    
+                    <!--</lightning:layoutItem>-->
+                    <!--<lightning:layoutItem size="9">-->
+                    
+                    <aura:if isTrue="{!v.pos}" >
+                        <!--<lightning:select name="selectItem" label="" class="picklistStyle" variant="label-hidden">
+                            <option value="">Tipo Pos...</option>
+                            <option value="1">Pos tipo 1</option>
+                            <option value="2">Pos tipo 2 </option>
+                        </lightning:select>-->
+                        <p class="title">Multiple Selection</p>
+                        <ui:inputSelect multiple="true" class="multiple" aura:id="InputSelectMultiple" >
+                            
+                            <ui:inputSelectOption text="Pos tipo 1"/>
+                            <ui:inputSelectOption text="Pos tipo 2"/>
+                            
+                        </ui:inputSelect>
+                        <p><ui:outputText class="result" aura:id="multiResult" value="" /></p>
+                        
+                        
+                    </aura:if>
+                </div>
+                
+                
+                
+                
+                <!--</lightning:layoutItem>
+                </lightning:layout>-->
+                
+            </div>
+        </div>
+    </div>
+    
+    
+    
+    
+</aura:component>

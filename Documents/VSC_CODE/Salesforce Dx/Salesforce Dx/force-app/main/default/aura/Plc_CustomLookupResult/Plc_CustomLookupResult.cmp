@@ -1,0 +1,32 @@
+<!--
+ - Created by dilorenzo on 22/01/2019.
+ -->
+
+<aura:component description="Plc_CustomLookupResultLtgCmp" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+    <!-- This component represents a single item of the list of results given by the search -->
+        <aura:attribute access="public" name="oRecord" type="sObject" description="Item that contains record data"/>
+        <aura:attribute access="public" name="iconName" type="string" description="Icon to show"/>
+        <aura:attribute access="public" name="additionalFieldsToShow" type="String[]" default="" description="Used to show additional fields in results list"/>
+        <aura:attribute access="private" name="mainFieldToShow" type="String" description="String used to show a specific main label "/>
+        <aura:attribute access="private" name="fieldsValues" type="String" default="" description="Computed values for fields 'additionalFieldsToShow'"/>
+        <!--Register the component level event-->
+        <aura:registerEvent name="oSelectedRecordEvent" type="c:Plc_SelectObjectRecordEvent"/>
+        <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+        <li role="presentation" class="slds-listbox__item" onclick="{!c.selectRecord}">
+        <span id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" style="padding-top:1px;padding-bottom:5px" role="option">
+            <span class="slds-media__figure">
+                <span class="slds-icon_container" title="{!v.oRecord.Name}">
+                    <lightning:icon iconName="{!v.iconName}" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                </span>
+            </span>
+            <span class="slds-media__body">
+                <span class="slds-listbox__option-text slds-listbox__option-text_entity textclass">
+                        {!v.mainFieldToShow}
+                </span>
+                <span class="slds-text-title">
+                        {!v.fieldsValues}
+                </span>
+            </span>
+        </span>
+        </li>
+</aura:component>

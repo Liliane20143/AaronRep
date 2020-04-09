@@ -1,0 +1,39 @@
+<aura:component controller="OB_Maintenance_Consistenza_ConfItem_CC"
+				implements=
+				"flexipage:availableForRecordHome,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable" 
+				access="global">
+	<aura:attribute name="configurationVASItem"				type="Object"						access="global" />
+	<aura:attribute name="VASRelatedtoTerminal"				type="Object[]"						access="global" />
+	<aura:attribute name="confItemId" 						type="String" 	default="" 			access="global" />
+	<aura:attribute name="circuitNameVas"					type="String" 	default="" 			access="global" />
+	<aura:attribute name="startDateVas" 					type="Datetime"	default=""			access="global" />
+	<aura:attribute name="endDateVas" 						type="Datetime"	default=""			access="global" />
+	<aura:attribute name="isNotOperation"					type="Boolean"	default="false"		access="global" />
+	<aura:attribute name="configuration"					type="Object"						access="global" />
+	<aura:attribute name="enstabilishmentSIACode"		    type="String"						access="global" />
+	<aura:attribute name="progressiveSIACode"			    type="String"						access="global" />
+	<aura:attribute name="SIACode"						    type="String"						access="global" />
+	<aura:attribute name="terminalId" 						type="String" 						access="global" />
+	<aura:attribute name="model" 							type="String" 						access="global" />
+	<aura:attribute name="modelDesc" 						type="String" 						access="global" />
+	<aura:attribute name="releaseDesc" 						type="String" 						access="global" />
+	<aura:attribute name="connectionDescr" 					type="String" 						access="global" />
+	<aura:attribute name="release" 							type="String" 						access="global" />
+	<aura:attribute name="connectionType" 					type="String" 						access="global" />
+	<aura:attribute name="installationDate" 				type="Datetime"						access="global" />
+	<aura:attribute name="installationStatus"				type="String" 						access="global" />
+	<aura:attribute name="unistallationDate"				type="Datetime" 					access="global" />
+	<aura:attribute name="rejectionReason"					type="String"						access="global" />
+    <aura:attribute name="currentTerm"						type="Object"						access="global" />
+
+    <aura:handler 	name="init" value="{!this}" action="{!c.doInit}" />
+
+    <aura:iteration items="{!v.VASRelatedtoTerminal}" var="wrapper" >
+        <c:OB_Maintenance_Consistenza_ItemVas   configuration="{!v.configuration}" 
+                                                SIACode="{!v.SIACode}" 
+                                                progressiveSIACode="{!v.progressiveSIACode}" 
+                                                enstabilishmentSIACode="{!v.enstabilishmentSIACode}" 
+                                                isNotOperation="{!v.isNotOperation}" />
+    </aura:iteration>
+
+</aura:component>

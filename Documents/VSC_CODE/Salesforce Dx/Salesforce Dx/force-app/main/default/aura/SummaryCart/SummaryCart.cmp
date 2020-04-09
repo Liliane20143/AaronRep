@@ -1,0 +1,101 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="SummaryCartController" access="global">
+    <aura:attribute name="order" type="String" default=""/>
+    <!--<aura:attribute name="orderItems" type="NE__OrderItem__c[]" /> -->
+    <aura:attribute name="orderItems" type="List" />
+    <aura:attribute name="mycolumns" type="List"/>
+    <aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="nextCheckout" type="String" default="{!v.objectDataMap.unbind.nextCheckout}" />
+    <aura:attribute name="objectKey" type="String" default="" access="global"/>
+    <aura:attribute name="identifier" type="String" default="" access="global"/>
+    <aura:attribute name="field" type="Object" default="{}" access="global"/> 
+    <aura:attribute name="buttonChoice" type="Boolean" default="true" access="global"/>
+    <aura:attribute name="showChilds" type="Boolean" default="true" access="global" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>  
+    
+    <table class="slds-table slds-table--bordered slds-table--striped slds-table--cell-buffer slds-table--fixed-layout">
+        <thead>
+            
+            
+            <tr class="slds-text-heading--label">
+                <!-- <aura:iteration items="{!v.mycolumns}" var="columns"> -->
+                <th class="test"></th>
+                <th scope="col" colspan="2"><div class="slds-truncate" title="Name">{!$Label.c.Name}</div></th>
+                <th scope="col"><div class="slds-truncate" title="Quantity">{!$Label.c.Quantity}</div></th>
+              <!--  <th scope="col"><div class="slds-truncate" title="OneTimeFeeOv"> OneTimeFeeOv</div></th>
+                <th scope="col"><div class="slds-truncate" title="RecurringChargeOv">RecurringChargeOv</div></th>-->
+                <th scope="col"><div class="slds-truncate" title="Action">{!$Label.c.Action}</div></th>
+                <th scope="col"><div class="slds-truncate" title="Status">{!$Label.c.Status}</div></th>
+                <!--</aura:iteration> -->
+            </tr>
+        </thead>
+        <aura:if isTrue="{!!empty(v.orderItems)}"> 
+            <tbody>
+                <!-- Use the Apex model and controller to fetch server side data -->
+                <aura:iteration items="{!v.orderItems}" var="orderItem">
+                    <aura:if isTrue="{! and(empty(orderItem.NE__Bundle_Element__c),empty(orderItem.NE__Root_Order_Item__c))}">
+                        
+                        <tr>
+                            <td class="test" >
+                                <aura:if isTrue="{! v.buttonChoice}">
+                                    <!--<div class="button"><lightning:button iconName="utility:minimize_window" onclick="{!c.minimize_window}"/></div> -->
+                                    <button class="slds-button slds-button_neutral button" onclick="{!c.minimize_window}"><div style="font-weight: bold;font-size:large;position: relative;
+                                                                                                                                      left: -2px">-</div></button>
+                                    <aura:set attribute="else">
+                                        <!--<div class="button"><lightning:button iconName="utility:add" onclick="{!c.add_window}"/></div>-->
+                                        <button class="slds-button slds-button_neutral button" onclick="{!c.add_window}"><div style="font-weight: bold;font-size:large;position: relative;
+                                                                                                                                     left: -4px">+</div></button>
+                                    </aura:set>
+                                </aura:if>
+                            </td>
+                            
+                            <td colspan="2"><div class="slds-truncate" title="{!orderItem.NE__ProdName__c}">{!orderItem.NE__ProdName__c}</div></td>
+                            <td><div class="slds-truncate" title="{!orderItem.NE__Qty__c}">{!orderItem.NE__Qty__c}</div></td>
+                         <!--   <td><div class="slds-truncate" title="{!orderItem.NE__OneTimeFeeOv__c}"><p style="color:green"><lightning:formattedNumber value="{!orderItem.NE__OneTimeFeeOv__c}" style="currency" currencyCode="EUR"></lightning:formattedNumber></p></div></td>
+                            <td><div class="slds-truncate" title="{!orderItem.NE__RecurringChargeOv__c}"><p style="color:green"><lightning:formattedNumber value="{!orderItem.NE__RecurringChargeOv__c}" style="currency" currencyCode="EUR"></lightning:formattedNumber></p></div></td>
+                          -->  <td><div class="slds-truncate" title="{!orderItem.NE__Action__c}">{!orderItem.NE__Action__c}</div></td>
+                            <td><div class="slds-truncate" title="{!orderItem.NE__Status__c}">{!orderItem.NE__Status__c}</div></td>
+                            
+                        </tr>
+                        <aura:set attribute="else">
+                            <aura:if isTrue="{!v.showChilds}">
+                                <aura:if isTrue="{! empty(orderItem.NE__Root_Order_Item__c)}">
+                                    <tr >
+                                        <td></td>
+                                        <td colspan="2" ><div class="slds-truncate" style="margin-left:5%" title="{!orderItem.NE__ProdName__c}">{!orderItem.NE__ProdName__c}</div></td>
+                                        <td><div class="slds-truncate" title="{!orderItem.NE__Qty__c}">{!orderItem.NE__Qty__c}</div></td>
+                                    <!--    <td><div class="slds-truncate" title="{!orderItem.NE__OneTimeFeeOv__c}"><p style="color:green"><lightning:formattedNumber value="{!orderItem.NE__OneTimeFeeOv__c}" style="currency" currencyCode="EUR"></lightning:formattedNumber></p></div></td>
+                                        <td><div class="slds-truncate" title="{!orderItem.NE__RecurringChargeOv__c}"><p style="color:green"><lightning:formattedNumber value="{!orderItem.NE__RecurringChargeOv__c}" style="currency" currencyCode="EUR"></lightning:formattedNumber></p></div></td>
+                                      -->  <td><div class="slds-truncate" title="{!orderItem.NE__Action__c}">{!orderItem.NE__Action__c}</div></td>
+                                        <td><div class="slds-truncate" title="{!orderItem.NE__Status__c}">{!orderItem.NE__Status__c}</div></td>
+                                    </tr>
+                                   
+                                         <aura:iteration items="{!v.orderItems}" var="orderItem2">
+                   							 <aura:if isTrue="{!and((orderItem.Id==orderItem2.NE__Root_Order_Item__c),(orderItem2.NE__Root_Order_Item__c!=null))}">
+                        
+                                        <tr >
+                                            <td></td>
+                                            <td colspan="2" ><div class="slds-truncate" style="margin-left:10%" title="{!orderItem2.NE__ProdName__c}">{!orderItem2.NE__ProdName__c}</div></td>
+                                            <td><div class="slds-truncate" title="{!orderItem2.NE__Qty__c}">{!orderItem2.NE__Qty__c}</div></td>
+                                        <!--    <td><div class="slds-truncate" title="{!orderItem.NE__OneTimeFeeOv__c}"><p style="color:green"><lightning:formattedNumber value="{!orderItem.NE__OneTimeFeeOv__c}" style="currency" currencyCode="EUR"></lightning:formattedNumber></p></div></td>
+                                            <td><div class="slds-truncate" title="{!orderItem.NE__RecurringChargeOv__c}"><p style="color:green"><lightning:formattedNumber value="{!orderItem.NE__RecurringChargeOv__c}" style="currency" currencyCode="EUR"></lightning:formattedNumber></p></div></td>
+                                          -->  <td><div class="slds-truncate" title="{!orderItem2.NE__Action__c}">{!orderItem2.NE__Action__c}</div></td>
+                                            <td><div class="slds-truncate" title="{!orderItem2.NE__Status__c}">{!orderItem2.NE__Status__c}</div></td>
+                                        </tr>
+                                                  </aura:if>
+                                       </aura:iteration>         
+                                   
+                                </aura:if>
+                            </aura:if>
+                            
+                        </aura:set>
+                    </aura:if>
+                </aura:iteration>
+            </tbody>
+        </aura:if>
+    </table>
+    
+    
+    
+    
+</aura:component>

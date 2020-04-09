@@ -1,0 +1,264 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" 
+                access="global"
+                controller="OB_IdentifyCompany_CC">
+    <ltng:require  scripts="{!$Resource.FiscalCodeControl2}" afterScriptsLoaded="{!c.doInit}"/>
+    
+    <aura:registerEvent name="appEvent" type="c:OB_EventNextButton"/>
+    
+    <aura:attribute name="hideField"                type="Boolean"  default="true"   access="global"/>
+    <aura:attribute name="fiscalCode"               type="String"   default=""       access="global"/>
+    <aura:attribute name="userId"                   type="String"                    access="global"/>
+    <aura:attribute name="bankId"                   type="String"                    access="global"/>
+    <aura:attribute name="accountList"              type="Account[]" default="[]"    access="global"/>
+    <aura:attribute name= "ErrorMessageFiscalCode"  type="String"    default=""      access="global"/>
+    <aura:attribute name= "ErrorBooleanFiscalCode"  type="Boolean"   default="false" access="global"/>
+    <aura:attribute name="hideFiscalCode"           type="Boolean"   default="false" access="global"/>
+    <aura:attribute name="showButtons"              type="Boolean"   default="false" access="global"/>  
+    <aura:attribute name="toggleSpinner"            type="boolean"   default="false"/>
+    <aura:attribute name = "nameVat"                type = "String"/>
+    <aura:attribute name="showOtherInput"           type="boolean"   default="false"/>
+    <aura:attribute name="annualRevenueList"        type="List"      default=""/>
+    <aura:attribute name="showModal"                type="Boolean"   default="false"/>
+    <aura:attribute name="disabledVat"              type="Boolean"   default="true"/>
+    <aura:attribute name="showPvErrorMessage"       type="Boolean"   default=""/>
+    <aura:attribute name="showNewOrder"             type="Boolean"   default=""/>
+    <aura:attribute name="showErrorIfNoMerchant"    type="Boolean"   default="false"/>
+    
+    
+    
+    
+    <aura:attribute name="wizardWrapper"            type="Object"    default="{}"    access="global"/>
+    <aura:attribute name="objectDataMap"            type="Object"    default="{}"    access="global"/>
+    <aura:attribute name="accId"                    type="String"    default="{!v.objectDataMap.merchant.Id}" /> 
+    <aura:attribute name="nextCheckout"             type="String"    default="{!v.objectDataMap.unbind.nextCheckout}" />
+    <aura:attribute name="objectKey"                type="String"    default=""      access="global"/>
+    <aura:attribute name="identifier"               type="String"    default=""      access="global"/>
+    <aura:attribute name="field"                    type="Object"    default="{}"    access="global"/>
+    
+    <input id="hiddenField"       type="text" value="" class="slds-hide"  onblur="{!c.clearForm}"> </input>
+    <!--<input id="fieldControlStep1" type="text" value="" class="slds-hide"  onblur="{!c.beforeNext}"></input>-->
+    <lightning:input aura:id="stepId" label="" name="testBoolean" class="slds-hide" value="step_getMerchant" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler  event="c:OB_EventNextButton" action="{!c.handleErrorEvent}"/>
+
+    <div aura:id="step_container" class="step_getMerchant" style="width:100% !important;">
+        <div class="form" style="width:100% !important;">
+            
+            <aura:if isTrue="{!v.toggleSpinner}">
+                <div class="slds-spinner_container">
+                    <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+            </aura:if>
+            
+            <div class="slds-grid slds-gutters slds-wrap" >
+                
+                
+                
+                
+                <div class="slds-medium-size_5-of-12 slds-p-around_small slds-small-size_11-of-12 " > 
+                    <div class="slds-form-element classErrorMessage " >                        
+                        <!--<label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.FiscalCode}">
+                                <abbr class="slds-required" title="required">*</abbr>
+                                {!$Label.c.FiscalCode}</label>
+                            <div class="slds-form-element__control">
+                                <input id="fiscalCode" required="" class="slds-input" type="text" 
+                                       value ="{!v.fiscalCode}"
+                                       onchange="{!c.CompleteAddress}"/>
+                            </div>-->
+                        <!--<div class="classErrorMessage">-->
+                        <!--required="true"-->
+                        <label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.FiscalCode}">
+                            <abbr class="slds-required" title="required">*</abbr>
+                            {!$Label.c.FiscalCode}</label>
+                        
+                        <lightning:input aura:id="fiscalCode"
+                                         id="fiscalCode"
+                                         label="" 
+                                         type="text"
+                                         name="FiscalCode"
+                                         value="{!v.objectDataMap.merchant.NE__Fiscal_code__c}"
+                                         maxlength="16"
+                                         disabled="{!v.hideFiscalCode}"
+                                         onkeydown = "{! c.removeRedBorder}"
+                                         variant="label-hidden"
+                                         class="flow_required , black-text "
+                                         onchange="{!c.upperCaseMethod}"
+                                         />
+                        
+                        
+                        <aura:if isTrue="{!v.ErrorBooleanFiscalCode}">
+                            <div class="error-input-message">
+                                {!v.ErrorMessageFiscalCode}                      
+                            </div>
+                        </aura:if>
+                        
+                    </div>
+                </div>
+                <div class="slds-size_1-of-12 slds-p-around_small search-cf-button-container"> 
+                    <lightning:button variant="neutral" 
+                                      onclick="{! c.handleClick  }" 
+                                      iconName="utility:search"
+                                      disabled="{!if(empty(v.objectDataMap.merchant.NE__Fiscal_code__c), true)}"
+                                      class="search-cf-button"/>
+                    
+                    
+                    
+                </div>
+                
+                <div class="slds-medium-size_6-of-12 slds-p-around_small  slds-small-size_12-of-12 " >
+                    <label class="slds-form-element__label" for="inputNameSample1" value="">{!$Label.c.V_A_T_not_present}</label>  
+                    <!--START VAT CHECK-->
+                    <lightning:input name="vatCheck" 
+                                     aura:id="vatInput"
+                                     id="vatInput"
+                                     label=""
+                                     type="checkbox" 
+                                     checked="false"
+                                     variant="label-hidden"
+                                     disabled="{!v.disabledVat}" 
+                                     onchange="{!c.vatCheck}" 
+                                     />
+                    <!--END VAT CHECK-->
+                </div>
+                
+                
+                <!--<div class="slds-grid slds-gutters">-->
+                
+                <div class="slds-medium-size_6-of-12 slds-p-around_small  slds-small-size_12-of-12">
+                    <div class="slds-form-element">
+                        
+                        <!--START NAME INPUT-->
+                        <label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.Name}">
+                            <abbr class="slds-required" title="required">*</abbr>{!$Label.c.Merchant_Name}</label>
+                        <!--<div class="slds-form-element__control">
+                        <input id="name" class="slds-input" required="true" disabled="{!v.hideField}" type="text"   onkeydown = "{! c.removeRedBorder}" value="{!v.objectDataMap.merchant.Name}"/>
+                    </div>-->
+                        <lightning:input id="name"
+                                         aura:id="name"
+                                         label="" 
+                                         name="name"
+                                         disabled="{!v.hideField}"
+                                         onkeydown = "{! c.removeRedBorder}"
+                                         variant="label-hidden"
+                                         value="{!v.objectDataMap.merchant.Name}"
+                                         class="flow_required"
+                                         />
+                        <!--END NAME INPUT-->
+                        
+                        
+                    </div>
+                </div>
+                
+                <div class="slds-medium-size_6-of-12 slds-p-around_small slds-small-size_12-of-12 " aura:id="vat2">
+                    
+                    <!--<c:RadioButtonAnnualRevenue customAddress="{!v.customAddress}"
+                                        objectDataMap="{!v.objectDataMap}"/>-->
+                    
+                    
+                    <!--START VAT INPUT-->
+                    <div class="slds-form-element  ">
+                        <label aura:id="vatLabel" class="slds-form-element__label" for="inputNameSample1" >
+                            <abbr class="slds-required" title="required">*</abbr>{!$Label.c.Value_Added_Tax}
+                        </label>
+                        <!--<div class="slds-form-element__control">
+                        <input id="vat" disabled="{!v.hideField}" required="true"  class="slds-input" type="text" value="{!v.objectDataMap.merchant.NE__VAT__c}" />
+                    </div>-->
+                        <lightning:input id="vat"
+                                         aura:id="vat"
+                                         label=""                                         
+                                         name="vat"
+                                         disabled="{!v.hideField}"
+                                         onkeydown = "{! c.removeRedBorder}"
+                                         variant="label-hidden"
+                                         maxlength="11"
+                                         value="{!v.objectDataMap.merchant.NE__VAT__c}"
+                                         class="flow_required "
+                                         />
+                    </div>
+                </div>
+                <!--END VAT INPUT-->
+                <!--<div class="slds-size_4-of-12 slds-p-around_small slds-small-size_11-of-12"> -->
+                <!--START MODAL SEARCH-->
+                
+                <aura:if isTrue="{!v.showModal}" >
+                    <c:SearchVatNotPresent objectDataMap="{!v.objectDataMap}"/>
+                </aura:if>
+                
+                <!--END MODAL SEARCH-->
+                <!--</div>-->
+                <!--</div> 
+    <div class="slds-grid slds-gutters">  -->
+                
+                <div class="slds-medium-size_4-of-12 slds-p-around_small slds-small-size_11-of-12 slds-hide"> 
+                    
+                    <!--START RADIO BUTTON-->
+                    <div class="radioField"> 
+                        <fieldset class="slds-form-element">
+                            <legend class="slds-form-element__legend slds-form-element__label"> {!$Label.c.Annual_Revenue} </legend>
+                            <aura:iteration items="{!v.annualRevenueList}" var="annualRevenue" indexVar="idx">
+                                <div class="slds-form-element__control">
+                                    <span class="slds-radio">  
+                                        <!--<input type="radio" id="{!idx}" value="{!if(empty(v.objectDataMap.merchant.OB_Annual_Revenue__c), annualRevenue)}" name="options" onclick="{!c.getSelectedOption}" disabled="{!v.hideField}"/>-->
+                                        <input type="radio"
+                                               aura:id="{!idx}"
+                                               id="{!idx}"
+                                               value="{!annualRevenue}"
+                                               name="options" 
+                                               
+                                               onclick="{!c.getSelectedOption}" 
+                                               disabled="{!v.hideField}"
+                                               />
+                                        <label class="slds-radio__label" for="{!idx}">
+                                            <span class="slds-radio_faux"></span>
+                                            <span class="slds-form-element__label" >{!annualRevenue}</span>
+                                        </label>
+                                    </span> <!-- <span class="slds-radio">
+                                <input type="radio" id="radio-4" value="> di Euro 2.000.000,00" name="options" onclick="{!c.getSelectedOption}" disabled="{!v.hideField}"/>
+                                <label class="slds-radio__label" for="radio-4">
+                                    <span class="slds-radio_faux"></span>
+                                    <span class="slds-form-element__label">> € 2.000.000,00</span>
+                                </label>
+                            </span>-->
+                                </div>
+                            </aura:iteration>
+                        </fieldset>
+                    </div> 
+                    <!--END RADIO BUTTON-->
+                </div>
+                <div class="slds-medium-size_12-of-12 slds-col ">
+                    <!--<aura:if isTrue="{!or( or(v.showButtons , v.showOtherInput) ,  v.showNewOrder)}">
+                        
+                        <c:OB_SearchSp_ModificationSp objectDataMap="{!v.objectDataMap}"
+                                                                fiscalCode="{!objectDataMap.merchant.NE__Fiscal_code__c}"
+                                                                showOtherInput="{!v.showOtherInput}"
+                                                                showButtons="{!v.showButtons}"
+                                                                showNewOrder="{!v.showNewOrder}"
+                                                                />
+                        <aura:if isTrue="{!(v.showPvErrorMessage)}" aura:id="errorMessageId">
+                            
+                            <c:SearchMerchantByFiscalCode_alertMessage  />
+                            
+                            
+                            
+                        </aura:if>
+                    </aura:if>-->
+                     <aura:if isTrue="{!v.showErrorIfNoMerchant}">
+                          <c:OB_SearchMerchantModificationSp  />
+                    </aura:if>
+                    
+                    <!--GIOVANNI SPINELLI PROVA INPUT START
+           <div class="slds-medium-size_12-of-12 slds-col ">
+                <c:AutoCompleteComponentPostel/>
+           </div>
+           GIOVANNI SPINELLI PROVA INPUT end-->
+                </div>
+                <!-- </div>   -->
+            </div> 
+        </div>
+    </div>
+</aura:component>

@@ -1,0 +1,20 @@
+<aura:component controller="OB_ContinuationController" access="global" 
+                implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId">
+
+<!--default="com.force.lightning"-->
+    <aura:attribute name="topic" type="String" default="com.force" access="global" />
+    <aura:attribute name="vfBaseURL" type="String" />
+    <aura:attribute name="invocationId" type="String" />
+    <aura:attribute name="requestMerchant" type="Object" />
+
+    <aura:attribute name="message" type="Object" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <aura:method name="invoke" action="{!c.doInvoke}">
+        <aura:attribute name="methodName" type="String" />
+        <aura:attribute name="methodParams" type="Object" />
+        <aura:attribute name="callback" type="String" />
+    </aura:method> 
+    <iframe aura:id="vfFrame" id="vfFrame" src="/apex/OB_ContinuationProxyVF" style="border-width:0!important;height:0;width:0;"/>
+</aura:component>

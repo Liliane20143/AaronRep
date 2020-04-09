@@ -1,0 +1,3 @@
+<aura:event type="APPLICATION" description="Event template">
+    <aura:attribute name="modalClosed" type="Boolean" description="Set true if modal is closed."/>
+</aura:event>

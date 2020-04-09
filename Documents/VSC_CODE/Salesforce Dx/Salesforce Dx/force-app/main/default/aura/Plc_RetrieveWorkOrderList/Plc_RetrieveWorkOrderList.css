@@ -1,0 +1,126 @@
+.THIS .verticalAlign {
+	cursor: pointer;
+	margin: 6px 0px 0px 6px!important;
+}
+
+.THIS .SearchContainer{
+	/*padding-left: 16%;*/
+	background: white;
+	border-radius: .25rem .25rem 0 0;
+}
+
+.THIS #combobox-id-1{
+	height: 79px;
+}
+
+.THIS #combobox-id-2{
+	height: 79px;
+}
+
+.THIS .queryResults{
+	margin-top: 50px;
+}
+
+.THIS #combobox-id-3{
+	height: 79px;
+}
+
+.THIS .resultsContainer{
+	margin-top: 70px;
+	background: white;
+	border-radius: .25rem .25rem 0 0;
+}
+
+.THIS .checkboxContainer{
+	margin-top: 1px;
+}
+
+.THIS #headerContainer{
+	font-weight: 300;
+	font-size: 1.75rem;
+	line-height: 1.25;
+}
+
+.THIS .fullWidth {
+	width: 100% !important;
+}
+
+.THIS .recordListBox {
+	margin-top:0px !important;
+	overflow-y: scroll;
+}
+
+.THIS .inputBox input {
+	padding-left: 30px;
+}
+
+.THIS .inputIcon {
+	z-index: 99;
+}
+
+/* For Scrolling */
+.THIS ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+.THIS ::-webkit-scrollbar-track {
+   display: none !important;
+}
+.THIS ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: rgba(0,0,0,0.4);
+}
+
+.THIS .slds-listbox__item:hover{
+	background: #f3f2f2;	
+}
+
+.THIS .full-height {
+	height: 100% !important;
+}
+
+.THIS .btn_linkProductStock button {
+    border-width: 0px;
+}
+
+.THIS .comboboxValueAll{
+	height: 33px !important;
+	width: auto;
+}
+
+.THIS .comboboxValueClosedAndLines{
+	height: 33px !important;
+	width: 375px !important;
+	/*width: auto;*/
+}
+
+.THIS .comboboxValueOpen{
+	height: 33px !important;
+	/*width: 229px !important;*/
+	width: auto;
+}
+
+.THIS .slds-combobox__input {
+    height: 33px !important;
+}
+
+.THIS .divOfTable{
+	/*max-height: 750px;*/
+	height: calc(100vh - 350px);
+	max-height: calc(100vh - 350px);
+	flex-grow: 1;
+}
+
+.THIS .workOdersFoundLabel{
+	margin-top: auto;
+	margin-bottom: -8px;
+}
+
+.THIS .slds-form-element__icon{
+	/*padding-top: 2px !important;*/
+	padding-top: inherit !important;
+}
+
+.THIS .buttonSearch{
+	margin-top: 23px;
+}

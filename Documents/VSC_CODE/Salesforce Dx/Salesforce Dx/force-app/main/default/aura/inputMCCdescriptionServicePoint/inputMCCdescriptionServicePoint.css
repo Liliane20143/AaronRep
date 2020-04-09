@@ -1,0 +1,17 @@
+.THIS  .lens-search-mcc-button
+{
+    /*width: 51px;*/
+    height: 32px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.THIS .mccdescriptioninput input
+{
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    background:#FFFFFF;
+}
+.THIS .lens-search-mcc-button[disabled] svg
+{
+    color: rgb(221, 219, 218)!important;
+}

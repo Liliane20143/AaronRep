@@ -1,0 +1,27 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" >
+    <aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="objectKey" type="String" default="" access="global"/>
+    <aura:attribute name="identifier" type="String" default="" access="global"/>
+    <aura:attribute name="field" type="Object" default="{}" access="global"/>
+    
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    
+    
+    <div class="slds-grid slds-grid_vertical">
+        <div class="slds-col">Dati inseriti </div>
+        <div class="slds-col">
+            <lightning:input label="Account Name" disabled="true" value="{!v.objectDataMap.merchant.Name}" /> 
+        </div>
+        <div class="slds-col">
+            <lightning:input label="National Insurance Number (NIN)" disabled="true" value="{!v.objectDataMap.merchant.NE__Fiscal_code__c}" /> 
+            
+        </div>
+        <div class="slds-col">
+            <lightning:input label="Value Added Tax (VAT)" disabled="true" value="{!v.objectDataMap.merchant.NE__VAT__c}" /> 
+        </div>
+    </div> 
+    
+</aura:component>

@@ -1,0 +1,262 @@
+<aura:component >
+    <aura:attribute name="isReferral" type="Boolean" default="false" />
+
+    <aura:attribute name="totQty" type="Integer" default="0" />
+    <aura:attribute name="totPOS" type="Decimal" default="0" />
+
+    <aura:attribute name="record" type="BT_Simulation__c" required="true"/>
+    <aura:attribute name="config" type="Object" />
+
+	<c:BT_Section title="{#$Label.c.BT_SezPOSFisici}">
+     <c:dataTable border="both" striped="true" hover="false" variant="inline-edit">
+         <aura:set attribute="header">
+             <c:dataTableRow>
+                 <c:dataTableColumn rendered="{#v.isReferral}" title="{#$Label.c.BT_Codice}" align="center" rowspan="2">{#$Label.c.BT_Codice}</c:dataTableColumn>
+                 <c:dataTableColumn title="{#$Label.c.BT_TerminalePOS}" align="center" rowspan="2">{#$Label.c.BT_TerminalePOS}</c:dataTableColumn>
+                 <c:dataTableColumn title="{#$Label.c.BT_Descrizione}" align="center" rowspan="2">{#$Label.c.BT_Descrizione}</c:dataTableColumn>
+                 <c:dataTableColumn title="{#$Label.c.BT_CanoneMensilePOSConsigliato1 + ' ' + $Label.c.BT_CanoneMensilePOSConsigliato2 + ' ' + $Label.c.BT_CanoneMensilePOSConsigliato3 + ' ' + $Label.c.BT_CanoneMensilePOSConsigliato4}" align="center" rowspan="2">{#$Label.c.BT_CanoneMensilePOSConsigliato1}<br/>{#$Label.c.BT_CanoneMensilePOSConsigliato2}<br/>{#$Label.c.BT_CanoneMensilePOSConsigliato3}<br/>{#$Label.c.BT_CanoneMensilePOSConsigliato4}</c:dataTableColumn>
+                 <c:dataTableColumn rendered="{#not(v.isReferral)}" title="{#$Label.c.BT_OffertaAlMerchant}" align="center">{#$Label.c.BT_OffertaAlMerchant}</c:dataTableColumn>
+                 <c:dataTableColumn title="{#$Label.c.BT_Quantita}" align="center" rowspan="2">{#$Label.c.BT_Quantita}</c:dataTableColumn>
+                 <c:dataTableColumn title="{#$Label.c.BT_TotaleCanoniAlMerchant1 + ' ' + $Label.c.BT_TotaleCanoniAlMerchant2}" align="center" rowspan="2">{#$Label.c.BT_TotaleCanoniAlMerchant1}<br/>{#$Label.c.BT_TotaleCanoniAlMerchant2}</c:dataTableColumn>
+                 <c:dataTableColumn rendered="{#not(v.isReferral)}" title="{#$Label.c.BT_Marginalita}" align="center" rowspan="2">{#$Label.c.BT_Marginalita}
+                     <lightning:helptext content="{#$Label.c.BT_PopPOSCanone}" iconName="utility:info" class="popover"/>
+                 </c:dataTableColumn>
+             </c:dataTableRow>
+             <c:dataTableRow rendered="{#not(v.isReferral)}">
+                 <c:dataTableColumn title="{#$Label.c.BT_CanoneMensile}" align="center">{#$Label.c.BT_CanoneMensile}</c:dataTableColumn>
+             </c:dataTableRow>
+         </aura:set>
+         <c:dataTableRow highlighted="true" rendered="{!or(v.config.BT_Enable_Smartpos__c, v.config.BT_Enable_SmartposCassa__c, v.config.BT_Enable_SmartposPremium__c, v.config.BT_Enable_SmartposCassaPremium__c)}">
+             <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_TerminaliSmartPOS}" textVariant="caps" colspan="7" tdStyleBColor="{!v.tbBackGrey}">{#$Label.c.BT_TerminaliSmartPOS}</c:dataTableColumn>
+         </c:dataTableRow>
+         <c:dataTableRow rendered="{!v.config.BT_Enable_Smartpos__c}">
+             <c:dataTableColumn buffer="left" rendered="{#v.isReferral}" title="{!v.config.BT_Codice_Smartpos__c}" textVariant="caps">{!v.config.BT_Codice_Smartpos__c}</c:dataTableColumn>
+             <c:dataTableColumn buffer="{#v.isReferral ? '' : 'left'}" title="{#$Label.c.BT_SmartPOS}" textVariant="caps">{#$Label.c.BT_SmartPOS}</c:dataTableColumn>
+             <c:dataTableColumn title="{#$Label.c.BT_DescrSmartPOS}" class="pos-descr-column">{#$Label.c.BT_DescrSmartPOS}</c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!v.config.BT_Min_Smartpos__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}" align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_CanMensSmartPos__c}" change="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center" class="has-input"><lightning:input type="number" step="1" min="0" max="100" messageWhenStepMismatch="{#$Label.c.BT_ErrorStepField}" value="{!v.record.BT_QtaSmartPos__c}" onchange="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!empty(v.record.BT_QtaSmartPos__c) ? '' : v.record.BT_CanMensSmartPos__c * v.record.BT_QtaSmartPos__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}">
+                 <aura:if isTrue="{!v.record.BT_QtaSmartPos__c > 0}">
+                     <c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_CanMensSmartPos__c, v.config.BT_Min_Smartpos__c)}" size="xx-small"/>
+                 </aura:if>
+             </c:dataTableColumn>
+         </c:dataTableRow>
+         <c:dataTableRow rendered="{!v.config.BT_Enable_SmartposCassa__c}">
+             <c:dataTableColumn buffer="left" rendered="{#v.isReferral}" title="{!v.config.BT_Codice_SmartposCassa__c}" textVariant="caps">{!v.config.BT_Codice_SmartposCassa__c}</c:dataTableColumn>
+             <c:dataTableColumn buffer="{#v.isReferral ? '' : 'left'}" title="{#$Label.c.BT_SmartPOSCassa}" textVariant="caps">{#$Label.c.BT_SmartPOSCassa}</c:dataTableColumn>
+             <c:dataTableColumn title="{#$Label.c.BT_DescrSmartPOSCassa}" class="pos-descr-column">{#$Label.c.BT_DescrSmartPOSCassa}</c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!v.config.BT_Min_SmartposCassa__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}" align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_CanMensSmartPosCassa__c}" change="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center" class="has-input"><lightning:input type="number" step="1" min="0" max="100" messageWhenStepMismatch="{#$Label.c.BT_ErrorStepField}" value="{!v.record.BT_QtaSmartPosCassa__c}" onchange="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!empty(v.record.BT_QtaSmartPosCassa__c) ? '' : v.record.BT_CanMensSmartPosCassa__c * v.record.BT_QtaSmartPosCassa__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}">
+                 <aura:if isTrue="{!v.record.BT_QtaSmartPosCassa__c > 0}">
+                     <c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_CanMensSmartPosCassa__c, v.config.BT_Min_SmartposCassa__c)}" size="xx-small"/>
+                 </aura:if>
+             </c:dataTableColumn>
+         </c:dataTableRow>
+         <c:dataTableRow rendered="{!v.config.BT_Enable_SmartposPremium__c}">
+             <c:dataTableColumn buffer="left" rendered="{#v.isReferral}" title="{!v.config.BT_Codice_SmartposPremium__c}" textVariant="caps">{!v.config.BT_Codice_SmartposPremium__c}</c:dataTableColumn>
+             <c:dataTableColumn buffer="{#v.isReferral ? '' : 'left'}" title="{#$Label.c.BT_SmartPOSPremium}" textVariant="caps">{#$Label.c.BT_SmartPOSPremium}
+                 <lightning:helptext content="{#$Label.c.BT_POSPopPremium}" iconName="utility:info" class="popover"/>
+             </c:dataTableColumn>
+             <c:dataTableColumn title="{#$Label.c.BT_DescrSmartPOSPremium}" class="pos-descr-column">{#$Label.c.BT_DescrSmartPOSPremium}</c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!v.config.BT_Min_SmartposPremium__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}" align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_CanMensSmartPosPremium__c}" change="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center" class="has-input"><lightning:input type="number" step="1" min="0" max="100" messageWhenStepMismatch="{#$Label.c.BT_ErrorStepField}" value="{!v.record.BT_QtaSmartPosPremium__c}" onchange="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!empty(v.record.BT_QtaSmartPosPremium__c) ? '' : v.record.BT_CanMensSmartPosPremium__c * v.record.BT_QtaSmartPosPremium__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}">
+                 <aura:if isTrue="{!v.record.BT_QtaSmartPosPremium__c > 0}">
+                     <c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_CanMensSmartPosPremium__c, v.config.BT_Min_SmartposPremium__c)}" size="xx-small"/>
+                 </aura:if>
+             </c:dataTableColumn>
+         </c:dataTableRow>
+         <c:dataTableRow rendered="{!v.config.BT_Enable_SmartposCassaPremium__c}">
+             <c:dataTableColumn buffer="left" rendered="{#v.isReferral}" title="{!v.config.BT_Codice_SmartposCassaPremium__c}" textVariant="caps">{!v.config.BT_Codice_SmartposCassaPremium__c}</c:dataTableColumn>
+             <c:dataTableColumn buffer="{#v.isReferral ? '' : 'left'}" title="{#$Label.c.BT_SmartPOSCassaPremium}" textVariant="caps">{#$Label.c.BT_SmartPOSCassaPremium}
+                 <lightning:helptext content="{#$Label.c.BT_POSPopPremium}" iconName="utility:info" class="popover"/>
+             </c:dataTableColumn>
+             <c:dataTableColumn title="{#$Label.c.BT_DescrSmartPOSCassaPremium}" class="pos-descr-column">{#$Label.c.BT_DescrSmartPOSCassaPremium}</c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!v.config.BT_Min_SmartposCassaPremium__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}" align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_CanMensSmartPosCassaPremium__c}" change="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center" class="has-input"><lightning:input type="number" step="1" min="0" max="100" messageWhenStepMismatch="{#$Label.c.BT_ErrorStepField}" value="{!v.record.BT_QtaSmartPosCassaPremium__c}" onchange="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!empty(v.record.BT_QtaSmartPosCassaPremium__c) ? '' : v.record.BT_CanMensSmartPosCassaPremium__c * v.record.BT_QtaSmartPosCassaPremium__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}">
+                 <aura:if isTrue="{!v.record.BT_QtaSmartPosCassaPremium__c > 0}">
+                     <c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_CanMensSmartPosCassaPremium__c, v.config.BT_Min_SmartposCassaPremium__c)}" size="xx-small"/>
+                 </aura:if>
+             </c:dataTableColumn>
+         </c:dataTableRow>
+         <c:dataTableRow highlighted="true" rendered="{!or(v.config.BT_Enable_PosTradSmartPstnEth__c, v.config.BT_Enable_PosCordSmartPstnEth__c, v.config.BT_Enable_PosPortatileGprsSmart__c, v.config.BT_Enable_MobilePosSmart__c, v.config.BT_Enable_PosTradizionalePremium__c, v.config.BT_Enable_PosCordlessWifiPremium__c, v.config.BT_Enable_PosPortatile3gPremium__c)}">
+             <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_TerminaliTradizionali}" textVariant="caps" colspan="7" tdStyleBColor="{!v.tbBackGrey}">{#$Label.c.BT_TerminaliTradizionali}</c:dataTableColumn>
+         </c:dataTableRow>
+         <c:dataTableRow rendered="{!v.config.BT_Enable_PosTradSmartPstnEth__c}">
+             <c:dataTableColumn buffer="left" rendered="{#v.isReferral}" title="{!v.config.BT_Codice_PosTradSmartPstnEth__c}" textVariant="caps">{!v.config.BT_Codice_PosTradSmartPstnEth__c}</c:dataTableColumn>
+             <c:dataTableColumn buffer="{#v.isReferral ? '' : 'left'}" title="{#$Label.c.BT_POSTradizionaleSmart}" textVariant="caps">{#$Label.c.BT_POSTradizionaleSmart}</c:dataTableColumn>
+             <c:dataTableColumn title="{#$Label.c.BT_DescrPOSTradizionaleSmart}" class="pos-descr-column">{#$Label.c.BT_DescrPOSTradizionaleSmart}</c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!v.config.BT_Min_PosTradSmartPstnEth__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}" align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_CanMensPosTradSmart__c}" change="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center" class="has-input"><lightning:input type="number" step="1" min="0" max="100" messageWhenStepMismatch="{#$Label.c.BT_ErrorStepField}" value="{!v.record.BT_QtaPosTradSmart__c}" onchange="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!empty(v.record.BT_QtaPosTradSmart__c) ? '' : v.record.BT_CanMensPosTradSmart__c * v.record.BT_QtaPosTradSmart__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}">
+                 <aura:if isTrue="{!v.record.BT_QtaPosTradSmart__c > 0}">
+                     <c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_CanMensPosTradSmart__c, v.config.BT_Min_PosTradSmartPstnEth__c)}" size="xx-small"/>
+                 </aura:if>
+             </c:dataTableColumn>
+         </c:dataTableRow>
+         <c:dataTableRow rendered="{!v.config.BT_Enable_PosCordSmartPstnEth__c}">
+             <c:dataTableColumn buffer="left" rendered="{#v.isReferral}" title="{!v.config.BT_Codice_PosCordSmartPstnEth__c}" textVariant="caps">{!v.config.BT_Codice_PosCordSmartPstnEth__c}</c:dataTableColumn>
+             <c:dataTableColumn buffer="{#v.isReferral ? '' : 'left'}" title="{#$Label.c.BT_POSCordlessSmart}" textVariant="caps">{#$Label.c.BT_POSCordlessSmart}</c:dataTableColumn>
+             <c:dataTableColumn title="{#$Label.c.BT_DescrPOSCordlessSmart}" class="pos-descr-column">{#$Label.c.BT_DescrPOSCordlessSmart}</c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!v.config.BT_Min_PosCordSmartPstnEth__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}" align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_CanMensPosCordlSmart__c}" change="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center" class="has-input"><lightning:input type="number" step="1" min="0" max="100" messageWhenStepMismatch="{#$Label.c.BT_ErrorStepField}" value="{!v.record.BT_QtaPosCordlSmart__c}" onchange="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!empty(v.record.BT_QtaPosCordlSmart__c) ? '' : v.record.BT_CanMensPosCordlSmart__c * v.record.BT_QtaPosCordlSmart__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}">
+                 <aura:if isTrue="{!v.record.BT_QtaPosCordlSmart__c > 0}">
+                     <c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_CanMensPosCordlSmart__c, v.config.BT_Min_PosCordSmartPstnEth__c)}" size="xx-small"/>
+                 </aura:if>
+             </c:dataTableColumn>
+         </c:dataTableRow>
+         <c:dataTableRow rendered="{!v.config.BT_Enable_PosPortatileGprsSmart__c}">
+             <c:dataTableColumn buffer="left" rendered="{#v.isReferral}" title="{!v.config.BT_Codice_PosPortatileGprsSmart__c}" textVariant="caps">{!v.config.BT_Codice_PosPortatileGprsSmart__c}</c:dataTableColumn>
+             <c:dataTableColumn buffer="{#v.isReferral ? '' : 'left'}" title="{#$Label.c.BT_POSPortatileGPRSSmart}" textVariant="caps">{#$Label.c.BT_POSPortatileGPRSSmart}</c:dataTableColumn>
+             <c:dataTableColumn title="{#$Label.c.BT_DescrPOSPortatileGPRSSmart}" class="pos-descr-column">{#$Label.c.BT_DescrPOSPortatileGPRSSmart}</c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!v.config.BT_Min_PosPortatileGprsSmart__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}" align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_CanMensPosPortGprsSmart__c}" change="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center" class="has-input"><lightning:input type="number" step="1" min="0" max="100" messageWhenStepMismatch="{#$Label.c.BT_ErrorStepField}" value="{!v.record.BT_QtaPosPortGprsSmart__c}" onchange="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!empty(v.record.BT_QtaPosPortGprsSmart__c) ? '' : v.record.BT_CanMensPosPortGprsSmart__c * v.record.BT_QtaPosPortGprsSmart__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}">
+                 <aura:if isTrue="{!v.record.BT_QtaPosPortGprsSmart__c > 0}">
+                     <c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_CanMensPosPortGprsSmart__c, v.config.BT_Min_PosPortatileGprsSmart__c)}" size="xx-small"/>
+                 </aura:if>
+             </c:dataTableColumn>
+         </c:dataTableRow>
+         <c:dataTableRow rendered="{!v.config.BT_Enable_MobilePosSmart__c}">
+             <c:dataTableColumn buffer="left" rendered="{#v.isReferral}" title="{!v.config.BT_Codice_MobilePosSmart__c}" textVariant="caps">{!v.config.BT_Codice_MobilePosSmart__c}</c:dataTableColumn>
+             <c:dataTableColumn buffer="{#v.isReferral ? '' : 'left'}" title="{#$Label.c.BT_MobilePOSSmart}" textVariant="caps">{#$Label.c.BT_MobilePOSSmart}</c:dataTableColumn>
+             <c:dataTableColumn title="{#$Label.c.BT_DescrMobilePOSSmart}" class="pos-descr-column">{#$Label.c.BT_DescrMobilePOSSmart}</c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!v.config.BT_Min_MobilePosSmart__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}" align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_CanMensMobilePosSmart__c}" change="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center" class="has-input"><lightning:input type="number" step="1" min="0" max="100" messageWhenStepMismatch="{#$Label.c.BT_ErrorStepField}" value="{!v.record.BT_QtaMobilePosSmart__c}" onchange="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!empty(v.record.BT_QtaMobilePosSmart__c) ? '' : v.record.BT_CanMensMobilePosSmart__c * v.record.BT_QtaMobilePosSmart__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}">
+                 <aura:if isTrue="{!v.record.BT_QtaMobilePosSmart__c > 0}">
+                     <c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_CanMensMobilePosSmart__c, v.config.BT_Min_MobilePosSmart__c)}" size="xx-small"/>
+                 </aura:if>
+             </c:dataTableColumn>               
+         </c:dataTableRow>
+         <c:dataTableRow rendered="{!v.config.BT_Enable_PosTradizionalePremium__c}">
+             <c:dataTableColumn buffer="left" rendered="{#v.isReferral}" title="{!v.config.BT_Codice_PosTradizionalePremium__c}" textVariant="caps">{!v.config.BT_Codice_PosTradizionalePremium__c}</c:dataTableColumn>
+             <c:dataTableColumn buffer="{#v.isReferral ? '' : 'left'}" title="{#$Label.c.BT_POSTradizionalePremium}" textVariant="caps">{#$Label.c.BT_POSTradizionalePremium}
+                 <lightning:helptext content="{#$Label.c.BT_POSPopPremium}" iconName="utility:info" class="popover"/>
+             </c:dataTableColumn>
+             <c:dataTableColumn title="{#$Label.c.BT_DescrPOSTradizionalePremium}" class="pos-descr-column">{#$Label.c.BT_DescrPOSTradizionalePremium}</c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!v.config.BT_Min_PosTradizionalePremium__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}" align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_CanMensPosTradPremium__c}" change="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center" class="has-input"><lightning:input type="number" step="1" min="0" max="100" messageWhenStepMismatch="{#$Label.c.BT_ErrorStepField}" value="{!v.record.BT_QtaPosTradPremium__c}" onchange="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!empty(v.record.BT_QtaPosTradPremium__c) ? '' : v.record.BT_QtaPosTradPremium__c * v.record.BT_CanMensPosTradPremium__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}">
+                 <aura:if isTrue="{!v.record.BT_QtaPosTradPremium__c > 0}">
+                     <c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_CanMensPosTradPremium__c, v.config.BT_Min_PosTradizionalePremium__c)}" size="xx-small"/>
+                 </aura:if>
+             </c:dataTableColumn>
+         </c:dataTableRow>
+         <c:dataTableRow rendered="{!v.config.BT_Enable_PosCordlessWifiPremium__c}">
+             <c:dataTableColumn buffer="left" rendered="{#v.isReferral}" title="{!v.config.BT_Codice_PosCordlessWifiPremium__c}" textVariant="caps">{!v.config.BT_Codice_PosCordlessWifiPremium__c}</c:dataTableColumn>
+             <c:dataTableColumn buffer="{#v.isReferral ? '' : 'left'}" title="{#$Label.c.BT_POSCordlessWIFIPremium}" textVariant="caps">{#$Label.c.BT_POSCordlessWIFIPremium}
+                 <lightning:helptext content="{#$Label.c.BT_POSPopPremium}" iconName="utility:info" class="popover"/>
+             </c:dataTableColumn>
+             <c:dataTableColumn title="{#$Label.c.BT_DescrPOSCordlessWIFIPremium}" class="pos-descr-column">{#$Label.c.BT_DescrPOSCordlessWIFIPremium}</c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!v.config.BT_Min_PosCordlessWifiPremium__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}" align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_CanMensPosWifiPremium__c}" change="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center" class="has-input"><lightning:input type="number" step="1" min="0"  max="100" value="{!v.record.BT_QtaPosWifiPremium__c}" onchange="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!empty(v.record.BT_QtaPosWifiPremium__c) ? '' : v.record.BT_CanMensPosWifiPremium__c * v.record.BT_QtaPosWifiPremium__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}">
+                 <aura:if isTrue="{!v.record.BT_QtaPosWifiPremium__c > 0}">
+                     <c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_CanMensPosWifiPremium__c, v.config.BT_Min_PosCordlessWifiPremium__c)}" size="xx-small"/>
+                 </aura:if>
+             </c:dataTableColumn>
+         </c:dataTableRow>
+         <c:dataTableRow rendered="{!v.config.BT_Enable_PosPortatile3gPremium__c}">
+             <c:dataTableColumn buffer="left" rendered="{#v.isReferral}" title="{!v.config.BT_Codice_PosPortatile3gPremium__c}" textVariant="caps">{!v.config.BT_Codice_PosPortatile3gPremium__c}</c:dataTableColumn>
+             <c:dataTableColumn buffer="{#v.isReferral ? '' : 'left'}" title="{#$Label.c.BT_POSPortatile3GPremium}" textVariant="caps">{#$Label.c.BT_POSPortatile3GPremium}
+                 <lightning:helptext content="{#$Label.c.BT_POSPopPremium}" iconName="utility:info" class="popover"/>
+             </c:dataTableColumn>
+             <c:dataTableColumn title="{#$Label.c.BT_DescrPOSPortatile3GPremium}" class="pos-descr-column">{#$Label.c.BT_DescrPOSPortatile3GPremium}</c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!v.config.BT_Min_PosPortatile3gPremium__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}" align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_CanMensPos3GPremium__c}" change="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center" class="has-input"><lightning:input type="number" step="1" min="0" max="100" messageWhenStepMismatch="{#$Label.c.BT_ErrorStepField}" value="{!v.record.BT_QtaPos3GPremium__c}" onchange="{!c.onPosTableChange}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{!empty(v.record.BT_QtaPos3GPremium__c) ? '' : v.record.BT_CanMensPos3GPremium__c * v.record.BT_QtaPos3GPremium__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}">
+                 <aura:if isTrue="{!v.record.BT_QtaPos3GPremium__c > 0}">
+                     <c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_CanMensPos3GPremium__c, v.config.BT_Min_PosPortatile3gPremium__c)}" size="xx-small"/>
+                 </aura:if>
+             </c:dataTableColumn>
+         </c:dataTableRow>
+         <c:dataTableRow highlighted="true">
+             <c:dataTableColumn buffer="left" title="{#$Label.c.BT_TotaleCanoniMensili}" textVariant="caps" class="text-bold" colspan="4" tdStyleBColor="{!v.tbBackGrey}">{#$Label.c.BT_TotaleCanoniMensili}</c:dataTableColumn>
+             <c:dataTableColumn align="center" class="text-bold" tdStyleBColor="{!v.tbBackGrey}"><lightning:formattedNumber minimumFractionDigits="0" value="{!v.record.BT_TotaleQPOS__c}"/></c:dataTableColumn>
+             <c:dataTableColumn align="center" class="text-bold" tdStyleBColor="{!v.tbBackGrey}"><lightning:formattedNumber minimumFractionDigits="2" value="{!v.record.BT_TotalePOS__c}" style="currency"/></c:dataTableColumn>
+             <c:dataTableColumn rendered="{#not(v.isReferral)}" tdStyleBColor="{!v.tbBackGrey}"></c:dataTableColumn>
+         </c:dataTableRow>
+     </c:dataTable>
+ </c:BT_Section>
+ <aura:if isTrue="{#v.isReferral}">
+    <div class="offerPosDescription slds-m-bottom_medium">
+        <c:BT_ExpandableSection title="{#$Label.c.BT_MaggioriDettagli}" open="false">
+            <c:dataTable border="row" hover="false" variant="inline-edit">
+                <aura:set attribute="header">
+                    <c:dataTableRow>
+                        <c:dataTableColumn colspan="2">
+                            {#$Label.c.BT_ReferralOffertaPOSHeader}
+                        </c:dataTableColumn>
+                    </c:dataTableRow>
+                </aura:set>
+                <c:dataTableRow>
+                    <c:dataTableColumn class="text-bold">
+                        {#$Label.c.BT_ProfiloSmart}
+                    </c:dataTableColumn>
+                    <c:dataTableColumn>
+                        <lightning:formattedRichText value="{!v.config.BT_DescrizioneProfiloSmart__c}"></lightning:formattedRichText>
+                    </c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn class="text-bold">
+                        {#$Label.c.BT_ProfiloPremium}
+                    </c:dataTableColumn>
+                    <c:dataTableColumn>
+                        <lightning:formattedRichText value="{!v.config.BT_DescrizioneProfiloPremium__c}"></lightning:formattedRichText>
+                    </c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn class="text-bold" textVariant="caps">
+                        {#$Label.c.BT_Promozioni}
+                    </c:dataTableColumn>
+                    <c:dataTableColumn>
+                        <lightning:formattedRichText value="{!v.config.BT_PromozioniPOS__c}"></lightning:formattedRichText>
+                    </c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn class="text-bold" textVariant="caps">
+                        {#$Label.c.BT_CodiceConvenzione}
+                    </c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="offerPosCodesCell">
+                        {!v.config.BT_CodiceOfferta__c}
+                    </c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn class="text-bold" textVariant="caps">
+                        {#$Label.c.BT_CodicePOS}
+                    </c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="offerPosCodesCell">
+                        {!v.record.BT_CodiciPOS__c}
+                    </c:dataTableColumn>
+                </c:dataTableRow>
+            </c:dataTable>
+        </c:BT_ExpandableSection>
+    </div>
+ </aura:if>
+</aura:component>

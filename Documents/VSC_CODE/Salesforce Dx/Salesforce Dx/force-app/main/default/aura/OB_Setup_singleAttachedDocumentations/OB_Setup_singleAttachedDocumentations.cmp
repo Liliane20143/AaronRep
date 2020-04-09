@@ -1,0 +1,51 @@
+<aura:component>
+        <aura:attribute name="singleDoc" type="String"/>
+        <aura:attribute name="toView" type="Boolean" default = "true"/>
+        
+
+
+
+
+
+
+        <tr>
+            <th>
+                <div class="slds-grid slds-gutters  slds-grid_vertical-align-center">
+                    <div class="slds-col slds-size_2-of-9" >
+                        <label aura:id="upLoad" class="slds-button slds-button--brand btn">
+                            {!$Label.c.OB_Upload}
+                            <input aura:id="inputFile"  type="file" style="display:none" onclick="{!c.resetFile}" onchange="{!c.loadDoc}"/>
+                        </label>
+                    </div>
+                    <div class="slds-col slds-size_2-of-9" >
+                        <aura:if isTrue = "{!v.toView}">
+                            <input type="button" aura:id="modification" value ="View"   onclick="{!c.modification}" class="slds-button slds-button--neutral btn" />
+                        </aura:if>
+                    </div>
+                
+                    <div class="slds-col slds-size_2-of-9 myWord">
+                        {!v.singleDoc}
+                    </div>
+                    
+                    <!-- Div of Spinner and flag -->
+                    <div class="slds-col slds-size_1-of-9 slds-col_bump-left myRight">
+                        <lightning:icon aura:id="statusIcon" iconName="action:approval" size="xx-small" class=""/>
+                        <lightning:icon aura:id="errorIcon" iconName="action:close" size="xx-small" class="slds-hide"/>
+                        <div aura:id="spinner" role="status" class="mySpinner slds-spinner slds-spinner_x-small slds-hide">
+                            <div class="slds-spinner__dot-a"></div>
+                            <div class="slds-spinner__dot-b"></div>
+                        </div>
+                    </div>
+                </div> <!-- CONTAINER -->
+                <div aura:id="loadErrorMessage" class="errorMessage slds-hide">
+                    {!$Label.c.OB_DocumentErrorMessage}
+                </div>
+                <div  class="myDiv" aura:id ="container" >
+                    {!v.body}{!v.nameFile}
+                </div> 
+            </th>
+            
+
+        </tr>          <!--   close row -->
+
+</aura:component>

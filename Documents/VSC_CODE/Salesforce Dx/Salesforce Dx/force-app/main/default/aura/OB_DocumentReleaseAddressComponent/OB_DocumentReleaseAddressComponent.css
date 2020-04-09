@@ -1,0 +1,25 @@
+.THIS label
+{
+	white-space: nowrap!important;
+}
+ 
+/*.THIS .slds-has-error
+{
+    background-color: rgb(255, 255, 255)!important;
+    border: 1px solid rgb(221, 219, 218)!important;
+    border-color: rgb(194, 57, 52)!important;
+    box-shadow: rgb(194, 57, 52) 0 0 0 1px inset!important;
+    background-clip: padding-box!important;
+}*/
+.THIS .flow-section-separator
+{
+	height: 1px !important;
+    width: 100% !important;
+    margin-left: -12px !important;
+    padding-right: 0px !important;
+}
+.THIS .flow-section-separator-container
+{
+	margin-left: -12px !important;
+    margin-top: 20px !important;
+}

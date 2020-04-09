@@ -1,0 +1,153 @@
+.THIS#scroll_container{
+    padding-bottom: 80vh;
+    max-width: 95%;
+    margin: auto;
+}
+
+.THIS * {
+    font-family: 'KarbonApp';
+    font-size: .9rem;
+}
+
+.THIS .slds-page-header__title {
+    font-size: 1.25rem;
+}
+
+.THIS .slds-page-header {
+    background: #E0E1DD;
+}
+
+.THIS .slds-form-element__label {
+    font-size: .9rem;
+}
+
+.THIS .slds-text-heading_small * {
+    font-size: 1.25rem;
+}
+
+.THIS .text-bold {
+    font-weight: bold;
+}
+
+/*
+.THIS .slds-table tbody tr > td .slds-input[type='text'], .THIS .slds-table tbody tr > td .slds-input[type='number'] {
+    line-height: 2.35rem;
+}
+
+.THIS .slds-table tbody tr > td .slds-input[type='text']:hover, .THIS .slds-table tbody tr > td .slds-input[type='text']:active .THIS .slds-table tbody tr > td .slds-input[type='text']:focus, 
+.THIS .slds-table tbody tr > td .slds-input[type='number']:hover, .THIS .slds-table tbody tr > td .slds-input[type='number']:active, .THIS .slds-table tbody tr > td .slds-input[type='number']:focus {
+    border-radius: 0;
+    box-shadow: rgb(0, 112, 210) 0 0 0 1px inset;
+}
+*/
+.THIS .slds-table tbody tr > td.slds-cell-edit.cell-higlighted:hover .slds-button__icon_hint {
+    fill: black;
+}
+
+.THIS .slds-table tbody tr > td.slds-cell-edit.cell-higlighted button.slds-button.slds-cell-edit__button.slds-button_icon-bare {
+    color: black;
+}
+/*
+.THIS .slds-table tbody tr > td.has-input {
+    padding: 0;
+}
+*/
+
+.THIS .slds-table tbody tr > td.inline-flex div {
+    display: inline-flex;    
+}
+.THIS .slds-table tbody tr > td.has-input input {
+    width: 5.5rem;
+}
+
+.THIS .slds-table tbody tr > td.has-input lightning-input .slds-form-element__help {
+    white-space: normal;
+}
+
+.THIS .slds-table tbody tr > td lightning-icon.slds-icon_container {
+    padding: .14rem .19rem;
+}
+
+.THIS .slds-table tbody tr > td lightning-icon.slds-icon-utility-warning.slds-icon_container lightning-primitive-icon {
+    top: -0.125rem;
+}
+
+.THIS .slds-table tr > td.half-size {
+    width: 50%;
+}
+
+.THIS.statusbar {
+    z-index: 95;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 0 1.5rem;
+    background-color: white;
+    width: 100%;
+    border-top: 1px solid rgb(224, 225, 221);
+}
+
+.THIS .section-container {
+    padding: 0 3rem;
+}
+
+.THIS .slds-button_brand {
+	background: rgb(0, 184, 222);
+	border: 1px solid rgb(0, 184, 222);
+}
+
+.THIS .slds-button_brand[disabled], 
+.THIS .slds-button_brand:disabled, 
+.THIS .slds-button--brand[disabled], 
+.THIS .slds-button--brand:disabled {
+    background: rgb(201, 199, 197);
+    border-color: rgb(201, 199, 197);
+    cursor: not-allowed;
+}
+
+.THIS .slds-radio_button [type=radio]:checked+.slds-radio_faux, 
+.THIS .slds-radio_button [type=radio]:checked+.slds-radio--faux,
+.THIS .slds-radio_button [type=radio]:checked~.slds-radio_faux, 
+.THIS .slds-radio_button [type=radio]:checked~.slds-radio--faux, 
+.THIS .slds-radio_button [type=radio]:checked+.slds-radio_button__label, 
+.THIS .slds-radio_button [type=radio]:checked+.slds-radio--button__label, 
+.THIS .slds-radio--button [type=radio]:checked+.slds-radio_faux, 
+.THIS .slds-radio--button [type=radio]:checked+.slds-radio--faux, 
+.THIS .slds-radio--button [type=radio]:checked~.slds-radio_faux, 
+.THIS .slds-radio--button [type=radio]:checked~.slds-radio--faux, 
+.THIS .slds-radio--button [type=radio]:checked+.slds-radio_button__label, 
+.THIS .slds-radio--button [type=radio]:checked+.slds-radio--button__label {
+    background-color: rgb(0, 184, 222);
+}
+
+.THIS .slds-button_brand, .THIS .slds-button--brand {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.THIS .slds-button:not(.slds-progress__marker_icon):not(.slds-button_icon) {
+    line-height: 2rem;
+    font-size: 1.1rem;
+}
+
+/*
+.THIS.cProgressIndicator {
+    position: fixed;
+    top: 7.5rem;
+    left: 0;
+    height: 100%;
+}
+
+.THIS.cProgressIndicator .slds-progress_vertical {
+    height: 100%;
+}
+
+.THIS.cProgressIndicator .slds-progress_vertical .slds-progress__list {
+    height: 100%;
+    transform: translateY(-6%);
+}
+
+.THIS.cProgressIndicator .slds-progress_vertical .slds-progress__list .slds-progress__item {
+    height: 25%;
+}
+*/

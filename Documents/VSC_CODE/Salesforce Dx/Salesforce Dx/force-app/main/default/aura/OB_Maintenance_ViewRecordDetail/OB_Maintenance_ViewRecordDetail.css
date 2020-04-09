@@ -1,0 +1,21 @@
+.THIS .close{
+    margin: 1rem;
+    color: white;
+    text-align: center;
+    width: auto;
+    height: auto;
+    white-space: nowrap;
+}
+.THIS .draft{
+    margin: 1rem;
+    color: rgb(0, 153, 222);
+    text-align: center;
+    width: auto;
+    height: auto;
+    white-space: nowrap;
+}
+.THIS .obviewrecordcontainer
+{
+    padding-left: 30px;
+    padding-right: 30px;
+}

@@ -1,0 +1,84 @@
+.THIS {
+}
+
+.THIS .slds-th__action.slds-th__action_form.slds-cell-fixed {
+    display:none;
+}
+
+.THIS .myCustomClass input { 
+    text-align: right;
+}
+
+.THIS.slds-button.slds-button_icon-border {
+    top: 20px;
+}
+
+.THIS.modalContainer{
+    max-width: 70rem !important;
+    width:80% !important;
+}
+
+.THIS.slds-has-error .flow_required{
+    background-color: rgb(255, 255, 255)!important;
+    border: 1px solid rgb(221, 219, 218)!important;
+    border-color: rgb(194, 57, 52)!important;
+    box-shadow: rgb(194, 57, 52) 0 0 0 1px inset!important;
+    background-clip: padding-box!important;
+}
+
+.THIS .slds-button__icon {
+	color: rgba(27, 82, 151, 1.0);
+}
+
+.THIS .lens-search-mccmodal-button
+{
+    width: 51px;
+    height: 32px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.THIS .mccdescriptionmodal input
+{
+    border-top-right-radius: 0!important;
+    border-bottom-right-radius: 0!important;
+}
+.THIS .flow-section-separator
+{
+    height: 1px !important;
+    width: 100% !important;
+    margin-left: -12px !important;
+    padding-right: 0px !important;
+}
+.THIS .flow-section-separator-container
+{
+    margin-left: -12px !important;
+    margin-top: 20px !important;
+}
+.THIS .invalidFiscalCode {
+    color: rgb(194, 57, 52);
+    font-size: 0.8rem;
+}
+.THIS .CountrySelection {
+	width: 105%;
+}
+.THIS .PostalCodeInput{
+	width: 105%;	
+}
+.THIS .whiteSpace{
+  white-space: nowrap;   
+}
+.THIS  .lens-search-mcc-button
+{
+    /*width: 51px;*/
+    height: 32px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.THIS .mccdescriptioninput input
+{
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+.THIS .slds-dropdown-trigger svg {
+    display: none !important;
+}

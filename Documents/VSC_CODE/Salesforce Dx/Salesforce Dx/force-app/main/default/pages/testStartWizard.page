@@ -1,0 +1,20 @@
+<apex:page lightningStylesheets="true" controller="testStartWizardController">  
+    <apex:stylesheet value="{!URLFOR($Resource.bit2flow__SLDS0214 + '/assets/styles/salesforce-lightning-design-system-ltng.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.bit2flow__BIT2FLOW + '/bit2flowStyle.css')}"/>
+    
+    <apex:includeLightning />
+    <div id="lightning" class="bit2flow"/>
+    
+    
+    <script>
+    $Lightning.use("bit2flow:dependencyApp", function() {
+        $Lightning.createComponent("bit2flow:dynWizardMain",    
+                                   { params : "objectId={!ordID},objectType=NE__Order__c,wizardConfigurationId=00P9E0000043PwzUAE,displayMenu=false,inputParameters=NE__AccountId__c::{!accID},sourceVF=true" },
+                                   "lightning",
+                                   function(cmp) {
+                                       // do some stuff
+                                   });
+    });
+    </script>
+    
+</apex:page>

@@ -1,0 +1,6 @@
+.THIS .noShow {
+    display:none;
+}
+.THIS .NEBit2win_BundleConfigurator #quantityBulkContainer{display: none}
+.THIS .NEBit2win_Configurator #quantityBulkContainer{display: none}
+.THIS .NEBit2win_Configurator .showAllFamilyItem:hover{min-width:18.5%}

@@ -1,0 +1,46 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="ModalLookupController" access="global"> 
+    <aura:attribute name="mydata" type="Object"/>
+    <aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="nextCheckout" type="String" default="{!v.objectDataMap.unbind.nextCheckout}" />
+    <aura:attribute name="objectKey" type="String" default="" access="global"/>
+    <aura:attribute name="identifier" type="String" default="" access="global"/>
+    <aura:attribute name="field" type="Object" default="{}" access="global"/> 
+   <!-- <aura:attribute name="lovs" type="NE__Lov__c[]"/> -->
+    <aura:attribute name="type" type="String"/>
+    <aura:attribute name="objectString" type="String"/>
+  <!--  <aura:attribute name="input" type="String"/> -->
+ <!--   <aura:attribute name="showModal" type="Boolean" default="false"/> -->
+    <aura:attribute name="mapOfSourceFieldTargetField" type="Map"/>
+    <aura:attribute name="mapLabelColumns" type="Map" default="{}"/>
+    <aura:attribute name="messageIsEmpty" type="String" default=""/>
+    <aura:attribute name="orderBy" type="String"/> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/> 
+    <aura:handler name="showModalEvent" event="c:modalLookupEvent"
+                  action="{!c.handleShowModalEvent}"/> 
+   
+
+    
+    
+    <div class="slds-grid slds-gutters" style="margin-left: 0.2%;">
+        <div class="slds-col" style="padding-right: 1%;" onkeyup="{!c.formPress}">
+           <span><lightning:input label="MCC" name="searchInput" value="{!v.objectDataMap.puntoVendita.OB_MCC_Description__c}"/></span>
+        </div>
+        <div class="slds-col" style="margin-top: 8.5%; padding-left: 1%;">
+            <span><lightning:buttonIcon iconName="utility:search" size="large" alternativeText="search" onclick="{!c.openModal}"/></span>
+        </div>
+    </div>
+
+    {!v.body}
+ <!--   <aura:if isTrue="{!v.showModal}">  
+        <c:modalLookupWithPagination 
+                       objectString="{!v.objectString}"
+                       type="{!v.type}"
+                       input="{!v.input}"
+                       mapOfSourceFieldTargetField="{!v.mapOfSourceFieldTargetField}"
+                       showModal="{!v.showModal}"
+                       mapLabelColumns="{!v.mapLabelColumns}"
+                       objectDataMap="{!v.objectDataMap}"
+                       messageIsEmpty="{!v.messageIsEmpty}"/> 
+    </aura:if> -->
+</aura:component>

@@ -1,0 +1,70 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="OB_MPR_Saleability_CC">
+    <aura:attribute name="offer"                type="NE__Bundle__c"        access="global"/>
+    <aura:attribute name="renderSeleability"    type="Boolean"              access="global"/>
+    <aura:attribute name="renderOffers"         type="Boolean"              access="global"/>
+    <!--davide.franzini - 15/05/2019 - ConfigureSaleability - START-->
+    <aura:attribute name="Spinner"              type="Boolean"              default="false"/>
+    <aura:attribute name="enableOfferClicked"   type="Boolean"              default="false"/>
+    <aura:attribute name="availableABIList"     type="Object[]"             default="[]"/>
+    <aura:attribute name="activeABIList"        type="List"                 default="[]"/>
+    <aura:attribute name="activeABIObj"         type="Object[]"             default="[]"/>
+    <aura:attribute name="selectedABI"          type="Object[]"             access="global"/>
+    <aura:handler   name="init"                 value="{!this}"             action="{!c.doInit}"/>
+    <aura:handler   event="c:OB_MatrixSelAppEvt" action="{!c.inheritSelectedABI}"/>
+    <!--davide.franzini - 15/05/2019 - ConfigureSaleability - END-->
+
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+
+    <div class="slds-page-header">
+        <a href="" onclick="{!c.backToNexiOffers}">
+            <span class="slds-page-header__title bunble_name_class">
+                <lightning:icon class="arrow" iconName="action:back" size="small" alternativeText="back!" />&nbsp;{!$Label.c.OB_OffersCatalogNEXI} Nexi
+            </span>
+        </a>
+    </div>
+    <div class="slds-page-header">        
+        <h1>
+            <span class="slds-page-header__title slds-truncate" title="Nexi Seleability">{!$Label.c.OB_SaleabilityLinkABI}</span>
+            <hr style="margin-top: 10px; margin-bottom: 10px;"/>
+        </h1>                 
+    </div>
+    <div class="slds-card" style="background-color:white;">
+        <div class="slds-grid slds-wrap slds-gutters">
+            <div class="slds-col slds-size_1-of-3 slds-p-top_xx-large">
+                <ul class="slds-list--vertical slds-has-cards--space slds-list--dotted">
+                    <li class="slds-list__item">{!$Label.c.OB_SelectABIbyButton}  <span><lightning:icon iconName="utility:right" size="small" alternativeText="right!" /></span></li>
+                    <li class="slds-list__item">{!$Label.c.OB_DisableABIbyButton}  <span><lightning:icon iconName="utility:left" size="small" alternativeText="left!" /></span></li>
+                    <li class="slds-list__item">{!$Label.c.OB_ManageOfferItems}</li>
+                </ul>
+                <div class="slds-p-top_xx-large slds-p-left_large">
+                    <lightning:button class="" variant="brand" label="{!$Label.c.OB_SaveConfiguration}" disabled="{!v.enableOfferClicked}" onclick="{!c.handleEnableOffer}" />
+                </div>
+            </div>
+            <!--davide.franzini - 15/05/2019 - ConfigureSaleability - START-->
+            <!-- <div class="slds-col slds-size_2-of-3 slds-p-around_medium">
+                <lightning:dualListbox aura:id="selectAbi" name="Abi Selection"
+                sourceLabel="ELENCO ABI ASSOCIABILI"
+                selectedLabel="ABI SELEZIONATI PER L'OFFERTA"
+                options="{!v.availableABIList}"
+                value="{!v.activeABIList}"
+                onchange="{!c.handleAbiSelection}"/>
+            </div> -->
+            <!--Custom Dueling List Box-->
+            <div class="slds-box">
+                <c:OB_MatrixSaleabilitySelector leftValues="{!v.availableABIList}" rightValues="{!v.activeABIObj}"  />
+            </div>
+            <aura:if isTrue="{!v.enableOfferClicked}">
+                <c:OB_ConfigureOfferProductsSelling bundle="{!v.offer}" ABIlist="{!v.selectedABI}"/>   
+            </aura:if>
+            <!--davide.franzini - 16/05/2019 - ConfigureSaleability - END-->
+        </div>
+    </div>
+</aura:component>

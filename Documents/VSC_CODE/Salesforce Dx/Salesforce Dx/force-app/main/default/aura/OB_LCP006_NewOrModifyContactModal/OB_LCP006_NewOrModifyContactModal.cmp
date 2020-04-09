@@ -1,0 +1,62 @@
+<!--
+ - Created by grzegorz.banach on 03.06.2019.
+ -->
+
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId" access="global">
+
+    <aura:attribute name="oldContact"           type="Object"   access="global"     description="Contact Loaded from DB" />
+    <aura:attribute name="newContact"           type="Object"   access="global"     description="Indicates if component has been initialized" />
+    <aura:attribute name="accountId"            type="String"   access="global"     description = "Account id" />
+    <aura:attribute name="isNewContact"         type="Boolean"  access="global"     default="false" description="Indicates if it is new contact to be inserted" />
+
+    <!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 START-->
+    <aura:attribute name="fiscalCodes"          type="List"     access="global"     description="List of fiscal codes" />
+    <aura:attribute name="hasTheSameFiscalCode" type="Boolean"  access="global"     description="Set to true when fiscal code is repeated"/>
+    <aura:attribute name="showTEmodal"          type="Boolean"  access="global"     description="Hide form modal"/>
+    <!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 STOP-->
+    <!--NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 START-->
+    <aura:attribute name="disabledFields"		type="Object"	access="global" 	default="{}"	description="Object containing info which fields should disabled"/>
+    <!--NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 STOP-->
+
+    <!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 START added aura:if-->
+    <aura:if isTrue="{! !v.hasTheSameFiscalCode }" >
+        <!--NEXI-60 Joanna Mielczarek <joanna.mielczarek@accenture.com 21/07/2019 START changing label -->
+        <c:OB_LCP000_GenericModal headerName="{! v.isNewContact ? $Label.c.OB_NewEffectiveOwner : $Label.c.OB_ModifyEffectiveOwner }"
+                                  saveOrProceedButtonName="{! $Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON }"
+                                  isFooterVisible="false"
+        >
+        <!--NEXI-60 Joanna Mielczarek <joanna.mielczarek@accenture.com 21/07/2019 STOP -->
+            <!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 START-->
+            <c:OB_LCP006_Maintenance_Titolari_Effettivi accountId="{!v.accountId}"
+                                                        oldContact="{!v.oldContact}"
+                                                        newContact="{!v.newContact}"
+                                                        isNewContact="{!v.isNewContact}"
+                                                        fiscalCodes="{! v.fiscalCodes }"
+                                                        hasTheSameFiscalCode="{! v.hasTheSameFiscalCode }"
+                                                        disabledFields="{! v.disabledFields}"
+            />
+            <!--NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com>, 24.06.2019 added disabledFields attribute-->
+            <!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 STOP-->
+        </c:OB_LCP000_GenericModal>
+
+        <aura:set attribute="else">
+            <c:OB_LCP000_GenericModal headerName="{! $Label.c.OB_Warning }"
+                                      isFooterVisible = "false"
+                                      modalStyle ="margin: auto; width: 50%;"
+            >
+                <lightning:layout horizontalAlign="center" verticalAlign="center" multipleRows="true">
+                    <!--NEXI-127 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 27.06.2019 START added class and size to layoutItems-->
+                    <lightning:layoutItem size="12" padding="around-small" class="slds-text-align_center">
+                            {! $Label.c.OB_SameFiscalCodeOfTE }
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" padding="around-small" class="slds-align--absolute-center">
+                        <lightning:button variant="brand" onclick="{! c.closeModal }" label="{! $Label.c.OB_Close }"/>
+                    </lightning:layoutItem>
+                    <!--NEXI-127 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 27.06.2019 STOP-->
+                </lightning:layout>
+            </c:OB_LCP000_GenericModal>
+        </aura:set>
+    </aura:if>
+    <!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 STOP-->
+
+</aura:component>

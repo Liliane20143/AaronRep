@@ -1,0 +1,51 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global">
+
+	<aura:attribute name="objectDataMap" 	type="Object" 	default="{}" access="global"/>
+	<aura:attribute name="hasMessage" 		type="Boolean" 	default="false"/>
+	<aura:attribute name="messagetype" 		type="String" 	default=""/>
+	<aura:attribute name="messagetoshow" 	type="String"	default=""/>
+	<aura:attribute name="cssclasstheme" 	type="String"	default=""/>
+
+	<aura:handler name="change" value="{!v.objectDataMap}" action="{!c.objectDataMapChanges}"/> 
+
+	<aura:if isTrue="{!v.hasMessage}">
+		<div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+			<span class="slds-assistive-text">error</span>
+
+			<!-- ERROR -->
+			<aura:if isTrue="{!v.messagetype=='ERROR'}">
+				<span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small" title="Description of icon when needed">
+				<!-- 	<svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+						<use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#error"></use>
+					</svg> -->
+				</span>
+			</aura:if>
+			<!-- WARNING -->
+			<aura:if isTrue="{!v.messagetype=='WARNING'}">
+				<span class="slds-icon_container slds-icon-utility-warning slds-m-right_x-small" title="Description of icon when needed">
+					<!-- <svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+						<use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#warning"></use>
+					</svg> -->
+				</span>
+			</aura:if>
+			<!-- SUCCESS -->
+			<aura:if isTrue="{!v.messagetype=='SUCCESS'}">
+				<span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small" title="Description of icon when needed">
+					<!-- <svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+						<use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#success"></use>
+					</svg> -->
+				</span>
+			</aura:if>
+
+
+			<h2>{!v.messagetoshow}</h2>
+			<button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close">
+				<!-- <svg class="slds-button__icon" aria-hidden="true">
+					<use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#close"></use>
+				</svg> -->
+				<span class="slds-assistive-text">Close</span>
+			</button>
+		</div>
+	</aura:if>
+
+</aura:component>

@@ -1,0 +1,74 @@
+<!--
+    @author : andrea.morittu@accenture.com
+    @description:   new develop on the new feature 'Show CoBa' button.
+                    It'll show a table containing all Items related to the product
+                    selected in the newCartPriceSummary.
+-->
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global"
+    controller="OB_CustomAssetViewCoBaPricing_CC">
+
+    <aura:attribute name="showCoBaModal" type="Boolean" default="false" access="global" />
+    <aura:attribute name="retrievedItem" type="Object[]" access="global" />
+    <aura:attribute name="isCommunity" type="Boolean" />
+    <aura:attribute name="isOperation" type="Boolean" default="false" />
+    <aura:attribute name="ServicePointSelectedRow" type="String" />
+    <!-- Start  simone.misani@accenture.com R1F2-92 07/05/2019 -->
+    <aura:attribute name="offerAssetid" type="String" />  
+    <aura:attribute name="columnsCoba" type = "List" access="global"/>
+    <aura:attribute name="listCoba" type = "List" access="global"/>
+    <aura:attribute name="order" type="String" /> 
+    <!-- End  simone.misani@accenture.com R1F2-92 07/05/2019 -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+
+    <aura:if isTrue="{!v.showCoBaModal}">
+        <div aura:id="modal" class="modalContainer lightBlueBGC slds-p-around_small" style="height: 640px;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container" style="width: 100%;">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate slds-no-row-hover">
+                            <button
+                                class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse closeModalButton"
+                                title="{!$Label.c.Close}" onclick="{!c.closeModal}"
+                                style="fill: rgb(244, 246, 254)!important;">
+                                <lightning:icon class="closeModalButton" iconName="utility:close" size="x-medium"
+                                    alternativeText="{!$Label.c.Close}" style="fill:rgb(244, 246, 254)!important;" />
+                                <span class="slds-assistive-text">{!$Label.c.Close}</span>
+                            </button>
+                        </h2>
+                        
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium slds-is-relative lightBlueBGC"
+                        style="height: 400px" id="modal-content-id-1">
+                        <aura:if isTrue="{!not(empty(v.retrievedItem))}">
+                            <!-- Start  simone.misani@accenture.com R1F2-92 07/05/2019 -->
+                            <!-- start masoud  zaribaf 10/05/2019 Defect RI-113 remove initialWidth  -->
+                            <lightning:datatable  
+                                                                    class="hideArrows" 
+                                                                    columns="{!v.columnsCoba}" 
+                                                                   
+                                                                    data="{!v.listCoba}" 
+                                                                    keyField="Id" 
+                                                                    aura:id="retrievedItem" 
+                                                                    hideCheckboxColumn="true" 
+                                                                   
+                            /><!-- End  simone.misani@accenture.com R1F2-92 07/05/2019 -->
+                             <!-- end masoud  zaribaf Defect 10/05/2019 RI-113 remove initialWidth  -->
+
+                        </aura:if>
+                    </div>
+                    <footer class="slds-modal__footer slds-modal__footer_directional">
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+
+        
+    </aura:if>
+
+
+
+   
+</aura:component>

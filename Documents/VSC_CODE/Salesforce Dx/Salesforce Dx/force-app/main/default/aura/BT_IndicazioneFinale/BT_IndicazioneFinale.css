@@ -1,0 +1,29 @@
+.THIS .slds-col {
+    flex: 1;
+}
+
+.THIS .box {
+    position: relative;
+    height: 100%;
+    padding: .25rem;
+    border: 1px solid rgb(217, 219, 221);
+    background: rgb(224, 225, 221);
+}
+
+.THIS .box .slds-text-heading_small {
+    min-height: 42px;
+}
+
+.THIS .box .slds-text-heading_small * {
+    font-size: 1.1rem;
+}
+
+.THIS .box lightning-formatted-number, .THIS .box .uiOutputNumber  {
+    font-size: 1.25rem;
+}
+
+.THIS .popover {
+    position: absolute;
+    top: 0;
+    margin-left: .25rem;
+}

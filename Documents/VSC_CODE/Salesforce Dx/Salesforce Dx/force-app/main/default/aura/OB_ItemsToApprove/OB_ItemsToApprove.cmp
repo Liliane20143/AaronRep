@@ -1,0 +1,519 @@
+<aura:component implements="lightning:actionOverride,force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId"
+ controller="OB_ItemsToApprove_CC">
+	
+	<aura:attribute name="contextABI" 				type="String" 	access="global"/>
+	<aura:attribute name="workitems" 				type="Object"  	access="global"/>
+	<aura:attribute name="contextConfigurationId"	type="String"  	access="global" 	default=""/>
+	<aura:attribute name="openModalConfDetails" 	type="Boolean" 	access="global" 	default="false"/>
+	<aura:attribute name="openModalmerchantDetails" 	type="Boolean" 	access="global" 	default="false"/>
+	
+	<!-- START 	micol.ferrari 14/02/2019 - DIFFERENT BEHAVIOUR BIO VS PRICING -->
+	<aura:attribute name="contextOrderHeaderId"		type="String"  	access="global" 	default=""/>
+	<aura:attribute name="contextAccountId"			type="String"  	access="global" 	default=""/>
+	<aura:attribute name="contextApprovalType"		type="String"  	access="global" 	default=""/>
+	<!-- END 	micol.ferrari 14/02/2019 - DIFFERENT BEHAVIOUR BIO VS PRICING -->
+	<!-- START 	giovanni.spinelli 14/02/2019 - ID MERCHANT USE TO QUERY INFORMATION FOR MODAL -->
+	<aura:attribute name="merchantId"			type="String"  	access="global" 	default=""/>
+	<aura:attribute name="actualABI"			type="String"  	access="global" 	default=""/>
+	
+	<aura:attribute name="objectDataModal"		type="Object"  	access="global" 	default="{}"/>
+	
+    	<aura:attribute name="contextCABs" type="Object" access="global" description="User's OB_CAB__c" /> <!-- NEX-006 joanna.mielczarek@accenture.com, 20.03.2019 -->
+ 	<!--Doris D. 28/03/2019... START ..... ATTRIBUTES TO SHOW TOOLTIP MESSAGES-->
+	<aura:attribute name="showMessage"      type="Boolean" default= "false" access="global"/>
+	<aura:attribute name="showMessageCAB"   type="Boolean" default= "false" access="global"/>
+	<aura:attribute name="showMessageData"  type="Boolean" default= "false" access="global"/>
+	<!--Doris D. 28/03/2019... END -->
+	<!--giovanni spinelli 19/07/2019 start-->
+	<aura:attribute name="showRefreshButton" 	type="Boolean" 	access="global" 	default="false"/>
+	<!--giovanni spinelli 19/07/2019 end-->
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+	
+	<div id="items-approval-status-container" class="slds-grid slds-wrap slds-size_1-of-1" >
+		<div class="page-header-container slds-grid slds-wrap slds-size_1-of-1">
+			<div class="slds-size--1-of-1 slds-m-bottom_small slds-page-header">
+				<div class="slds-media">
+					<div class="slds-media__figure">
+						<lightning:icon iconName="standard:approval" size="medium" variant="slds-icon-inverse"></lightning:icon>
+					</div>
+					<div class="slds-media__body">
+						<div class="slds-page-header__title slds-text-heading_small slds-col slds-size_1-of-2">{!$Label.c.OB_ItemsToApprove}</div>
+					</div>
+					
+					
+					<div class="slds-media__figure slds-media__figure_reverse"></div>
+					
+					
+				</div>
+				
+				
+			</div>
+		</div>
+		<!--giovanni spinelli 18/07/2019 add a refresh button in in url there is a filter - start-->
+		<aura:if isTrue="{!v.showRefreshButton}">
+			<div>
+				<lightning:button label="{!$Label.c.OB_Refresh}" iconName="utility:refresh" iconPosition="left"
+					onclick="{!c.refreshPage}" class="refresh_button"/>
+			</div>
+		</aura:if>
+		<!--giovanni spinelli 18/07/2019 add a refresh button in in url there is a filter - end-->
+		
+		<div class="slds-size--1-of-1 workitem-table">
+			<table class="slds-table forceRecordLayout slds-table--header-fixed slds-table--edit slds-table--bordered resizable-cols slds-table--resizable-cols uiVirtualDataTable">
+				<thead>
+					<tr class="slds-text-title--caps">
+                    <!-- NEXI-43 <joanna.mielczarek@accenture.com> 08/05/2019 START changed columns width -->
+                    <th class="initialSortAsc sortable  slds-is-sortable  slds-is-resizable " scope="col" style="width: calc(100%/14*2.5);">
+							<div class="WorkItemClass"><!-- Doris D. 11/04/2019 ....add WorkItemClass--> 
+                                
+                                <!-- Doris D. ****** 27/03/2019 ....START--> 
+								<span  onmouseover="{!c.openTooltip}" onmouseout="{!c.closeTooltip}"  style="position: relative;">	 
+								<!-- Doris D. ****** 27/03/2019 ....END --> 
+								{!$Label.c.OB_WorkItem}
+                                 <!-- Doris D. ****** 27/03/2019 ....START--> 
+								<aura:if isTrue="{!v.showMessage}">	
+										<div class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left  tooltipClassPractical" role="tooltip" id="help" >
+											<div class="slds-popover__body" >
+                                                
+                                                	{!$Label.c.OB_PracticalApprovalTooltip}
+                                                   
+                                            </div>              
+										</div>
+								</aura:if>
+								</span>
+								<!-- Doris D. ****** 27/03/2019 ***** END-->  
+    
+							</div>
+						</th>
+						<th class="initialSortAsc sortable  slds-is-sortable  slds-is-resizable " scope="col" style="width: calc(100%/14*1.5);">
+							<div style="width: 100%;">
+								{!$Label.c.OB_Configuration}
+							</div>
+						</th>
+						<!-- START 	micol.ferrari 	29/11/2018 -->
+						<!-- <th class="initialSortAsc sortable  slds-is-sortable  slds-is-resizable " scope="col" style="width: calc(100%/14*1.5);">
+							<div style="width: 100%;">
+								{!$Label.c.OB_OrderHeader}
+							</div>
+						</th> -->
+						<!--ABI COLUMN GIOVANNI SPINELLI START-->
+						<th class="initialSortAsc sortable  slds-is-sortable  slds-is-resizable " scope="col" style="width: calc(100%/14*1.5);">
+							<div style="width: 100%;">
+								{!$Label.c.ABI}
+							</div>
+						</th>
+						<!--ABI COLUMN GIOVANNI SPINELLI END-->
+
+						<!--CAB COLUMN GIOVANNI SPINELLI START-->
+						<th class="initialSortAsc sortable  slds-is-sortable  slds-is-resizable " scope="col" style="width: calc(100%/14*1);">
+							<div style="width: 100%;">
+                                <!-- Doris D. ****** 27/03/2019 ....START--> 
+								<span  onmouseover="{!c.openTooltipCAB}" onmouseout="{!c.closeTooltipCAB}"  style="position: relative;">	 
+								<!-- Doris D. ****** 27/03/2019 ....END --> 
+								{!$Label.c.CAB}
+                               <!-- Doris D. ****** 27/03/2019 ....START--> 
+								<aura:if isTrue="{!v.showMessageCAB}"  >	
+										<div class="slds-popover  slds-nubbin_bottom-left tooltipClass" role="tooltip" id="help">
+											<div class="slds-popover__body">
+                                               
+                                                    {!$Label.c.OB_ABIcode}
+                                                
+                                            </div>              
+										</div>
+								</aura:if>
+								</span>
+								<!-- Doris D. ****** 27/03/2019 ***** END-->      
+							</div>
+						</th>
+						<!--CAB COLUMN GIOVANNI SPINELLI END-->
+
+						<!--RAGIONE SOCIAL COLUMN GIOVANNI SPINELLI START-->
+						<th class="initialSortAsc sortable  slds-is-sortable  slds-is-resizable " scope="col" style="width: calc(100%/14*1); padding-right: 10px;">
+							<div style="width: 100%;">
+								{!$Label.c.Merchant_Name}
+							</div>
+						</th>
+						<!--RAGIONE SOCIAL COLUMN GIOVANNI SPINELLI END-->
+
+						<!--PARTITA IVA COLUMN GIOVANNI SPINELLI START-->
+						<th class="initialSortAsc sortable  slds-is-sortable  slds-is-resizable " scope="col" style="width: calc(100%/14*1);">
+							<div style="width: 100%;">
+								{!$Label.c.OB_Value_Added_Tax}
+							</div>
+						</th>
+						<!--PARTITA IVA COLUMN GIOVANNI SPINELLI END-->
+
+						<!--CODICE FISCALE COLUMN GIOVANNI SPINELLI START-->
+						<th class="initialSortAsc sortable  slds-is-sortable  slds-is-resizable " scope="col" style="width: calc(100%/14*1);">
+							<div style="width: 100%;">
+								{!$Label.c.OBFiscalCodeContact}
+							</div>
+						</th>
+						<!--CODICE FISCALE COLUMN GIOVANNI SPINELLI END-->
+
+						<!-- TYPE APPROVAL COLUMN __  Doris Tatiana  10/04/2019 START-->
+						<th class="initialSortAsc sortable  slds-is-sortable  slds-is-resizable " scope="col" style="width: calc(100%/14*1);">
+							<div  class="WorkItemClass"><!-- Doris D. 11/04/2019 ....add WorkItemClass--> 
+								{!$Label.c.ApprovalType}
+							</div>
+						</th>
+						<!-- TYPE APPROVAL COLUMN __ Doris Tatiana  10/04/2019 END-->
+
+						<!--CREATED BY COLUMN GIOVANNI SPINELLI START-->
+						<th class="initialSortAsc sortable  slds-is-sortable  slds-is-resizable " scope="col" style="width: calc(100%/14*2);">
+							<div style="width: 100%;">
+								{!$Label.c.OB_Creator}
+							</div>
+						</th>
+						<!--CREATED BY COLUMN GIOVANNI SPINELLI END-->
+
+						<!--CREATED DATE COLUMN GIOVANNI SPINELLI START-->
+						<th class="initialSortAsc sortable  slds-is-sortable  slds-is-resizable " scope="col" style="width: calc(100%/14*2);">
+							<div style="width: 100%;">
+                                <!-- Doris D. ****** 27/03/2019 ....START--> 
+								<span  onmouseover="{!c.openTooltipData}" onmouseout="{!c.closeTooltipData}"  style="position: relative;">	 
+								<!-- Doris D. ****** 27/03/2019 ....END --> 
+								{!$Label.c.OB_CreatedDate}
+                                <!-- Doris D. ****** 27/03/2019 ....START--> 
+								<aura:if isTrue="{!v.showMessageData}">	
+										<span class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left tooltipDateClass" role="tooltip" id="help">
+											<div class="slds-popover__body"> <!-- Doris D. remove font size 10/04/2019 -->
+												<p>{!$Label.c.OB_RequestCreationDate}</p> 
+											</div>              
+										</span>
+								</aura:if>
+								</span>
+								<!-- Doris D. ****** 27/03/2019 ***** END-->       
+							</div>
+						</th>
+
+                    <!-- NEXI-43 <joanna.mielczarek@accenture.com> 08/05/2019 START -->
+                    <th class="initialSortAsc sortable  slds-is-sortable  slds-is-resizable " scope="col" style="width: calc(100%/14*2);">
+							<div style="width: 100%;">
+								{!$Label.c.Status}
+							</div>
+                    </th>
+                    <!-- NEXI-43 <joanna.mielczarek@accenture.com> 08/05/2019 STOP -->
+                    <!-- NEXI-43 <joanna.mielczarek@accenture.com> 08/05/2019 STOP changed columns width -->
+					</tr>
+				</thead>
+
+				<tbody>		
+					<aura:if isTrue="{!!empty(v.workitems)}">				
+						<aura:iteration items="{!v.workitems}" var="workitem">
+							<tr>
+								<td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid--align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal--xx-small forceStatusIcon">												
+												<a href="{!'../s/detail/'+workitem.workItemId}">{!$Label.c.OB_WorkItemApproval}</a>												
+											</div>
+										</div>
+									</span>
+								</td>
+								<td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid--align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal--xx-small forceStatusIcon">
+												<a onclick="{!c.openModalConfigurationDetails}" id="{!workitem.configurationId}">{!workitem.configurationName}</a>
+											</div>
+										</div>
+									</span>
+								</td>
+								<td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid--align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal--xx-small forceStatusIcon">
+												{!workitem.contextABI}
+											</div>
+										</div>
+									</span>
+								</td>
+								<td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid--align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal--xx-small forceStatusIcon">
+												{!workitem.contextCAB}
+											</div>
+										</div>
+									</span>
+								</td>
+								<td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid--align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal--xx-small forceStatusIcon">
+												<a onclick="{!c.openModalMerchantDetails}" id="{!workitem.accountId}">{!workitem.merchantName}</a>
+											</div>
+										</div>
+									</span>
+								</td>
+								<td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid--align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal--xx-small forceStatusIcon">
+												{!workitem.merchantVAT}
+											</div>
+										</div>
+									</span>
+								</td>
+								<td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid--align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal--xx-small forceStatusIcon">
+												{!workitem.merchantFiscalCode}
+											</div>
+										</div>
+									</span>
+								</td>
+								
+								<!-- START 	micol.ferrari 	29/11/2018 -->
+								<!-- <td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid-align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal-xx-small forceStatusIcon">												
+												<a href="{!'../s/order-header/'+workitem.orderHeaderId}">{!workitem.orderHeaderName}</a>
+											</div>
+										</div>
+									</span>
+								</td> -->
+								<!-- END 	micol.ferrari 	29/11/2018 -->
+								<!-- START 	daniele.gandini 	04/02/2019 -->
+								<!-- <td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid-align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal-xx-small forceStatusIcon">
+												{!workitem.orderApprovalType}
+											</div>
+										</div> 
+									</span> 
+								</td> -->
+								<!-- END 	daniele.gandini 	04/02/2019 -->
+
+								<!--Doris D. 09/04/2019....START -->
+								<td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid-align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal-xx-small forceStatusIcon">
+												{!workitem.orderApprovalType}
+											</div>
+										</div> 
+									</span> 
+								</td>
+							<!-- Doris D. 09/04/2019....End -->
+								
+								<td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid--align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal--xx-small forceStatusIcon">
+												{!workitem.configurationCreator}
+											</div>
+										</div>
+									</span>
+								</td>
+								<td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid--align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal--xx-small forceStatusIcon">
+												
+												<ui:outputDate value="{!workitem.creationDate}"/>
+											</div>
+										</div>
+									</span>
+								</td>
+                            <!-- NEXI-43 <joanna.mielczarek@accenture.com> 08/05/2019 START -->
+                            <td class="slds-cell-edit slds-cell-error errorColumn cellContainer">
+									<span class="slds-grid slds-grid--align-spread">
+										<div class="slds-cell-edit errorColumn slds-cell-error">
+											<div class="slds-m-horizontal--xx-small forceStatusIcon">
+
+												<ui:outputDate value="{! workitem.bankOrderStatus }"/>
+											</div>
+										</div>
+									</span>
+                            </td>
+                            <!-- NEXI-43 <joanna.mielczarek@accenture.com> 08/05/2019 STOP -->
+							</tr>
+						</aura:iteration>
+						<aura:set attribute="else">
+							<tr>
+								<td class="table-row_noInteraction" colspan="6">	
+									<ui:outputText value="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_NODATA}" /> 
+								</td>
+							</tr> 
+						</aura:set>			
+					</aura:if>				
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<aura:if isTrue="{!v.openModalConfDetails}">
+		<div aura:id="modal" class="modalContainer">
+			<section 	role="dialog" tabindex="-1"
+						aria-labelledby="{!$Label.Bit2Archetypes.Search}" aria-modal="true"
+						aria-describedby="modal-content-id-1"
+						class="slds-modal slds-fade-in-open">
+				<div class="slds-modal__container">
+					<header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                title="{!$Label.c.Close}" onclick="{!c.closeModalConfigurationDetails}">
+							<lightning:icon iconName="utility:close" size="x-small" alternativeText="{!$Label.c.Close}"/>
+							<span class="slds-assistive-text">{!$Label.c.Close}</span>
+						</button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+							{!$Label.c.OB_ConfigurationDetailsApproval}
+						</h2>
+					</header>
+
+					<div class="slds-modal__content slds-p-around_medium slds-is-relative" style="height: 800px" id="modal-content-id-1">
+						<c:OB_ConfigurationItemDetails recordId="{!v.contextConfigurationId}"/>
+
+						<!-- START 	micol.ferrari 14/02/2019 - #1386 -->
+						<aura:if isTrue="{!v.contextApprovalType=='BIO'}"> 
+                            <c:OB_AttachedDocumentations orderHeaderId="{!v.contextOrderHeaderId}" accountId="{!v.contextAccountId}"
+                                                         itemsToApprove ="true" />
+								<c:OB_ContinuationBrokerComponent/>
+						</aura:if>
+						<!-- END 	micol.ferrari 14/02/2019 - #1386 -->
+					</div>
+					<footer class="slds-modal__footer slds-modal__footer_directional">
+                        <button class="slds-button slds-button_brand" onclick="{!c.closeModalConfigurationDetails}">
+								{!$Label.c.Close}
+						</button>
+					</footer>
+				</div>
+			</section>
+		</div>
+		<div class="slds-backdrop slds-backdrop_open"></div>
+	</aura:if>
+	<!--MERCHANT DETAIL MODAL - GIOVANNI SPINELLI - 21/07/2019 - START-->
+	<aura:if isTrue="{!v.openModalmerchantDetails}">
+		<div aura:id="modal" class="modalContainer">
+				<section 	role="dialog" tabindex="-1"
+							aria-labelledby="{!$Label.Bit2Archetypes.Search}" aria-modal="true"
+							aria-describedby="modal-content-id-1"
+							class="slds-modal slds-fade-in-open">
+					<div class="slds-modal__container">
+						<header class="slds-modal__header">
+							<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="{!$Label.c.Close}" onclick="{!c.closeModalMerchantDetails}">
+								<lightning:icon iconName="utility:close" size="x-small" alternativeText="{!$Label.c.Close}"/>
+								<span class="slds-assistive-text">{!$Label.c.Close}</span>
+							</button>
+							<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!$Label.c.OB_MerchantDetailsApproval}</h2>
+						</header>
+	
+						<div class="slds-modal__content slds-p-around_medium slds-is-relative" style="height: 800px" id="modal-content-id-1">
+								<lightning:accordion aura:id="accordion" activeSectionName="" allowMultipleSectionsOpen="true" > 
+									<!--MERCHANT-->
+										<lightning:accordionSection name="A" label="{!$Label.c.OB_MAINTENANCE_ACCOUNTEDIT_SECTION1}">
+												<div class="slds-grid slds-size--1-of-1" >
+													<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+														<lightning:input value="{!v.objectDataModal.merchant.Name}" label ="{!$Label.c.Merchant_Name}" aura:id="Name" id="Name" disabled="true"/>
+													</div>
+													<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+														<lightning:input value="{!v.objectDataModal.merchant.NE__Fiscal_code__c}" label ="{!$Label.c.OBFiscalCodeContact}" aura:id="NE__Fiscal_code__c" disabled="true"/>
+													</div>
+												</div>
+												<div class="slds-grid slds-size--1-of-1" >
+													<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+														<lightning:input value="{!v.objectDataModal.merchant.NE__VAT__c}" label ="{!$Label.c.OB_Value_Added_Tax}" aura:id="NE__VAT__c" disabled="true" />
+													</div>
+													<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+														<lightning:input value="{!v.objectDataModal.merchant.OB_Legal_Form__c}" label ="{!$Label.c.OB_LegalForm}" aura:id="OB_Legal_Form__c" disabled="true"/>
+													</div>
+												</div>
+										</lightning:accordionSection>
+										<!--SEDE LEGALE-->
+										<lightning:accordionSection name="B" label="{!$Label.c.OB_MAINTENANCE_ACCOUNTEDIT_SECTION2}">
+											<div class="slds-grid slds-size--1-of-1" >
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.contact.Phone}" label ="{!$Label.c.OB_Legal_Address_Phone}" aura:id="Name" id="Name" disabled="true"/>
+												</div>
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.contact.Email}" label ="{!$Label.c.E_Mail}" aura:id="NE__Fiscal_code__c" disabled="true"/>
+												</div>
+											</div>
+											<div class="slds-grid slds-size--1-of-1" >
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_SAE_Code__c}" label ="{!$Label.c.OB_SAE}" aura:id="Name" id="Name" disabled="true"/>
+												</div>
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_ATECO__c}" label ="{!$Label.c.OB_ATECO}" aura:id="NE__Fiscal_code__c" disabled="true"/>
+												</div>
+											</div>
+											<div class="slds-grid slds-size--1-of-1" >
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_CCIAA__c}" label ="{!$Label.c.OB_CCIAA_c}" aura:id="Name" id="Name" disabled="true"/>
+												</div>
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_CCIAA_Province__c}" label ="{!$Label.c.OB_CCIAA_ProvinceLabel}" aura:id="NE__Fiscal_code__c" disabled="true"/>
+												</div>
+											</div>
+											<div class="slds-grid slds-size--1-of-1" >
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_Legal_Address_State__c}" label ="{!$Label.c.OB_Legal_Address_Province}" aura:id="Name" id="Name" disabled="true"/>
+												</div>
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_Legal_Address_City__c}" label ="{!$Label.c.OB_Legal_Address_City}" aura:id="NE__Fiscal_code__c" disabled="true"/>
+												</div>
+											</div>
+											<div class="slds-grid slds-size--1-of-1" >
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_Legal_Address_Hamlet__c}" label ="{!$Label.c.OB_Legal_Address_Details_c}" aura:id="Name" id="Name" disabled="true"/>
+												</div>
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_Legal_Address_Street__c}" label ="{!$Label.c.OB_Legal_Address_Street}" aura:id="NE__Fiscal_code__c" disabled="true"/>
+												</div>
+											</div>
+											<div class="slds-grid slds-size--1-of-1" >
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_Legal_Address_Street_Number__c}" label ="{!$Label.c.OB_Legal_Street_Number}" aura:id="Name" id="Name" disabled="true"/>
+												</div>
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_Legal_Address_ZIP__c}" label ="{!$Label.c.OB_Legal_Address_Postal_Code}" aura:id="NE__Fiscal_code__c" disabled="true"/>
+												</div>
+											</div>
+										</lightning:accordionSection>
+										<!--SEDE AMMINISTRATIVA-->
+										<lightning:accordionSection name="c" label="{!$Label.c.OB_MAINTENANCE_ACCOUNTEDIT_SECTION3}">
+											<div class="slds-grid slds-size--1-of-1" >
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_Administrative_Office_State__c}" label ="{!$Label.c.OB_Administrative_Office_State}" aura:id="Name" id="Name" disabled="true"/>
+												</div>
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_Administrative_Office_City__c}" label ="{!$Label.c.OB_Administrative_Office_City}" aura:id="NE__Fiscal_code__c" disabled="true"/>
+												</div>
+											</div>
+											<div class="slds-grid slds-size--1-of-1" >
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_Administrative_Office_Hamlet__c}" label ="{!$Label.c.OB_Administrative_Office_Address_Details_c}" aura:id="Name" id="Name" disabled="true"/>
+												</div>
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_Administrative_Office_Street__c}" label ="{!$Label.c.OB_Administrative_Office_Street}" aura:id="NE__Fiscal_code__c" disabled="true"/>
+												</div>
+											</div>
+											<div class="slds-grid slds-size--1-of-1" >
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_Administrative_Office_Street_number__c}" label ="{!$Label.c.OB_Administrative_Office_Street_Number}" aura:id="Name" id="Name" disabled="true"/>
+												</div>
+												<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+													<lightning:input value="{!v.objectDataModal.merchant.OB_Administrative_Office_ZIP__c}" label ="{!$Label.c.OB_Administrative_Office_Zip_Code}" aura:id="NE__Fiscal_code__c" disabled="true"/>
+												</div>
+											</div>
+
+										</lightning:accordionSection>
+								</lightning:accordion>
+						</div>
+						<footer class="slds-modal__footer slds-modal__footer_directional">
+							<button class="slds-button slds-button_brand" onclick="{!c.closeModalMerchantDetails}">{!$Label.c.Close}</button>
+						</footer>
+					</div>
+				</section>
+		</div>
+		<div class="slds-backdrop slds-backdrop_open"></div>
+		
+	</aura:if>
+	<!--MERCHANT DETAIL MODAL - GIOVANNI SPINELLI - 21/07/2019 - END-->
+
+</aura:component>

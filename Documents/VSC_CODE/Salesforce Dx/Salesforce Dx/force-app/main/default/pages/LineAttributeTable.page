@@ -1,0 +1,28 @@
+<apex:page StandardController="NE__Order__c" extensions="LineAttributeController" lightningStyleSheets="true">
+    <apex:slds />
+    <div class="slds-scope">
+        <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+            <thead>
+                <tr>
+                    <td><strong>Configuration Items</strong></td>
+                    <td><strong>Item attributes Name</strong></td>
+                    <td><strong>Value</strong></td>
+                </tr>
+            </thead>
+            <apex:repeat value="{!oiList}" var="item"  id="test"> 
+                <tr>
+                    <td>{!item.Name}</td>
+                    <td>
+                        <table style="margin: auto; ">
+                            <apex:repeat value="{!item.NE__Order_Item_Attributes__r}" var="att" id="test1">   
+                                <tr >
+                                    <td >{!att.Name}</td>
+                                </tr>
+                            </apex:repeat> 
+                        </table>
+                    </td>
+                </tr>
+            </apex:repeat>
+        </table>
+    </div>
+</apex:page>

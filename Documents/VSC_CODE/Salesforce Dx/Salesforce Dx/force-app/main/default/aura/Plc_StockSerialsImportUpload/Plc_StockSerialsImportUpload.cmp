@@ -1,0 +1,779 @@
+<!-- Component used to upload serials (Serial Stock 2) contained in a csv file -->
+<aura:component controller="Plc_StockSerialsImportUploadCnt" implements="lightning:isUrlAddressable,force:hasRecordId">
+    <!-- Declaring attributes -->
+    <aura:attribute access="private" name="isEditMode" type="Boolean" default="false" description="Sets whether current mode is edit or insert" />
+    <aura:attribute access="private" name="translationMap" type="Map" default="{}" description="Contains tranlated label got from server call in the init function" />
+    <aura:attribute access="private" name="propertiesMap" type="Map" default="{}" description="Contains some context and utility data" />
+    <aura:attribute access="private" name="warehousesList" type="List" default="[]" description="Contains the list of available warehouses" />
+    <aura:attribute access="private" name="inputFileList" type="Object[]" default="[]" description="Contains data loaded from CSV file retrieved from server" />
+    <aura:attribute access="private" name="showedDataList" type="List" default="[]" description="Contains data showed in the final html table" />
+    <aura:attribute access="private" name="currentShowedDataList" type="List" default="[]" description="Contains current data showed in the table" />
+    <aura:attribute access="private" name="disableSave" type="Boolean" default="false" description="Flag that indicates whether save button is available" />
+    <aura:attribute access="private" name="modelSkuWarehouseToProductStockMap" type="Map" default="{}" 
+                    description="Contains model (SKU) identificator and warehouse with corresponding product stock Id" />
+    <aura:attribute access="private" name="productStockToInsert" type="String" default="" description="Contains Product Stock to insert before saving" />
+    <aura:attribute access="private" name="skuToManufacturerAlias" type="String" default="" description="Matches a found sku to corresponding manufacturer alias" />
+    <aura:attribute access="private" name="rowIndexToExistingIdMap" type="Map" default="{}" description="Matches a row to an existing serial stock record" />
+    <aura:attribute access="private" name="warehouseAliasToWarehouseMap" type="Map" default="{}" description="Matches an alias to related warehouse" />
+    <aura:attribute access="private" name="isAfterSaving" type="Boolean" default="false" description="Flag that indicates whether the user has saved csv data" />
+    <aura:attribute access="private" name="selectedColumnDelimiter" type="String" default="," description="Contains the selected column delimiter"/>
+    <aura:attribute access="private" name="delimiterOptions" type="List" default="[
+                    {'label': ',', 'value': ','},
+                    {'label': ';', 'value': ';'}
+                    ]" 
+                    description="Used to store available column delimiters" />
+    <!-- Declaring attributes for pagination -->
+    <aura:attribute access="private" name="startPage" type="Integer" description="Starting element number of pagination" />
+    <aura:attribute access="private" name="endPage" type="Integer" description="Ending element number of pagination" />
+    <aura:attribute access="private" name="pageSize" type="Integer" default="10" description="Number of items shown in a page" />
+    <!-- Declaring datatable attributes -->
+    <aura:attribute access="private" name="columns" type="List" default="[]" description="Data table columns describer"/>
+    <aura:attribute access="private" name="sortedBy" type="String" description="Selected field for sorting"/>
+    <aura:attribute access="private" name="sortedDirection" type="String" description="Sorting direction for selected field"/>
+    <!-- Declaring handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.handleInit}"/>
+    <!-- BEGIN Component body -->
+    <div class ="slds-card">
+        <!-- BEGIN Spinner -->
+        <div aura:id="main-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+            <lightning:spinner variant="brand" size="large" alternativeText="text"/>
+        </div>
+        <!-- END Spinner -->
+        <!-- BEGIN Component header -->
+        <div class="slds-page-header slds-p-around_medium"> 
+            <div class="slds-media">
+                <div class="slds-media__figure slds-icon">
+                    <lightning:icon iconName="custom:custom24" size="medium" alternativeText="ALTERNATIVE"/>
+                </div>
+                <div class="slds-media__body">
+                    <div class="slds-grid">
+                        <div class="slds-col slds-container_left">
+                            <p class="slds-text-heading_label">
+                                <aura:if isTrue="{!v.isEditMode}">
+                                        {! $Label.c.Plc_AllAllEditMode}
+                                    <aura:set attribute="else">
+                                        {! 'Import ' + v.translationMap.Bit2Shop__Stock_Serials2__c}
+                                    </aura:set>
+                                </aura:if>
+                            </p>
+                            <div class="slds-page-header__title">
+                                <aura:if isTrue="{!v.isEditMode}">
+                                    {! $Label.c.Plc_AllAllUpdate + ' ' + v.translationMap.Bit2Shop__Stock_Serials2__c}
+                                    <aura:set attribute="else">
+                                        {!v.propertiesMap.warehouse.Name}
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </div>
+                        <div class="slds-p-top_x-small slds-grid_align-end slds-float_right">
+                            <lightning:buttonIcon iconName="utility:refresh" variant="border-filled" alternativeText="Refresh" onclick="{!c.handleRefresh}"/>
+                            <lightning:button variant="brand" label="{!$Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsTitle}"
+                                              onclick="{!c.handleShowInstructionsModal}" iconName="utility:help"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Component header -->
+        </div>
+        <!-- BEGIN Upload button area -->
+        <div class="slds-p-around_small">
+            <div class="slds-box">
+                    <div class="slds-align_absolute-center">
+                        <lightning:input aura:id="file" type="file" label="{!v.propertiesMap.fileName}" name="file" multiple="false"
+                                         accept=".csv" onchange="{!c.handleFileInput}"/>
+                        <span class="slds-align-bottom">
+                        <span class="slds-align-bottom slds-p-left_small">
+                            <lightning:buttonIcon iconName="utility:settings" variant="border-filled" onclick="{!c.setSelectorArea}" alternativeText="Csv column delimiter" />
+                        </span>
+                        <div class="slds-truncate slds-align-middle white-background absolute-positioning" style="margin-left:3rem; margin-top:-3.7rem;">
+                            <div class="slds-m-left_small"></div>
+                            <span class="slds-p-left_xx-small"></span>
+                            <section class="{!(v.propertiesMap.showSelectorArea ? 'slds-popover slds-nubbin_left slds-popover_small ' : 'slds-hide')}" style="max-width:11.5rem; margin-left:0.5rem;" role="dialog" aria-label="Note">
+                                <div class="slds-popover__body">
+                                    <span class="slds-text-title">
+                                        {!$Label.c.Plc_LightningComponentStockSerialsImportUploadColumnDelimiter}
+                                    </span>
+                                    <span class="slds-float_right">
+                                        <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.setSelectorArea}" alternativeText="Close" />
+                                    </span>
+                                    <hr style="margin:0.25rem;"/>
+                                    <span class="slds-text-heading_small">
+                                        <lightning:radioGroup 
+                                            name="delimiters"
+                                            options="{!v.delimiterOptions}"
+                                            value="{!v.selectedColumnDelimiter}"
+                                            type="button"/>
+                                    </span>
+                                </div>
+                            </section>
+                            <div class="slds-m-bottom_x-small"></div>
+                        </div>
+                    </span>
+                    </div>
+            </div>  
+        </div>
+        <!-- END Upload button area -->
+        <!-- BEGIN Table -->
+        <aura:if isTrue="{!v.showedDataList.length > 0}">
+            <!--  -->
+            <div class="slds-p-around_small">
+                <!-- BEGIN Table header -->
+                <lightning:card variant="Narrow" title="{!v.showedDataList.length + ' ' + v.translationMap.Bit2Shop__Stock_Serials2__c}" iconName="standard:orders">
+                    <aura:set attribute="actions">
+                        <span class="{!v.isEditMode ? 'slds-text-title slds-text-color_weak' : 'slds-hide'}">
+                            {!$Label.c.Plc_AllAllEditMode}
+                        </span>
+                    </aura:set>
+                    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped slds-card_boundary">
+                        <!-- BEGIN Table header-->
+                        <thead>          
+                            <tr class="slds-text-title_caps"> 
+                                <th scope="col">
+                                    <span class="slds-truncate">
+                                        #
+                                    </span>
+                                </th>
+                                <aura:if isTrue="{!v.isEditMode || v.isAfterSaving }">
+                                    <th scope="col">
+                                        <span class="slds-truncate cell-break-line" >
+                                            {!v.translationMap.SerialStockName}
+                                        </span>
+                                    </th>
+                                </aura:if>
+                                <aura:if isTrue="{!v.isEditMode}">
+                                <!--  -->
+                                    <th scope="col">
+                                        <lightning:layout>
+                                            <lightning:layoutItem size="11">
+                                                <div class="cell-break-line">
+                                                    <a data-record="Bit2Shop__Warehouse_Id__c" 
+                                                       onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                       onmouseout="{!c.handleHeaderOnOut}" class="slds-has-blur-focus">
+                                                        {!v.translationMap.WarehouseName}
+                                                    </a>
+                                                </div>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="1" class="slds-align-middle">
+                                                <aura:if isTrue="{!v.propertiesMap.sortField == 'Bit2Shop__Warehouse_Id__c' ||
+                                                                   v.propertiesMap.onMouseOverField == 'Bit2Shop__Warehouse_Id__c'}">
+                                                    <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                        &#8593;
+                                                        <aura:set attribute="else">
+                                                            &#8595;
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </th>
+                                    <th scope="col">
+                                        <lightning:layout>
+                                            <lightning:layoutItem size="11">
+                                                <div class="cell-break-line">
+                                                    <a data-record="Plc_Alias__c" 
+                                                       onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                       onmouseout="{!c.handleHeaderOnOut}" class="slds-has-blur-focus">
+                                                        {!v.translationMap.Plc_Alias__c}
+                                                    </a>
+                                                </div>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="1" class="slds-align-middle">
+                                                <aura:if isTrue="{!v.propertiesMap.sortField == 'Plc_Alias__c' ||
+                                                                   v.propertiesMap.onMouseOverField == 'Plc_Alias__c'}">
+                                                    <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                        &#8593;
+                                                        <aura:set attribute="else">
+                                                            &#8595;
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </th>
+                                </aura:if>
+                                <th scope="col">
+                                    <lightning:layout>
+                                        <lightning:layoutItem size="11">
+                                            <div class="cell-break-line">
+                                                <a data-record="Plc_ManufacturerSerialNumber__c" 
+                                                   onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                   onmouseout="{!c.handleHeaderOnOut}" class="slds-has-blur-focus">
+                                                    {!v.translationMap.Plc_ManufacturerSerialNumber__c}
+                                                </a>
+                                            </div>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem size="1" class="slds-align-middle">
+                                            <aura:if isTrue="{!v.propertiesMap.sortField == 'Plc_ManufacturerSerialNumber__c' ||
+                                                               v.propertiesMap.onMouseOverField == 'Plc_ManufacturerSerialNumber__c'}">
+                                                <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                    &#8593;
+                                                    <aura:set attribute="else">
+                                                        &#8595;
+                                                    </aura:set>
+                                                </aura:if>
+                                            </aura:if>
+                                        </lightning:layoutItem>
+                                    </lightning:layout>
+                                </th>
+                                <th scope="col">
+                                    <lightning:layout>
+                                        <lightning:layoutItem size="11">
+                                            <div class="cell-break-line">
+                                                <a data-record="Plc_EncodedSerialNumber__c" 
+                                                   onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                   onmouseout="{!c.handleHeaderOnOut}" class="slds-has-blur-focus">
+                                                    {!v.translationMap.Plc_EncodedSerialNumber__c}
+                                                </a>
+                                            </div>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem size="1" class="slds-align-middle">
+                                            <aura:if isTrue="{!v.propertiesMap.sortField == 'Plc_EncodedSerialNumber__c' ||
+                                                               v.propertiesMap.onMouseOverField == 'Plc_EncodedSerialNumber__c'}">
+                                                <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                    &#8593;
+                                                    <aura:set attribute="else">
+                                                        &#8595;
+                                                    </aura:set>
+                                                </aura:if>
+                                            </aura:if>
+                                        </lightning:layoutItem>
+                                    </lightning:layout>
+                                </th>
+                                <th scope="col">
+                                    <lightning:layout>
+                                        <lightning:layoutItem size="11">
+                                            <div class="cell-break-line">
+                                                <a data-record="Plc_DllSerialNumber__c" 
+                                                   onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                   onmouseout="{!c.handleHeaderOnOut}" class="slds-has-blur-focus">
+                                                    {!v.translationMap.Plc_DllSerialNumber__c}
+                                                </a>
+                                            </div>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem size="1" class="slds-align-middle">
+                                            <aura:if isTrue="{!v.propertiesMap.sortField == 'Plc_DllSerialNumber__c' ||
+                                                               v.propertiesMap.onMouseOverField == 'Plc_DllSerialNumber__c'}">
+                                                <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                    &#8593;
+                                                    <aura:set attribute="else">
+                                                        &#8595;
+                                                    </aura:set>
+                                                </aura:if>
+                                            </aura:if>
+                                        </lightning:layoutItem>
+                                    </lightning:layout>
+                                </th>
+                                <th scope="col">
+                                    <lightning:layout>
+                                        <lightning:layoutItem size="11">
+                                            <div class="cell-break-line">
+                                                <a class="slds-has-blur-focus" data-record="Plc_ProductSku__c" 
+                                                   onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                   onmouseout="{!c.handleHeaderOnOut}">
+                                                    {!v.translationMap.Plc_ProductSku__c}
+                                                </a>
+                                            </div>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem size="1" class="slds-align-middle">
+                                            <aura:if isTrue="{!v.propertiesMap.sortField == 'Plc_ProductSku__c' ||
+                                                               v.propertiesMap.onMouseOverField == 'Plc_ProductSku__c'}">
+                                                <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                    &#8593;
+                                                    <aura:set attribute="else">
+                                                        &#8595;
+                                                    </aura:set>
+                                                </aura:if>
+                                            </aura:if>
+                                        </lightning:layoutItem>
+                                    </lightning:layout>
+                                </th>
+                                <aura:if isTrue="{!v.isEditMode == false}">
+                                <!--  -->
+                                    <th scope="col">
+                                        <lightning:layout>
+                                            <lightning:layoutItem size="11">
+                                                <div class="cell-break-line">
+                                                    <a data-record="Bit2Shop__Warehouse_Id__c" 
+                                                       onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                       onmouseout="{!c.handleHeaderOnOut}" class="slds-has-blur-focus">
+                                                        {!v.translationMap.WarehouseName}
+                                                    </a>
+                                                </div>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="1" class="slds-align-middle">
+                                                <aura:if isTrue="{!v.propertiesMap.sortField == 'Bit2Shop__Warehouse_Id__c' ||
+                                                                   v.propertiesMap.onMouseOverField == 'Bit2Shop__Warehouse_Id__c'}">
+                                                    <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                        &#8593;
+                                                        <aura:set attribute="else">
+                                                            &#8595;
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </th>
+                                    <th scope="col">
+                                        <lightning:layout>
+                                            <lightning:layoutItem size="11">
+                                                <div class="cell-break-line">
+                                                    <a data-record="Plc_Alias__c" 
+                                                       onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                       onmouseout="{!c.handleHeaderOnOut}" class="slds-has-blur-focus">
+                                                        {!v.translationMap.Plc_Alias__c}
+                                                    </a>
+                                                </div>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="1" class="slds-align-middle">
+                                                <aura:if isTrue="{!v.propertiesMap.sortField == 'Plc_Alias__c' ||
+                                                                   v.propertiesMap.onMouseOverField == 'Plc_Alias__c'}">
+                                                    <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                        &#8593;
+                                                        <aura:set attribute="else">
+                                                            &#8595;
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </th>
+                                    </aura:if>
+                                    <th scope="col">
+                                        <lightning:layout>
+                                            <lightning:layoutItem size="11">
+                                                <div class="cell-break-line">
+                                                    <a data-record="Bit2Shop__Status__c" 
+                                                       onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                       onmouseout="{!c.handleHeaderOnOut}" class="slds-has-blur-focus">
+                                                        {!v.translationMap.Bit2Shop__Status__c}
+                                                    </a>
+                                                </div>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="1" class="slds-align-middle">
+                                                <aura:if isTrue="{!v.propertiesMap.sortField == 'Bit2Shop__Status__c' ||
+                                                                   v.propertiesMap.onMouseOverField == 'Bit2Shop__Status__c'}">
+                                                    <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                        &#8593;
+                                                        <aura:set attribute="else">
+                                                            &#8595;
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </th>
+                                    <aura:if isTrue="{!v.isEditMode == true}">
+                                        <th scope="col">
+                                            <lightning:layout>
+                                                <lightning:layoutItem size="11">
+                                                    <div class="cell-break-line">
+                                                        <a data-record="Plc_Status2__c" 
+                                                           onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                           onmouseout="{!c.handleHeaderOnOut}" class="slds-has-blur-focus">
+                                                            {!v.translationMap.Plc_Status2__c}
+                                                        </a>
+                                                    </div>
+                                                </lightning:layoutItem>
+                                                <lightning:layoutItem size="1" class="slds-align-middle">
+                                                    <aura:if isTrue="{!v.propertiesMap.sortField == 'Plc_Status2__c' ||
+                                                                       v.propertiesMap.onMouseOverField == 'Plc_Status2__c'}">
+                                                        <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                            &#8593;
+                                                            <aura:set attribute="else">
+                                                                &#8595;
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </aura:if>
+                                                </lightning:layoutItem>
+                                            </lightning:layout>
+                                        </th>
+                                    </aura:if>
+                                    <th scope="col">
+                                        <lightning:layout>
+                                            <lightning:layoutItem size="11">
+                                                <div class="cell-break-line"  >
+                                                    <a data-record="Bit2Shop__Purchase_Price__c" 
+                                                       onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                       onmouseout="{!c.handleHeaderOnOut}" class="slds-has-blur-focus">
+                                                        {!v.translationMap.Bit2Shop__Purchase_Price__c}
+                                                    </a>
+                                                </div>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="1" class="slds-align-middle">
+                                                <aura:if isTrue="{!v.propertiesMap.sortField == 'Bit2Shop__Purchase_Price__c' ||
+                                                                   v.propertiesMap.onMouseOverField == 'Bit2Shop__Purchase_Price__c'}">
+                                                    <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                        &#8593;
+                                                        <aura:set attribute="else">
+                                                            &#8595;
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </th>
+                                    <th scope="col">
+                                        <lightning:layout>
+                                            <lightning:layoutItem size="11">
+                                                <div class="cell-break-line">
+                                                    <a data-record="Plc_PcipedExpiryDate__c" 
+                                                       onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                       onmouseout="{!c.handleHeaderOnOut}" class="slds-has-blur-focus">
+                                                        {!v.translationMap.Plc_PcipedExpiryDate__c}
+                                                    </a>
+                                                </div>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="1" class="slds-align-middle">
+                                                <aura:if isTrue="{!v.propertiesMap.sortField == 'Plc_PcipedExpiryDate__c' ||
+                                                                   v.propertiesMap.onMouseOverField == 'Plc_PcipedExpiryDate__c'}">
+                                                    <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                        &#8593;
+                                                        <aura:set attribute="else">
+                                                            &#8595;
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </th>
+                                    <aura:if isTrue="{!v.isEditMode == false}">
+                                        <th scope="col">
+                                            <lightning:layout>
+                                                <lightning:layoutItem size="11">
+                                                    <div class="cell-break-line">
+                                                        <a data-record="Plc_Note__c" 
+                                                           onclick="{!c.handleSortTableSorting}" onmouseover="{!c.handleHeaderOnOver}"
+                                                           onmouseout="{!c.handleHeaderOnOut}" class="slds-has-blur-focus">
+                                                            {!v.translationMap.Plc_Note__c}
+                                                        </a>
+                                                    </div>
+                                                </lightning:layoutItem>
+                                                <lightning:layoutItem size="1" class="slds-align-middle">
+                                                    <aura:if isTrue="{!v.propertiesMap.sortField == 'Plc_Note__c' ||
+                                                                       v.propertiesMap.onMouseOverField == 'Plc_Note__c'}">
+                                                        <aura:if isTrue="{!v.propertiesMap.sortAsc}">
+                                                            &#8593;
+                                                            <aura:set attribute="else">
+                                                                &#8595;
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </aura:if>
+                                                </lightning:layoutItem>
+                                            </lightning:layout>
+                                        </th>
+                                    </aura:if>
+                                <!--  -->
+                                <th scope="col" colspan="2">
+                                    <span class="slds-truncate cell-break-line">
+                                        {!$Label.c.Plc_AllAllLoadingStatus}
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <!-- END Table header-->
+                        <!-- BEGIN Table footer-->
+                        <tbody>
+                            <aura:iteration items="{!v.currentShowedDataList}" var="showedRow" >
+                                <tr>
+                                    <th scope="row" class="slds-text-title_caps">
+                                        {!showedRow.index}
+                                    </th>
+                                    <aura:if isTrue="{!v.isAfterSaving || v.isEditMode}">
+                                        <td class="cell-break-line">
+                                            <a data-record="{!showedRow.stockSerial.Id}" onclick="{!c.handleIdClick}">
+                                                {!showedRow.stockSerial.Name}
+                                            </a>
+                                        </td>
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.isEditMode}">
+                                        <!--  -->
+                                        <td class="cell-break-line">
+                                            <aura:if isTrue="{!showedRow.Bit2Shop__Warehouse_Id__c.Id != ''}">
+                                                <a data-record="{!showedRow.Bit2Shop__Warehouse_Id__c.Id}" onclick="{!c.handleIdClick}">
+                                                    {!showedRow.Bit2Shop__Warehouse_Id__c.Name}
+                                                </a>
+                                                <aura:set attribute="else">
+                                                    {!showedRow.Bit2Shop__Warehouse_Id__c.Name}
+                                                </aura:set>
+                                            </aura:if>
+                                        </td>
+                                        <td class="cell-break-line">
+                                            {!showedRow.Plc_Alias__c}
+                                        </td>
+                                    </aura:if>
+                                    <td class="cell-break-line">
+                                        {!showedRow.Plc_ManufacturerSerialNumber__c}
+                                    </td>
+                                    <td class="cell-break-line">
+                                        {!showedRow.Plc_EncodedSerialNumber__c}
+                                    </td> 
+                                    <td class="cell-break-line">
+                                        {!showedRow.Plc_DllSerialNumber__c}
+                                    </td>
+                                    <td class="cell-break-line">
+                                        {!showedRow.Plc_ProductSku__c}
+                                    </td>
+                                    <aura:if isTrue="{!v.isEditMode == false}">
+                                        <td class="cell-break-line">
+                                            <aura:if isTrue="{!showedRow.Bit2Shop__Warehouse_Id__c.Id != ''}">
+                                                <a data-record="{!showedRow.Bit2Shop__Warehouse_Id__c.Id}" onclick="{!c.handleIdClick}">
+                                                    {!showedRow.Bit2Shop__Warehouse_Id__c.Name}
+                                                </a>
+                                                <aura:set attribute="else">
+                                                    {!showedRow.Bit2Shop__Warehouse_Id__c.Name}
+                                                </aura:set>
+                                            </aura:if>
+                                        </td>
+                                        <td class="cell-break-line">
+                                            {!showedRow.Plc_Alias__c}
+                                        </td>
+                                    </aura:if>
+                                        <td class="cell-break-line">
+                                            {!showedRow.Bit2Shop__Status__c}
+                                        </td>
+                                    <aura:if isTrue="{!v.isEditMode == true}">
+                                        <td class="cell-break-line">
+                                            {!showedRow.Plc_Status2__c}
+                                        </td>
+                                    </aura:if>
+                                        <td class="cell-break-line">
+                                            {!showedRow.Bit2Shop__Purchase_Price__c}
+                                        </td>
+                                        <td class="cell-break-line">
+                                            {!showedRow.Plc_PcipedExpiryDate__c}
+                                        </td>
+                                    <aura:if isTrue="{!v.isEditMode == false}">
+                                        <td class="cell-break-line">
+                                            {!showedRow.Plc_Note__c}
+                                        </td>
+                                    </aura:if>
+                                    <td style="text-align:center;">
+                                        <lightning:icon iconName="{!showedRow.icon.iconName}" variant="{!showedRow.icon.variant}" 
+                                                        size="{!showedRow.icon.size}"  alternativeText="ALTERNATIVE"/>
+                                    </td>
+                                     <td class="cell-break-line">
+                                        <aura:if isTrue="{!showedRow.errors}">
+                                            <ul class="slds-list--dotted">
+                                                <aura:iteration items="{!showedRow.errors}" var="errorMessage">
+                                                    <li>
+                                                        {!errorMessage}
+                                                    </li>
+                                                </aura:iteration>
+                                            </ul>
+                                        </aura:if>
+                                    </td>           
+                                </tr>
+                            </aura:iteration>
+                        </tbody>
+                        <!-- END Table footer-->
+                    </table>
+                <!--  -->
+                </lightning:card>
+                <!-- END Table header -->
+                <!-- BEGIN Table footer -->
+                <footer class="slds-m-top_x-small">
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_1-of-3">
+                            <lightning:buttonGroup>
+                                <lightning:button label="{!$Label.c.Plc_AllAllFirst}"
+                                                  class="slds-button slds-button_neutral" disabled="{!v.startPage == 0}"
+                                                  onclick="{!c.handleFirst}" >
+                                </lightning:button>
+                                <lightning:button label="{!$Label.c.Plc_AllAllPreviousLabel}" disabled="{!v.startPage == 0}"  
+                                                  onclick="{!c.handlePrevious}" variant="neutral" iconName="utility:back"/>
+                                <lightning:button label="{!$Label.c.Plc_AllAllNextLabel}" disabled="{!v.endPage + 1 >= v.inputFileList.length}" 
+                                                  onclick="{!c.handleNext}" variant="neutral"
+                                                  iconName="utility:forward" iconPosition='right'/>
+                                <lightning:button label="{!$Label.c.Plc_AllAllLast}" 
+                                                  class="slds-button slds-button_neutral" disabled="{!v.endPage + 1 >= v.inputFileList.length}" 
+                                                  onclick="{!c.handleLast}" >
+                                </lightning:button>
+                            </lightning:buttonGroup>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3">
+                            <span class="slds-align_absolute-center slds-text-title">
+                                {!v.startPage + 1} - {!(v.endPage + 1 > v.showedDataList.length) ? v.showedDataList.length : v.endPage + 1 } / {!v.showedDataList.length}
+                            </span>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3">
+                            <lightning:layout multipleRows="true">
+                                <aura:if isTrue="{!v.disableSave == false}">
+                                    <lightning:layoutItem size="12">
+                                        <div class="slds-float_right">
+                                            <lightning:buttonGroup>
+                                                <lightning:button label="{!$Label.c.Plc_AllAllExport}" onclick="{!c.handleExportShowedDatatable}" />
+                                                <lightning:button iconName="utility:save" variant="brand" onclick="{!c.handleSave}"
+                                                                  label="{! v.isEditMode ? $Label.c.Plc_AllAllUpdate + ' ' + v.translationMap.Bit2Shop__Stock_Serials2__c : $Label.c.Plc_AllAllSave + ' ' + v.translationMap.Bit2Shop__Stock_Serials2__c}" />
+                                            </lightning:buttonGroup>
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="12">
+                                        <div class="{!(v.propertiesMap.numberOfWarnings != 0 ? 'warning-color slds-p-top_x-small slds-text-title slds-float_right' : 'slds-hide')}">
+                                            {!format($Label.c.Plc_LightningComponentStockSerialsImportUploadGenericRowsWarningMessage, v.propertiesMap.numberOfWarnings)}
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <aura:set attribute="else">
+                                        <lightning:layoutItem size="12">
+                                            <div class="slds-float_right">
+                                                <lightning:button label="{!$Label.c.Plc_AllAllExport}" onclick="{!c.handleExportShowedDatatable}" />
+                                            </div>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem size="12">
+                                            <div class="{!(v.propertiesMap.numberOfErrors != 0 ? 'slds-text-color_error slds-p-top_x-small slds-text-title slds-float_right' : 'slds-hide')}">
+                                                {!format($Label.c.Plc_LightningComponentStockSerialsImportUploadGenericRowsErrorMessage, v.propertiesMap.numberOfErrors)}
+                                            </div>
+                                        </lightning:layoutItem>
+                                    </aura:set>
+                                </aura:if>
+                            </lightning:layout>
+                      </div>
+                    </div>
+                </footer>
+            </div>
+        </aura:if>
+        <!-- END Table footer -->
+        <!-- END Table -->
+    </div>
+    <!-- BEGIN Modal of instructions -->
+    <section aura:id="modal-instructions" role="dialog" tabindex="-1" class="slds-modal slds-modal_medium">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.handleCloseInstructionsModal}">
+                    <lightning:icon iconName="utility:close" size="medium" alternativeText="alternative"/>
+                </button>
+                <h2 id="modal-heading-01" class="slds-text-heading_medium">
+                    <lightning:icon iconName="{!v.isEditMode ? 'utility:record_update' : 'utility:record_create'}" class="slds-p-right_medium" size="medium"/>
+                    {!(v.isEditMode ? $Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsTitle + ' - ' + $Label.c.Plc_AllAllEditMode: $Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsTitle)}
+                </h2>
+            </header>
+             <div class="slds-modal__content slds-p-around_small">
+                <div class="slds-box slds-theme_default">
+                        <ol class="slds-list-ordered slds-has-dividers_bottom-space">
+                            <li class="slds-item">1)&nbsp;{! (v.isEditMode ? $Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsUpdFirstItem : $Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsFirstItem) + ':'}
+                                <ul>
+                                    <li>
+                                        &nbsp;&nbsp;•&nbsp;&nbsp;{!$Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsSecondItem}
+                                    </li>
+                                    <li>
+                                        &nbsp;&nbsp;•&nbsp;&nbsp;{!$Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsThirdItem}
+                                    </li>
+                                </ul>
+                                {!$Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsFourthItem}:&nbsp;
+                                <a onclick="{!c.handleExportCsvTemplate}">
+                                    Download
+                                </a>
+                                <aura:if isTrue="{!v.isEditMode}">
+                                    <div class="slds-p-top_x-small"/>
+                                    1a)&nbsp;{!$Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsUpdFourthItem1 + ' '}
+                                    <a onclick="{!c.openReportTemplate}">
+                                        {! 'report.' }
+                                    </a>
+                                    {!' ' + $Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsUpdFourthItem2 + ':'}
+                                    <ul>
+                                        <li>
+                                            &nbsp;&nbsp;•&nbsp;&nbsp;{!$Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsUpdFourthItem3}
+                                        </li>
+                                        <li class="slds-item">
+                                            &nbsp;&nbsp;•&nbsp;&nbsp;{!$Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsUpdFourthItem4}
+                                        </li>
+                                        <li class="slds-item">
+                                            &nbsp;&nbsp;•&nbsp;&nbsp;{!$Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsUpdFourthItem5}
+                                        </li>
+                                        <li class="slds-item">
+                                            &nbsp;&nbsp;•&nbsp;&nbsp;{!$Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsUpdFourthItem6}
+                                        </li>
+                                    </ul>
+                                </aura:if>
+                            </li>
+                            <li class="slds-item">
+                                2)&nbsp;{!$Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsFifthItem}
+                            </li>
+                            <li class="slds-item">
+                                3)&nbsp;{! (v.isEditMode ? $Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsUpdSixthItem : $Label.c.Plc_LightningComponentStockSerialsImportUploadInstructionsSixthItem)}
+                            </li>
+                        </ol>
+                </div>            
+            </div>
+            <footer class="slds-modal__footer">
+                <lightning:button variant="brand" label="{!$Label.c.Plc_AllAllClose}" onclick="{!c.handleCloseInstructionsModal}" />
+            </footer>
+        </div>
+    </section>
+    <!-- END Modal of instructions -->
+    <!-- START Modal of selectable warehouses -->
+    <section aura:id="modal-warehouses" role="dialog" tabindex="-1" class="slds-modal slds-modal_large">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium">
+                    {!$Label.c.Plc_LightningComponentStockSerialsImportUploadWarehouseSelectionLabel}
+                </h2>
+            </header>
+            <div class="slds-modal__content">
+                <lightning:layout>
+                    <lightning:layoutItem class="navigation">
+                            <lightning:verticalNavigation selectedItem="ricercaMagazzino">
+                                <lightning:verticalNavigationSection label="{!$Label.c.Plc_AllAllSearchLabel}">
+                                    <lightning:verticalNavigationItemBadge label="{!v.translationMap.Bit2Shop__Warehouse__c}" name="ricercaMagazzino" badgeCount="{!v.warehousesList.length}"/>
+                                </lightning:verticalNavigationSection>
+                            </lightning:verticalNavigation>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem class="layoutContent minimal-window-height slds-scrollable--y">
+                        <lightning:layout multipleRows="true">
+                            <lightning:layoutItem padding="around-small" size="6">
+                            </lightning:layoutItem>
+                            <lightning:layoutItem padding="around-small" size="6">
+                                <div class="slds-grid_align-end slds-float_right">
+                                    <lightning:input name="search-text" type="search" value="{!v.propertiesMap.searchKey}"
+                                                     label="{!$Label.c.Plc_AllAllSearchLabel}" 
+                                                     onchange="{!c.handleWarehousesFilter}" />
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem padding="around-small" size="12">
+                                <!-- Data table container -->
+                                <div class="slds-is-relative">
+                                    <div aura:id="table-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+                                        <lightning:spinner variant="brand" size="medium" alternativeText="text"/>
+                                    </div>
+                                    <lightning:datatable
+                                        aura:id="warehouses-table"
+                                        keyField="Id"
+                                        columns="{!v.columns}"
+                                        data="{!v.warehousesList}"
+                                        sortedBy="{!v.sortedBy}"
+                                        sortedDirection="{!v.sortedDirection}"
+                                        onsort="{!c.handleUpdateWarehouseColumnSorting}"
+                                        onrowselection="{!c.handleUpdateSelectedRows}"
+                                        showRowNumberColumn="true"
+                                        maxRowSelection="1"
+                                        />
+                                    <div class="{!v.propertiesMap.showNoWarehouseIllustration == true ? 'slds-p-top_medium' : 'slds-hide'}">
+                                        <div class="slds-illustration slds-illustration_small" aria-hidden="true">
+                                            <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt=""/>
+                                            <div class="slds-text-color_weak">
+                                                <h3 class="slds-text-heading_small">
+                                                    {!$Label.c.Plc_AllAllNoResultMessage}
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </div>
+            <footer class="slds-modal__footer">
+                <span class="slds-modal__footer_directional"> 
+                    <lightning:button label="{!$Label.c.Plc_AllAllBack}" onclick="{!c.handleCancel}"/>
+                </span>
+                <lightning:button label="{!$Label.c.Plc_LightningComponentStockSerialsImportUploadMultipleSelectFromFileLabel}" 
+                                  onclick="{!c.handleCloseTableModalWithoutWarehouse}" />
+                <lightning:button variant="brand" label="{!$Label.c.Plc_AllAllNextLabel}" disabled="{!empty(v.propertiesMap.warehouse)}"
+                                  onclick="{!c.handleCloseTableModal}" />
+            </footer>
+        </div>
+    </section>
+    <!-- END Modal of selectable warehouses -->
+    <div class="slds-backdrop" aura:id="Modalbackdrop"></div>
+    <!-- END Component body -->
+</aura:component>

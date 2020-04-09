@@ -1,0 +1,95 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+  
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="checkedCategories" type="Boolean"/>
+    <aura:attribute name="visibleCategories" type="ID[]"/>
+    <aura:attribute name="currentCategoryId" type="ID"/>
+    <aura:attribute name="validItems" type="Object[]"/>
+    <aura:attribute name="validBundles" type="Object[]"/>
+    <aura:attribute name="options" type="List"/>
+    <aura:attribute name="offertaId" type="ID"/>
+    <aura:attribute name="offertaHeader" type="String"/>
+    <aura:attribute name="offertaDescription" type="String"/>
+    <aura:attribute name="offertaImage" type="ID"/>
+    <aura:attribute name="fireNextPageEvent" type="Boolean" default="false"/>
+    <aura:attribute name="contextOutput" type="Object"/>
+    <aura:attribute name="spinner" type="boolean" default="true"/>
+    
+    <aura:attribute name="urlImages" type="String" />  
+    <!-- LUBRANO 16/01/2019 Libreria Log -->
+    <ltng:require scripts = "{!$Resource.utils}" afterScriptsLoaded =  "{!c.logInit}" />
+    
+	<!-- <aura:attribute name="offerIsSelected" type="boolean" default="false"/>  -->
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:handler action="{!c.onUpdateContext}" event="NE:Bit2win_Event_UpdateContext" />
+    <aura:registerEvent name="updateContextEvent" type="c:OB_CustomUpdateContextEvent"/> 
+    
+    <div class="u4">
+        <span>{!$Label.c.OB_SelectOfferLabel}</span>
+    </div>
+    <div id="offer_selection" class="slds-grid slds-gutters slds-wrap">
+        <div id="base" class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-small-size_1-of-1 slds-scrollable_y">
+        
+        <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+        </aura:if>
+         
+            <aura:iteration items="{!v.options}" var="option" indexVar="index" >
+                
+                <div class="u43"  data-label="product box">
+                    <div class="u43_div" >
+	                    <div class="{!option.value == v.offertaId?'u59 right':'u44'}" aura:id="options"  id="{!option.value}" name="{!option.label}" data-label="{!option.label}" onclick="{!c.offertaSelected}">
+	                        <span>{!option.label}</span>
+                    <!--  <div class="u45_div"></div> -->
+	                    <span class="{!option.value == v.offertaId?'u45 u46':'u45 hidden'}" data-label="label" id="{!option.value + '_nsc'}" onclick="{!c.hideDettaglio}" >
+	                    	{!$Label.c.OB_CustomHide}
+	                    </span>
+	                    <span class="{!option.value == v.offertaId?'u45 u46 hidden':'u45 hidden'}" data-label="label" id="{!option.value + '_shw'}" onclick="{!c.showDettaglio}" >
+	                    	{!$Label.c.OB_CustomShow}
+	                    </span>
+	                    </div>   	
+                	</div>
+                </div>
+            </aura:iteration>
+    
+        </div>
+        
+        <div id="dettaglio" class="{!v.offertaId != null?'slds-col slds-size_1-of-1 slds-medium-size_2-of-3 slds-small-size_1-of-1 ':'slds-col slds-size_1-of-1 slds-medium-size_2-of-3 slds-small-size_1-of-1 hidden'}">
+            <div class="u86" data-label="label">
+                <p><span><br></br></span></p> <!-- {!v.offertaHeader} Doris D. 13/03/2019-->
+            </div>
+            <div class="u88 tablelineSlim">
+            </div>
+            <div id="detailContainer" class="slds-grid slds-gutters slds-wrap" >
+	            <div class="u110 slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-small-size_1-of-2">
+	                <img src="{!v.urlImages+v.offertaImage}" width="100"/>
+	                 
+	            </div>
+	            <div class="u80 slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-small-size_1-of-2">
+	                <aura:unescapedHtml value="{!v.offertaDescription}" /> 
+	               
+	            </div>
+	            </div>
+	            <div class="u84">
+	                <div class="u112" data-label="tab">
+	                    <p><span class="detailSuggest">{!$Label.c.OB_ToSelectLabel}&nbsp;</span><span class="detailSuggest_bold">{!v.offertaHeader}</span>, <span class="detailSuggest">{!$Label.c.OB_ClickNextLabel}</span></p>
+	                </div>
+            </div>
+            <!--<div style="float:right;margin-top:40px">
+                <lightning:button variant="brand" label="Next" title="Next" onclick="{! c.nextStep }"/>
+            </div>-->
+            
+        </div>
+        
+    </div>
+    
+    <!--  <p id="selected"></p> -->
+   
+</aura:component>

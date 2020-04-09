@@ -1,0 +1,55 @@
+<aura:component controller="OB_ContinuationController">
+
+	
+
+	
+	<aura:attribute name="IdFilenet" type="String"   access="global"/>
+	<aura:attribute name="documentType" type="Object"   access="global"/>
+
+	<aura:attribute name="multipleMapId" type="Map" access="global"/>
+
+
+	<aura:attribute name="Id" 				type="String"  		access="global" />
+	<aura:attribute name="inputText" 		type="String" 		access="global" />
+	<aura:attribute name="orderHeaderId" 	type="String" 		access="global" />
+	<aura:attribute name="listFields" 		type="String[]" 	access="global"/>
+	<aura:attribute name="documentIdMap" 	type="Map" 			access="global"/>
+	<aura:attribute name="IdMap" 			type="Map" 			access="global"/>
+	<aura:attribute name="index" 			type="Integer"  	access="global" default="1"/>
+	<aura:attribute name="fileselect" 		type="Object"/>
+	<aura:attribute name="singleDocument" 	type="String"/>
+	<aura:attribute name="license" 	type="String" />
+	<aura:attribute name="canRemove" 	type="Boolean" default="true"/>
+	<aura:attribute name="fromItemsApprovalStatus" 	type="Boolean" default="false" access = "global"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+	<!-- Start AV 21/02/2019 dont show buttons CARICA and RIMUOVI if ADMIN  [Schema STEFANO MONTORI] -->
+	<aura:attribute name="isAdmin" type="Boolean" default="false" access="global"/> 
+	<aura:attribute name="itemsToApprove" 			type="Boolean" 	default = 'false'	access="global"/>
+	<!-- Start AV 21/02/2019 dont show buttons CARICA and RIMUOVI if ADMIN  [Schema STEFANO MONTORI] -->
+
+	<!-- Start AV 26/02/2019 defect 177 -->
+	<aura:attribute name="inModal"	type="Boolean" 	access="global" 	default="false"/>
+	<!-- end AV 26/02/2019 defect 177 -->
+
+
+	<div class="slds-grid slds-gutters slds-grid_vertical slds-m-vertical_small"> <!---align-center Simone Misani 16/10 R1F3-145-->
+		<!-- Div of BUTTONS -->
+		<div class="slds-col slds-size_1-of-10" >
+			
+		</div>
+		<!-- Div of text Description -->
+		<div class="slds-col slds-size_7-of-10 myWord">
+			{!v.inputText}
+		</div>
+		<!-- Div of Spinner and flag -->
+		<div class="slds-col slds-size_2-of-10 slds-col_bump-left myRight">
+			<input type="button" aura:id="{!v.Id}" value ="{!$Label.c.OB_Visualize}"   onclick="{!c.callService}" class="slds-button slds-button--neutral btn1" />
+			<aura:if isTrue = "{!or(v.inModal,or(v.canRemove, v.fromItemsApprovalStatus))}">
+				<input type="button" id = "btnRemove" aura:id="{!v.Id}" value ="{!$Label.c.OB_Remove}"   onclick="{!c.delete}" class="slds-button slds-button_brand btn2" />
+			</aura:if>
+
+		</div>
+
+	</div> <!-- CONTAINER -->
+</aura:component>

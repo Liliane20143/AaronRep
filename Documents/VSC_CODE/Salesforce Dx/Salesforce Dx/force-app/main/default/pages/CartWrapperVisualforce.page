@@ -1,0 +1,35 @@
+<apex:page controller="CartWrapperController" >  
+    
+    
+    <apex:includeLightning />
+    <div id="lightning" />   
+    
+   <!-- <apex:outputText style="font-style:italic" value="OrderId: {!orderIdFromUrl}" /> -->
+    
+    <script>    
+    
+    var id = '{!orderIdFromUrl}';
+    
+    //$Lightning.use( "c:Bit2win_LightningCart", function(){
+    $Lightning.use( "c:CartWrapper", function(){  
+        
+        /*
+        
+        $Lightning.createComponent("NE:Bit2win_Cart",{orderId:id} ,"lightning", function(cmp){console.log("Component is created!");}); 
+        $Lightning.createComponent("NE:Bit2win_Messages",{orderId:id} ,"lightning", function(cmp){console.log("Component is created!");}); 
+        $Lightning.createComponent("NE:Bit2win_Catalog",{orderId:id} ,"lightning", function(cmp){console.log("Component is created!");}); 
+        */
+        
+        $Lightning.createComponent("NE:B2WGin_Core_Engine",{accId:id}, "lightning", function(cmp){console.log("Component is created!");});
+        $Lightning.createComponent("NE:Bit2win_ConfigurationInfo",{accId:id}, "lightning", function(cmp){console.log("Component is created!");});
+        $Lightning.createComponent("NE:Bit2win_Catalog",{accId:id}, "lightning", function(cmp){console.log("Component is created!");});
+        $Lightning.createComponent("NE:Bit2win_Configurator",{accId:id}, "lightning", function(cmp){console.log("Component is created!");});
+        $Lightning.createComponent("NE:Bit2win_Cart",{accId:id}, "lightning", function(cmp){console.log("Component is created!");});
+        $Lightning.createComponent("NE:Bit2win_BundleConfigurator",{accId:id}, "lightning", function(cmp){console.log("Component is created!");});
+        $Lightning.createComponent("NE:Bit2win_ProductDescription",{accId:id}, "lightning", function(cmp){console.log("Component is created!");});      
+        
+    });
+     
+    </script>
+    
+</apex:page>

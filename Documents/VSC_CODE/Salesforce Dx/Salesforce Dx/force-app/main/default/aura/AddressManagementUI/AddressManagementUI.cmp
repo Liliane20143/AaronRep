@@ -1,0 +1,141 @@
+<aura:component  controller="AddressManagementCN" access="global" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes">
+
+    <!-- GLOBAL ATTRIBUTES -->
+    <aura:attribute name="cmpParams" type="Map" access="global" default="{AccountEC__c: '66361326-0303-9289-1051-536938492753'}" description="The map that will be passed in input to the component"/>
+
+    <!-- PUBLIC ATTRIBUTES -->
+    <aura:attribute name="objAddress" type="Map" access="public" default="{}" description="The Address object that will be created, readed or edited. "/>
+    <aura:attribute name="objJunction" type="Map" access="public" default="{}" description="The address junction object that will be created" />
+    <aura:attribute name="addressType" type="String" access="public" default="" description="The type of the address."/>
+    <aura:attribute name="isEmbedded" access="public" type="Boolean" default="true" description="Boolean for define embedded or stand alone address component." />
+
+    <!-- PRIVATE ATTRIBUTES -->
+    <aura:attribute name="showForm" type="Boolean" access="private" default="false" description="Boolean to show or not the form."/>
+    <aura:attribute name="selectedTabId" type="String" access="private" default="addressNewTab" description="Contain the id of the selected tab."/>
+    <aura:attribute name="objAddressSchema" type="Map" access="private" description="Map containing the skeleton of the object's structure"/>
+    <aura:attribute name="objJunctionSchema" type="Map" access="private" description="Map containing the skeleton of the object's structure"/>
+    <aura:attribute name="objJunctionPicklist" type="Map" access="private" description="Map containing information about AddressJunction picklists."/>
+    <aura:attribute name="filteredOptions" type="String[]"/>
+
+    <!-- AURA EVENTS -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" description="Method invoked upon landing on the page"/>
+
+    <!-- AURA METHODS -->
+    <aura:method name="validateObjAddress" action="{!c.validateObjAddress}"/>
+    <aura:method name="refreshObjAddress" action="{!c.doInit}"/>
+
+     <!-- MODIFIED EMBEDDED HERE -->
+    <aura:if isTrue="{!v.isEmbedded}">
+        <lightning:layout horizontalAlign="center" multipleRows="true">
+            <aura:if isTrue="{!v.objAddressSchema.StreetName__c != null}">
+                <lightning:layoutItem flexibility="auto" padding="around-small" largeDeviceSize="6" mediumDeviceSize="4" smallDeviceSize="12" size="12">
+                    <lightning:input aura:id="adrStreetName" value="{!v.objAddress.StreetName__c}" maxlength="255" label="{!v.objAddressSchema.StreetName__c.label}"
+                        readonly="{!!v.objAddressSchema.StreetName__c.updateable}" required="{!!v.objAddressSchema.StreetName__c.nillable}" onchange="{!c.autocompleteAddress}"/>
+                </lightning:layoutItem>
+            </aura:if>
+
+            <aura:if isTrue="{!v.objAddressSchema.StreetNumber__c != null}">
+                <lightning:layoutItem flexibility="auto" padding="around-small" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12" size="12">
+                    <lightning:input aura:id="adrStreetNumber" value="{!v.objAddress.StreetNumber__c}" maxlength="10" label="{!v.objAddressSchema.StreetNumber__c.label}"
+                        readonly="{!!v.objAddressSchema.StreetNumber__c.updateable}" required="{!!v.objAddressSchema.StreetNumber__c.nillable}"/>
+                </lightning:layoutItem>
+            </aura:if>
+
+            <aura:if isTrue="{!v.objAddressSchema.Building__c != null}">
+                <lightning:layoutItem flexibility="auto" padding="around-small" largeDeviceSize="3" mediumDeviceSize="6" smallDeviceSize="12" size="12">
+                    <lightning:input aura:id="adrBuilding" value="{!v.objAddress.Building__c}" maxlength="50" label="{!v.objAddressSchema.Building__c.label}"
+                        readonly="{!!v.objAddressSchema.Building__c.updateable}" required="{!!v.objAddressSchema.Building__c.nillable}"/>
+                </lightning:layoutItem>
+            </aura:if>
+
+            <!-- START API GOOGLE -->
+            <div aura:id="addressSuggestion" id="listbox-unique-id" role="listbox" class="slds-hide">
+                <ul class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid "
+                    role="presentation">
+                    <aura:iteration items="{!v.filteredOptions}" var="option" indexVar="index" >
+                        <li aura:id="selectedAddress" role="presentation"
+                        class="slds-listbox__item"
+                        onclick="{!c.selectOption}"
+                        data-value="{!option.value}"
+                        data-record="{!index}"
+                        data-placeid="{!option.PlaceId}"
+                        data-locaval="{!option.locaval}"
+                        >
+
+                        <span id="listbox-option-unique-id-01"
+                        class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta"
+                        role="option">
+                        <span class="slds-media__body">
+                        <span class="slds-listbox__option-text slds-listbox__option-text_entity">{!option.label}</span>
+                        </span>
+                        </span>
+                        </li>
+                        </aura:iteration>
+                </ul>
+            </div>
+            <!-- END API GOOGLE -->
+
+            <aura:if isTrue="{!v.objAddressSchema.Stair__c != null}">
+                <lightning:layoutItem flexibility="auto" padding="around-small" largeDeviceSize="3" mediumDeviceSize="6" smallDeviceSize="12" size="12">
+                    <lightning:input aura:id="adrStair" maxlength="10" value="{!v.objAddress.Stair__c}" label="{!v.objAddressSchema.Stair__c.label}"
+                        readonly="{!!v.objAddressSchema.Stair__c.updateable}" required="{!!v.objAddressSchema.Stair__c.nillable}"/>
+                </lightning:layoutItem>
+            </aura:if>
+
+            <aura:if isTrue="{!v.objAddressSchema.ApartmentFloor__c != null}">
+                <lightning:layoutItem flexibility="auto" padding="around-small" largeDeviceSize="3" mediumDeviceSize="6" smallDeviceSize="12" size="12">
+                    <lightning:input aura:id="adrApartmentFloor" value="{!v.objAddress.ApartmentFloor__c}" maxlength="10" label="{!v.objAddressSchema.ApartmentFloor__c.label}"
+                        readonly="{!!v.objAddressSchema.ApartmentFloor__c.updateable}" required="{!!v.objAddressSchema.ApartmentFloor__c.nillable}"/>
+                </lightning:layoutItem>
+            </aura:if>
+
+            <aura:if isTrue="{!v.objAddressSchema.ApartmentNumber__c != null}">
+                <lightning:layoutItem flexibility="auto" padding="around-small" largeDeviceSize="3" mediumDeviceSize="6" smallDeviceSize="12" size="12">
+                    <lightning:input aura:id="adrApartmentNumber" value="{!v.objAddress.ApartmentNumber__c}" maxlength="10" label="{!v.objAddressSchema.ApartmentNumber__c.label}"
+                        readonly="{!!v.objAddressSchema.ApartmentNumber__c.updateable}" required="{!!v.objAddressSchema.ApartmentNumber__c.nillable}"/>
+                </lightning:layoutItem>
+            </aura:if>
+
+            <aura:if isTrue="{!v.objAddressSchema.ZipCode__c != null}">
+                <lightning:layoutItem flexibility="auto" padding="around-small" largeDeviceSize="2" mediumDeviceSize="6" smallDeviceSize="12" size="12">
+                    <lightning:input aura:id="adrZipCode" value="{!v.objAddress.ZipCode__c}" maxlength="10" label="{!v.objAddressSchema.ZipCode__c.label}"
+                        readonly="{!!v.objAddressSchema.ZipCode__c.updateable}" required="{!!v.objAddressSchema.ZipCode__c.nillable}"/>
+                </lightning:layoutItem>
+            </aura:if>
+
+            <aura:if isTrue="{!v.objAddressSchema.City__c != null}">
+                <lightning:layoutItem flexibility="auto" padding="around-small" largeDeviceSize="4" mediumDeviceSize="6" smallDeviceSize="12" size="12">
+                    <lightning:input aura:id="adrCity" value="{!v.objAddress.City__c}" maxlength="255" label="{!v.objAddressSchema.City__c.label}"
+                        readonly="{!!v.objAddressSchema.City__c.updateable}" required="{!!v.objAddressSchema.City__c.nillable}"/>
+                </lightning:layoutItem>
+            </aura:if>
+
+            <aura:if isTrue="{!v.objAddressSchema.IsNormalized__c != null}">
+                <div aura:id="adrNormalized">
+                    <lightning:layoutItem flexibility="auto" padding="around-medium" class="slds-hide">
+                        <lightning:input type="checkbox" aura:id="adrIsNormalized" checked="{!v.objAddress.IsNormalized__c}" label="{!v.objAddressSchema.IsNormalized__c.label}"
+                            readonly="{!!v.objAddressSchema.IsNormalized__c.updateable}" />
+                    </lightning:layoutItem>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!v.objAddressSchema.Province__c != null}">
+                <lightning:layoutItem flexibility="auto" padding="around-small" largeDeviceSize="3" mediumDeviceSize="6" smallDeviceSize="12" size="12">
+                    <lightning:input aura:id="adrProvince" value="{!v.objAddress.Province__c}" maxlength="255" label="{!v.objAddressSchema.Province__c.label}"
+                     required="{!!v.objAddressSchema.Province__c.nillable}"/>
+                </lightning:layoutItem>
+            </aura:if>
+            <aura:if isTrue="{!v.objAddressSchema.Country__c != null}">
+                <lightning:layoutItem flexibility="auto" padding="around-small" largeDeviceSize="3" mediumDeviceSize="6" smallDeviceSize="12" size="12">
+                    <lightning:input aura:id="adrCountry" value="{!v.objAddress.Country__c}" maxlength="255" label="{!v.objAddressSchema.Country__c.label}"
+                         required="{!!v.objAddressSchema.Country__c.nillable}"/>
+                </lightning:layoutItem>
+                </aura:if>
+            <aura:if isTrue="{!v.objAddressSchema.Notes__c != null}">
+                <lightning:layoutItem flexibility="auto" padding="around-small" largeDeviceSize="12" mediumDeviceSize="12" smallDeviceSize="12" size="12">
+                    <lightning:input aura:id="adrNotes" value="{!v.objAddress.Notes__c}" maxlength="255" label="{!v.objAddressSchema.Notes__c.label}"
+                        readonly="{!!v.objAddressSchema.Notes__c.updateable}" required="{!!v.objAddressSchema.Notes__c.nillable}"/>
+                </lightning:layoutItem>
+            </aura:if>
+        </lightning:layout>
+    </aura:if>
+</aura:component>

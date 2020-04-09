@@ -1,0 +1,21 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" 
+	            controller="OB_EsecutoreCmpController">
+
+	<aura:attribute name="wizardWrapper"            type="Object"    default="{}"    access="global"/>
+    <aura:attribute name="objectDataMap"            type="Object"    default="{}"    access="global"/>
+    <aura:attribute name="accId"                    type="String"    default="{!v.objectDataMap.merchant.Id}" /> 
+    <aura:attribute name="nextCheckout"             type="String"    default="{!v.objectDataMap.unbind.nextCheckout}" />
+    <aura:attribute name="objectKey"                type="String"    default=""      access="global"/>
+    <aura:attribute name="identifier"               type="String"    default=""      access="global"/>
+    <aura:attribute name="field"                    type="Object"    default="{}"    access="global"/>
+
+     <aura:registerEvent name="appEvent" type="c:OB_EventNextButton"/>
+     <lightning:input aura:id="stepId" label="" name="testBoolean" class="slds-hide" value="step_getEsecutore" />
+     
+     <input id="fieldControlStepEsecutore" type="text" value="" class="slds-hide"  onblur="{!c.beforeNext}"></input>
+    
+     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+
+	
+</aura:component>

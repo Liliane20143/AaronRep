@@ -1,0 +1,87 @@
+<aura:component>
+    <aura:attribute name="showABIlist" type="Boolean" access="global"/>    
+    <aura:attribute name="matrixParameter" type="NE__Matrix_Parameter__c" access="global" />
+    <aura:attribute name="data" type="List" access="global"/>
+    <aura:attribute name="columns" type="List" />
+    <aura:attribute name="selectedRows" type="List"  />
+    <aura:attribute name="selectedBankList" type="sObject[]" default="{}" access="global"/>
+    <aura:attribute name="ABIwithMatrixMap" type="Map"/>
+    <!--francesca.ribezzi 17/06/19 adding isPricingForBank -->
+    <aura:attribute name="isPricingForBank" type="Boolean" default="false" access="global"/>
+     <!--francesca.ribezzi 03/07/19 adding isActive attribute - F2WAVE2-16 -->
+    <aura:attribute name="isActive" type="Boolean" default="false" access="global"/> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/> 
+
+    <!--francesca.ribezzi 17/06/19 adding onchange handler -->
+  
+   <div  class="{!v.showABIlist == true? 'tableContainer slds-show' : 'tableContainer slds-hide'}">
+        <!--START francesca.ribezzi 14/06/19 adding html table to display abi -->
+        <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" role="grid">
+            <thead>
+                <tr class="slds-line-height_reset">
+                <th class="slds-text-align_right" scope="col" style="width:3.25rem">
+                    <div class="slds-th__action slds-th__action_form">
+                 <!--   <div class="slds-checkbox">
+                        <input type="checkbox" name="options" id="checkbox-301" value="checkbox-301" tabindex="0" aria-labelledby="check-select-all-label column-group-header" checked="" />
+                        <label class="slds-checkbox__label" for="checkbox-301" id="check-select-all-label">
+                        <span class="slds-checkbox_faux"></span>
+                        </label>
+                    </div>-->
+                    </div>
+                </th>
+                <th aria-label="Name" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col">
+
+                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                        <span class="slds-truncate" title="Name">{!$Label.c.OB_Name}</span>
+            
+                    </div>
+                    <div class="slds-resizable">
+                    <input type="range" aria-label="Name column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-547" max="1000" min="20" tabindex="0" />
+                    <span class="slds-resizable__handle">
+                        <span class="slds-resizable__divider"></span>
+                    </span>
+                    </div>
+                </th>
+                <th aria-label="Account Name" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col">
+                    <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="0">
+                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                        <span class="slds-truncate" title="Account Name">ABI</span>
+            
+                    </div>
+                    </a>
+                    <div class="slds-resizable">
+                    <input type="range" aria-label="Account Name column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-548" max="1000" min="20" tabindex="0" />
+                    <span class="slds-resizable__handle">
+                        <span class="slds-resizable__divider"></span>
+                    </span>
+                    </div>
+                </th>
+                </tr>
+            </thead>
+            <tbody>
+                <aura:iteration items="{!v.data}" var="bank" indexVar="index"> 
+                    <tr aria-selected="true" class="slds-hint-parent">
+                        <td class="slds-text-align_right" role="gridcell">
+                            <div class="slds-checkbox"> <!--03/07/19 francesca.ribezzi  -F2WAVE2-16- using isActive as checked value: -->
+                                <input type="checkbox" id="{!index+v.matrixParameter.Id}" onchange="{!c.getSelectedAbi}" checked="{!v.isActive? 'true' : bank.checked}" value="{!bank.OB_ABI__c}"/>
+                                <label class="slds-checkbox__label" for="{!index+v.matrixParameter.Id}" id="check-button-label-01">
+                                    <span class="slds-checkbox_faux"></span>
+                                </label>
+                            </div>
+                        </td>
+                        <th scope="row">
+                            <div class="slds-truncate" title="Acme - 1,200 Widgets">
+                                    {!bank.Name}
+                            </div>
+                        </th>
+                        <td role="gridcell">
+                            <div class="slds-truncate" title="Acme">{!bank.OB_ABI__c}</div>
+                        </td>
+                    </tr>    
+                </aura:iteration>
+            </tbody>
+        </table>
+              <!--END francesca.ribezzi 14/06/19  -->
+    </div> 
+
+</aura:component>

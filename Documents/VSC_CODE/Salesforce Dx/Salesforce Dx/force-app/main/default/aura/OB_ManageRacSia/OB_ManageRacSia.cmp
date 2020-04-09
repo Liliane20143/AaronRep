@@ -1,0 +1,239 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="OB_ManageRacSia">
+    <aura:attribute name="siaCode" type="String" default="" access="global" description="SIA Code"/>
+    <aura:attribute name="establCode" type="String" default="" access="global" description="Establishment Code"/>
+    <aura:attribute name="progSia" type="String" default="" access="global" />
+    <aura:attribute name="disableApply" type="Boolean" default="true"/>
+    <aura:attribute name="isReset" type="Boolean" default="false"/>
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <!--Partent Attributes-->
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="posList" type="List" access="global"/>
+    <aura:attribute name="contextOutput" type="Object" access="global"/>
+    <aura:attribute name="siaIsValid" type="Boolean" default="true" access="global"/>
+    <!--D.F. 19/03/2019 RacSia Mangement inMaintenance v4 START-->
+    <aura:attribute name="isMaintenance"    type="Boolean"  default="false"/>
+    <aura:attribute name="showModal"        type="Boolean"  default="false"/>
+    <aura:attribute name="siaSetted"        type="Boolean"  default="false"/>
+    <aura:attribute name="racSiaList"       type="List"     default=""/>
+    <aura:attribute name="columns"          type="List"     default=""/>
+    <aura:attribute name="selectedRows"     type="List"     default=""/>
+    <aura:attribute name="showSiaSearch"    type="Boolean"  default="false"/>
+    <aura:attribute name="siaNotValid"      type="Boolean"  default="false"/>
+    <aura:attribute name="errMsg"           type="String"   default=""/>
+    <aura:attribute name="multipleRacSia"   type="Boolean"   default="true" access="global"/> <!--antonio.vatrano 11/06/2019 rif2-247-->
+    <aura:attribute name="checkRacSiaInputs"           type="Boolean"  default="false"/> <!--francesca.ribezzi 31/07/19 -WN-211- adding checkRacSiaInputs attribute-->
+    <!--D.F. END--> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <!--31/07/19 francesca.ribezzi -WN-211 - callHandleRedBorderErrors -->
+    <aura:handler name="change" value="{!v.checkRacSiaInputs }" 	action="{!c.callHandleRedBorderErrors}"/>
+
+    
+    <!--D.F. 19/03/2019 RacSia Mangement inMaintenance v4 START-->
+    <aura:if isTrue="{!v.showModal}">
+        <div class="modalStyle">
+        <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+            <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <lightning:buttonIcon class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" iconName="utility:close" size="large" alternativeText="Close" variant="bare" onclick="{!c.closeModal}"/>
+                <p class="u1730"><span class="upperCaseText">{!$Label.c.OB_NationalAcqLabel}</span></p>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium slds-is-relative" style="height: 200px" id="modal-content-id-1">
+                <div class="slds-col" id= "dataTableId">
+                    <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="chk"></div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="Sia_Code">{!$Label.c.OB_SiaCode}</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="Estb_Code">{!$Label.c.OB_EstablishmentSiaCode}</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="Prog_Code">{!$Label.c.OB_SiaProg}</div>
+                            </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <aura:iteration items="{!v.racSiaList}" var="racSia" indexVar="ind">
+                                <tr class="slds-hint-parent">
+                                    <th data-label="chk" scope="row">
+                                        <div class="slds-truncate" title="chkSel">
+                                            <input type="radio"
+                                            aura:id="{!idx}"
+                                            id="{!idx}"
+                                            value="{!racSia.full}"
+                                            name="options" 
+                                            onclick="{!c.getSelectedSiaCode}"
+                                            />
+                                        </div>
+                                    </th>
+                                    <td data-label="Sia_Code">
+                                        <div class="slds-truncate" title="SiaCode">{!racSia.siaCode}</div>
+                                    </td>
+                                    <td data-label="Estb_Code">
+                                        <div class="slds-truncate" title="EstbCode">{!racSia.establCode}</div>
+                                    </td>
+                                    <td data-label="Prog_Code">
+                                        <div class="slds-truncate" title="ProgCode">{!racSia.progSia}</div>
+                                    </td>
+                                </tr>
+                            </aura:iteration>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <footer class="slds-modal__footer slds-theme_default">
+                <lightning:button label="{!$Label.c.OB_Cancel}" onclick="{!c.closeModal}" class="slds-m-top_medium" />
+            </footer> 
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+
+	</aura:if>
+    <!--D.F. END-->
+
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+
+    <div id="base" class="product_row_color containerMargin" > 
+        <div> 
+            <div class="commissioni_info" data-label="label"> <!-- class="u122" --> 
+                <p class="u1730"><span class="upperCaseText">{!$Label.c.OB_NationalAcqLabel}</span></p>		                          
+            </div>
+        </div>
+        <div > 
+            <div class="slds-grid slds-gutters canone_dettaglio" style="width:98%; margin: 1%;">
+			
+																			  
+                    <div class="slds-col slds-size_1-of-5 attributeNames" > 
+                        <span class="attributeNameStyle">
+                            <abbr class="slds-required" title="required">*</abbr>
+                            <label for="{!$Label.c.OB_SiaCode}">{!$Label.c.OB_SiaCode}</label>
+                        </span>
+						<!--31/07/19 francesca.ribezzi - WN-211 - adding onblur-->																																																															   
+                        <lightning:input 
+                            id="siaCode"
+                            aura:id="siaCode" 
+                            class=""       
+                            type="text" 
+                            name="{!$Label.c.OB_SiaCode}" 
+                            variant="label-hidden"
+                            label="" 
+                            value="{!v.siaCode}" 
+                            onchange="{!c.onChangeAttributeValueTerminal}" 
+                            disabled="{!v.siaSetted}"
+                            pattern=".{0,7}"
+                            messageWhenPatternMismatch="{!$Label.c.OB_SiaCodeLengthErr}"
+                        />  
+                        <aura:if isTrue="{!v.errMsg == 'siaCode'}">
+                            <div class="error-input-message">
+                                {!$Label.c.OB_invalidValue}
+                            </div> 
+                        </aura:if>
+                    </div>
+                    <div class="slds-col slds-size_1-of-5 attributeNames" > 
+                        <span class="attributeNameStyle">
+                            <abbr class="slds-required" title="required">*</abbr>
+                            <label for="{!$Label.c.OB_EstablishmentSiaCode}">{!$Label.c.OB_EstablishmentSiaCode}</label>
+                        </span>
+    <!--31/07/19 francesca.ribezzi - WN-211 - adding onblur-->																																																															   																																																																
+                        <lightning:input 
+                            class=""
+                            id="estbCode" 
+                            aura:id="estbCode"
+                            type="text" 
+                            name="{!$Label.c.OB_EstablishmentSiaCode}" 
+                            variant="label-hidden"
+                            label="" 
+                            value="{!v.establCode}" 
+                            onchange="{!c.onChangeAttributeValueTerminal}" 
+                            disabled="{!v.siaSetted}"
+                            pattern=".{0,5}"
+                            messageWhenPatternMismatch="{!$Label.c.OB_EstbCodeLengthErr}"
+                        />
+                        <aura:if isTrue="{!v.errMsg == 'estbCode'}">
+                            <div class="error-input-message">
+                                {!$Label.c.OB_invalidValue}
+                            </div> 
+                        </aura:if>
+                    </div>
+                    <div class="slds-col slds-size_1-of-5 attributeNames" > 
+                        <span class="attributeNameStyle">
+                            <abbr class="slds-required" title="required">*</abbr>
+                            <label for="{!$Label.c.OB_SiaProg}">{!$Label.c.OB_SiaProg}</label>
+                        </span>
+						<!--31/07/19 francesca.ribezzi - WN-211 - adding onblur-->																																																															   																																																										   
+                        <lightning:input 
+                            id="progSia" 
+                            aura:id="progSia"
+                            class=""
+                            type="text"
+                            name="{!$Label.c.OB_SiaProg}"
+                            variant="label-hidden"
+                            label="" 
+                            value="{!v.progSia}" 
+                            onchange="{!c.onChangeAttributeValueTerminal}" 
+                            disabled="{!v.siaSetted}"
+                            pattern=".{0,3}"
+                            messageWhenPatternMismatch="{!$Label.c.OB_ProgSiaLengthErr}"
+                       />
+                        <aura:if isTrue="{!v.errMsg == 'progSia'}">
+                            <div class="error-input-message">
+                                {!$Label.c.OB_invalidValue}
+                            </div> 
+                        </aura:if>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-5 attributeNames"></div>
+
+
+                    <div class="slds-col slds-size_1-of-5 attributeNames slds-grid">
+
+                        <aura:if isTrue="{!!v.isReset}"> 	
+                            <div class="slds-p-around--medium slds-form-element" >
+                                <lightning:button variant="brand" 
+                                                    onclick="{!c.applyRacSiaController}"
+                                                    label="{!$Label.c.OB_Apply}"
+                                                    disabled="{!v.disableApply}" 
+                                                    class=""/>
+                            </div>
+                        <aura:set attribute="else">
+                            <div class="slds-p-around--medium slds-form-element" >
+                                <lightning:button variant="brand" 
+                                                    onclick="{!c.resetRacSiaController}"
+                                                    label="Reset" 
+                                                    class=""/>
+                            </div>
+                        </aura:set>
+                        </aura:if>
+                        <aura:if isTrue="{!and(v.isMaintenance,v.showSiaSearch)}"> 	
+                        <div class="slds-p-around--medium slds-form-element" >                            
+                            <!-- D.F. _ Icon to Show Modal _ START-->
+                            <lightning:buttonIcon iconName="utility:search" onclick="{!c.showModal}"/>
+                            <!--D.F. _ END-->
+                        </div>
+                        </aura:if>
+                    </div>                                           
+							
+            </div>
+            <div aura:id = "err" class="slds-col slds-size_1-of-1 slds-notify slds-theme_error">
+                <label class="slds-align_absolute-center">
+                    <aura:if isTrue="{!v.siaNotValid}">
+                    <span aura:id="siaNotValid">{!v.errMsg}</span>
+                    </aura:if>
+                </label>
+            </div>
+        </div>
+    </div>
+</aura:component>

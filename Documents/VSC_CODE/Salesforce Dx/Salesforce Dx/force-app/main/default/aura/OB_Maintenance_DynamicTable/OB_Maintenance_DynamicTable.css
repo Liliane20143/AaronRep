@@ -1,0 +1,53 @@
+.THIS {
+    
+}
+
+.THIS .searchIcon > lightning-primitive-icon > svg > use{
+    fill: #4F6A92;
+}
+/* START gianluigi.virga 27/02/2019 - hide sorting arrows and wrap text */
+.THIS .hideArrows .slds-th__action .slds-button__icon {
+    display: none;
+}
+    
+.THIS .hideArrows .slds-th__action .slds-truncate {
+    text-overflow: inherit;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: normal;
+    min-width: 100px;
+}
+/* END gianluigi.virga */
+/*START ANDREA MORITTU PRODOB_469 - 27-Sept-2019 */
+.THIS .notToDisplay {
+    display :   none!important;
+}
+
+.THIS .titles {
+    text-transform: uppercase!important;
+    text-align: center;
+    font-weight: 600!important;
+}
+.THIS .mccValues {
+    text-align: center;
+}
+.THIS .CTAStyle_BRAND {
+    font-size: 1.2em!important;
+    text-transform: uppercase!important;
+    font-weight: 600!important;
+    border-color: rgb(48, 58, 178);
+    border-width: 0.3125rem;
+    border-width: 0.0625rem; 
+}
+
+.THIS .tytleStyle {
+    font-size       :   1.5em!important;
+}
+
+.THIS #buttonRight {
+    right: 60%!important;
+}
+.THIS .slds-th__action {
+    width: 9rem!important;
+}
+/*END ANDREA MORITTU PRODOB_469 - 27-Sept-2019 */

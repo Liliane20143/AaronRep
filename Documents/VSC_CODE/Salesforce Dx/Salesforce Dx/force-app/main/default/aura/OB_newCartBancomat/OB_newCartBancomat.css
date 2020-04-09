@@ -1,0 +1,320 @@
+.THIS {
+	
+}
+.THIS .productName{
+	/*font-family: 'Salesforce Sans Regular', 'Salesforce Sans'; */
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1em;
+    color: #4F6A92;
+    text-transform: uppercase;
+    text-align: left;
+	
+}
+
+.THIS .tableHeaderWrapper{
+	margin-bottom: 2.5%;
+	
+}
+
+.THIS .thumbnailimage{
+	margin-right: 1%;
+}
+
+.THIS .errMsg{
+	
+	color:rgb(194, 57, 52);
+	text-align: center;
+	font-size: 0.6rem;
+	
+} 
+  
+.THIS .cartContainer{
+	
+	/*NEW STUFF TEST*/
+    left: 80%;
+    z-index:97;
+    padding-left:1%;
+}
+
+@media screen and (max-width: 750px) {
+  .THIS .cartContainer{
+	  /*float:none;*/
+	  z-index:97;
+	  left: 50%;
+	  padding-left:1%;
+  }
+} 
+
+.THIS .itemAttributesContainer{
+	
+	
+}
+
+@media screen and (max-width: 1100px) {
+  .THIS .itemAttributesContainer{
+	  display: block !important;
+  }
+}   
+
+.THIS .inputContainer{
+	
+	margin-bottom: 5%;
+}
+    
+.THIS .attributesWrapper{
+	border-top: 3px solid;
+    border-color: #d8dde6;
+    padding-left: 5%;
+    padding-top: 1%;
+    padding-bottom: 2%;
+	
+}
+
+
+
+
+
+.THIS .tableContent{
+	margin-right: 0;
+	
+}
+
+.THIS .f217{
+    width: 44px;
+    height: 26px;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    text-align: center;
+    font-weight: 700;
+}
+
+.THIS .attributeNames{
+	text-transform: uppercase;
+	text-align: center;
+	font-weight: 400;
+    font-style: normal;
+    font-size: 1em;
+    color: #4f6a92;
+}
+
+.THIS .shortAttrName{
+	    margin-right: 13%;
+	
+}
+
+.THIS.tableContainer{
+	background-color: rgba(243, 245, 248, 1);
+	border-top: 1px solid;
+    border-color: #d8dde6;
+    padding: 1%;
+    margin-top:2%;
+    /*min-height:400px;*/
+}
+
+.THIS .productDescription{
+	/*font-family: 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 14px;
+	text-align: right;
+}
+.THIS .u116{
+
+   /* font-family: "Salesforce Sans Light", "Salesforce Sans Regular", "Salesforce Sans";*/
+    font-weight: 300;
+    font-style: normal;
+    font-size: 28px;
+    border-width: 0px;
+}
+
+.THIS .u172 {
+    /*font-family: "Salesforce Sans Light Italic", "Salesforce Sans Regular", "Salesforce Sans";*/
+    font-weight: 300;
+    font-style: italic;
+    font-size: 14px;
+    color: rgb(102, 102, 102);
+    border-width: 0px;
+}
+.THIS .u170 {
+    /*font-family: "Salesforce Sans";*/
+    font-weight: 400;
+    font-style: normal;
+    border-width: 0px;
+    border-left: 1px solid;
+	border-color:#d8dde6; 	
+	padding-left: 2%;
+}
+.THIS .u171 {
+
+}
+
+.THIS .inputAttValueFont{
+	
+	/*font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+	font-weight:700;
+	color:#000000;
+}
+
+.THIS .alignInput{
+	
+	text-align: center;
+}
+
+
+.THIS .cartWrapper{
+	
+	text-align: right;
+}
+
+.THIS .cartWrapper svg{
+	
+	width:2rem;
+	height:2rem;
+}
+
+.THIS .animationSlideShow{
+	
+	max-height: 4000px;
+    transition: max-height 0.25s ease-in;
+	
+}
+
+.THIS .animationSlideShowOpacity{
+	
+	opacity: 1;
+    transition: opacity 0.25s ease-in;
+}
+
+.THIS .animationSlideHide{
+	
+	max-height: 0;
+    transition: max-height 0.15s ease-out;
+    overflow: hidden;
+
+}
+
+.THIS .animationSlideHideOpacity{
+	opacity: 0;
+	transition: opacity 0.15s ease-out;
+	overflow: hidden;
+}
+
+.THIS .customColorsBadge{
+	
+	background-color:white;
+	color: black;
+	border: 2px solid #0070d2;
+	font-weight: bold;
+	z-index:98;
+	vertical-align: top;
+	float: right;
+    position: relative;
+    right: 2%;
+	
+}
+
+.THIS .borderError{
+	border: 2px solid rgb(194, 57, 52);
+} 
+
+.THIS .borderWarning{
+	border: 2px solid rgb(255, 192, 0);
+}
+
+.THIS .headerContainer{
+	 margin-bottom: 2%;
+	
+}
+
+.THIS .headerLabel{
+	margin-top: 15%;
+	
+}
+
+.THIS .rowDetail{
+    padding-bottom: 1%;
+    border-bottom: 1px solid;
+    border-color: #d8dde6;
+    padding-top: 1%;
+    padding-bottom: 1%;
+    margin-right: 0;
+    margin-left: 1%;
+	
+}
+.THIS .productDescBox{
+	padding-left: 0;
+}
+
+.THIS .inputReadonly{
+     
+    border:none;
+    text-align:center;
+    
+} 
+
+.THIS .inputReadOnlySelected{
+    
+    background-color: rgba(243, 245, 248, 1);
+    
+}
+
+/*Doris D .... 26/02/2019....START*/
+.THIS .yellow-checkbox
+{   
+    width:20px;
+    min-width: 20px;
+    height:20px;
+    margin-right:15px;
+    background-color: #FFC000!important; 
+}
+.THIS .red-checkbox
+{   
+    width:20px;
+    min-width: 20px;
+    height:20px;
+    margin-right:15px;
+    background-color: #C00000!important; 
+}
+.THIS .gray-checkbox
+{
+    width:20px;
+    min-width: 20px;
+    height:20px;
+    margin-right:15px;
+    background-color: #acdba6!important; 
+}
+
+/*Doris D .... 26/02/2019.....END*/
+/*giovanni START - 16/09/2019*/
+.THIS .borderCorrect{
+    border: 2px solid #acdba6;
+}
+.THIS .reset_link{
+    color: #4f6a92;
+    text-transform: uppercase;
+    font-size: .9em;
+    font-weight: bold;/*giovanni spinelli*/
+}
+/*giovanni END - 16/09/2019*/
+/*giovanni spinelli 24/09/2019 start - reset button*/
+.THIS .CTAStyle_special {
+    font-size: 1em!important;
+    text-transform: uppercase!important;
+    font-weight: 600!important;
+    border-color: rgb(48, 58, 178);
+    border-width: 0.3125rem;
+    border-width: 0.0625rem;
+    color: rgb(48, 58, 178);
+    white-space: nowrap;
+    margin-bottom: 1rem;
+}
+/*giovanni spinelli 24/09/2019 end*/

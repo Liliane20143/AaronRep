@@ -1,0 +1,140 @@
+<aura:component access="global" controller="StampaDocumentiController">
+	<!-- <ltng:require styles="{! $Resource.jqueryuiCSS}" scripts="{!join(',', $Resource.JQueryResourceCode, $Resource.jqueryuiJS)}" afterScriptsLoaded="{!c.doInit}"/> --> 
+	<aura:attribute name="documentsList" type="String[]"/> 
+	<aura:attribute name="singleDoc" type="OB_Product_Document__c" access="global"/>
+	<aura:attribute name="mapFileUploaded" type="Map"  />
+	<aura:attribute name="files" type="List"/>
+	<aura:attribute name="fileselect" type="String"/>
+	<aura:attribute name="fileName" type="String"/>
+	<aura:attribute name="singleDocument" type="String"/>
+	<aura:attribute name="myMap" type="Map" default="{}" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"   access="global"/>
+	<aura:attribute name="documentIdMap" type="Map"   default="{}" access="global"/>
+	<aura:attribute name="documentId" type="String"   default="" access="global"/>
+	<aura:attribute name="documentType" type="Object"   access="global"/>
+	<aura:attribute name="index" type="Integer"  default="1"  access="global"/>
+	<aura:attribute name="response" type="String"  default=""  access="global"/>
+	<aura:attribute name="mapMultiple" type="Map" default="{}" access="global"/>
+	<aura:attribute name="isMultiple" type="String"/>
+	<aura:attribute name="docIDMap" type="Map" access="global"/>
+<!-- Start AV 20/02/2019  #00001589 show fileName uploaded -->
+	<aura:attribute name="nameFile" type="String"/>
+<!-- End AV 20/02/2019  #00001589 show fileName uploaded -->
+	<!-- giovanni spinelli start-->
+	<aura:attribute name="compareMap" 					type="Map" 		access="global" default="{}"/>
+	<aura:attribute name="doneRender" 					type="Boolean" 	default="false"	access="global"/>
+	<aura:attribute name="deleteAllDocs" 				type="Boolean" 	default="false"	access="global"/>
+	<aura:attribute name="disableModificationAll" 		type="Boolean" 	default="false"	access="global"/>
+	<aura:attribute name="showSaving" 					type="Boolean" 	default="false"	access="global"/>
+	<aura:attribute name="showMessageDeleteAll" 		type="Boolean" 	default="false"	access="global"/>
+	<aura:attribute name="jweToken" 					type="String" 					access="global"/>
+	<aura:attribute name="uploadFileUrl" 				type="String" 					access="global"/>
+	<aura:attribute name="disabledSaveDuringLoad" 		type="Boolean" 	default="false"	access="global"/>
+	<aura:attribute name="showSpinner" 					type="Boolean" 	default="false"	access="global"/>
+	<aura:attribute name="showIcon" 					type="Boolean" 	default="false"	access="global"/>
+	<aura:attribute name="fireHandlerUploadDoc"			type="Boolean" 	default="false"	access="global"/>
+	<!--giovanni spinelli end-->
+
+<!-- START AV 28/02/2019 controll pdf -->
+	<aura:attribute name="toUpload" type="Boolean" access="global" default="true"/>
+	<aura:attribute name="toSave" type="Boolean" access="global" default="false"/>
+	<aura:attribute name="toModify" type="Boolean" access="global" default="false"/>
+	<!-- START AV 28/02/2019 controll pdf -->
+	<aura:attribute name="showError" type="Boolean" access="global" default="false"/>  <!--francesca.ribezzi 05/12/19 - perf-17 - adding showError flag -->
+	<!-- 03/04/19 francesca.ribezzi adding handler event from DynamicCmpDocuments:-->
+	<aura:handler event="c:OB_DynamicDocumentsEvent" action="{!c.handleRemoveDoc}"/>
+
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:handler name="change" value="{!v.response}" action="{!c.newComp}"/>
+	<!--giovanni spinelli -->
+	<aura:handler name="render" value="{!this}" 					action="{!c.onRender}"/>
+	<!--giovanni spinelli 31/07/2019 move apigw method in aura handler start-->
+	<aura:handler name="change" value="{!v.fireHandlerUploadDoc}" 	action="{!c.callAPIGW}"/>
+	<!--giovanni spinelli 31/07/2019 move apigw method in aura handler end-->
+	<!-- ROW OF TABLE  -->
+	<tr class="trow">
+		<th>
+			<!-- container -->
+			<div class="slds-grid slds-gutters myGrid slds-grid_vertical-align-center myRow">
+				<!-- Div of BUTTONS -->
+				<div class="slds-col slds-size_1-of-10" >
+					<!-- button UPLOAD -->
+					<aura:if isTrue = "{!v.toUpload}">
+						<label aura:id="upLoad" class="slds-button slds-button--neutral LoadButton">
+								{!$Label.c.OB_Upload}
+							<input aura:id="inputFile"  type="file" style="display:none"  onchange="{!c.loadDoc}" disabled="{!v.disabledSaveDuringLoad}" /><!--giovanni spinelli remove onclick="{!c.resetFile}"-->
+						</label>
+					</aura:if>
+					
+					<!-- button SAVE deprecate on 31/07/2019-->
+					<aura:if isTrue = "{!v.toSave}">
+						<!-- <input type="button" aura:id="save" value ="{!$Label.bit2flow.b2f_Save}" onclick="{!c.saveButton}" class="slds-button slds-button_brand saveButton" /> -->
+						
+						<lightning:button 	label="{!$Label.bit2flow.b2f_Save}" 
+											iconName="utility:upload" 
+											iconPosition="left"  
+											variant="brand"  
+											onclick="{!c.callAPIGW}" 
+											disabled="{!v.disabledSaveDuringLoad}"
+											class="lightningSave"/>
+
+					</aura:if>
+					<!-- button MODIFICATION -->
+					<aura:if isTrue = "{!v.toModify}">
+						<input type="button" aura:id="modification" value ="{!$Label.bit2flow.b2f_edit}"   onclick="{!c.modification}" class="slds-button slds-button--neutral LoadButton" />
+					</aura:if>
+				</div>
+				<!-- Div of text Description -->
+				<div class="slds-col slds-size_7-of-10 myWord_DocName"> <!--antonio.vatrano 09/07/2019 WN-53-->
+					{!v.singleDoc}
+				</div>
+				<aura:if isTrue="{!v.showSaving}">
+					<div class="slds-col slds-size_7-of-10 myWord_italic">
+						{!$Label.c.OB_SavingDocument}
+					</div>
+				</aura:if>
+				<!-- Div of Spinner and flag -->
+				<div class="slds-col slds-size_2-of-10 slds-col_bump-left myRight">
+					<lightning:icon aura:id="statusIcon" iconName="action:approval" size="xx-small" class="slds-hide"/>
+					<aura:if isTrue="{!v.showError}"> <!--francesca.ribezzi 05/12/19 - perf-17 - adding showError flag -->
+						<lightning:icon aura:id="errorIcon" iconName="action:close" size="xx-small" class="slds-hide"/> 
+					</aura:if>
+					<!--giovanni spinelli - 05/06/2019 - start - show spinner with aura if-->
+					<aura:if isTrue="{!v.showSpinner}">
+						<div aura:id="spinner" role="status" class="mySpinner slds-spinner slds-spinner_x-small ">
+							<div class="slds-spinner__dot-a"></div>
+							<div class="slds-spinner__dot-b"></div>
+						</div>
+					</aura:if>
+					<!--giovanni spinelli - 05/06/2019 - end - show spinner with aura if-->
+				</div>
+			</div> <!-- CONTAINER -->
+			<aura:if isTrue="{!v.showError}"> <!--francesca.ribezzi 05/12/19 - perf-17 - adding showError flag -->
+				<div aura:id="loadErrorMessage" class="errorMessage slds-hide">
+					{!$Label.c.OB_DocumentErrorMessage}
+				</div>
+			</aura:if>
+			<div  class="myDiv" aura:id ="container" >
+				{!v.body}
+				<!--giovanni spinelli - 05/06/2019 - start - show icon with aura if-->
+					<aura:if isTrue="{!v.showIcon}">
+						<lightning:icon iconName="utility:page" />
+					</aura:if>
+				<!--giovanni spinelli - 05/06/2019 - end - show icon with aura if-->
+				{!v.nameFile}
+			</div> 
+			<!--giovanni spinelli 13/05/2019 start-->
+			<!--delete all previous docs button-->
+			<aura:if isTrue = "{!v.deleteAllDocs}">
+				<div class="myRow">
+						<lightning:button label="{!$Label.c.OB_RemoveAll}" iconName="utility:delete" iconPosition="left"  variant="brand" disabled="{!v.disableModificationAll}" onclick="{!c.deprecateAllDocsFirmato}" />
+						<lightning:helptext content= "{!$Label.c.OB_RemoveAll_Tooltip}" /><!--giovanni spinelli 17/05/2019 remove mouse over and add helptext-->
+				</div>
+			</aura:if>
+			<!--giovanni spinelli 13/05/2019 end-->
+		</th>
+	</tr>          <!--   close row -->
+		
+
+	
+</aura:component>

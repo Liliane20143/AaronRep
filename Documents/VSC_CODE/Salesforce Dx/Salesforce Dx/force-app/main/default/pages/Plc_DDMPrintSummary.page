@@ -1,0 +1,364 @@
+<!--
+ - Created by Luca Belometti on 13/08/2019.
+ -->
+
+ <apex:page id="Plc_DDMPrintSummary" standardController="Bit2Shop__StockOrder__c" extensions="Plc_DDMPrintSummaryCnt"
+ sidebar="false" applyBodyTag="false" applyHtmlTag="false"
+ showHeader="false" standardStylesheets="false" renderAs="pdf"> <!--  -->
+
+<head>
+<style type="text/css" media="print" >
+
+@page {
+  size: A4;
+  margin-bottom: 2%;
+  /*margin-right: 15%;*/
+  /*margin-left: 15%;*/
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-top: 2%;
+}
+
+span {
+  font-weight: bold;
+  font-family: Arial Unicode MS;
+}
+
+h1 {
+  vertical-align:middle;
+  text-align:center;
+  font-size: 18px;
+  font-weight:bold;
+  color: black;
+  text-decoration: none;
+  padding: 14px;
+}
+
+#DDMReport {
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+border-collapse: collapse;
+width: 100%;
+}
+
+#DDMReport td, #DDMReport th {
+
+border: 1px solid #ddd;
+padding: 5px;
+}
+
+#DDMReport tr:nth-child(even) {background-color: #f2f2f2;}
+
+#DDMReport tr:hover {background-color: #ddd;}
+
+#DDMReport th {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  text-align: center;
+  background-color: #A7A8AA;
+  color: black;
+}
+
+.first-column-width {
+  width:240px;
+}
+
+</style>
+</head>
+
+
+<apex:repeat value="{!stockOrderToPrint}" var="stockOrderToPrint2">
+
+<h1>
+<!--<i>{!$Label.Plc_DDMReportFaultReport}</i> -->
+<i>{!$Label.Plc_VFDDMPrintSummaryReport}</i>
+</h1>
+<div>
+  <table id="DDMReport">
+
+      <tr>
+          <th colspan="2">
+              <!-- <i>{!$Label.Plc_DDMReportFaultData}</i> -->
+              <i>{!$Label.Plc_VFDDMPrintSummaryDescription}</i>
+          </th>
+      </tr>
+
+      <!-- Description -->
+     <!-- <tr>
+          <td>
+              <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.Plc_DestinationDealerOwner__c.Label}" />
+          </td>
+
+          <td class="bordered" align="center">
+              <apex:outputText value="{!stockOrderToPrint2.Plc_DestinationDealerOwner__c}"/>
+          </td>
+      </tr> -->
+
+      <!-- Data -->
+     <!-- <tr>
+          <td>
+              <apex:outputLabel value="{!$Label.Plc_DDMReportDate}" />
+          </td>
+
+          <td class="bordered" align="center">
+              <apex:outputText value="{!stockOrderToPrint2.Plc_DDMReportDateReportFault__c}"/>
+          </td>
+      </tr> -->
+
+        <!-- DDM Number -->
+     <tr>
+            <td>
+                <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Plc_DdmNumber__c.Label}" />
+            </td>
+        
+            <td class="bordered" align="center">
+                <apex:outputText value="{!stockOrderToPrint2.Plc_DdmNumber__c}"/>
+            </td>
+     </tr>
+
+    <!-- Stock Order Number -->
+    <tr>
+            <td>
+                <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Name.Label}" />
+            </td>
+            
+            <td class="bordered" align="center">
+                <apex:outputText value="{!stockOrderToPrint2.Name}"/>
+            </td>
+    </tr>
+
+    <!-- DDT Number -->
+        <tr>
+            <td>
+                <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Plc_DdtNumber__c.Label}" />
+            </td>
+            
+            <td class="bordered" align="center">
+                <apex:outputText value="{!stockOrderToPrint2.Plc_DdtNumber__c}"/>
+            </td>
+    </tr>
+
+
+    <!-- Transfer Detail  -->
+    <tr>
+            <td>
+                <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Plc_TransferDetail__c.Label}" />
+            </td>
+      
+            <td class="bordered" align="center">
+                <apex:outputText value="{!stockOrderToPrint2.Plc_TransferDetail__r.Name}"/>
+            </td>
+    </tr>
+
+
+
+      <!-- point of sales -->
+      <tr>
+          <td>
+              <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Bit2Shop__Point_Of_Sales_Id__c.Label}" />
+          </td>
+
+          <td class="bordered" align="center">
+              <apex:outputText value="{!stockOrderToPrint2.Bit2Shop__Point_Of_Sales_Id__r.Name}"/>
+          </td>
+      </tr>
+
+      <!-- Destination Point Of Sales -->
+      <tr>
+            <td>
+                <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Bit2Shop__Destination_Point_Of_Sales_Id__c.Label}" />
+            </td>
+  
+            <td class="bordered" align="center">
+                <apex:outputText value="{!stockOrderToPrint2.Bit2Shop__Destination_Point_Of_Sales_Id__r.Name}"/>
+            </td>
+      </tr>
+
+    <!-- Status -->
+      <tr>
+            <td>
+                <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Bit2Shop__Status__c.Label}" />
+            </td>
+              
+            <td class="bordered" align="center">
+                <apex:outputText value="{!stockOrderToPrint2.Bit2Shop__Status__c}"/>
+            </td>
+      </tr>
+
+
+    
+        <!-- Issue Date -->
+        <tr>
+            <td>
+               <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Plc_IssueDate__c.Label}" />
+           </td>
+          
+            <td class="bordered" align="center">
+                <apex:outputText value="{0, date,  d'/'MM'/'yyyy}">
+                <apex:param value="{!stockOrderToPrint2.Plc_IssueDate__c}" /> 
+                </apex:outputText>
+            </td>
+      </tr>
+
+
+    <!-- Taken In Charge Date -->
+              <tr>
+                <td>
+                   <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Plc_TakenInChargeDate__c.Label}" />
+               </td>
+              
+                <td class="bordered" align="center">
+                    <apex:outputText value="{0, date,  d'/'MM'/'yyyy}">
+                    <apex:param value="{!stockOrderToPrint2.Plc_TakenInChargeDate__c}" /> 
+                    </apex:outputText>
+                </td>
+          </tr>
+
+
+        <!-- Close Date -->
+        <tr>
+            <td>
+               <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Plc_CloseDate__c.Label}" />
+           </td>
+          
+            <td class="bordered" align="center">
+                <apex:outputText value="{0, date,  d'/'MM'/'yyyy}">
+                <apex:param value="{!stockOrderToPrint2.Plc_CloseDate__c}" /> 
+                </apex:outputText>
+            </td>
+      </tr>
+
+    <!-- Shipping Date -->
+    <tr>
+          <td>
+             <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Plc_ShippingDate__c.Label}" />
+         </td>
+        
+          <td class="bordered" align="center">
+              <apex:outputText value="{0, date,  d'/'MM'/'yyyy}">
+              <apex:param value="{!stockOrderToPrint2.Plc_ShippingDate__c}" /> 
+              </apex:outputText>
+          </td>
+    </tr>
+
+
+    </table>
+    </div>
+</apex:repeat>
+
+    <br/>
+    <br/>
+
+      
+<div>
+      <table id="DDMReport">
+
+        <tr>
+            <th colspan="3">
+                <!-- <i>{!$Label.Plc_DDMReportFaultData}</i> -->
+                <i>{!$Label.Plc_VFDDMPrintSummaryModelsAndQuantity}</i>
+            </th>
+        </tr>
+
+        <tr>
+            <th colspan="1">
+                <!-- <i>{!$Label.Plc_DDMReportFaultData}</i> -->
+                <i>{!$ObjectType.Bit2Shop__Shipment__c.fields.Plc_ProductStock__c.Label}</i>
+            </th>
+            <th colspan="1">
+                <!-- <i>{!$Label.Plc_DDMReportFaultData}</i> -->
+                <i>{!$ObjectType.Bit2Shop__Product_Stock__c.fields.Plc_ProductSku__c.Label}</i>
+            </th>
+            <th colspan="1">
+                <!-- <i>{!$Label.Plc_DDMReportFaultData}</i> -->
+                <i>{!$ObjectType.Bit2Shop__Shipment__c.fields.Bit2Shop__Shipped_Quantity__c.Label}</i>
+            </th>
+        </tr>
+
+      <!-- Manufacturer Serial Number -->
+      <apex:repeat value="{!AllList}" var="all">
+      <tr>
+
+          <td class="bordered" align="center">
+              <apex:outputText value="{!all.Plc_ProductStock__r.Name}"/>
+          </td>
+
+          <td class="bordered" align="center">
+            <apex:outputText value="{!all.Plc_ProductStock__r.Plc_ProductSku__c}"/>
+        </td>
+
+          <td class="bordered" align="center">
+            <apex:outputText value="{!all.Bit2Shop__Shipped_Quantity__c}"/>
+        </td>
+      </tr>
+
+    </apex:repeat>
+
+  </table>
+</div>
+
+<p></p>
+<p></p>
+
+<!--
+<div>
+  <table id="DDMReport">
+
+  <tr>
+      <th colspan="4">
+          <i>{!$Label.Plc_DDMReportFaultType}</i>
+      </th>
+  </tr>
+
+ 
+  </table>
+</div> -->
+
+<p></p>
+
+
+<!--
+<div>
+    <table id="DDMReport">
+  
+        <tr>
+            <th colspan="2">
+                <!-- <i>{!$Label.Plc_DDMReportFaultData}</i> 
+                <i>DDM Description</i>
+            </th>
+        </tr>
+  
+        <!-- Description 
+        <tr>
+            <td>
+                <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Plc_TransferDetail__c.Label}" />
+            </td>
+  
+            <td class="bordered" align="center">
+                <apex:outputText value="{!stockOrderToPrint2.Plc_TransferDetail__c}"/>
+            </td>
+        </tr> 
+  
+        <tr>
+            <td>
+                <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Plc_TransferDetail__c.Label}" />
+            </td>
+  
+            <td class="bordered" align="center">
+                <apex:outputText value="{!stockOrderToPrint2.Plc_TransferDetail__c}"/>
+            </td>
+        </tr> 
+  
+        <tr>
+            <td>
+                <apex:outputLabel value="{!$ObjectType.Bit2Shop__StockOrder__c.fields.Plc_TransferDetail__c.Label}" />
+            </td>
+  
+            <td class="bordered" align="center">
+                <apex:outputText value="{!stockOrderToPrint2.Bit2Shop__Expected_Delivery_Date__c}"/>
+            </td>
+        </tr> 
+    </table>
+</div> -->
+
+
+</apex:page>

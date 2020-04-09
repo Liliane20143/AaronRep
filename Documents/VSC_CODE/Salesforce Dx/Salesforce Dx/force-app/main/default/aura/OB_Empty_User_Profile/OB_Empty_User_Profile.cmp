@@ -1,0 +1,11 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes,forceCommunity:profileMenuInterface" access="global" controller="OB_Empty_User_Profile_CC">
+	<aura:attribute name="imgUrl" 		type="String" 		access="globaL"/>
+	<aura:attribute name="environment" 	type="String" 		access="globaL"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+	<aura:if isTrue="{!v.imgUrl!=null}">
+		<img src="{!v.environment+'/resource/'+v.imgUrl}" alt="" height="100" width="90"/>
+		<!--ID PRODOB-52 Doris Dongmo <doris.tatiana.dongmo@accenture.com>, 17/04/2019 , changed '100' to '90'-->
+
+	</aura:if>
+</aura:component>

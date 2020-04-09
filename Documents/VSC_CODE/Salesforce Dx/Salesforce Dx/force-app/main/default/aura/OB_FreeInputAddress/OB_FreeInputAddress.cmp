@@ -1,0 +1,381 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" >
+    <aura:attribute name="identifier" type="String" default="" access="global"/>
+    <aura:attribute name="field" type="Object" default="{}" access="global"/>
+    <aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+    <aura:attribute name="inputField" type="String" default="" />
+    <aura:attribute name="changeLayout" type="Boolean" default="false"/>
+
+    <aura:attribute name="type" type="String" access="global"/>
+	<aura:attribute name="subType" type="String" access="global"/>
+	<aura:attribute name="objectString" type="String" access="global"/>
+	<aura:attribute name="mapOfSourceFieldTargetField" type="Map" access="global"/>
+	<aura:attribute name="mapLabelColumns" type="Map" default="{}" access="global"/>
+	<aura:attribute name="messageIsEmpty" type="String" default="" access="global"/>
+	<aura:attribute name="orderBy" type="String" access="global"/> 
+	<aura:attribute name="city" type="String" default="" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"  access="global"/>
+	<aura:attribute name="province" type="String"  access="global"/>
+	<aura:attribute name="comune" type="String" access="global" />
+	<aura:attribute name="frazione" type="String" access="global"/>
+	<aura:attribute name="caps" type="List" default="[]" access="global" />
+	<aura:attribute name="selectedValue" type="String" access="global"/>
+	<aura:attribute name="isDisabled" type="Boolean" default="true" />
+	<aura:attribute name="disabledInput_sp" type="Boolean" access="global"/>
+	<aura:attribute name="zipcodeString" type="String" access="global" />
+	<aura:attribute name="countryString" type="String" access="global" />
+	<aura:attribute name="countryCodeString" type="String" access="global" />
+	<aura:attribute name="detailString" type="String" access="global" />
+	<aura:attribute name="isEE" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="isPV" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="countries" type="List" default="[]" access="global"/>
+	<aura:attribute name="pressoId" type="String" access="global" default="presso"/>
+    <aura:attribute name="zipCodeEEId" type="String" access="global" default="zipcode"/>
+    
+    <aura:attribute name="isPostelDisabled" type="Boolean"/>
+    <aura:attribute name="showAddressModal" type="Boolean" default= "false"/>
+    <aura:attribute name="provinceString" type="String" access="global"/>
+    <aura:attribute name="provinceCodeString" type="String" access="global"/>
+    <aura:attribute name="provinceEEId" type="String" default="provincia"/>
+    <aura:attribute name="cityEEId" type="String" default="comune"/>
+    <aura:attribute name="cityString" type="String"/>
+    <aura:attribute name="streetString" type="String"/>
+	<aura:attribute name="streetNumberString" type="String"/>
+	<aura:attribute name="stradaEEId" type="String" default="strada"/>
+    <aura:attribute name="civicoEEId" type="String" default="civico"/>
+    <aura:attribute name="districtEEId" type="String" default="frazione"/>
+    <aura:attribute name="provinceCodeEEId" type="String" default="sigla"/>
+    <aura:attribute name="districtString" type="String"/>
+    <aura:attribute name="showCountrySelect" type="Boolean" default= "false"/>
+    <aura:attribute name="showPresso" type="Boolean" default= "false"/>
+    <aura:attribute name="showAddressButton" type="Boolean" default= "true" access="global"/>
+    <aura:attribute name="isEqualsAddress" type="Boolean" default="true" access="global"/>
+	<!--francesca.ribezzi - R1F3-106 - 24/09/19 adding isMaintenanceAnagrafica-->
+    <aura:attribute name="isMaintenanceAnagrafica" type="Boolean" default="false" access="global"/>
+
+    <aura:method name="reInitAllPostel" action="{!c.reInitAllPostel}">
+    </aura:method>
+    <aura:method name="blankMethodPostel" action="{!c.blankMethodCapsPostel}">
+        <aura:attribute name="caps" type="List"/>
+    </aura:method>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:if isTrue="{!v.isPostelDisabled != true}">
+        <c:AutoCompleteComponentPostel  objectDataMap="{!v.objectDataMap}"
+                disabledInput_sp="{!v.disabledInput_sp}"
+                addressMapping="{!v.addressMapping}"
+                aura:id="AutoCompleteComponentPostel"
+                zipcodeString="{!v.zipcodeString}"
+                isEqualsAddress="{!v.isEqualsAddress}"
+                isEE= "{!v.isEE}" 
+                isMaintenanceAnagrafica="{!v.isMaintenanceAnagrafica}"/>	<!--francesca.ribezzi - R1F3-106 - 24/09/19 adding isMaintenanceAnagrafica-->
+
+        <aura:if isTrue="{!v.showAddressButton}">
+            <aura:if isTrue="{!v.addressMapping.sectionaddress!='sedeamministrativa'}">
+                <div class="slds-grid slds-size--1-of-1" >
+                    <div class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+                        <div class="{!v.changeLayout==true ? 'slds-p-horizontal_xx-small slds-p-vertical_medium slds-form-element':'slds-p-around_medium slds-form-element'}">
+                            <lightning:button class="CTAStyle" label="{!$Label.c.OB_Address_Not_Found}" title="Disable postel" onclick="{!c.showModal}"/>
+                        </div>
+                    </div>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!and(v.addressMapping.sectionaddress=='sedeamministrativa', v.isEqualsAddress == false)}">
+                <div class="slds-grid slds-size--1-of-1" >
+                    <div class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+                        <div class="{!v.changeLayout==true ? 'slds-p-horizontal_xx-small slds-p-vertical_medium slds-form-element':'slds-p-around_medium slds-form-element'}">
+                            <lightning:button class="CTAStyle" label="{!$Label.c.OB_Address_Not_Found}" title="Disable postel" onclick="{!c.showModal}"/>
+                        </div>
+                    </div>
+                </div>
+            </aura:if>
+        </aura:if>
+    <aura:set attribute="else">
+        <aura:if isTrue="{!and(v.addressMapping.sectionaddress!='sedelegale', v.addressMapping.sectionaddress!='sedeamministrativa')}">
+            <div class="slds-grid slds-size--1-of-1" >
+                <div class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+                    <div class="{!v.changeLayout==true ? 'slds-p-around_xx-small slds-form-element slds-p-horizontal_xx-small':'slds-p-around_medium slds-form-element'}">
+                        <label class="slds-form-element__label" for="{!$Label.c.OB_Address_Country}">
+                            <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Address_Country}
+                        </label>
+                        <aura:if isTrue="{!v.showCountrySelect}">
+                            <lightning:select  	name="countrySelect"
+                                                aura:id="countryPV"
+                                                class="label-hidden"
+                                                value="{!v.countryString}">
+                                <aura:iteration items="{!v.countries}" var="item">
+                                    <option text="{!item}" value="{!item}" selected="{!item.selected}"/>
+                                </aura:iteration>
+                            </lightning:select>
+                        <aura:set attribute="else">
+                            <div class="slds-grid slds-size--1-of-1"> 
+                                <div class="slds-size--11-of-12">
+                                    <lightning:input name="countrySelect" 
+                                                     aura:id="country"
+                                                     id="country"
+                                                     class="label-hidden countryinputsearch" 
+                                                     label=""
+                                                     value="{!v.countryString}" 
+                                                     disabled="true"/>
+                                </div>
+                                <div class="slds-size--1-of-12"> 
+                                    <lightning:button variant="neutral"
+                                                      iconName="utility:search"
+                                                      aura:id="buttonCountry"
+                                                      disabled="true"
+                                                      class="lens-search-country-button"/>
+                                </div>
+                            </div>
+                        </aura:set>
+                        </aura:if> 
+                    </div>
+                </div>
+            </div>
+        </aura:if>
+        <div class="slds-grid slds-size--1-of-1" >
+            <div class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+                <div class="slds-grid">
+                    <div class="{!v.changeLayout==true ? 'slds-form-element slds-small-size--2-of-3 slds-large-size--2-of-3 slds-p-around_xx-small slds-p-horizontal_xx-small':'slds-form-element slds-small-size--2-of-3 slds-large-size--2-of-3 slds-p-around_medium'}">
+                        <aura:if isTrue="{!v.addressMapping.sectionaddress=='sedelegale'}">
+                            <label class="slds-form-element__label" for="{!$Label.c.OB_Legal_Address_Province}">
+                                <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Legal_Address_Province}
+                            </label>
+                        </aura:if>
+                        <aura:if isTrue="{!v.addressMapping.sectionaddress=='sedeamministrativa'}">
+                            <label class="slds-form-element__label" for="{!$Label.c.OB_Administrative_Office_State}">
+                                <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Administrative_Office_State}
+                            </label>
+                        </aura:if>
+                        <aura:if isTrue="{!v.addressMapping.sectionaddress=='generaladdress'}">
+                            <label class="slds-form-element__label" for="{!$Label.c.OB_Address_Province}">
+                                <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Address_Province}
+                            </label>
+                        </aura:if>
+                        <div class="slds-form-element__control">
+                            <input id="{!v.provinceEEId}"  
+                                    class="flow_required slds-input" 
+                                    label=""
+                                    value="{!v.provinceString}" 
+                                    type="text" 
+                                    onchange="{!c.setProvince}" 
+                                    />
+                        </div>
+                    </div>
+                    <div class="{!v.changeLayout==true ? 'slds-form-element slds-small-size--1-of-3 slds-large-size--1-of-3 slds-p-around_xx-small slds-p-horizontal_xx-small':'slds-form-element slds-small-size--1-of-3 slds-large-size--1-of-3 slds-p-around_medium'}">
+                        <label class="slds-form-element__label" for="inputNameSample1" value="SIGLA">
+                            <abbr class="slds-required" title="required">*</abbr>
+                                SIGLA
+                        </label>
+                        <div class="slds-form-element__control">
+                            <input id="{!v.provinceCodeEEId}"  
+                                    class="flow_required slds-input"  
+                                    type="text"
+                                    value="{!v.provinceCodeString}" 
+                                    onchange="{!c.setValueProvinceCode}"
+                                    maxlength="2"
+                                    name="sigla"
+                                    /> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+                <div class="{!v.changeLayout==true ? 'slds-p-around_xx-small slds-form-element slds-p-horizontal_xx-small':'slds-p-around_medium slds-form-element'}">
+                    <aura:if isTrue="{!v.addressMapping.sectionaddress=='sedelegale'}">
+                        <label class="slds-form-element__label" for="{!$Label.c.OB_Legal_Address_City}">
+                            <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Legal_Address_City}
+                        </label>
+                    </aura:if>
+                    <aura:if isTrue="{!v.addressMapping.sectionaddress=='sedeamministrativa'}">
+                        <label class="slds-form-element__label" for="{!$Label.c.OB_Administrative_Office_City}">
+                            <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Administrative_Office_City}
+                        </label>
+                    </aura:if>
+                    <aura:if isTrue="{!v.addressMapping.sectionaddress=='generaladdress'}">
+                        <label class="slds-form-element__label" for="{!$Label.c.OB_Address_City}">
+                            <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Address_City}
+                        </label>
+                    </aura:if>
+                    <input id="{!v.cityEEId}"  
+                            value="{!v.cityString}"
+                            class="flow_required slds-input" 
+                            label =""
+                            type="text" 
+                            onchange="{!c.setCity}"
+                            /> 
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid slds-size--1-of-1" >
+            <div class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+                <div class="{!v.changeLayout==true ? 'slds-p-around_xx-small slds-form-element slds-p-horizontal_xx-small':'slds-p-around_medium slds-form-element'}">
+                    <aura:if isTrue="{!v.addressMapping.sectionaddress=='sedelegale'}">
+                        <label class="slds-form-element__label" for="{!$Label.c.OB_Legal_District}">
+                            {!$Label.c.OB_Legal_District}
+                        </label>
+                    </aura:if>
+                    <aura:if isTrue="{!v.addressMapping.sectionaddress=='sedeamministrativa'}">
+                        <label class="slds-form-element__label" for="{!$Label.c.OB_Administrative_Office_District}">
+                            {!$Label.c.OB_Administrative_Office_District}
+                        </label>
+                    </aura:if>
+                    <aura:if isTrue="{!or(v.addressMapping.sectionaddress=='generaladdress',v.addressMapping.sectionaddress=='documentrelease',v.addressMapping.sectionaddress=='birthaddress')}">
+                        <label class="slds-form-element__label" for="{!$Label.c.OB_Address_District}">
+                            {!$Label.c.OB_Address_District}
+                        </label>		
+                    </aura:if>
+                    <input id="{!v.districtEEId}"  
+                            value="{!v.districtString}"
+                            class="slds-input"
+                            label =""
+                            type="text" 
+                            onchange="{!c.setDistrict}"
+                            name="districtString"
+                            />
+                </div>
+            </div>
+            <div class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+                <div class="slds-grid">
+                    <div class="{!v.changeLayout==true ? 'slds-form-element slds-small-size--2-of-3 slds-large-size--2-of-3 slds-p-around_xx-small slds-p-horizontal_xx-small':'slds-form-element slds-small-size--2-of-3 slds-large-size--2-of-3 slds-p-around_medium'}">
+                        <aura:if isTrue="{!v.addressMapping.sectionaddress=='sedelegale'}">
+                            <label class="slds-form-element__label" for="{!$Label.c.OB_Legal_Address_Street}">
+                                <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Legal_Address_Street}
+                            </label>
+                        </aura:if>
+                        <aura:if isTrue="{!v.addressMapping.sectionaddress=='sedeamministrativa'}">
+                            <label class="slds-form-element__label" for="{!$Label.c.OB_Administrative_Office_Street}">
+                                <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Administrative_Office_Street}
+                            </label>
+                        </aura:if>
+                        <aura:if isTrue="{!v.addressMapping.sectionaddress=='generaladdress'}">
+                        <label class="slds-form-element__label" for="{!$Label.c.OB_Address_Street}">
+                            <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Address_Street}
+                        </label>
+                        </aura:if>	
+                        <div class="slds-form-element__control">
+                            <input id="{!v.stradaEEId}"  
+                                    class="flow_required slds-input"  
+                                    value="{!v.streetString}" 
+                                    type="text" 
+                                    onchange="{!c.setStreet}"
+                                    name="street"
+                                    />
+                        </div>
+                    </div>
+                    <div class="{!v.changeLayout==true ? 'slds-form-element slds-small-size--1-of-3 slds-large-size--1-of-3 slds-p-around_xx-small slds-p-horizontal_xx-small':'slds-form-element slds-small-size--1-of-3 slds-large-size--1-of-3 slds-p-around_medium'}">
+                        <label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.Street_Number}">
+                            <abbr class="slds-required" title="required">*</abbr>
+                                {!$Label.c.Street_Number}
+                        </label>
+                        <div class="slds-form-element__control">
+                            <input id="{!v.civicoEEId}"  
+                                    class="flow_required slds-input"  
+                                    type="text"
+                                    value="{!v.streetNumberString}" 
+                                    onchange="{!c.setValueStreetNumberEE}"
+                                    maxlength="6"
+                                    name="civico"
+                                    /> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid slds-size--1-of-1" >
+            <div class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+                <div class="{!v.changeLayout==true ? 'slds-p-around_xx-small slds-form-element slds-p-horizontal_xx-small':'slds-p-around_medium slds-form-element'}">
+                    <aura:if isTrue="{!v.addressMapping.sectionaddress=='sedelegale'}">
+                        <label class="slds-form-element__label" for="{!$Label.c.OB_Legal_Address_Postal_Code}">
+                            <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Legal_Address_Postal_Code}
+                        </label>
+                    </aura:if>
+                    <aura:if isTrue="{!v.addressMapping.sectionaddress=='sedeamministrativa'}">
+                        <label class="slds-form-element__label" for="{!$Label.c.OB_Administrative_Office_Zip_Code}">
+                            <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Administrative_Office_Zip_Code}
+                        </label>
+                    </aura:if>
+                    <aura:if isTrue="{!v.addressMapping.sectionaddress=='generaladdress'}">
+                        <label class="slds-form-element__label" for="{!$Label.c.OB_Address_Zip_Code}">
+                            <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Address_Zip_Code}
+                        </label>
+                    </aura:if>
+                    <div class="slds-form-element__control">
+                        <input class="slds-input" 
+                                type="number"  
+                                id="{!v.zipCodeEEId}"
+                                label=""
+                                value="{!v.zipcodeString}"
+                                onchange="{!c.setPostalCode}"/>
+                    </div>
+                </div>
+            </div>
+            <aura:if isTrue="{!v.addressMapping.sectionaddress != 'generaladdress'}">
+                <div class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+                    <div class="{!v.changeLayout==true ? 'slds-p-around_xx-small slds-form-element slds-p-horizontal_xx-small':'slds-p-around_medium slds-form-element'}">
+                        <label class="slds-form-element__label" for="presso" >{!$Label.c.Location}</label>
+                        <div class="slds-form-element__control">
+                            <input class="slds-input" 
+                                    type="text"  
+                                    id="{!v.pressoId}"
+                                    label="" 
+                                    value="{!v.detailString}"
+                                    variant="label-hidden"
+                                    disabled="{!v.addressMapping.pressodisabled}"
+                                    onchange="{!c.setValuePresso}"
+                                    name="Presso"/>
+                        </div>
+                    </div>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!v.addressMapping.sectionaddress =='generaladdress'}">
+                <aura:if isTrue="{!v.showPresso == true}">
+                    <div class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+                        <div class="{!v.changeLayout==true ? 'slds-p-around_xx-small slds-form-element slds-p-horizontal_xx-small':'slds-p-around_medium slds-form-element'}">
+                            <label class="slds-form-element__label" for="presso">{!$Label.c.Location}</label>
+                            <div class="slds-form-element__control">
+                                <input class="slds-input" 
+                                        type="text"  
+                                        id="{!v.pressoId}"
+                                        label="" 
+                                        value="{!v.detailString}"
+                                        variant="label-hidden"
+                                        disabled="{!v.addressMapping.pressodisabled}"
+                                        onchange="{!c.setValuePresso}"
+                                        name="Presso"/>
+                            </div>
+                        </div>
+                    </div>
+                </aura:if>
+            </aura:if> 
+        </div>
+        <div class="slds-grid slds-size--1-of-1" >
+            <div  class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+                <div class="{!v.changeLayout==true ? 'slds-p-horizontal_xx-small slds-p-vertical_medium slds-form-element':'slds-p-around_medium slds-form-element'}">
+                        <lightning:button class="CTAStyle_BRAND" label="{!$Label.c.OB_ActivatePostel}" title="Activate postel" onclick="{!c.activatePostel}"/>
+                </div>
+            </div>
+        </div>
+    </aura:set>	
+    </aura:if>
+    <aura:if isTrue="{!v.showAddressModal}">
+        <div class="{!v.changeLayout==true ? 'flowmodal' : 'changemodal'}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="headerModalStyle slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                            <span class="slds-assistive-text">{!$Label.c.OB_MAINTENANCE_BUTTON_CLOSEBUTTON}</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!$Label.c.OB_AddressNotFound}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <p>{!$Label.c.OB_DisablePostel}</p>
+                    </div>
+                    <footer class="slds-modal__footer slds-modal__footer_directional">
+                        <button class="CTAStyle_BRAND slds-button slds-button_brand" onclick="{!c.disablePostel}">{!$Label.c.OB_Confirm}</button>
+                        <button class="CTAStyle slds-button slds-button_neutral" onclick="{!c.cancel}">{!$Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON}</button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>					
+</aura:component>

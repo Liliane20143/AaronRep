@@ -1,0 +1,361 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId" 
+				controller="OB_MaintenanceAssetSummaryController"
+				access="global">
+
+	<aura:attribute name ="ServicePointSelectedRow" type="String" />
+	<aura:attribute name="switchOnload" type="boolean" default="false" />
+	<aura:attribute name="offerid" type="String"  />
+ 	<aura:attribute name="teminalid" type="String"  />
+ 	<aura:attribute name="viewMode" type="String" default="READONLY" />
+	
+ 	
+ 	<!-- attributes used to filter  --> 
+ 	<aura:attribute name="assetFilters"  type="Object"  access="global"/> 
+ 	
+	 <!-- francesca.ribezzi - adding new fields to show -->
+	 <!-- ANDREA MORITTU START 27-Sept-2019 - Added new formula field-->
+	<aura:attribute name="fieldsToShow" type="List" default="['Name','OB_enablement__c','OB_TermId__c','OB_Model__c','OB_ModelDescription__c', 'InstallDate','NE__EndDate__c','OB_GT__c', 'OB_StatusFormula__c', 'NE__Status__c']" /> <!-- 'Owner.Name' -->
+	<aura:attribute name="fieldsToShowAcq" type="List" default="['Name','OB_ServicePointCode__c','InstallDate', 'NE__EndDate__c']" /> <!-- 'OB_Conventioncode__c ' -->
+	<!-- ANDREA MORITTU END 27-Sept-2019 - Added new formula field-->
+	<!-- ANDREA MORITTU START 23-Sept-2019 - PRODOB_469 - REMOVING FIELD -->
+	<!-- ANDREA MORITTU START 02-Oct-2019 - BACKLOG_245 - ADDING NE__Order_Config__c -->
+	<aura:attribute name="fieldsToShowOffer" type="List" default="['Name','NE__StartDate__c', 'LastModifiedDate','OB_StatusFormula__c',  'NE__Status__c', 'OB_MCC__c', 'OB_MCCL2__c','OB_ShopSign__c','OB_ShopCode__c', 'NE__Order_Config__c' ]" />
+	<!-- ANDREA MORITTU END 02-Oct-2019 - BACKLOG_245 - ADDING NE__Order_Config__c -->
+	<aura:attribute name ="mccLOVSList" type="List" access="global" />
+	<!-- ANDREA MORITTU END 23-Sept-2019 - PRODOB_469 - REMOVING FIELD -->
+	<aura:attribute name="fieldsToShowVas" type="List" default="['Name']" />
+	<aura:attribute name="fieldsToShowPagoBanc" type="List" default="['Name']" />
+	<aura:attribute name="isFromServicePoint" type="boolean" default="false"/>
+	<aura:attribute name="showLabel" type="boolean"/>
+	<aura:attribute name="offerAssetId" type="String"/>	
+	<aura:attribute name="spinner" type="boolean" default="false"/>	
+	<aura:attribute name="showPriceSummary" type="boolean" default="false"/>		
+	<aura:attribute name="isCommunity" type="boolean"/>
+	<aura:attribute name="order" type="NE__Order__c"/>	
+	<aura:attribute name="currentUser" type="Object" access="global"/>	
+	<!-- ANDREA MORITTU START - 17-Sept-2019 -->
+	<aura:attribute name="showPricesClicked" type="Boolean" default="false"/> 
+	<!-- ANDREA MORITTU END - 17-Sept-2019 -->
+	<aura:attribute name="AccountData" type="Object"  /> 	
+
+	<aura:attribute name ="proposerABI"  type="String"  access="global"/>
+	<!-- 25/01/19 new preload functionality attributes: -->
+	<aura:attribute name="showFlowCartForPreload" type="boolean" default="false"/>		
+	<aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>	
+	<aura:attribute name="step" type="Integer" default="0"/>
+	<aura:attribute name="bundleStep" type="Integer" default="0"/>
+	<aura:attribute name="isMaintenance" type="Boolean" default="false"/>
+	<aura:attribute name="isMaintenancePricing" type="Boolean" default="false"/>
+	<aura:attribute name="isEditCommissionModel" type="Boolean" default="false"/>
+	<aura:attribute name="isMaintenanceOffer" type="Boolean" default="false"/>	
+	<aura:attribute name="isDisconnectOffer" type="Boolean" default="false"/>
+
+	<aura:attribute name="bankABI" type="String"/>		
+	<aura:attribute name="offertaId" type="ID"/>
+	<aura:attribute name="offerAssetSelected" type="Asset"/>
+	<aura:attribute name="commissionbtnDisabled" type="Boolean" default="true"/>
+	<aura:attribute name="offerBtnDisabled" type="Boolean" default="true"/>
+	<aura:attribute name="pricingbtnDisabled" type="Boolean" default="true"/>
+	<aura:attribute name="terminateDisabled" type="Boolean" default="true"/>
+
+	<aura:attribute name="showAssetPricing" type="Boolean" default="false"/>																	 
+	<!-- ANDREA MORITTU START - 02-Oct-2019 - EVO_BACKLOG_245 -->
+	<aura:attribute     name="oldVMAttributes"                   type="List"                                        access="global"             />
+	<!-- ANDREA MORITTU END - 02-Oct-2019 - EVO_BACKLOG_245 -->
+
+	<aura:handler name="init" value="{! this }" action="{! c.doInit }"/> 		
+	<aura:handler name="change" value="{!v.offerid}" action="{!c.itemsChange}"/>
+	<aura:handler name="showLabelEvent" event="c:OB_Maintenance_DynamicTableChildEvent" action="{!c.handleShowLabel}"/>
+	<aura:method name="destroyFlowCart" action="{! c.destroyFlowCart}"></aura:method>
+
+
+	<aura:registerEvent name="maintenanceEvent" type="c:OB_MaintenanceSummaryEvent"/>
+	<aura:registerEvent name="maintenancePreloadEvent" type="c:OB_MaintenancePreLoadEvent"/>
+	<aura:handler event="c:OB_FlowCartMaintenanceEvent" action="{!c.handleFlowCartEvent}"/>
+	<!--g.s event to  hide previous button-->
+	<aura:registerEvent name="backSet" type="c:OB_backSet"/>
+	<!-- START [01-04-2019 No Card Present] Andrea Saracini -->
+	<aura:attribute name="typologiesMap" type="Map"/>
+	<aura:attribute name="executeBtnDisabled" type="Boolean" default="true"/>
+	<aura:attribute name="isEcommerce" type="Boolean" default="false"/>
+	<aura:attribute name="typologiesValue" type="String" default=""/>
+	<!-- STOP [01-04-2019 No Card Present] Andrea Saracini -->
+	<!-- START Andrea Saracini 16/05/2019 Card No Present -->
+	<aura:attribute name="fieldsToShowApm" type="List" default="['Name']" />
+	<aura:attribute name="fieldsToShowInt" type="List" default="['Name']" />
+	<!-- STOP Andrea Saracini 16/05/2019 Card No Present -->
+	<!-- START elena preteni 2/4/19-->
+	<aura:attribute name="recordId" type="String" /> 
+	<aura:attribute name="bundleConfiguration" type="string"  />
+	<!-- END elena preteni 2/4/19-->
+	<aura:attribute name="showCoBaModal" 		type="Boolean" 		default="false" 		access="global" /> 
+	<!--ANDREA MORITTU START 18-Sept-2019 - EVO_PRODOB_452 -->	
+	<aura:attribute name="buttonChosenInNewCartPriceSummary" 		type="String" 		default="" 						access="global" /> 
+	<aura:attribute name="isPricing" 								type="Boolean" 		default="" 						access="global" /> 
+	
+	<aura:handler 	name="decideWhichMaintenanceOperation_Evt" 		event="c:OB_DecideWhichMaintenanceOperation_Evt" 	action="{!c.catchEventNewCartPriceSummary}"/>
+	<!--ANDREA MORITTU END 18-Sept-2019 - EVO_PRODOB_452 -->	
+
+	<!-- andrea.morittu - START 29.04.2019 - ID_Task_6 - Subentro -->
+	<aura:attribute name="wizardAPIname" 		
+					type="String" 		
+					default="OB_Catalogo_Nuovo_Contratto" 		
+					access="global" /> 
+	<aura:attribute name="wizardConfigurationId" type="String"  access="global"/>
+	<aura:attribute name="merchantTakeOverBoolean" type="Boolean"  access="global"/>
+	<!-- andrea.morittu - END 29.04.2019 - ID_Task_6 - Subentro --> 
+
+	<!-- Daniele Gandini <daniele.gandini@accenture.com> - 02/05/2019 - TerminalsReplacement - Boolean for identify subprocess START  -->
+	<aura:attribute name="isReplacement" type="Boolean" default="false"/>
+	<aura:attribute name="terminalsAssignamentInfos" type="Map"/>
+	<!-- Daniele Gandini <daniele.gandini@accenture.com> - 02/05/2019 - TerminalsReplacement - Boolean for identify subprocess END  -->
+	<!-- andrea.morittu - START 2019.05.07 - ID_Task_6 - Subentro --> 
+	<aura:attribute name="bodyComponent" type="Aura.Component[]" access="global"/>
+	<!-- andrea.morittu - END 2019.05.07 - ID_Task_6 - Subentro --> 
+	<!-- ANDREA MORITTU START 2019.05.07 - ID_Stream_6_Subentro -->
+	<aura:attribute name="showBit2Flow" type="Boolean" default="false" access="global"/>
+	<!-- ANDREA MORITTU END 2019.05.07 - ID_Stream_6_Subentro -->
+	<!-- ANDREA MORITTU START 05-Jun-2019 F2WAVE2-75-->
+	<aura:attribute name="showTerminalOfferModal" 	type="Boolean" default="false" access="global"/>
+	<aura:attribute name="terminalOfficeChoice" 	type="Boolean" 	default="false" access="global"/>
+	<!-- ANDREA MORITTU END 05-Jun-2019 F2WAVE2-75-->
+	<!-- START gianluigi.virga 27/11/2019 -->
+	<aura:attribute name="callRetrieveItemsAndItemAttributes" type="Boolean" default="false" access="global"/>
+	<!-- END gianluigi.virga 27/11/2019-->
+	<!-- andrea.morittu - START 29.04.2019 - ID_Task_6 - Subentro --> 
+	<aura:registerEvent name="destroyWholeMainComponent" type="c:OB_DestroyMaintenanceSummary" />	
+	<!-- andrea.morittu - END 29.04.2019 - ID_Task_6 - Subentro --> 
+	<aura:if isTrue="{!!v.showBit2Flow}">
+	<div aura:id="mainComponentDiv">
+	<!-- SPINNER -->
+		<aura:if isTrue="{!v.spinner}">
+			<div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+				<div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+					<span class="slds-assistive-text">Loading</span>
+					<div class="slds-spinner__dot-a"></div>
+					<div class="slds-spinner__dot-b"></div>
+				</div>
+			</div>
+		</aura:if>
+	<!-- / SPINNER -->
+	<!-- 25/01/19 new Engine Preload logic: -->
+
+	<!-- Daniele Gandini <daniele.gandini@accenture.com> - 29/04/2019 - TerminalsReplacement - Added typologiesValue parameter to make logic with in FlowCart -> ConfigurePOS -> ConfigureActivePOS - START  -->
+	<aura:if isTrue="{!v.showFlowCartForPreload}"> 
+		<c:OB_FlowCart  aura:id = "flowCartCmp"
+						step = "{!v.step}"
+						offertaId  = "{!v.offertaId}"
+						isMaintenance  = "{!v.isMaintenance}"
+						isMaintenancePricing  = "{!v.isMaintenancePricing}"
+						objectDataMap  = "{!v.objectDataMap}"
+						bankABI  = "{!v.bankABI}"
+						bundleStep  = "{!v.bundleStep}"
+						isEditCommissionModel  = "{!v.isEditCommissionModel}"
+						activatePreLoad = "true"
+						offerAssetId="{!v.offerAssetId}"
+						showFlowCartForPreload ="{v.showFlowCartForPreload}"
+						isPricing="{!v.isPricing}"  
+						typologiesValue = "{!v.typologiesValue}"
+						isReplacement = "{!v.isReplacement}"
+						oldVMAttributes="{!v.oldVMAttributes}"
+						/><!-- ANDREA MORITTU EVO_PRODOB_452 - ADDED OFFERASSET ID PARAMETER -->
+								
+	</aura:if>
+	<!-- Daniele Gandini <daniele.gandini@accenture.com> - 29/04/2019 - TerminalsReplacement - Added typologiesValue parameter to make logic with in FlowCart -> ConfigurePOS -> ConfigureActivePOS - END -->
+    
+    
+  	<aura:if isTrue="{!!v.showPriceSummary}">    
+		<aura:if isTrue="{! v.ServicePointSelectedRow != null}">  
+			<aura:if isTrue="{!v.offerid != ''}"> 
+				<div class="sectionTitle">{!$Label.c.OB_LocationOfferList}</div>
+			</aura:if>
+			<!-- START elena preteni 3/4/19-->
+			<!--andrea morittu pass attribute in child - start - 07/10/2019-->
+			<aura:if isTrue="{!not(empty(v.mccLOVSList))}">
+				<c:OB_Maintenance_DynamicTable  mccLOVSList="{!v.mccLOVSList}" bundleConfiguration="{!v.bundleConfiguration}" aura:id="offertable" fieldsToShow="{!v.fieldsToShowOffer}" ObjectToShow="Asset" recordparentid="{!v.ServicePointSelectedRow}" queryType="OFFER" switchOnload ="{!v.switchOnload}" selectedRow="{!v.offerid}" isFromServicePoint="{!v.isFromServicePoint}" proposerABI="{!v.proposerABI}" currentUser="{!v.currentUser}"/>
+			</aura:if>
+			<!--andrea morittu pass attribute in child - end - 07/10/2019-->
+			<!-- END elena preteni 3/4/19-->
+		</aura:if>
+    <!-- ANDREA MORITTU @END-->
+
+	<aura:if isTrue="{!and(v.showLabel == true, not(v.isDisconnectOffer))}">  
+		<div class="slds-grid slds-gutters">
+			<!-- ANDREA MORITTU START 24-Sept-2019 - PRODOB_469 -->
+			<!-- ANDREA MORITTU START 08-Oct-19 - EVO_MISALIGNMENT_DEPLOY -->
+			<div class="slds-grid slds-size--1-of-1" > 
+				<div class="slds-size--1-of-3">
+				</div>
+				<div class="slds-size--1-of-3 slds-var-m-around_medium">	
+					<aura:if isTrue="{!not(v.isFromServicePoint)}">  
+						<!-- edit offer and pricing buttons -->
+						<p class="btnsWrapper">
+							<!-- START [01-04-2019 No Card Present] Andrea Saracini -->
+							<!--lightning:button aura:id="editCommissionBtn" variant="brand" label="{!$Label.c.OB_EditCommissionModel}" title="Edit Commission" onclick="{!c.goToMaintenance}" disabled="{!v.commissionbtnDisabled}"/> 
+							<lightning:button aura:id="pricingBtn"  variant="brand" label="{!$Label.c.OB_EditPricing}" title="Pricing" onclick="{!c.goToMaintenance}" disabled="{!v.pricingbtnDisabled}"/> 
+							<lightning:button aura:id="editOfferBtn" variant="brand" label="{!$Label.c.OB_EditOffer}" title="Edit Offer"  onclick="{!c.goToMaintenance}" disabled="{!v.offerBtnDisabled}"/>							 
+							<lightning:button aura:id="terminateOfferBtn"  variant="brand" label="{!$Label.c.OB_TerminateOffer}" title="Termina Offerta" onclick="{!c.goToMaintenance}"  disabled="{!v.terminateDisabled}"/-->							
+							<lightning:select aura:id="typologiesPicklist" onchange="{!c.handleTipologiesOnChange}" name="tipologiesPicklist" label="Tipologie di Maintenance">
+								<option value="">--None--</option>
+								<aura:iteration items="{!v.typologiesMap}" var="item">
+									<option text="{!item.value}" value="{!item.key}"/>
+								</aura:iteration>
+							</lightning:select>
+							<!-- STOP [01-04-2019 No Card Present] Andrea Saracini -->							
+						</p>
+					</aura:if>
+				</div>
+				<div class="slds-grid slds-grid_vertical">
+					<div class="slds-col"/>
+					<div class="slds-col executeBtnDiv">
+						<!-- START [01-04-2019 No Card Present] Andrea Saracini -->
+							<lightning:button class="CTAStyle" aura:id="executeBtn" variant="neutral" label="Esegui" title="execute"  onclick="{!c.goToMaintenance}" disabled="{!v.executeBtnDisabled}"/>									
+						<!-- STOP [01-04-2019 No Card Present] Andrea Saracini -->
+					</div>
+					<div class="slds-col"/>
+				</div>
+			</div>
+		</div>
+	</aura:if>	<!--HERE-->
+	<!-- ANDREA MORITTU START 26-Sept-2019 PRODOB_469 - PUT LIGHTNING ACCORDION -->
+	<div class="sectionTitle slds-p-around_medium">				
+		{!$Label.c.OB_OfferDetails}
+	</div>
+	<lightning:accordion aura:id="accordion" allowMultipleSectionsOpen="true" class="">
+		<lightning:accordionSection name="A" label="{!$Label.c.OB_TerminaliLabel}" title="accordionMenuStyle">
+			<aura:set attribute="body">
+				<div class="orderItemsContainer"> 
+					<!-- ANDREA MORITTU @START:Remove Title from component.labelToShow-->
+					<!-- 03/01/19 francesca.ribezzi - adding PAGOBANCOMAT table below the POS one -->
+					<aura:if isTrue="{!v.switchOnload}">
+							<c:OB_Maintenance_DynamicTable_Tree fieldsToShow="{!v.fieldsToShow}" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}" selectedRow="{!v.teminalid}"  proposerABI="{!v.proposerABI}" />
+							<!--<c:OB_Maintenance_DynamicTable fieldsToShow="['Name', 'OB_CustomerCode__c', 'OB_GT__c']" ObjectToShow="Asset" queryType="TERMINAL" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}" selectedRow="{!v.teminalid}"  TerminalEnablementsViewActivate="true"  MaxRowSelection="110"  /> -->
+							<!-- <c:OB_Maintenance_DynamicTable fieldsToShow="{!v.fieldsToShowPagoBanc}" ObjectToShow="Asset" queryType="PAGOBANCOMAT" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}" selectedRow="{!v.teminalid}"   MaxRowSelection="0" hideCheckboxColumn="true"   proposerABI="{!v.proposerABI}"/> -->
+					</aura:if> 
+					<aura:if isTrue="{!!v.switchOnload}">
+						<c:OB_Maintenance_DynamicTable_Tree fieldsToShow="{!v.fieldsToShow}" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}" selectedRow="{!v.teminalid}"  proposerABI="{!v.proposerABI}" />
+							<!--<c:OB_Maintenance_DynamicTable fieldsToShow="['Name', 'OB_CustomerCode__c', 'OB_GT__c']" ObjectToShow="Asset" queryType="TERMINAL" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}"  selectedRow="{!v.teminalid}"  TerminalEnablementsViewActivate="true" MaxRowSelection="110"   /> -->
+							<!-- <c:OB_Maintenance_DynamicTable fieldsToShow="{!v.fieldsToShowPagoBanc}" ObjectToShow="Asset" queryType="PAGOBANCOMAT" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}"  selectedRow="{!v.teminalid}"   MaxRowSelection="0"  hideCheckboxColumn="true"  proposerABI="{!v.proposerABI}"/> -->
+					</aura:if>
+					<!-- ANDREA MORITTU @END  -->
+				</div>
+			</aura:set>
+		</lightning:accordionSection>
+		<lightning:accordionSection name="B" label="{!$Label.c.OB_AcceptedCards}" title="accordionMenuStyle">
+			<div class="orderItemsContainer"> 
+				<aura:if isTrue="{!v.switchOnload}">				
+					<c:OB_Maintenance_DynamicTable mccLOVSList="{!v.mccLOVSList}"  fieldsToShow="{!v.fieldsToShowAcq}" ObjectToShow="Asset" queryType="ACQUIRING" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}" selectedRow="{!v.teminalid}"   MaxRowSelection="0" hideCheckboxColumn="true"  proposerABI="{!v.proposerABI}" currentUser="{!v.currentUser}" />
+				</aura:if> 
+				<aura:if isTrue="{!!v.switchOnload}">
+					<c:OB_Maintenance_DynamicTable mccLOVSList="{!v.mccLOVSList}"  fieldsToShow="{!v.fieldsToShowAcq}" ObjectToShow="Asset" queryType="ACQUIRING" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}"  selectedRow="{!v.teminalid}"   MaxRowSelection="0"  hideCheckboxColumn="true"  proposerABI="{!v.proposerABI}" currentUser="{!v.currentUser}"/>
+				</aura:if>
+			</div>
+		</lightning:accordionSection>
+		<lightning:accordionSection name="C" label="{!$Label.c.OB_VasLabel}" title="accordionMenuStyle">
+			<!-- francesca.ribezzi - adding VAS table -->
+			<div class="orderItemsContainer"> 
+				<aura:if isTrue="{!v.switchOnload}">				
+					<c:OB_Maintenance_DynamicTable mccLOVSList="{!v.mccLOVSList}"  fieldsToShow="{!v.fieldsToShowVas}" ObjectToShow="Asset" queryType="VAS" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}" selectedRow="{!v.teminalid}"   MaxRowSelection="0" hideCheckboxColumn="true"   proposerABI="{!v.proposerABI}" currentUser="{!v.currentUser}"/>
+				</aura:if> 
+				<aura:if isTrue="{!!v.switchOnload}">
+					<c:OB_Maintenance_DynamicTable mccLOVSList="{!v.mccLOVSList}" fieldsToShow="{!v.fieldsToShowVas}" ObjectToShow="Asset" queryType="VAS" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}"  selectedRow="{!v.teminalid}"   MaxRowSelection="0"  hideCheckboxColumn="true"  proposerABI="{!v.proposerABI}" currentUser="{!v.currentUser}"/>
+				</aura:if>
+			</div>
+		</lightning:accordionSection>
+	</lightning:accordion>
+	<!--START Andrea Saracini 13/05/2019 Card No Present -->
+	<div class="orderItemsContainer"> 
+		<aura:if isTrue="{!v.switchOnload}">				
+			<c:OB_Maintenance_DynamicTable fieldsToShow="{!v.fieldsToShowApm}" ObjectToShow="Asset" queryType="APM" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}" selectedRow="{!v.teminalid}"   MaxRowSelection="0" hideCheckboxColumn="true"   proposerABI="{!v.proposerABI}" currentUser="{!v.currentUser}"/>
+		</aura:if> 
+		<aura:if isTrue="{!!v.switchOnload}">
+			 <c:OB_Maintenance_DynamicTable fieldsToShow="{!v.fieldsToShowApm}" ObjectToShow="Asset" queryType="APM" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}"  selectedRow="{!v.teminalid}"   MaxRowSelection="0"  hideCheckboxColumn="true"  proposerABI="{!v.proposerABI}" currentUser="{!v.currentUser}"/>
+		</aura:if>
+	</div>
+	<div class="orderItemsContainer"> 
+		<aura:if isTrue="{!v.switchOnload}">				
+			<c:OB_Maintenance_DynamicTable fieldsToShow="{!v.fieldsToShowInt}" ObjectToShow="Asset" queryType="INTEGRAZIONE" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}" selectedRow="{!v.teminalid}"   MaxRowSelection="0" hideCheckboxColumn="true"   proposerABI="{!v.proposerABI}" currentUser="{!v.currentUser}"/>
+		</aura:if> 
+		<aura:if isTrue="{!!v.switchOnload}">
+			 <c:OB_Maintenance_DynamicTable fieldsToShow="{!v.fieldsToShowInt}" ObjectToShow="Asset" queryType="INTEGRAZIONE" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}"  selectedRow="{!v.teminalid}"   MaxRowSelection="0"  hideCheckboxColumn="true"  proposerABI="{!v.proposerABI}" currentUser="{!v.currentUser}"/>
+		</aura:if>
+	</div>
+	<!--STOP Andrea Saracini 13/05/2019 Card No Present -->
+	
+	</aura:if> <!-- aura:if showPrice summary -->
+
+	<!-- francesca.ribezzi - price summary component -->
+	
+	 <!--START francesca.ribezzi 20/03/19 adding new modal to show asset pricing-->
+	<aura:if isTrue="{!v.showAssetPricing}"> 
+		<c:strike_modal size="large" primaryButtonLabel="Ok" secondaryButtonLabel="Cancel" showHeader="false" showFooter="false" showClose="true" showModal="{!v.showAssetPricing}" >
+			<!--28/03/19 francesca.ribezzi also passing showTerminalId to newCartPriceSummary cmp:-->
+			<!-- ANDREA MORITTU START 17-Sept-2019 - Adding parameter to newCartPriceSummary-->
+			<c:OB_newCartPriceSummary offerAssetSelected="{!v.offerAssetSelected}" ServicePointSelectedRow="{!v.ServicePointSelectedRow}" showAssetPricing="{!v.showAssetPricing}" AccountData="{!v.AccountData}" isReadOnly="true" isFlow="false" offerAssetId="{!v.offerAssetId}" showStartDate="true" showTerminalId="true"/>
+			<!-- ANDREA MORITTU END 17-Sept-2019 - Adding parameter to newCartPriceSummary-->
+		</c:strike_modal>
+	</aura:if>
+	<!--END  francesca.ribezzi  -->																		
+		
+		<!--ANDREA MORITTU START 02.04.2019 -> CoBa Modal-->
+		<!-- Start simone.misani@accenture.com R1F2-92 07/05/2019 add offerAssetId  -->
+		<aura:if isTrue="{!v.showCoBaModal}"> 
+			<ui:scrollerWrapper class="scrollerSize">
+				<c:OB_CustomAssetViewCoBaPricing 	isCommunity="{!v.isCommunity}" offerAssetid="{!v.offerAssetId}"
+													ServicePointSelectedRow="{!v.ServicePointSelectedRow}" 
+													showCoBaModal="{!v.showCoBaModal}"
+													/>
+													<!-- End simone.misani@accenture.com R1F2-92 07/05/2019 add offerAssetId  -->
+			</ui:scrollerWrapper>
+		</aura:if>
+		<!--ANDREA MORITTU END 02.04.2019 -> CoBa Modal-->
+	</div>
+	</aura:if>
+		<!-- andrea.morittu - ID_Stream_6 - Subentro - added condition to aura:if -->
+		<div class="redirectionFlows">
+			<aura:if isTrue="{!or(v.showPriceSummary, v.merchantTakeOverBoolean)}"> 
+				{!v.body}
+			</aura:if>
+		</div>
+	<!--giovanni spinelli move modal at bottom of component - 07/10/2019-->
+	<!-- ANDREA MORITTU START 05-Jun-2019 F2WAVE2-75-->	
+	<aura:if isTrue="{!v.showTerminalOfferModal}">
+		<div style="height:640px">
+			<section role="dialog" tabindex="-1" aria-label="Meaningful description of the modal content" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+				<div class="slds-modal__container">
+					<header class="slds-modal__header slds-modal__header_empty">
+						<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.closeTerminalOfferModal}">
+							<span class="slds-assistive-text">Close</span>
+						</button>
+					</header>
+					<!--ANDREA MORITTU START 11-Jul-19 F2WAVE2-125-->
+					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+						<div class="slds-grid">
+							<div class="slds-size--1-of-1">
+								<div class="slds-size--1-of-2">
+									<lightning:icon iconName="utility:warning" alternativeText="Warning!" variant="warning" size="small"	/>
+								</div>
+								<div class="slds-size--1-of-1 slds-p-left_xx-small">
+									{!$Label.c.OB_ConfirmTerminateOfferLabel}
+								</div>
+							</div>
+						</div>
+						<div class="slds-col slds-size_1-of-3">
+                        <!-- Andrea Morittu - Enrico Purificato START 04-Oct-2019 - WN_564 - Different event on lightning input (on click has a weird behaviour -->
+							<lightning:input type="radio" label="{!$Label.c.OB_Yes}" 	name="{!$Label.c.OB_Yes}" value="{!v.terminalOfficeChoice}" onchange="{!c.chooseTerminateOfferAction}"/>
+                        <!-- Andrea Morittu - Enrico Purificato END 04-Oct-2019 - WN_564 - Different event on lightning input (on click has a weird behaviour -->
+						</div>
+						<div class="slds-col slds-size_1-of-3">
+						</div>
+						<div class="slds-col slds-size_1-of-3">
+							<lightning:input type="radio" label="{!$Label.bit2flow.b2f_no}" name="{!$Label.bit2flow.b2f_no}" value="{!v.terminalOfficeChoice}" onclick="{!c.chooseTerminateOfferAction}"/>							
+						</div>
+					</div>
+					<!-- ANDREA MORITTU START 11-Jul-19 F2WAVE2-125 -->
+				</div>
+			</section>
+			<div class="slds-backdrop slds-backdrop_open"></div>
+		</div>
+	</aura:if>
+	<!-- ANDREA MORITTU END 05-Jun-2019 F2WAVE2-75-->
+</aura:component>

@@ -1,0 +1,105 @@
+<aura:component>
+    <aura:attribute name="matrixParameter" type="NE__Matrix_Parameter__c" access="global" />
+    <aura:attribute name="setAllCheckbox" type="Boolean" default="false"/> <!-- 03/07/19 francesca.ribezzi - F2WAVE2-16 access="global" removed-->
+    <aura:attribute name="matrixParameterList" type="List" access="global" />
+    
+    <aura:attribute name="abiListForSingleMatrix" type="List"/>
+    <aura:attribute name="listOfSelectedABI" type="List"/>
+    <aura:attribute name="showABIlist" type="Boolean" access="global"/>
+    <aura:attribute name="ABIwithMatrixMap" type="Map"/>
+
+    <aura:attribute name="availableABIList" type="List"/>
+    <aura:attribute name="activeABIList" type="List"/>
+    <!--START Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+    <aura:attribute name="isPricingForBank" type="Boolean" default="false" access="global"/>
+    <!--STOP Andrea Saracini 20/05/2019 Catalog ON-OFF --> 
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.setAllCheckbox}" action="{!c.handleChangeAllCheckbox}"/>
+    <!--22/05/19 francesca.ribezzi handling event to receive selected ABI-->
+    <aura:handler   event="c:OB_MatrixSelAppEvt" action="{!c.inheritSelectedABI}"/>
+
+    <aura:attribute name="data" type="List" access="global"/>
+    <aura:attribute name="columns" type="List" />
+    <aura:attribute name="abiColumns" type="List"/>
+    <!--START francesca.ribezzi 12/06/19  adding attributes for OB_DatatableStrikeModal -->
+	<aura:attribute name="selectedRows" type="List"  access="global"/>
+	<aura:attribute name="selectedBankList" type="sObject[]" default="{}" access="global"/>
+    <!--END francesca.ribezzi 12/06/19  -->
+    <aura:attribute name="index" type="Integer" default="0"/>
+   <!-- <aura:handler action="{!c.handleReceivingABIlist}" event="c:OB_ConfigureABIforProductsEvent" />-->
+    <!--francesca.ribezzi 13/06/19 adding class-->
+    <tr aria-selected="false" class="slds-hint-parent rowClass">
+        <td class="slds-text-align_right" role="gridcell">
+            <div class="slds-checkbox">
+                <!--10/06/19 francesca.ribezzi adding OB_ActiveBank__c as checkbox value if isPricingForBank is true: -->
+                <input type="checkbox" name="options" id="{!v.matrixParameter.Id}" value="{!v.isPricingForBank? v.matrixParameter.OB_ActiveBank__c : v.matrixParameter.NE__Active__c}" checked="{!v.isPricingForBank? v.matrixParameter.OB_ActiveBank__c : v.matrixParameter.NE__Active__c}" tabindex="{!v.index}" aria-labelledby="check-button-label-03 column-group-header" onchange="{!c.handleActivateMatrix}"/>
+                <label class="slds-checkbox__label" for="{!v.matrixParameter.Id}" >
+                <span class="slds-checkbox_faux"></span>
+                </label>
+            </div>
+        </td>
+        <th scope="row">
+            <div class="slds-truncate" title="name">
+                <!--francesca.ribezzi 13/06/19 adding style-->
+                <span style="font-weight:bold">{!v.matrixParameter.OB_Componente__r.NE__Product_Name__c}</span> 
+            </div>
+        </th>
+        <!--davide.franzini - WN-124 - 18/07/2019 - START-->
+        <th scope="row">
+            <div class="slds-truncate" title="name">
+                <span style="font-weight:bold">{!v.matrixParameter.OB_SchemaPrezzi__c}</span> 
+            </div>
+        </th>
+        <!--davide.franzini - WN-124 - 18/07/2019 - END-->
+		<aura:if isTrue="{!not(v.isPricingForBank)}"><!--Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+            <th scope="row">
+                <div title="AssociaABI"> <!--Noemi Infantino 16/10/2019 (R1F3-144) -->
+                    <!--pulsante esplodi + component-->
+                    <div class="showDetails" onclick="{!c.showABIdetails}" > 
+                        <span class="arrow_image"> 
+                            <div class="arrowCircleContainer">
+                                <lightning:icon class="arrow" size="small" iconName="utility:down" alternativeText="open details" /> 
+                                <span class="associaABIClass">{!$Label.c.OB_LinkABI}</span>
+                            </div>
+                        </span>
+                    </div>
+                    <!--List of ABI here -->
+                    <div class="{!v.showABIlist == true? 'slds-show' : 'slds-hide'}">
+                    <!--<c:OB_MatrixSaleabilitySelector leftValues="{!v.availableABIList}"
+                                                        rightValues="{!v.activeABIList}"/>-->
+           
+                            
+                   
+
+                    </div>
+                </div>
+            </th>
+        </aura:if><!--Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+        <!--START Andrea Saracini 23/05/2019 Catalog ON-OFF -->
+        <th scope="row">
+            <!-- francesca.ribezzi 12/06/19 adding OB_ActiveBank__c condition -->
+            <aura:if isTrue="{!and(v.isPricingForBank, not(v.matrixParameter.OB_ActiveBank__c))}"><!--Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+                <div class="slds-truncate redColor" title="itemRemoved">
+                    <i>{!$Label.c.OB_removeItemOffer} </i>
+                </div>
+            </aura:if>
+        </th>
+        <!--STOP Andrea Saracini 23/05/2019 Catalog ON-OFF -->
+    </tr>
+
+     <!--START francesca.ribezzi 12/06/19 adding modal containing abi list table-->
+        <c:OB_DatatableStrikeModal  data="{!v.data}"
+                                        columns="{!v.columns}"
+                                        showABIlist="{!v.showABIlist}"
+                                        selectedRows="{!v.selectedRows}"
+                                        selectedBankList="{!v.selectedBankList}"
+                                        matrixParameter="{!v.matrixParameter}"
+                                        ABIwithMatrixMap="{!v.ABIwithMatrixMap}"
+                                        isPricingForBank="{!v.isPricingForBank}"
+                                        isActive="{!v.isPricingForBank?v.matrixParameter.OB_ActiveBank__c : v.matrixParameter.NE__Active__c}"/> <!--francesca.ribezzi 17/06/19 adding isActive attribute -->
+                 
+  <!--  END francesca.ribezzi 12/06/19 -->
+
+
+</aura:component>

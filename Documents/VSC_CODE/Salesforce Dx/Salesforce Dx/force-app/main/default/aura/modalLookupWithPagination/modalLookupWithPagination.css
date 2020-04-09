@@ -1,0 +1,38 @@
+.THIS.hideModal {
+    display: none;
+}
+.THIS .slds-th__action.slds-th__action_form.slds-cell-fixed {
+    display:none;
+}
+.THIS .buttonNext{
+    float:right !important;
+}
+
+.THIS.hideButton{
+    display:none;
+}
+
+/* SIT 191 - micol.ferrari 16/10/2018 */
+.THIS .slds-table th
+{
+    padding: .5rem;
+    white-space: inherit!important;
+    position: initial!important;
+}
+.THIS .slds-table td
+{
+	padding: .5rem;
+    white-space: inherit!important;
+    position: relative;
+}
+.THIS .slds-truncate
+{
+	max-width: 100%;
+    overflow: hidden;
+    text-overflow: initial !important;
+    white-space: inherit !important;
+    padding-right: 10px !important;
+}
+.THIS .slds-dropdown-trigger svg {
+    display: none !important;
+}

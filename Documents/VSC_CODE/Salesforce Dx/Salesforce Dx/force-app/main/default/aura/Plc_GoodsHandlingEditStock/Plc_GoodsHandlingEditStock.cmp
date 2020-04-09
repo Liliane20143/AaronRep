@@ -1,0 +1,246 @@
+<!--
+    * @Giampaolo Mei
+    * @date 12/02/2019
+    * @description Component per l'implementazione del wizard di modifica stock order in ambito movimentazione merci
+-->
+<aura:component controller="Plc_GoodsHandlingEditStockCnt" extends="c:Plc_BaseGoodsManagement"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId,lightning:isUrlAddressable">
+    <aura:attribute name="recordId" type="String" default="a1w1j0000008skGAAQ"/>
+    <aura:attribute name="productQuantityYes" type="Boolean" default="false"
+                    description="if true table of product quantity is visible"/>
+    <aura:attribute name="productSerialYes" type="Boolean" default="false"
+                    description="if true table of product serial is visible"/>
+    <aura:attribute name="firstLandingInTabSearch" type="Boolean" default="true"
+                    description="if true the wizard lands first time in searching products step"/>
+
+    <!-- Liverani -->
+    <aura:attribute name="transferDetailHeader" type="String"
+                    description="transfer details selected from wizard"/>
+    <aura:attribute name="originTransferDetailHeader" type="String"
+                    description="origin transfer details selected from wizard"/>
+    <aura:attribute name="originWarehouseHeader" type="String"
+                    description="origin warehouse selected"/>
+    <aura:attribute name="destinationDealerHeader" type="String"
+                    description="destination dealer selected"/>
+    <aura:attribute name="destinationWarehouseHeader" type="String"
+                    description="destination warehouse selected"/>
+
+    <aura:attribute name="transferDetailSelected" type="String"
+                    description="transfer details selected from wizard"/>
+    <aura:attribute name="originWarehouseSelected" type="String"
+                    description="origin warehouse selected"/>
+    <aura:attribute name="destinationDealerSelected" type="String"
+                    description="destination dealer selected"/>
+    <aura:attribute name="destinationWarehouseSelected" type="String"
+                    description="destination warehouse selected"/>
+    <aura:attribute name="dealer" type="String" description="dealer record"/>
+
+    <aura:attribute name="availableProductQuantity" type="List"
+                    description="Data table of Quantity Products available"/>
+    <aura:attribute name="availableProductQuantityWithoutFilter" type="List"
+                    description="Data table of Quantity Products available retrieved the first time without filter"/>
+    <aura:attribute name="selectedProductQuantity" type="List" description="Data table of Quantity Products selected"/>
+    <aura:attribute name="availableProductSerial" type="List" description="Data table of available Serial Products"/>
+    <aura:attribute name="availableProductSerialWithoutFilter" type="List"
+                    description="Data table of available Serial Products retrieved the first time without filter"/>
+    <aura:attribute name="selectedProductSerial" type="List" description="Data table of Selected Serial Products"/>
+    <aura:attribute name="columnsProductQuantity" type="List"
+                    description="Colums name of Available Quantity Products Data table"/>
+    <aura:attribute name="columnsProductQuantitySelected" type="List"
+                    description="Colums name of Selected Quantity Products Data table"/>
+    <aura:attribute name="columnsProductSerial" type="List" description="Colums name of Serial Products Data table"/>
+    <aura:attribute name="columnsProductSerialSelected" type="List"
+                    description="Colums name of Selected Serial Products Data table"/>
+    <aura:attribute name="error" type="Boolean" default="false" description="if true there is an error in data entry"/>
+    <aura:attribute name="viewPopUp" type="Boolean" default="false" description="if true pop-up error is visible"/>
+    <aura:attribute name="messagePopup" type="String" description="It contains the message to view in pop-up error"/>
+    <aura:attribute name="showFilterCmp" type="Boolean" description="If true show the filterCmp" default="true"/>
+
+    <aura:set attribute="isFilterVisible" value="false"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler event="c:Plc_FilterEvt" action="{!c.filterResult}"/>
+
+    <!--*******************POP-UP - errore in data entry*************************-->
+    <div role="alertdialog" tabindex="-1"
+         class="{!v.viewPopUp ? 'slds-modal slds-fade-in-open slds-modal--prompt' : 'slds-hide'}"
+         aria-labelledby="header43">
+        <div class="slds-modal__container">
+            <div class="slds-modal__header slds-theme--info slds-theme--alert-texture">
+                <h2 id="header43" class="slds-text-heading--medium">{!$Label.c.Plc_Attention}</h2>
+            </div>
+            <div class="slds-modal__content slds-p-around--medium">
+                <div class="slds-text-align--center">
+                    <ui:outputRichText value="{!v.messagePopup}"/>
+                </div>
+            </div>
+            <div class="slds-modal__footer slds-theme--default">
+                <button class="slds-button slds-button--neutral" onclick="{!c.closePopUp}">OK</button>
+            </div>
+        </div>
+    </div>
+    <div class="{!v.viewPopUp ? 'slds-backdrop slds-backdrop--open' : 'slds-hide'}"></div>
+    <!--*******************POP-UP - errore in data entry*************************-->
+
+    <!-- [START] DETAILS HEADER -->
+    <div class="slds-grid slds-wrap slds-m-bottom--small">
+        <div class="slds-col slds-size_1-of-3">
+                <span>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-1">
+                            <lightning:select class="slds-m-right--medium" aura:id='orderTypePicklist'
+                                              label="{!$Label.c.Plc_Transfer}" disabled="true">
+                                <option value="Transfer">Transfer</option>
+                            </lightning:select>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1">
+                             <lightning:select class="slds-m-top--small slds-m-right--medium"
+                                               aura:id='transferDetailsPicklist'
+                                               label="{!$Label.c.Plc_TransferDetails}"
+                                               value="{!v.transferDetailHeader}" disabled="true">
+                                <option label="{!v.originTransferDetailHeader}" value="{!v.originTransferDetailHeader}">{!v.originTransferDetailHeader}</option>
+                            </lightning:select>
+                        </div>
+                    </div>
+                </span>
+        </div>
+        <div class="slds-col slds-size_1-of-3">
+                    <span>
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_1-of-1 ">
+                                <lightning:select class="slds-m-right--medium"
+                                                  aura:id='originDealerPicklist'
+                                                  label="{!$Label.c.Plc_OriginDealer}" value="{!v.dealer}"
+                                                  disabled="true">
+                                <option label="{!v.dealer}" value="{!v.dealer}">{!v.dealer}</option>
+                                </lightning:select>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1">
+
+                                <lightning:select class="slds-m-top--small slds-m-right--medium"
+                                                  aura:id='originWarehousePicklist'
+                                                  label="{!$Label.c.Plc_OriginWarehouse}"
+                                                  value="{!v.originWarehouseHeader}"
+                                                  disabled="true">
+                                <option label="{!v.originWarehouseHeader}" value="{!v.originWarehouseHeader}">{!v.originWarehouseHeader}</option>
+                                </lightning:select>
+                            </div>
+                        </div>
+                    </span>
+        </div>
+        <div class="slds-col slds-size_1-of-3">
+                    <span>
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning:select aura:id='destinationDealerPicklist'
+                                                  label="{!$Label.c.Plc_DestinationDealer}"
+                                                  value="{!v.destinationDealerHeader}"
+                                                  disabled="true">
+                                <option label="{!v.destinationDealerHeader}" value="{!v.destinationDealerHeader}">{!v.destinationDealerHeader}</option>
+                                </lightning:select>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning:select class="slds-m-top--small" aura:id='destinationWarehousePicklist'
+                                                  label="{!$Label.c.Plc_DestinationWarehouse}"
+                                                  value="{!v.destinationWarehouseHeader}"
+                                                  disabled="true">
+                                <option label="{!v.destinationWarehouseHeader}"
+                                        value="{!v.destinationWarehouseHeader}">{!v.destinationWarehouseHeader}</option>
+                                </lightning:select>
+                            </div>
+                        </div>
+                    </span>
+        </div>
+    </div>
+    <!-- [END] DETAILS HEADER -->
+    <div class="{!v.showFilterCmp ? 'slds-col' : 'slds-hide'}">
+        <c:Plc_FilterCmp configuationMap="{!v.searchConfigurationMap}"
+                         inputSearchIsVisible="{!v.inputSearchIsVisible}"
+                         rangeSerialA_DA_AreVisible="{!v.rangeSerialA_DA_AreVisible}"
+                         manufacturerFilterIsVisible="{!v.manufacturerFilterIsVisible}"
+                         serialStatusFilterIsVisible="{!v.serialStatusFilterIsVisible}"
+                         uploadCsvIsVisible="{!v.uploadCsvIsVisible}"
+                         showButtonsUpOrDown="{!v.showButtonsUpOrDown}"
+                         disableRemoveFilterButton="{!v.disableRemoveFilterButton}"
+                         disableApplyFilterButton="{!v.disableApplyFilterButton}"
+                         searchOnLoad="{!v.searchOnLoad}"
+                         warehouseId="{!v.warehouseId}"
+                         stockSerialStatus="{!v.stockSerialStatus}"
+                         distributionListItemModels="{!v.distributionListItemModels}"/>
+    </div>
+    <!-- ***** Tab ricerca ****** -->
+    <lightning:tabset aura:id="tabs" onselect="{!c.handleActive}">
+        <lightning:tab label="{!$Label.c.Plc_SearchTab}" id="Ricerca">
+            <div class="slds-grid slds-wrap">
+                <aura:if isTrue="{!v.productSerialYes}">
+                    <div class="slds-col slds-size--12-of-12 slds-m-top--x-large">
+                        <p class="slds-text-title--caps slds-line-height--reset slds-text-title_bold">{!$Label.c.Plc_ProdottiSeriale}</p>
+                    </div>
+
+                    <div class="slds-col slds-m-top--medium slds-m-bottom--medium slds-scrollable slds-box_border"
+                         style="height:200px;">
+                        <lightning:datatable keyField="Id"
+                                             data="{!v.availableProductSerial}"
+                                             columns="{!v.columnsProductSerial}"
+                                             onrowaction="{!c.handleSelectProductSerial}" hideCheckboxColumn="true"/>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!v.productQuantityYes}">
+                    <div class="slds-col slds-size--12-of-12 slds-m-top--x-large">
+                        <p class="slds-text-title--caps slds-line-height--reset slds-text-title_bold">{!$Label.c.Plc_ProdottiQuantita}</p>
+                    </div>
+                    <div class="slds-col slds-m-top--medium slds-m-bottom--medium slds-scrollable slds-box_border"
+                         style="height:200px;">
+                        <lightning:datatable aura:id="ProductQuantityTable" keyField="Id"
+                                             data="{!v.availableProductQuantity}"
+                                             columns="{!v.columnsProductQuantity}"
+                                             onrowselection="{!c.handleSelectProductQuantity}"
+                                             onsave="{!c.handleOnSaveProductQuantityTable}"
+                                             oncellchange="{!c.handleOnCellchange}" hideCheckboxColumn="true"/>
+                    </div>
+                </aura:if>
+            </div>
+        </lightning:tab>
+        <!-- ***** END Tab ricerca ****** -->
+
+        <!-- ***** Tab Selezionati ****** -->
+        <lightning:tab label="{!$Label.c.Plc_SelectedTab}" id="Selezionati">
+            <div class="slds-grid slds-wrap">
+                <!-- FB 20191209 - Searching serials on demand [START] -->
+                <!-- <aura:if isTrue="{!v.productSerialYes}"> -->
+                <!-- FB 20191209 - Searching serials on demand [END] -->
+                    <div class="slds-col slds-size--12-of-12 slds-m-top--small">
+                        <p class="slds-text-title--caps slds-line-height--reset slds-text-title_bold">{!$Label.c.Plc_ProdottiSerialeMovimentare}</p>
+                    </div>
+
+                    <div class="slds-col slds-m-top--medium slds-m-bottom--medium slds-scrollable slds-box_border"
+                         style="height:200px;">
+                        <lightning:datatable keyField="Id"
+                                             data="{!v.selectedProductSerial}"
+                                             columns="{!v.columnsProductSerialSelected}"
+                                             onrowaction="{!c.handleSelectProductSerialSelected}"
+                                             hideCheckboxColumn="true"/>
+                    </div>
+                <!-- FB 20191209 - Searching serials on demand [START] -->
+                <!-- </aura:if> -->
+                <!-- FB 20191209 - Searching serials on demand [END] -->
+                <aura:if isTrue="{!v.productQuantityYes}">
+                    <div class="slds-col slds-size--12-of-12 slds-m-top--small">
+                        <p class="slds-text-title--caps slds-line-height--reset slds-text-title_bold">{!$Label.c.Plc_ProdottiQuantitaMovimentare}</p>
+                    </div>
+                    <div class="slds-col slds-m-top--medium slds-m-bottom--medium slds-scrollable slds-box_border"
+                         style="height:200px;">
+                        <lightning:datatable aura:id="SelectedProductQuantityTable" keyField="Id"
+                                             data="{!v.selectedProductQuantity}"
+                                             columns="{!v.columnsProductQuantitySelected}"
+                                             onrowselection="{!c.handleSelectProductQuantity}"
+                                             onsave="{!c.handleOnSaveSelectedProductQuantityTable}"
+                                             oncellchange="{!c.handleOnCellchangeSelected}" hideCheckboxColumn="true"/>
+                    </div>
+                </aura:if>
+            </div>
+        </lightning:tab>
+        <!-- ***** END Tab Selezionati ****** -->
+    </lightning:tabset>
+
+</aura:component>

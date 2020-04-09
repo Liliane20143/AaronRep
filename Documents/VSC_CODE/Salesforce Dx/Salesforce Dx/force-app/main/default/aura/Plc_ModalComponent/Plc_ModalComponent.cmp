@@ -1,0 +1,33 @@
+<aura:component>
+
+    <aura:attribute name="showModal" access="public" type="Boolean" default="false" />
+    <aura:attribute name="type" access="public" type="String" />
+    <aura:attribute name="message" access="public" type="String" />
+    <aura:attribute name="redirectTo" access="public" type="String" />
+    <aura:attribute name="fireEvent" access="public" type="Boolean" />
+    <!-- [START MOD 29/03/2019 11:13]@Author:francesco.bigoni@/webresults.it @Description: Adding attribute -->
+    <aura:attribute name="redirectBack" access="public" default="false" type="Boolean" 
+                    description="Enables redirect to previous web page if redirectTo attribute is not defined"/>
+    <!-- [END MOD 29/03/2019 11:13]@Author:francesco.bigoni@/webresults.it @Description: Adding attribute -->
+
+    <div role="alertdialog" tabindex="-1"
+        class="{!v.showModal ? 'slds-modal slds-fade-in-open slds-modal_prompt' : 'slds-hide'}">
+        <div class="slds-modal__container">
+            <div
+                class="{!v.type == 'success' ? 'slds-modal__header slds-theme_success slds-theme_alert-texture' : v.type == 'info' ? 'slds-modal__header slds-theme_info slds-theme_alert-texture' : 'slds-modal__header slds-theme_error slds-theme_alert-texture'}">
+                <h2 class="slds-text-heading_medium"> {!v.type == 'success' ? $Label.c.Plc_Success :
+                    $Label.c.Plc_Attention} </h2>
+            </div>
+            <div class="slds-modal__content slds-p-around_medium">
+                <div class="slds-text-align_center">
+                    <ui:outputRichText value="{!v.message}" />
+                </div>
+            </div>
+            <div class="slds-modal__footer slds-theme_default">
+                <button class="slds-button slds-button_neutral" onclick="{!c.handleCloseModal}">OK</button>
+            </div>
+        </div>
+    </div>
+    <div class="{!v.showModal ? 'slds-backdrop slds-backdrop_open' : 'slds-hide'}"></div>
+
+</aura:component>

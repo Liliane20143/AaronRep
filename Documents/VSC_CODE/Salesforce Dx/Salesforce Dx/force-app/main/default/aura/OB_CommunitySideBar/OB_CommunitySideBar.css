@@ -1,0 +1,46 @@
+.THIS.slds-button:hover, .THIS.slds-button:focus, .THIS.slds-button:active, .THIS.slds-button:visited, .THIS.cOB_CommunitySideBar.slds-button:hover, .cOB_CommunitySideBar.slds-button:focus, .cOB_CommunitySideBar.slds-button:active, .cOB_CommunitySideBar.slds-button:visited , .THIS.cOB_CommunitySideBar.slds-button:hover, .cOB_CommunitySideBar.slds-button:focus, .cOB_CommunitySideBar.slds-button:active, .cOB_CommunitySideBar.slds-button:visited, .cOB_CommunitySideBar.slds-button:visited{
+    border: none;
+    box-shadow: none;
+}
+.THIS .bodyLinkDocum {
+	padding-left : 1rem;
+	color: #4d4d4d;
+	font-size: 1rem;
+}
+.THIS #quickActionTitle, .THIS #FaxTitle, .THIS #documentationTitle, .THIS #PhoneTitle {
+	width: 100%;
+	height: 100%;
+	text-align: left;
+}
+
+.THIS .OB_CommunityTitle {
+	margin-top: 1rem;
+	font-size: 1.1rem;
+	color: #131313;
+	font-weight: 600;
+}
+
+.THIS .slds-carousel__stage {
+	max-width: 75%;
+	max-height: 75%;
+}
+.THIS .slds-carousel__content {
+	display : none;
+}
+
+.THIS #imageBank {
+	max-width: 75%;
+	position: left;
+	padding-bottom: 10px;
+}
+.THIS #videoBank2{
+height: 100%;
+width: 75%;
+}
+
+.THIS .slds-carousel__indicators{
+	display : none;
+}
+.THIS body {
+    background-image: linear-gradient(to left, #80808017, #bababd)!important;
+}

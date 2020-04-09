@@ -1,0 +1,136 @@
+<aura:component controller="BT_MailManager">    
+    <aura:registerEvent name="simulationSaveEvent" type="c:BT_SimulationSave" />
+
+
+    <aura:attribute name="isReferral" type="Boolean" default="false" />
+    <aura:attribute name="packagesOptions" type="List" access="private" />
+    <aura:attribute name="currentPackage" type="String" />
+    <aura:attribute name="currentOffer" type="Object" />
+
+    <aura:attribute name="record" type="BT_Simulation__c" required="true"/>
+    <aura:attribute name="config" type="Object" />
+
+    <aura:attribute name="simulationId" type="String" />
+
+    <aura:attribute name="step" type="String" required="true" />
+
+    <aura:attribute name="showSimulationResult" type="Boolean" default="false" />
+
+    <!-- Colors -->
+    <aura:attribute name="sectionCDPColor" type="String" default="" />
+    <aura:attribute name="sectionCDPColorExtraUE" type="String" default="" />
+    <aura:attribute name="sectionCommColor" type="String" default="" />
+    <aura:attribute name="sectionCommColorExtraUE" type="String" default="" />
+    <aura:attribute name="sectionBancomatColor" type="String" default="" />
+    <aura:attribute name="sectionAsianColor" type="String" default="" />
+    <aura:attribute name="tbBackGrey" type="String" default="rgb(224, 225, 221)" />
+
+    <!-- Sum Percent Cards -->
+    <aura:attribute name="sumPercentCDP" type="Decimal" />
+    <aura:attribute name="sumPercentCDPExtraUE" type="Decimal" />
+    <aura:attribute name="sumPercentComm" type="Decimal" />
+    <aura:attribute name="sumPercentCommExtraUE" type="Decimal" />
+    <aura:attribute name="sumPercentBancomat" type="Decimal" />
+    <aura:attribute name="sumPercentAsian" type="Decimal" />
+    <aura:attribute name="sumPercentEEA" type="Decimal" />
+
+    <aura:attribute name="printButtonEnabled" type="Boolean" default="true" />
+    <aura:attribute name="emailButtonDisabled" type="Boolean" default="false" />
+    <aura:attribute name="emailEnabledThreshold" type="Decimal" default="1000000" />
+
+    <aura:attribute name="canCompute" type="Boolean" />
+
+    <aura:attribute name="mode" type="String" default="basic" />
+
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <aura:if isTrue="{!v.showSpinner}">
+        <lightning:spinner variant="brand" size="medium" alternativeText="please wait" />
+    </aura:if>
+
+    <aura:method name="doSendEmail" action="{!c.doSendEmail}">
+        <aura:attribute name="shouldUseSimplified" type="Boolean" />
+    </aura:method>
+    <aura:method name="doPrint" action="{!c.doPrint}" />
+
+
+    <div data-step="{!v.step}" class="slds-m-bottom_medium"> 
+        <aura:if isTrue="{!or(not(v.isReferral), v.mode == 'packages')}">
+            <c:BT_SectionHeader iconName="standard:calibration" iconAlternativeText="{#$Label.c.BT_ConfigurazioneOfferta}" title="{#$Label.c.BT_ConfigurazioneOfferta}" />
+        </aura:if>
+        <aura:if isTrue="{!v.isReferral}">
+            <aura:if isTrue="{!v.config.offers.length > 1}">
+                <div class="slds-text-align_center slds-is-relative slds-m-bottom_medium">
+                    <lightning:radioGroup label="{#$Label.c.BT_Pacchetto}" name="packagesRadioButtonGroup" options="{!v.packagesOptions}" value="{!v.currentPackage}" type="button" onchange="{!c.onCurrentPackageChange}" />
+                </div>
+                <div class="offerDescription slds-m-bottom_xx-large">
+                    <c:dataTable border="row" hover="false" variant="inline-edit">
+                        <aura:iteration items="{!v.config.offers}" var="offer">
+                            <c:dataTableRow>
+                                <c:dataTableColumn>
+                                    <b>{!offer.BT_NomeOfferta__c}:</b>
+                                </c:dataTableColumn>
+                                <c:dataTableColumn>
+                                    <lightning:formattedRichText value="{!offer.BT_DescrizioneOfferta__c}"></lightning:formattedRichText>
+                                </c:dataTableColumn>
+                            </c:dataTableRow>
+                        </aura:iteration>
+                    </c:dataTable>
+                </div>
+            </aura:if>
+            <c:BT_ReferralOffer mode="{!v.mode}" offer="{!v.currentOffer}" sumPercentCDP="{!v.sumPercentCDP}" sumPercentCDPExtraUE="{!v.sumPercentCDPExtraUE}" sumPercentComm="{!v.sumPercentComm}" sumPercentCommExtraUE="{!v.sumPercentCommExtraUE}" sumPercentBancomat="{!v.sumPercentBancomat}" sumPercentAsian="{!v.sumPercentAsian}" sumPercentEEA="{!v.sumPercentEEA}" record="{!v.record}" sectionCDPColor="{!v.sectionCDPColor}" sectionCDPColorExtraUE="{!v.sectionCDPColorExtraUE}" sectionCommColor="{!v.sectionCommColor}" sectionCommColorExtraUE="{!v.sectionCommColorExtraUE}" sectionBancomatColor="{!v.sectionBancomatColor}" sectionAsianColor="{!v.sectionAsianColor}"/>
+            <aura:set attribute="else">
+                <aura:if isTrue="{!v.mode == 'advanced'}">
+                    <c:BT_CircuitiAdvanced canCompute="{!v.canCompute}" config="{!v.config}" sumPercentCDP="{!v.sumPercentCDP}" sumPercentCDPExtraUE="{!v.sumPercentCDPExtraUE}" sumPercentComm="{!v.sumPercentComm}" sumPercentCommExtraUE="{!v.sumPercentCommExtraUE}" sumPercentBancomat="{!v.sumPercentBancomat}" sumPercentAsian="{!v.sumPercentAsian}" sumPercentEEA="{!v.sumPercentEEA}" record="{!v.record}" sectionCDPColor="{!v.sectionCDPColor}" sectionCDPColorExtraUE="{!v.sectionCDPColorExtraUE}" sectionCommColor="{!v.sectionCommColor}" sectionCommColorExtraUE="{!v.sectionCommColorExtraUE}" sectionBancomatColor="{!v.sectionBancomatColor}" sectionAsianColor="{!v.sectionAsianColor}"/>
+                    <aura:set attribute="else">
+                        <aura:if isTrue="{!v.mode == 'basic'}">
+                            <c:BT_CircuitiBasic config="{!v.config}" sumPercentCDP="{!v.sumPercentCDP}" sumPercentCDPExtraUE="{!v.sumPercentCDPExtraUE}" sumPercentComm="{!v.sumPercentComm}" sumPercentCommExtraUE="{!v.sumPercentCommExtraUE}" sumPercentBancomat="{!v.sumPercentBancomat}" sumPercentAsian="{!v.sumPercentAsian}" sumPercentEEA="{!v.sumPercentEEA}" record="{!v.record}" sectionCDPColor="{!v.sectionCDPColor}" sectionCDPColorExtraUE="{!v.sectionCDPColorExtraUE}" sectionCommColor="{!v.sectionCommColor}" sectionCommColorExtraUE="{!v.sectionCommColorExtraUE}" sectionBancomatColor="{!v.sectionBancomatColor}" sectionAsianColor="{!v.sectionAsianColor}"/>
+                        </aura:if>
+                    </aura:set>
+                </aura:if>    
+            </aura:set>
+        </aura:if>
+        <aura:if isTrue="{!or(and(not(v.isReferral), or(v.config.BT_Enable_Smartpos__c, v.config.BT_Enable_SmartposCassa__c, v.config.BT_Enable_SmartposPremium__c, v.config.BT_Enable_SmartposCassaPremium__c, v.config.BT_Enable_PosTradSmartPstnEth__c, v.config.BT_Enable_PosCordSmartPstnEth__c, v.config.BT_Enable_PosPortatileGprsSmart__c, v.config.BT_Enable_MobilePosSmart__c, v.config.BT_Enable_PosTradizionalePremium__c, v.config.BT_Enable_PosCordlessWifiPremium__c, v.config.BT_Enable_PosPortatile3gPremium__c)), and(v.mode == 'packages', or(v.currentOffer.BT_Enable_Smartpos__c, v.currentOffer.BT_Enable_SmartposCassa__c, v.currentOffer.BT_Enable_SmartposPremium__c, v.currentOffer.BT_Enable_SmartposCassaPremium__c, v.currentOffer.BT_Enable_PosTradSmartPstnEth__c, v.currentOffer.BT_Enable_PosCordSmartPstnEth__c, v.currentOffer.BT_Enable_PosPortatileGprsSmart__c, v.currentOffer.BT_Enable_MobilePosSmart__c, v.currentOffer.BT_Enable_PosTradizionalePremium__c, v.currentOffer.BT_Enable_PosCordlessWifiPremium__c, v.currentOffer.BT_Enable_PosPortatile3gPremium__c)))}">
+            <c:BT_POSSection record="{!v.record}" config="{!v.isReferral ? v.currentOffer : v.config}" isReferral="{!v.isReferral}" />
+        </aura:if>
+    </div>
+    <aura:if isTrue="{!or(v.isReferral, v.showSimulationResult)}">
+        <lightning:layout pullToBoundary="medium">
+            <aura:if isTrue="{!or(not(v.isReferral), v.mode == 'packages')}">
+                <lightning:layoutItem flexibility="auto" class="slds-p-bottom_small" >
+                    <div class="slds-text-align_center">   
+                        <lightning:button disabled="{!not(v.printButtonEnabled)}" label="{#$Label.c.BT_Print}" iconName="utility:print" iconPosition="left"  variant="brand" onclick="{!c.onPrintClick}" />
+                    </div>
+                </lightning:layoutItem>
+            </aura:if>
+            <aura:if isTrue="{!and(v.isReferral, v.currentOffer.BT_PermettiInvioMailDeroga__c)}">
+                <lightning:layoutItem flexibility="auto" class="slds-p-bottom_small" >
+                    <div class="slds-text-align_center">   
+                        <lightning:button disabled="{!v.emailButtonDisabled}" label="{#$Label.c.BT_SendOfferVariationEmail + ' ' + $Label.c.BT_Semplificata}" name="{#$Label.c.BT_Semplificata}" iconName="utility:email" iconPosition="left"  variant="brand" onclick="{!c.onSendEmailClick}" />
+                        <lightning:helptext content="{#$Label.c.BT_PopDerogaSemplificata}" iconName="utility:info" />
+                    </div>
+                </lightning:layoutItem>
+                <lightning:layoutItem flexibility="auto" class="slds-p-bottom_small" >
+                    <div class="slds-text-align_center">   
+                        <lightning:button disabled="{!or(lessthan(v.record.BT_NegoziatoAnnuo__c, v.emailEnabledThreshold), v.emailButtonDisabled)}" label="{#$Label.c.BT_SendOfferVariationEmail + ' ' + $Label.c.BT_Full}" name="{#$Label.c.BT_Full}" iconName="utility:email" iconPosition="left"  variant="brand" onclick="{!c.onSendEmailClick}" />
+                        <lightning:helptext content="{#$Label.c.BT_PopDerogaFull}" iconName="utility:info" />
+                    </div>
+                </lightning:layoutItem>
+            </aura:if>
+            <aura:if isTrue="{!and(v.config.BT_PermettiInvioMailDeroga__c, not(v.record.BT_MargineOK__c))}">
+                <lightning:layoutItem flexibility="auto" class="slds-p-bottom_small" >
+                    <div class="slds-text-align_center">   
+                        <lightning:button disabled="{!v.emailButtonDisabled}" label="{#$Label.c.BT_SendOfferVariationEmail}" iconName="utility:email" name="Licensing" iconPosition="left"  variant="brand" onclick="{!c.onSendEmailClick}" />
+                    </div>
+                </lightning:layoutItem>
+            </aura:if>
+            <lightning:layoutItem flexibility="auto" class="slds-p-bottom_small" >
+                <div class="slds-text-align_center">   
+                    <lightning:button label="Ricomincia" iconName="utility:refresh" iconPosition="left"  variant="brand" onclick="{!c.doRefresh}" />
+                </div>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </aura:if>
+</aura:component>

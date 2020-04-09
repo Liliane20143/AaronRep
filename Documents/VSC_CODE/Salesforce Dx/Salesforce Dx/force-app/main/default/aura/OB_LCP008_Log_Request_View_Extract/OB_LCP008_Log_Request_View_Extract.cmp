@@ -1,0 +1,23 @@
+<aura:component access="public">
+    <aura:attribute name="reducedData" type="Object[]" access="global" required="true" description="Object data to present"/>
+
+        <aura:iteration items="{!v.reducedData.listOfRow}" var="reducedDataFields">
+            <aura:if isTrue="{!reducedDataFields.oldData.datatype=='BOOLEAN'}">
+                <lightning:layoutItem size="6" class="slds-p-around--xx-small">
+                    <lightning:input type="checkbox" checked="{!reducedDataFields.oldData.value}" label ="{!reducedDataFields.oldData.label}" disabled="true" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" class="slds-p-around--xx-small">
+                    <lightning:input type="checkbox" checked="{!reducedDataFields.newData.value}" label ="{!reducedDataFields.newData.label}" disabled="true" />
+                </lightning:layoutItem>
+            </aura:if>
+            <aura:if isTrue="{!reducedDataFields.oldData.datatype=='STRING'}">
+                <lightning:layoutItem size="6" class="slds-p-around--xx-small">
+                    <lightning:input value="{!reducedDataFields.oldData.value}" label ="{!reducedDataFields.oldData.label}" disabled="true"/>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" class="slds-p-around--xx-small">
+                    <lightning:input value="{!reducedDataFields.newData.value}" label ="{!reducedDataFields.newData.label}" disabled="true"/>
+                </lightning:layoutItem>
+            </aura:if>
+        </aura:iteration>
+
+</aura:component>

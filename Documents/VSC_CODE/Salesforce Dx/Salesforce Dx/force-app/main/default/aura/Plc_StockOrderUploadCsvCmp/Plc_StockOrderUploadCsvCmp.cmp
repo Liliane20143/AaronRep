@@ -1,0 +1,70 @@
+<!--
+ - Created by Andrea Liverani on 29/01/2019.
+ -->
+ <aura:component description="Plc_StockOrderUploadCsv" controller="Plc_StocksManagementCnt"
+ extends="c:Plc_BaseGoodsManagement">
+
+<!-- Handlers -->
+<!--<aura:handler name="init" value="{!this}" action="{!c.handleInitialize}"/>
+ <aura:handler event="c:Plc_FilterEvt" action="{!c.handleFilterEvt}"/>-->
+
+<!-- Modal attributes -->
+<aura:attribute name="showModal" type="Boolean" description="display or not modal" default="true"/>
+<!-- FB 20190627 NEXIPLC-589 [START] -->
+<aura:attribute name="showUploadCsvModal" type="Boolean" description="display or not csv modal" default="True"/>
+<!-- FB 20190627 NEXIPLC-589 [END] -->
+<!-- Management attributes -->
+
+<aura:attribute name="availableList" type="List" access="private" description="Total records in state 'Available' extracted by query"/>
+<aura:attribute name="withdrawnList" type="List" access="private" description="Total records in state 'Withdrawn' extracted by query"/>
+<aura:attribute name="availableSelectedList" type="List" access="private" description="Total records selected with state 'Available'"/>
+<aura:attribute name="withdrawnSelectedList" type="List" access="private" description="Total records selected with state 'Withdrawn'"/>
+
+<!-- Tab parameters and General attributes -->
+<aura:attribute name="titleFirstTable" type="String" access="private" description="Title of the first table"/>
+<aura:attribute name="firstTableTotalQuantity" type="Decimal" access="private" description="Total quantity first table serial"/>
+<aura:attribute name="titleSecondTable" type="String" access="private" description="Title of the second table"/>
+<aura:attribute name="secondTableTotalQuantity" type="Decimal" access="private" description="Total quantity second table serial"/>
+<aura:attribute name="tabFocused" type="String" access="private" description="Tab focused" default="WithdrawnManagement"/>
+<aura:attribute name="dataLoaded" type="Boolean" access="private" description="Initial attribute for load all values necessary for the process"/>
+<aura:attribute name="hideSelection" type="Boolean" access="private" description="Enable the selection of the serial products availables" default="true"/>
+<aura:attribute name="modalMessage" type="String" description="Message displayed in modal popup"/>
+
+<!-- FB 20190627 NEXIPLC-589 [START] -->
+<aura:attribute name="stockSerialStatus" type="String" description="(BUTTON CSV)stockSerialStatus to filter on (to check if csv data are present in SFDC)" default="New;Repaired;Available;Installed;Withdrawn;To be verified;Irrecoverable;To be decommissioned;To be reconditioned;Broken;Received failure;To update release;For evaluation;Decommissioned;Tampered with;Shift"/>
+<aura:Attribute name="uploadCsvConfigurationMap" type="Map" description="Additional configuration for Upload Csv component" 
+     default="{'skipStatus2Check' : true}" />
+<!-- FB 20190627 NEXIPLC-589 [END] -->
+<!-- Base Wizard attributes -->
+<aura:set attribute="isNextVisible" value="false"/>
+<aura:set attribute="isBackVisible" value="false"/>
+<aura:set attribute="uploadCsvIsVisible" value="false"/>
+<aura:set attribute="serialStatusFilterIsVisible" value="false"/>
+<aura:set attribute="rangeSerialA_DA_AreVisible" value="false"/>
+<aura:set attribute="isSaveEnabled" value="false"/>
+<aura:set attribute="isFilterVisible" value="false"/>
+<aura:set attribute="showButtonsUpOrDown" value="up"/>
+<aura:set attribute="disableApplyFilterButton" value="true"/>
+<aura:attribute name="inputSearch" type="String" access="public" description="Contains the string to search" default=""/>
+<aura:attribute name="availableGoods" type="List" access="public"
+     description="Total inbound goods from Shipment line items from single shipment or List of Shipment in Stock Order related list"/>
+<!-- FB 20190627 NEXIPLC-589 [START] -->
+<aura:handler event="c:Plc_FilterEvt" action="{!c.filterResult}"/>
+<!-- FB 20190627 NEXIPLC-589 [END] -->
+
+<!-- FB 20190627 NEXIPLC-589 [START] -->
+<aura:if isTrue="{!v.showUploadCsvModal}">
+<div class="slds-modal_large">
+<c:Plc_UploadCsvCmp
+     warehouseId="{!v.warehouseId}"
+     stockSerialStatus="{!v.stockSerialStatus}"
+     skipOriginalMethods="true"
+     configurationMap = "{!v.uploadCsvConfigurationMap}"
+     />
+     
+</div>
+</aura:if>
+<!-- FB 20190627 NEXIPLC-589 [END] -->
+<!-- END Modal of selectable warehouses -->
+<!-- END Component body -->
+</aura:component>

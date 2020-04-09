@@ -1,0 +1,125 @@
+/*
+    *   Author      :   Morittu Andrea
+    *   Date        :   07-Nov-2019
+    *   Task        :   BACKLOG_143
+	*   Description :   Component visible only to Admin users (By Audience in Communities) to create promo loyalty offers
+	------------------------------------------------------------------------------------------------------------------------------------------
+	START
+*/
+.THIS .headerModalStyle{
+
+    font-family     :   Arial!important;
+    font-weight     :   600!important;
+    text-transform  :   uppercase!important;
+    font-size       :   0.8em!important;
+	color           :   #666!important;
+	
+}
+
+.THIS .inputStyle {
+
+    font-family     :   Arial!important;
+	font-size       :   1.2em!important;
+	
+}
+
+.THIS .labelStyle {
+
+	font-size       :   1em!important;
+	
+}
+
+.THIS .tytleStyle {
+
+    font-size       :   1.5em!important;
+	font-weight     :   600!important;
+	
+}
+
+.THIS .CTAStyle {
+
+	font-size: 1.2em!important;
+	text-transform: uppercase!important;
+	font-weight: 600!important;
+	border-color: rgb(48, 58, 178);
+	border-width: 0,5px;
+	border-width: 1px;
+	color: rgb(48, 58, 178);
+	font-family: arial;
+
+}
+
+.THIS .CTAStyle_BRAND {
+	
+	font-size: 1.2em!important;
+	text-transform: uppercase!important;
+	font-weight: 600!important;
+	border-color: rgb(48, 58, 178);
+	border-width: 0.3125rem;
+	border-width: 0.0625rem; 
+
+}
+
+.THIS .slds-button_icon-bare{
+
+	display: none;
+	
+}
+
+.THIS .noPADDING {
+
+	padding: 0px!important;
+	
+}
+
+.THIS .slds-resizable__handle {
+
+	background-color: none!important;
+	
+}
+
+.THIS td  {
+    text-align: center!important;
+}
+
+.THIS .slds-truncate {
+    text-align: center!important;
+}
+
+.THIS .CTAStyle_BRAND {
+    font-size: 1.2em!important;
+	text-transform: uppercase!important;
+	font-weight: 600!important;
+	border-color: rgb(48, 58, 178);
+	border-width: 0,5px;
+	border-width: 1px;
+	
+}
+.THIS .iconSpan {
+
+	padding	:	10px!important;	
+
+}
+.THIS .delete_icon  {
+
+	fill: red!important;
+
+}
+.THIS slot > lightning-menu-item:nth-child(1) > a > lightning-primitive-icon > svg {
+
+	fill : #303ab2;
+
+}
+.THIS slot  > lightning-menu-item:nth-child(2) > a > lightning-primitive-icon> svg {
+
+	fill : #d62d2d;
+
+}
+/*
+    *   Author      :   Morittu Andrea
+    *   Date        :   07-Nov-2019
+    *   Task        :   BACKLOG_143
+	*   Description :   Component visible only to Admin users (By Audience in Communities) to create promo loyalty offers
+	------------------------------------------------------------------------------------------------------------------------------------------
+	END
+*/

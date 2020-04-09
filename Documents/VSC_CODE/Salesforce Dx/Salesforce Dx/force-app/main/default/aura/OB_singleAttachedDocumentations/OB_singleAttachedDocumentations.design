@@ -1,0 +1,4 @@
+<design:component>
+	<design:attribute name="isFromLogRequest" label="FROM LOG REQUEST"/>
+	<design:attribute name="readonly" label="READ ONLY"/>
+</design:component>

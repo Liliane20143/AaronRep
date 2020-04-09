@@ -1,0 +1,16 @@
+.THIS .lens-search-vat-button 
+{
+	/*width: 32px;*/
+    height: 32px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+/*.THIS .lens-search-vat-button svg
+{	
+	margin-left: -6px;
+}*/
+.THIS .flow_required input
+{
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}

@@ -1,0 +1,198 @@
+<!--
+    * @Abdoulaye DIOP
+    * @date 27/02/2019
+    * @description Component for the implementation of Plc_ManageWarehouseProvince
+-->
+
+<aura:component access="global" implements="force:appHostable,flexipage:availableForAllPageTypes,lightning:isUrlAddressable" controller= "Plc_ManageWarehouseProvinceCnt">
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <aura:attribute name="warehouseProvince" type="Plc_WarehouseProvince__c"  default="{
+                                                                                  	   'sobjectType': 'Plc_WarehouseProvince__c',
+                                                                                       'Plc_Province__c': '',
+                                                                                       'Plc_Warehouse__c': '',
+                                                                                       'Plc_DistributionPercentage__c': ''
+                                                                              }"/>
+    <!-- this attribute is used to set a Bit2Shop__Warehouse__c -->
+	<aura:attribute name="warehouseSelected" type="Bit2Shop__Warehouse__c" default="{
+                                                                                       'sobjectType': 'Bit2Shop__Warehouse__c',
+                                                                                       'Name': '',
+                                                                                       'Plc_Alias__c': '',
+                                                                                       'Id': '',
+                                                                                       'Bit2Shop__State_Province__c': ''
+                                                                                     }"/>
+    <!-- Added by FB on 29th March, 2019 -->
+    <aura:attribute access="private" name="translationsMap" type="Map" default="{}" 
+                    description="Contains translated labels got from server call in the init function" />
+    <!--this attribute contains the all values of the piclist of Plc_Province__c -->                                                                      
+    <aura:attribute name="provinces" type="String[]" />
+    <!--this attribute contains the Bit2Shop__Warehouse__c to select -->
+    <aura:attribute name="warehousesToSelect" type="Bit2Shop__Warehouse__c[]" />
+    <!--this attribute contains the Bit2Shop__Warehouse__c selected -->
+    <aura:attribute name="warehousesSelected" type="Bit2Shop__Warehouse__c[]" />
+    <!--this attribute is used to filter the list of  warehousesToSelect to select-->
+    <aura:attribute name="searchKey" type="String" default="" />
+    <!--this attribute is used to bind the selected province-->
+    <aura:attribute name="province" type="String" default="" />
+    <!-- this attributte is the sum of all percentage -->
+    <aura:attribute name="sumPercent" type="integer" />
+    <!-- this attributte contains the list of the Bit2Shop__Warehouse__c -->
+    <aura:attribute name="warehouses" type="Bit2Shop__Warehouse__c[]" />
+    <!-- get the list of Plc_WarehouseProvince__c by Province -->
+    <aura:attribute name="warehouseProvinces" type="Plc_WarehouseProvince__c[]" />
+    <!-- table left column structure -->
+    <aura:attribute name="tableLeftColumns" type="List"
+                    description="JSON containing the left Data Table Columns Structure"/>
+    <!-- table right column structure -->
+    <aura:attribute name="tableRightColumns" type="List"
+                    description="JSON containing the right Data Table Columns Structure"/>
+    <aura:attribute name="draftValues" type="Object" default="[]"/>
+    <aura:attribute name="errors" type="Object" default="[]"/>
+
+    <div class="slds-card container">
+        <div class="header header-css">
+            <div class="slds-page-header slds-p-around_medium" role="banner">
+                <div class="slds-grid">
+                    <div class="slds-col slds-has-flexi-truncate">
+                        <div class="slds-media slds-media--center">
+                            <div class="slds-media__figure">
+                                <lightning:icon iconName="custom:custom14" alternativeText="Manage Warehouse/Province"/>
+                            </div>
+                            <div class="slds-media__body">
+                                <h1 class="slds-page-header__title slds-text-heading--small slds-align-bottom slds-truncate" title="Manage Warehouse/Province">{! $Label.c.Plc_AllAllManage + ' ' + v.translationsMap.Plc_WarehouseProvince__c}</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-no-flex slds-grid slds-align-top">
+                        <lightning:button onclick="{!c.cancel}" class="slds-button slds-button_neutral">{!$Label.c.Plc_AllAllCancel}</lightning:button>
+                        <aura:if isTrue="{! and( and((v.sumPercent==100) , empty(v.errors)), not(empty(v.province)) ) }">
+                            <lightning:button onclick="{!c.save}" aura:id="save-button" disabled="false" class="slds-button slds-button_brand">{!$Label.c.Plc_AllAllSave}</lightning:button>
+                            <aura:set attribute="else">
+                                <lightning:button onclick="{!c.save}" aura:id="save-button" disabled="true" class="slds-button slds-button_brand">{!$Label.c.Plc_AllAllSave}</lightning:button>
+                            </aura:set>
+                         </aura:if>
+                   </div>
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="slds-box">
+                <div class="slds-form" role="list">
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element slds-form-element_horizontal slds-is-editing">
+                                <label class="slds-form-element__label slds-text-body_regular" for="single-form-element-id-02">{!$Label.c.Plc_LightningComponentManageWarehouseProvinceSelectProvince}</label>
+                                <div class="slds-form-element__control">
+                                    <select name="province" class="slds-select" id="province" onchange="{!c.refreshWarehouses}">
+                                        <option></option>
+                                        <aura:iteration items="{!v.provinces}" var="province">
+                                            <option value="{!province}">{!province}</option>
+                                        </aura:iteration>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element slds-form-element_horizontal slds-is-editing">
+                                <div class="slds-grid slds-gutters">
+                                 <div class="slds-col slds-size_1-of-3">
+                                 </div>
+                                 <div class="slds-col slds-size_2-of-3 act-percent">
+                                     <div class="act-percent-label  text-focus">
+                                         <label class="slds-text-body_regular" for="actual_percentage_sum">{!$Label.c.Plc_LightningComponentManageWarehouseProvinceCurrentPercentageSum}</label><!-- slds-form-element__label-->
+                                     </div>
+                                    <div class="act-percent-input">
+                                        <lightning:input type="text" fieldName="actual_percentage_sum" value="{!v.sumPercent}" aura:id="actual_percentage_sum" class="percent text-scd-lab" disabled="true" />
+                                        <div class="slds-text-align_right error-label">
+                                            <aura:if isTrue="{!(v.sumPercent>100)}">
+                                                <label class="slds-text-color_error" for="actual_percentage_sum_error">{!$Label.c.Plc_LightningComponentManageWarehouseProvinceMustBeEqualTo100}</label>
+                                            </aura:if>
+                                        </div>
+                                    </div>
+                                 </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element slds-form-element_horizontal slds-is-editing">
+                                <label class="slds-form-element__label slds-text-body_regular" for="search_key">{!$Label.c.Plc_LightningComponentManageWarehouseProvinceFindWarehouse}</label>
+                                <div class="slds-form-element__control">
+                                    <lightning:input disabled="{!empty(v.province)}" aura:id="searchKey" type="text" class="search" onchange="{!c.filterWareHouse}" variant="standard"
+                                                         value="{!v.searchKey}" name="search_key"  placeholder="{!$Label.c.Plc_AllAllFilter + ' ' + v.translationsMap.Bit2Shop__Warehouse__c + '...'}"/>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-form__item" role="listitem">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_2-of-5">
+                        <div class="slds-text-align_left slds-text-heading_large text-heading_table">
+                            <!-- slds-text-heading_small  -->
+                            <h1 class="slds-text-title_caps slds-line-height_reset slds-text-title_bold">{!$Label.c.Plc_LightningComponentManageWarehouseProvinceWarehouseToSelect + ': '}
+                                <aura:if isTrue="{! v.warehousesToSelect.length > 0}">
+                                     {! v.warehousesToSelect.length }
+                                    <aura:set attribute="else">
+                                        0
+                                    </aura:set>
+                                </aura:if>
+                            </h1>
+                        </div>
+                        <div class="table-container-left">
+                            <div class="slds-card_boundary div-table_cont">
+                                <lightning:datatable aura:id="wToSelect"
+                                                     keyField="whId"
+                                                     data="{!v.warehousesToSelect}"
+                                                     hideCheckboxColumn="true"
+                                                     showRowNumberColumn="false"
+                                                     columns="{!v.tableLeftColumns}"
+                                                     onrowaction="{!c.selectWarehouse}" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_3-of-5">
+                        <div class="slds-text-align_left slds-text-heading_large text-heading_table">
+                            <h1 class="slds-text-title_caps slds-line-height_reset slds-text-title_bold">
+                                {!$Label.c.Plc_LightningComponentManageWarehouseProvinceWarehouseAssigned}
+                                <aura:if isTrue="{!not(empty(v.province))}"> ({!v.province}):
+                                    <aura:if isTrue="{! v.warehouseProvinces.length > 0}">
+                                        {! v.warehouseProvinces.length }
+                                        <aura:set attribute="else">
+                                            0
+                                        </aura:set>
+                                    </aura:if>
+                                </aura:if>
+                            </h1>
+                        </div>
+                        <div class="table-container-right">
+                            <div class="slds-card_boundary div-table_cont">
+                                <lightning:datatable aura:id="wToProvince"
+                                                     keyField="wPId"
+                                                     data="{!v.warehouseProvinces}"
+                                                     errors="{! v.errors }"
+                                                     draftValues="{! v.draftValues }"
+                                                     hideCheckboxColumn="true"
+                                                     showRowNumberColumn="false"
+                                                     columns="{!v.tableRightColumns}"
+                                                     onrowaction="{!c.removeWarehouse}"
+                                                     oncellchange="{!c.sumPercentage}" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</aura:component>

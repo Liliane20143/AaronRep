@@ -1,0 +1,85 @@
+<aura:component controller="Plc_StockSerialUpdateCnt" implements="lightning:isUrlAddressable,force:hasRecordId">
+    <!-- Declaring attributes -->
+    <aura:attribute access="private" name="translationMap" type="Map" default="{}" description="Contains translated labels got from server call in the init function" />
+    <aura:attribute access="private" name="propertiesMap" type="Map" default="{}" description="Contains some context and utility data" />
+    <aura:attribute access="private" name="selectedWarehouse" type="Object" default="{}" description="Selected Bit2Shop__Warehouse__c item" />
+    <aura:attribute access="private" name="selectedModel" type="Object" default="{}" description="Selected B2WExtCat__External_Catalog_Item__c item" />
+    <aura:attribute access="private" name="selectedStatus" type="String" default="{}" description="Selected Bit2Shop_Status_c picklist value" />
+    <aura:attribute access="private" name="selectedStatus2" type="String" default="{}" description="Selected Plc_Status2__c picklist value" />
+    <!-- Declaring handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.handleInit}"/>
+    <aura:handler name="change" value="{!v.selectedModel}" action="{!c.handleSelectedModelChange}"/>
+    <aura:handler name="change" value="{!v.selectedWarehouse}" action="{!c.handleSelectedWarehouseChange}"/>
+    <!-- Declaring component view -->
+    <!-- START Workaround in order to make the component appareance suitable -->
+     <aura:html tag="style">
+        #modal-edit-serial .slds-modal__content {
+            height:unset !important;
+            max-height:unset !important;
+            overflow: initial;
+        }
+    </aura:html>
+    <!-- END Workaround in order to make the component appareance suitable -->
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small">
+        <div id="modal-edit-serial" class="slds-modal__container">
+            <div class="slds-is-relative">
+                <div aura:id="main-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+                    <lightning:spinner variant="brand" size="large" alternativeText="text"/>
+                </div>
+                <header class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium">
+                        {!$Label.c.Plc_AllAllEdit + ' ' + v.propertiesMap.stockSerial.Name}
+                    </h2>
+                </header>
+                <div class="slds-modal__content">
+                    <div class="slds-p-around_small">
+                        <div class="slds-box">
+                            <lightning:layout multipleRows="true">
+                                <aura:if isTrue="{!v.propertiesMap.showInputWarehouse}">
+                                    <lightning:layoutItem size="12">
+                                        <c:Plc_CustomLookup aura:id="serial-form" label="{!v.translationMap.Bit2Shop__Warehouse_Id__c}" 
+                                                            selectedRecord="{!v.selectedWarehouse}" required="true"
+                                                            disabled="{!v.selectedWarehouse.Plc_Tipology__c == 'Installed'}"
+                                                            objectAPIName="Bit2Shop__Warehouse__c" iconName="custom:custom52"
+                                                            additionalFieldsToQuery="Bit2Shop__Dealer_Id__r.Name,Plc_Tipology__c,Bit2Shop__City__c" 
+                                                            sObjectFieldToDisplayList="Name,Bit2Shop__Dealer_Id__r.Name,Plc_Tipology__c,Bit2Shop__City__c"
+                                                            whereCondition="{! 'Name LIKE :searchKey AND Plc_Tipology__c != ' + '\'Installed\''}"/>
+                                    </lightning:layoutItem>
+                                </aura:if>
+                                <lightning:layoutItem size="12">
+                                    <c:Plc_CustomLookup aura:id="serial-form" label="{!v.translationMap.B2WExtCat__External_Catalog_Item__c}" 
+                                                        selectedRecord="{!v.selectedModel}" required="true"
+                                                        objectAPIName="B2WExtCat__External_Catalog_Item__c" iconName="custom:custom34" 
+                                                        additionalFieldsToQuery="B2WExtCat__External_Catalog_Item_Name__c,Bit2Shop__Product_Description__c,Bit2Shop__Product_SKU__c,Plc_Manufacturer__r.Name" 
+                                                        sObjectFieldToDisplayList="B2WExtCat__External_Catalog_Item_Name__c,Name,Bit2Shop__Product_SKU__c,Plc_Manufacturer__r.Name"  whereCondition="{!' Name LIKE :searchKey OR B2WExtCat__External_Catalog_Item_Name__c LIKE :searchKey'}"/>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem size="12">
+                                    <lightning:combobox label="{!v.translationMap.Bit2Shop__Status__c}" value="{!v.selectedStatus}" options="{!v.propertiesMap.statusOptions}"/>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem size="12">
+                                    <lightning:combobox label="{!v.translationMap.Plc_Status2__c}" value="{!v.selectedStatus2}" options="{!v.propertiesMap.status2Options}"/>
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                            <div class="{!v.propertiesMap.showWarningArea == true ? '' : 'slds-hide'}">
+                                <lightning:layout class="slds-p-top_small">
+                                    <lightning:layoutItem class="slds-align_absolute-center" size="1">
+                                        <lightning:icon iconName="utility:warning" variant="warning" 
+                                                        size="x-small"  alternativeText="warning"/>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="11">
+                                        {!'Warning: ' + format($Label.c.Plc_LightningComponentStockSerialUpdateMissingProductStockWarning, v.translationMap.Bit2Shop__Product_Stock__c, v.translationMap.B2WExtCat__External_Catalog_Item__c, '"' + v.selectedModel.B2WExtCat__External_Catalog_Item_Name__c + '"', v.selectedWarehouse.Name)}
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning:button label="{!$Label.c.Plc_AllAllCancel}" onclick="{!c.handleCancel}"/>
+                    <lightning:button variant="brand" label="{!$Label.c.Plc_AllAllSave}" onclick="{!c.handleSave}"/>
+                </footer>
+            </div>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop--open"></div>
+</aura:component>

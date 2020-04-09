@@ -1,0 +1,76 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+    
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="lightningFromParam"       type="String"       access="global" default="lightningFromVF=false"/>
+    <aura:attribute name="accId" type="String" default="0019E00000foV2xQAE" />
+    <aura:attribute name="opportunity" type="String" />				<!--0069E0000087jluQAA-->
+    <aura:attribute name="validItems" type="Object[]"/>
+    <aura:attribute name="validBundles" type="Object[]"/>
+    <aura:attribute name="step" type="Integer" default="0"/>
+    <aura:attribute name="productCategories" type="Object"/>
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <!-- Marco Ferri 28/08/2018 NextButton Dynamic Repositioning -->
+
+   <aura:handler name="change" value="{!v.objectDataMap.unbind.step}" action="{!c.nextStep}"/> 
+    <!-- ======================= END =========================== -->
+    
+    <ltng:require styles="{! $Resource.jqueryuiCSS}" 
+                  scripts="{!join(',', 
+                           $Resource.JQueryResourceCode ,   
+                           $Resource.jqueryuiJS)
+                           }"/>
+ 
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    
+    <div name="newCartWrapper" style="width:100%">
+    <div>
+       <!-- <NE:B2WGin_Core_Engine aura:id="lightning" oppId="{!v.opportunity}" parameters="{!v.lightningFromParam}" disableRedirect="true"/> -->
+        <NE:B2WGin_Core_Engine aura:id="lightning" accId="{!v.accId}" parameters="{!v.lightningFromParam}" disableRedirect="true"/>
+    </div>
+
+    
+    <div aura:id="offertaComponent" id="offertaComponentId">
+        <c:newCartLook objectDataMap ="{!v.objectDataMap}"/>
+    </div>
+    
+    <div aura:id="POSComponent" id="POSComponentId" class="hidden">
+        <c:newCartConfiguration objectDataMap ="{!v.objectDataMap}" />
+    </div>
+    
+    <div aura:id="AcquiringComponent" id="AcquiringComponentId" class="hidden">
+        <c:newCartAcquiring objectDataMap ="{!v.objectDataMap}" />
+    </div>
+    
+    <div aura:id="VASComponent" id="VASComponentId" class="hidden">
+        <c:newCartVAS objectDataMap ="{!v.objectDataMap}"/>
+    </div>    
+    <!-- francesca.ribezzi 30/08/2018 OB_newCartPriceSummary cmp added by francesca-->  
+    <div aura:id="priceSummaryComponent" id="priceSummaryComponentId" class="hidden">
+        	<c:OB_newCartPriceSummary objectDataMap ="{!v.objectDataMap}"/>
+    </div>
+    
+     <!-- francesca.ribezzi 04/09/2018 OB_newCartBancomat cmp added by francesca-->  
+    <div aura:id="bancomatComponent" id="bancomatComponentId" class="hidden">
+        	<c:OB_newCartBancomat objectDataMap ="{!v.objectDataMap}"/>
+    </div>
+    
+    <div aura:id="buttondiv" class="nextBtnOverride" > <!-- top:73px /*margin-bottom: -73px;margin-top: 41px;margin-left: auto;*/ -->
+        <!--<lightning:button variant="brand" label="Next" title="Next" onclick="{! c.nextStep }"/>-->
+        <lightning:button onclick="{! c.nextStep }" label="Next" class="slds-button slds-button_neutral slds-button--brand">Next &gt;</lightning:button>
+    </div>
+    <div aura:id="checkout" class="hidden" > 
+        <lightning:button onclick="{! c.checkout }" label="Checkout" class="slds-button slds-button_neutral slds-button--brand">Checkout</lightning:button>
+    </div>
+		 <div aura:id="test" id="test" class="hidden">TEST</div>
+</div>
+    
+   
+</aura:component>

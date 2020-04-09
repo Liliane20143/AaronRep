@@ -1,0 +1,334 @@
+<aura:component extends="c:OB_BaseComponent"  controller ="OB_MaintenanceSearch_Controller" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global">
+	 
+	<!--<ltng:require  scripts="{!$Resource.FiscalCodeControl2}" afterScriptsLoaded="{!c.init}"/> -->
+		
+	<!-- <aura:attribute name ="UserWrapper"  type="Object"  access="global"/> -->
+	<aura:attribute name="searchWrapper" type="Object" />
+	<aura:attribute name="InternalUser"  type="string"  default="true"/>
+	<aura:attribute name="FlowData"      type="string"  />
+	<aura:attribute name="FlowStep"      type="string"  />
+	<aura:attribute name="selectedCab"      type="string" default="" />
+	<aura:attribute name="cabList"      type="List"  />
+	<aura:attribute name="isL2Profile"  type="Boolean"  default="false"/>
+	<aura:attribute name="isL3Profile"  type="Boolean"  default="false"/>
+	<aura:attribute name="assetFilters"  type="Object" default="{}" access="global"/>
+	<!--francesca.ribezzi 21/06/19 adding fiscalCode attribute-->
+	<aura:attribute name="fiscalCode"      type="string" default="" access="global"/>
+	<!--// START Elena Preteni MAIN_62_R1F1-->
+	<aura:attribute name ="proposerABI"  type="String"  access="global"/>
+	<!--END Elena Preteni MAIN_62_R1F1-->
+	<!-- ANDREA MORITTU START 2019-Aug-26 - UX.194 - new Input On Maintenance Search  -->
+	<aura:attribute name="showAccountsModal"  type="Boolean"        default="false"    access="global"/>
+	<aura:attribute name="accountList"  type="List"			access="global"/>
+	<aura:attribute name="tableAccountsData" type="List" access="global"/>
+	<aura:attribute name="columnsMultipleAccounts" type="List" access="global"/>
+	<!-- ANDREA MORITTU END 2019-Aug-26 - UX.194 - new Input On Maintenance Search  -->
+	
+
+	<!--HANDLERS-->
+	<aura:handler name="init" value="{! this }" action="{! c.init }"/> 
+	<aura:handler	name="showModalEvent" 
+					event="c:modalLookupEvent"
+					action="{!c.handleShowModalEvent}"/>  
+   	<!-- <div class="slds">  -->
+	<!--  DG - 28/03/19 - MAIN_RP_019 - START -->
+    <aura:attribute name ="UserWrapper"  type="Object"  access="global"/>
+    <aura:attribute name ="userCAB"  type="String"  access="global"/>
+	<aura:attribute name="currentList" type="NE__Lov__c[]"/>
+	<!--  DG - 28/03/19 - MAIN_RP_019 - END -->
+	<!--giovanni spinelli 27/09/2019 start-->
+	<aura:attribute name="showModalFlow"  		type="Boolean"        default="false"    	access="global"/>
+	<aura:attribute name ="filterToRedirect"  	type="String"  								access="global"/>
+	<aura:attribute name ="myBaseURL"  			type="String"  								access="global"/>
+	<aura:attribute name ="userProfile"  		type="String"  								access="global"/>
+	<!--giovanni spinelli 27/09/2019 end-->
+	
+	<!--21/06/19 francesca.ribezzi adding handleRefreshSearch handler - descoping consistenza-->
+	<aura:handler name="change" value="{!v.fiscalCode}" action="{!c.handleRefreshSearch}"/>
+
+	{!v.body}
+
+
+
+	<div class="slds-form slds-form_compound slds-p-bottom_medium"  aura:id="MainDiv">
+		<!-- START 	Andrea Saracini 19/03/2019-->
+		<lightning:spinner variant="brand" size="large" class="slds-hide" aura:id="spinnerComponent" alternativeText=" "/>
+
+		<!-- STOP 	Andrea Saracini 19/03/2019-->	
+		<!-- START 	micol.ferrari 29/11/2018 -->
+		<div class="slds-form-element__row">
+			<div class="page-header-container slds-grid slds-wrap slds-size--1-of-1">
+				<div class="slds-size--1-of-1 slds-m-bottom_small slds-page-header">
+					<div class="slds-media">
+						<div class="slds-media__figure">							
+							<lightning:icon iconName="custom:custom65" size="medium" variant="slds-icon-inverse"></lightning:icon>
+						</div>
+						<div class="slds-media__body slds-m-top_x-small">
+							<div class="slds-page-header__title slds-text-heading_small">{!$Label.c.OB_MAINTENANCE_CHANGEACCOUNT}</div>
+						</div>
+						<div class="slds-media__figure slds-media__figure_reverse"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- END 	micol.ferrari 29/11/2018 -->
+		<!-- start elena.preteni 26/3/2019-->
+		<!-- <aura:if isTrue="{!v.isL2Profile}"> 
+			<div class="slds-form-element__row">
+				<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+					<lightning:select  	name="cabSelect" 
+										label="CAB" 
+										aura:id="cabSelect"
+										value="{!v.selectedCab}" 
+										onchange="{!c.changeCab}">
+						<option >Select a CAB</option>
+						<aura:iteration items="{!v.cabList}" var="item">
+							
+							<option text="{!item}" value="{!item}" selected="{!item.selected}"/>
+						</aura:iteration>
+					</lightning:select>  	  	
+				</div>
+			</div> 
+		</aura:if> -->
+
+		<!-- <aura:if isTrue="{!v.isL3Profile}">
+			<div class="slds-form-element__row">
+				<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+					<lightning:input  name="cabNumber"  aura:id="cabNumber"  label="CAB" disabled="true" /> 
+				</div>
+			
+			</div>
+		</aura:if> -->
+		<!-- end elena.preteni 26/3/2019-->
+
+
+
+		<!-- DG - 27/03/2019 - R1F2_RP_018 - START -->
+		<aura:if isTrue="{!or(v.isL2Profile, v.isL3Profile)}">
+			<div class="slds-grid slds-size--1-of-4"> 
+				<div class="slds-size--11-of-12 CAB-input">
+					<lightning:input 	label="{!$Label.c.OB_MAINTENANCE_CAB}" 
+										aura:id="CABselected"
+										id="CABselected"
+										name="showCAB"
+										value="{!v.selectedCab}"
+										maxlength="5"
+										minlength="5"
+										disabled="true"
+										class="flow_required"
+										required="true"/>
+				</div>
+				<div class="slds-size--1-of-12"> 
+					<label class="slds-form-element__label slds-no-flex">&nbsp;</label>
+					<lightning:button 	variant="neutral"
+										label=""
+										onclick="{!c.openCABSelection}"
+										iconName="utility:search" 
+										class="lens-search-abicab-button" 
+										title="Search_Cab"/>
+				</div>
+			</div>
+		</aura:if>
+		<!-- DG - 27/03/2019 - R1F2_RP_018 - END -->
+		<!-- ANDREA MORITTU START 2019-Aug-26 - UX.194 - new Input On Maintenance Search  -->
+		<div class="slds-form-element__row">
+			<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+				<lightning:input name="merchantBusinessName"  aura:id="merchantBusinessName" label="{!$Label.c.OB_MerchantBusinessName}"  onchange="{!c.checkOnSearchButton}" onblur="{!c.checkInputValue}" class="uppercase"/> 
+			</div>
+		</div>
+		<!-- ANDREA MORITTU END 2019-Aug-26 - UX.194 - new Input On Maintenance Search  -->
+		<div class="slds-form-element__row">
+			<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+			   	 <lightning:input  name="AccountName" aura:id="AccountName" label="{!$Label.c.OB_MAINTENANCE_ACCOUNT_NAME}" onchange="{!c.checkOnSearchButton}" 
+			   	 	onblur="{!c.checkFiscalCode}" class="uppercase"/>
+				
+			</div>
+			<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+				<lightning:input  name="VatNumber"  aura:id="VatNumber"  label="{!$Label.c.OB_MAINTENANCE_ACCOUNT_VATNUMBER}" onblur="{!c.checkIVA}" onchange="{!c.checkOnSearchButton}" /> 
+			</div>
+		</div>   
+		<div class="slds-form-element__row">  
+			<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">  
+			
+				<lightning:input name="ServicePoint"  aura:id="ServicePoint" id="ServicePoint" label="{!$Label.c.OB_MAINTENANCE_SERVICEPOINTCODE}" onchange="{!c.checkOnSearchButton}" onblur="{!c.checkInputValue}"/> 
+			</div>
+			<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+				<lightning:input name="SIACode" aura:id="SIACode" label="{!$Label.c.OB_MAINTENANCE_SIA_CODE}"  onchange="{!c.checkOnSearchButton}" onblur="{!c.checkInputValue}" /> 
+			</div>
+		</div>
+		<div class="slds-form-element__row">
+			<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+				<lightning:input name="SiaEstablishment"  aura:id="SiaEstablishment" label="{!$Label.c.OB_MAINTENANCE_SIA_ESTABLISHMENT}"   onchange="{!c.checkOnSearchButton}" onblur="{!c.checkInputValue}"/> 
+			</div>
+			<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+				<lightning:input name="TerminalId" aura:id="TerminalId"  label="{!$Label.c.OB_MAINTENANCE_TERMINAL_ID}"  onchange="{!c.checkOnSearchButton}" onblur="{!c.checkInputValue}" /> 
+			</div>
+		</div>
+		<!-- START 	Andrea Saracini 18/03/2019-->
+		<div class="slds-form-element__row">
+			<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+				<lightning:input name="url"  aura:id="url" label="{!$Label.c.OB_Url}"  onchange="{!c.checkOnSearchButton}" onblur="{!c.checkInputValue}"/> 
+			</div>
+			<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+				<lightning:input name="app" aura:id="app"  label="{!$Label.c.OB_App}"  onchange="{!c.checkOnSearchButton}" onblur="{!c.checkInputValue}" /> 
+			</div>
+		</div>
+		<!-- STOP 	Andrea Saracini 18/03/2019-->
+		<aura:if isTrue="{!v.InternalUser}" >
+			<div class="slds-form-element__row">
+				<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+					<lightning:input  name="MoneticaCustomerCode" aura:id="MoneticaCustomerCode"  label="{!$Label.c.OB_MAINTENANCE_MONETICA_CUSTOMER_CODE}" onchange="{!c.checkOnSearchButton}" onblur="{!c.checkInputValue}"/> 
+				</div>
+				<div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+					<lightning:input   name="MoneticaEstablishmentCode" aura:id="MoneticaEstablishmentCode"  label="{!$Label.c.OB_MAINTENANCE_MONETICA_ESTABLISHMENTCODE}" onchange="{!c.checkOnSearchButton}" onblur="{!c.checkInputValue}"/>
+				</div>
+		   
+			</div>
+			 <div class="slds-form-element__row">
+				  <div class="slds-form-element slds-size_1-of-2 slds-p-top_small">
+				 <lightning:input  name="ABI" aura:id="ABI"  label="{!$Label.c.OB_MAINTENANCE_ABI}" onchange="{!c.checkOnSearchButton}" required="true" onblur="{!c.checkInputValue}"/> 
+					</div>
+			 </div>
+		</aura:if>
+  
+	</div>
+	
+	<lightning:buttonGroup class="slds-align_absolute-center" >
+		<!-- ANDREA MORITTU START 04-Sep-2019 - Changed button graphic-->
+		<lightning:button class="CTAStyle" aura:id="SearchButton"  label="{!$Label.c.OB_MAINTENANCE_SEARCH_BUTTON}" title="{!$Label.c.OB_MAINTENANCE_SEARCH_BUTTON}" onclick="{! c.startSearch }" disabled = "true" /> 
+		
+	</lightning:buttonGroup>   
+
+	<!--ANDREA MORITTU START - 27-Aug-2019 - UX.194 - new Input on maintenance search -->
+	<!-- MODAL -->
+    <aura:if isTrue="{!v.showAccountsModal}">
+        <div style="height:640px">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+				<!-- HEADER -->
+				<ui:scrollerWrapper class="scrollerSize">
+					<header class="slds-modal__header headerModalStyle">
+						<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.closeModal}">
+							<span class="slds-assistive-text headerModalStyle">Close</span>
+						</button>
+						<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate tytleStyle"> {!$Label.c.OB_MerchantLabel} &nbsp; {!$Label.c.OB_FoundLabel}</h2>
+						<div class="slds-grid slds-size--1-of-1">
+							<div class="slds-size--2-of-6" />
+							<div class="slds-size--2-of-6 slds-p-around_xx-small" >
+								<lightning:helptext content="{!$Label.c.OB_SelectMerchantBelowLabel}" />
+							</div>
+							<div class="slds-size--2-of-6" />
+						</div>
+					</header>
+					<!-- / HEADER -->
+					<!-- BODY -->
+					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+						<table class="slds-table slds-table_cell-buffer slds-table_bordered">
+							<thead>
+								<tr class="slds-line-height_reset">
+									<aura:iteration items="{!v.columnsMultipleAccounts}" var="singleFieldDetail">
+										<!-- BUSINESS NAME -->
+										<aura:if isTrue="{!singleFieldDetail.fieldName == 'name'}" >
+											<th class="slds-text-title_caps labelStyle" scope="col">
+												<div class="slds-size_1-of-3 slds-p-around_small labelStyle" 
+												title="AccountName">{!$Label.c.OB_MerchantName}</div>
+											</th>
+										</aura:if>
+										<!-- / BUSINESS NAME -->
+
+										<!-- FISCAL CODE -->
+										<aura:if isTrue="{!singleFieldDetail.fieldName == 'ne__fiscal_code__c'}" >
+											<th class="slds-text-title_caps" scope="col">
+												<div class="slds-size_1-of-3 slds-p-around_small labelStyle" 
+												title="Fiscal Code">{!singleFieldDetail.label}</div>
+											</th>
+										</aura:if>
+										<!-- / FISCAL CODE -->
+										<!-- VAT  -->
+										<aura:if isTrue="{!singleFieldDetail.fieldName == 'ne__vat__c'}" >
+											<th class="slds-text-title_caps" scope="col">
+												<div class="slds-size_1-of-3 slds-p-around_small labelStyle" 
+												title="NE__VAT__c">{!singleFieldDetail.label}</div>
+											</th>         
+										</aura:if>     
+										<!-- / VAT  -->  
+									</aura:iteration>       
+								</tr>
+							</thead>
+							<aura:iteration items="{!v.tableAccountsData}" var="singleAccount">           
+								<tbody>
+									<tr class="slds-hint-parent" aura:id="{!singleAccount.Id}" label="" id="{!singleAccount.Id + '_' + singleAccount.NE__Fiscal_code__c}" value="{!singleAccount.Id}" onclick="{!c.selectionMerchant}">
+									<td>
+										<!-- ACCOUNT NAME -->
+										<div class="slds-size_1-of-3 slds-p-around_medium" title="Name">
+											<span id="merchantNameSpan">
+												{!singleAccount.Name}
+											</span>
+										</div>
+										<!-- / ACCOUNT NAME -->
+									</td>
+									<td>
+										<!-- ACCOUNT FISCAL CODE -->
+										<div class="slds-size_1-of-3 slds-p-around_medium" title="Name">
+											{!singleAccount.NE__Fiscal_code__c}
+										</div>
+										<!-- / ACCOUNT FISCAL CODE -->
+									</td>
+									<td>
+										<div class="slds-size_1-of-3 slds-p-around_medium" title="Name">
+											{!singleAccount.NE__VAT__c}
+										</div>
+									</td>
+
+									</tr>            
+								</tbody>
+							</aura:iteration>
+
+						</table>
+					</div>
+				</ui:scrollerWrapper>
+                <!-- / BODY -->
+                <!-- FOOTER -->
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral CTAStyle" onclick="{!c.closeModal}">{!$Label.c.OB_Cancel}</button>
+                </footer>
+                <!-- FOOTER -->
+            </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+	</aura:if>
+	<!-- / MODAL -->
+	<!--ANDREA MORITTU END - 27-Aug-2019 - UX.194 - new Input on maintenance search -->
+	<!--giovanni spinelli 27/09/2019 - start add modal to fireFlow-->
+	<aura:if isTrue="{!v.showModalFlow}">
+		<div class="modalStyle">
+			<section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id"
+				aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt"
+				aria-modal="true">
+				<div class="slds-modal__container">
+					<header class="slds-modal__header">
+						<lightning:buttonIcon
+							class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+							iconName="utility:close" size="large" alternativeText="Close" variant="bare"
+							onclick="{!c.handleModalCancel}" />
+						<h2 id="modal-heading-01" class="headerModalStyle slds-text-heading_medium slds-hyphenate">
+							{!$Label.c.OB_MAINTENANCE_NOACCOUNTFOUND}
+						</h2>
+					</header>
+					<div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
+						<p class="centeredText">{!$Label.c.OB_NewAgreement_Question}</p>
+	
+					</div>
+					<footer class="slds-modal__footer slds-theme_default">
+						<!-- insert aura if here to know which button label we want -->
+						<lightning:button label="{!$Label.c.OB_Cancel}" 		onclick="{!c.refreshPage}" variant="brand"	class="slds-m-top_medium CTAStyle_BRAND" />
+						<lightning:button label="{!$Label.c.OB_NewAgreement}" 	onclick="{!c.fireFlow}"  					class="slds-m-top_medium CTAStyle_2" iconName="utility:add" iconPosition="right"/>
+					</footer>
+				</div>
+			</section>
+			<div class="slds-backdrop slds-backdrop_open"></div>
+		</div>
+	</aura:if>
+	<!--giovanni spinelli 27/09/2019 - end add modal to fireFlow-->
+</aura:component>

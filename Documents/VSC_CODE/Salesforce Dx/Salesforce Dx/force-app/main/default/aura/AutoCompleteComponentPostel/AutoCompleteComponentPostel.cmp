@@ -1,0 +1,344 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" >
+
+	<!-- Register event -->
+	<!--<aura:registerEvent name="cmpEvent" type="c:autoCompletComponentEvent"/>-->
+	
+	<!-- Fire event on button click -->
+	
+	<!--COMPONENT EVENT RECEIVER-->
+	 <aura:handler event="c:OB_EventAutoCompleteReInit" action="{!c.reInitAll}"/> 
+	 <aura:handler event="c:OB_EventAutoCompleteRedBorder" action="{!c.setRedBorderCompanyData}"/>
+	
+	<aura:handler name="AutocompleteEvent" event="c:OB_AutocompleteEvent" action="{!c.handleEvent}"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:handler name="showModalEvent" event="c:modalLookupEvent"
+				  action="{!c.handleShowModalEvent}"/> 
+	<aura:method name="blankMethod" action="{!c.blankMethodCaps}">
+        <aura:attribute name="caps" type="List"/>
+    </aura:method>
+	<aura:method name="reInitAll" action="{!c.reInitAll}">
+    </aura:method>
+<!-- 	<aura:handler event="aura:doneRendering" action="{!c.aggiornaForm}"/> -->
+	<!--- START  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+	<aura:attribute name="identifier" type="String" default="" access="global"/>
+	<aura:attribute name="field" type="Object" default="{}" access="global"/>
+	<aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+	<aura:attribute name="inputField" type="String" default="" />
+	<!-- END  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->	
+	
+	<aura:attribute name="type" type="String" access="global"/>
+	<aura:attribute name="subType" type="String" access="global"/>
+	<aura:attribute name="objectString" type="String" access="global"/>
+	<aura:attribute name="mapOfSourceFieldTargetField" type="Map" access="global"/>
+	<aura:attribute name="mapLabelColumns" type="Map" default="{}" access="global"/>
+	<aura:attribute name="messageIsEmpty" type="String" default="" access="global"/>
+	<aura:attribute name="orderBy" type="String" access="global"/> 
+	<aura:attribute name="city" type="String" default="" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"  access="global"/>
+	<aura:attribute name="province" type="String"  access="global"/>
+	<aura:attribute name="comune" type="String" access="global" />
+	<aura:attribute name="frazione" type="String" access="global"/>
+	<aura:attribute name="caps" type="List" default="[]" access="global" />
+	<aura:attribute name="selectedValue" type="String" access="global"/>
+	<aura:attribute name="isDisabled" type="Boolean" default="true" />
+	<aura:attribute name="disabledInput_sp" type="Boolean" access="global"/>
+	<aura:attribute name="zipcodeString" type="String" access="global" />
+	<aura:attribute name="countryString" type="String" access="global" />
+	<aura:attribute name="countryCodeString" type="String" access="global" />
+	<aura:attribute name="detailString" type="String" access="global" />
+	<aura:attribute name="isEE" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="isPV" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="countries" type="List" default="[]" access="global"/>
+	<aura:attribute name="pressoId" type="String" access="global" default="presso"/>
+	<aura:attribute name="zipCodeEEId" type="String" access="global" default="zipcodeEE"/>
+
+	<!-- NEXI-245 Marta Stempien <marta.stempien@accenture.com> 01/08/2019 Start -->
+	<aura:attribute name = "isTrueDisableFields" type = "Boolean" default="false" access = "global" description= "Value is set to true when specified fields should be disabled" />
+	<aura:attribute name = "isLoaded" type = "Boolean" default="false" description = "Value is set when in the end of init function" />
+    <aura:attribute name = "disabledFields" 		type = "List" 		default="['OB_Birth_Country__c']" 	access = "private"	description = "List contains fields for which province input should be disabled in some cases" />
+
+	<!-- START 	micol.ferrari 21/12/2018 -->
+	<aura:attribute name="isServiceDown" type="Boolean" default="false" access="global"/>
+	<!-- END 	micol.ferrari 21/12/2018 -->
+
+	<!-- START 	Doris D.       21/02/2019 -->
+	<aura:attribute name="isChecked" type="Boolean" default="false" access="global"/>
+	<!-- END 	Doris D.       21/02/2019 -->
+	<!-- START gianluigi.virga 05/09/2019-->
+	<aura:attribute name="isEqualsAddress" type="Boolean" default="{v.objectDataMap.isLegalEqualAdm}" access="global"/>
+	<!-- END gianluigi.virga 05/09/2019-->
+	<!--francesca.ribezzi - R1F3-106 - 24/09/19 adding isMaintenanceAnagrafica-->
+    <aura:attribute name="isMaintenanceAnagrafica" type="Boolean" default="false" access="global"/>
+
+	<aura:handler   name="change" value="{!v.objectDataMap.setRedBorderCompanyData}" action="{!c.setRedBorderCompanyData}"/> 
+	<!-- <c:OB_ContinuationBrokerComponent/> -->
+	
+	<aura:if isTrue="{!v.addressMapping.sectionaddress=='sedeamministrativa'}">
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12" >
+				<div class="slds-p-around--medium slds-form-element" >
+					<label class="slds-form-element__label" for="legalEqualAdministrative">
+						{!$Label.c.OB_LegalEqualAdministrative}
+					</label>
+					<lightning:input type="checkbox" label="" aura:id="legalEqualAdministrative" onchange="{!c.changeCheckbox}" value="{!v.objectDataMap.isLegalEqualAdm}" checked = "{!v.isChecked}"/>
+				</div>
+			</div>
+		</div>
+	</aura:if>
+	
+	<aura:if isTrue="{!v.addressMapping.sectionaddress != 'sedeamministrativa' || v.objectDataMap.isLegalEqualAdm != true}">
+		<!-- micol.ferrari 19/12/2018 - SHOW COUNTRY ALSO IF THE SECTION IS DOCUMENT RELEASE (APPARENTELY WITH COUNTRY ARRIVES ALWAYS FALSE) -->
+		<aura:if isTrue="{!v.addressMapping.sectionaddress=='documentrelease' || v.addressMapping.withCountry == 'true' || v.addressMapping.withCountry == true}">
+		 	<div class="slds-size--1-of-2 slds-grid">
+		 		<aura:if isTrue="{!v.addressMapping.isPV != 'true'}">
+					<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12" >
+						<div class="slds-p-around--medium slds-form-element" >
+							<!-- <label class="slds-form-element__label" for="inputNameSample1" value="{!v.addressMapping.countrylabel}">
+								{!v.addressMapping.countrylabel}
+							</label> -->
+	
+							<!-- START	micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+							<aura:if isTrue="{!or(v.addressMapping.sectionaddress=='sedelegale',v.addressMapping.sectionaddress=='generaladdress',v.addressMapping.sectionaddress=='sedeamministrativa')}">
+								<label class="slds-form-element__label" for="{!$Label.c.OB_Address_Country}">
+									<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Address_Country}
+								</label>
+							</aura:if>
+							<aura:if isTrue="{!v.addressMapping.sectionaddress=='documentrelease'}">
+								<label class="slds-form-element__label" for="{!$Label.c.OB_Document_Release_Country}">
+									<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Document_Release_Country}
+								</label>
+							</aura:if>
+							<aura:if isTrue="{!v.addressMapping.sectionaddress=='birthaddress'}">
+								<label class="slds-form-element__label" for="{!$Label.c.OB_Birth_Country}">
+									<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Birth_Country}
+								</label>
+							</aura:if>												
+							<!-- END	micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+	
+							<div class="slds-grid slds-size--1-of-1"> 
+								<div class="slds-size--11-of-12">
+									<lightning:input  	name="countrySelect" 
+													 	aura:id="country"
+													 	id="country"
+													 	variant="label-hidden" 
+													 	label=""
+													 	value="{!v.countryString}" 
+													 	disabled="true"
+													 	class="countryinputsearch"/>
+								</div>
+								<div class="slds-size--1-of-12">
+                                    <!--NEXI 245 Marta Stempien <marta.stempien@accenture.com> 01/08/2019, Added disable parameter -->
+									<lightning:button 	variant="neutral"
+														onclick="{!c.openModal}"
+														iconName="utility:search"
+                                                        disabled="{!v.isTrueDisableFields}"
+                                                        aura:id="buttonCountry"
+														class="lens-search-country-button"/>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</aura:if>
+
+				<aura:if isTrue="{!v.addressMapping.isPV == 'true'}">
+					<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12" >
+						<div class="slds-p-around--medium slds-form-element">
+
+							<!-- START	micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+							<aura:if isTrue="{!or(v.addressMapping.sectionaddress=='sedelegale',v.addressMapping.sectionaddress=='generaladdress',v.addressMapping.sectionaddress=='sedeamministrativa')}">
+								<label class="slds-form-element__label" for="{!$Label.c.OB_Address_Country}" style="margin-top: -4px; position: absolute;">
+									<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Address_Country}
+								</label>
+							</aura:if>
+							<aura:if isTrue="{!v.addressMapping.sectionaddress=='documentrelease'}">
+								<label class="slds-form-element__label" for="{!$Label.c.OB_Document_Release_Country}" style="margin-top: -4px; position: absolute;">
+									<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Document_Release_Country}
+								</label>
+							</aura:if>
+							<aura:if isTrue="{!v.addressMapping.sectionaddress=='birthaddress'}">
+								<label class="slds-form-element__label" for="{!$Label.c.OB_Birth_Country}" style="margin-top: -4px; position: absolute;">
+									<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Birth_Country}
+								</label>
+							</aura:if>
+							<!-- END	micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+
+						  	<aura:if isTrue="{!v.addressMapping.countrydisabled == 'false'}">
+
+								<lightning:select  	name="countrySelect"
+												 	label=""
+												 	aura:id="countryPV"
+												 	value="{!v.countryString}"
+												 	onchange="{!c.changeCountry}">
+									<aura:iteration items="{!v.countries}" var="item">
+										<option text="{!item}" value="{!item}" selected="{!item.selected}"/>
+									</aura:iteration>
+							   	</lightning:select>
+					   	  	</aura:if>
+					   	  	<aura:if isTrue="{!v.addressMapping.countrydisabled == 'true'}">
+						   	  	<lightning:input  	name="countrySelectRO"
+												 	aura:id="countryRO"
+												 	id="countryRO"
+												 	value="{!v.countryString}"
+												 	disabled="true"
+												 	label=""/>
+					   	  </aura:if>
+						</div>
+					</div>
+			 	</aura:if>
+			</div>
+		</aura:if>
+        <!--NEXI-245 Marta Stempien <marta.stempien@accenture.com 01/08/2019 Added check for isLoaded -->
+		<aura:if isTrue="{!v.isLoaded}">
+		<div class="{!v.addressMapping.sectionaddress=='CCIAA' ? 'slds-size--1-of-2 slds-grid':'slds-size--1-of-1 slds-grid'}">
+			<div  class="{!v.addressMapping.sectionaddress=='CCIAA' ? 'slds-form-element slds-small-size--1-of-1 slds-large-size--1-of-1 bit2flowAbstractFormElement':'slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement'}" >
+
+				  <c:AutoCompleteComponentPostelProvince aura:id="provinceComponent"
+													   	caps="{!v.caps}"
+													   	objectDataMap="{!v.objectDataMap}"
+													   	addressMapping="{!v.addressMapping}"
+													   	isEE="{!v.isEE}"
+													   	isServiceDown="{!v.isServiceDown}"
+														isTrueDisableFields = "{!v.isTrueDisableFields}" />
+													   	<!-- micol.ferrari 21/12/2018 - ADDED isServiceDown-->
+														<!--NEXI-245 Marta Stempien <marta.stempien@accenture.com 01/08/2019 Added isTrueDisableFields parameter -->
+			</div>
+
+			<aura:if isTrue="{!v.addressMapping.withCity != 'false'}">
+				<div  class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+					<c:AutoCompleteComponentPostelComune aura:id="comuneComponent"
+														 province="{!v.province}"
+														 caps="{!v.caps}"
+														 objectDataMap="{!v.objectDataMap}"
+														 disabledInput_sp="{!v.disabledInput_sp}"
+														 addressMapping="{!v.addressMapping}"
+														 isEE="{!v.isEE}"/>
+
+				</div>
+			</aura:if>
+		</div>
+		</aura:if> <!--NEXI-245 Marta Stempien <marta.stempien@accenture.com 01/08/2019, aura:if closing tag added -->
+        <div class="slds-size--1-of-1 slds-grid">
+			<div  class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+				<aura:if isTrue="{!v.addressMapping.isComplete == 'true'}">
+					<c:AutoCompleteComponentPostelDistrict aura:id="districtComponent"
+														   comune="{!v.comune}"
+														   caps="{!v.caps}"
+														   objectDataMap="{!v.objectDataMap}"
+														   addressMapping="{!v.addressMapping}"
+														   isEE="{!v.isEE}"/>
+
+				</aura:if>
+
+			</div>
+
+			<div  class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+
+				<aura:if isTrue="{!v.addressMapping.isComplete == 'true'}">
+					<c:AutoCompleteComponentPostelAddress aura:id="addressComponent"
+														  comune="{!v.comune}"
+														  frazione="{!v.frazione}"
+														  caps="{!v.caps}"
+														  objectDataMap="{!v.objectDataMap}"
+														  disabledInput_sp="{!v.disabledInput_sp}"
+														  addressMapping="{!v.addressMapping}"
+														  isEE="{!v.isEE}"/>
+				</aura:if>
+			</div>
+		</div>
+
+	    <aura:if isTrue="{!v.addressMapping.isComplete == 'true'}">
+		<div class=" slds-size--1-of-1 slds-grid ">
+			<div class="slds-form-element slds-p-around--medium slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+
+					<!-- START	micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+					<!-- Doris dongmo , 14/05/2019 - ADDED 'abbr' TAG - START-->
+					<aura:if isTrue="{!and(v.addressMapping.sectionaddress=='sedelegale',v.isServiceDown==false)}">
+						<label class="slds-form-element__label" for="{!$Label.c.OB_Legal_Address_Postal_Code}" style="{!v.isEE==true || v.addressMapping.zipcodedisabled == 'true' ? '':'margin-top: -4px; position: absolute;'}">
+								<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Legal_Address_Postal_Code}
+						</label>
+					</aura:if>
+					<aura:if isTrue="{!and(v.addressMapping.sectionaddress=='sedeamministrativa',v.isServiceDown==false)}">
+						<label class="slds-form-element__label" for="{!$Label.c.OB_Administrative_Office_Zip_Code}" style="{!v.isEE==true || v.addressMapping.zipcodedisabled == 'true' ? '':'margin-top: -4px; position: absolute;'}">
+								<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Administrative_Office_Zip_Code}
+						</label>
+					</aura:if>
+					<aura:if isTrue="{!and(v.addressMapping.sectionaddress=='generaladdress',v.isServiceDown==false)}">
+						<label class="slds-form-element__label" for="{!$Label.c.OB_Address_Zip_Code}" style="{!v.isEE==true || v.addressMapping.zipcodedisabled == 'true' ? '':'margin-top: -4px; position: absolute;'}">
+								<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Address_Zip_Code}
+						</label>
+					</aura:if>
+					<!-- Doris dongmo , 14/05/2019 - ADDED 'abbr' TAG - END -->
+					<aura:if isTrue="{!v.isServiceDown}">
+						<label class="slds-form-element__label" for="{!$Label.c.OB_Address_Zip_Code}" >
+							<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Address_Zip_Code}
+						</label>
+					</aura:if>
+					<!-- END	micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+
+					<!-- START	micol.ferrari 23/08/2018 - THE VALUE OF THE LABEL AND THE BOOLEAN FOR THE DISABLED IS PASSED IN ADDRESSMAPPING FROM THE FLOW -->
+					<aura:if isTrue="{!v.addressMapping.zipcodedisabled != 'true'}">
+						<aura:if isTrue="{!and(v.isEE != true,v.isServiceDown==false)}">
+							<lightning:select  	name="mySelect"
+											 	label=""
+											 	aura:id="zipcode"
+											 	value="{!v.zipcodeString}"
+											 	disabled="false"
+											 	onchange="{!c.setPostalCode}">
+								<aura:iteration items="{!v.caps}" var="item">
+									<option text="{!item}" value="{!item}" selected="{!item.selected}"/>
+								</aura:iteration>
+						   	</lightning:select>
+						 </aura:if>
+
+						 <aura:if isTrue="{!and(v.isEE == true,v.isServiceDown==false)}">
+						 	<input			class="slds-input"
+											 type="text"
+											 id="{!v.zipCodeEEId}"
+											 label=""
+											 value="{!v.zipcodeString}"
+											 onchange="{!c.setPostalCode}"/>
+						 </aura:if>
+						  <!-- START 	micol.ferrari 21/12/2018 - ADDED isServiceDown -->
+						 <aura:if isTrue="{!v.isServiceDown}">
+						 	<input			class="slds-input"
+											 type="text"
+											 id="{!v.zipCodeEEId}"
+											 label=""
+											 variant="label-hidden"
+											 value="{!v.zipcodeString}"
+											 onchange="{!c.setPostalCode}"/>
+						 </aura:if>
+						 <!-- END 	micol.ferrari 21/12/2018 - ADDED isServiceDown -->
+					</aura:if>
+					<aura:if isTrue="{!v.addressMapping.zipcodedisabled == 'true'}">
+						<input 				class="slds-input"
+											 type="text"
+											 id="zipcodeRO"
+											 label=""
+											 value="{!v.zipcodeString}"
+											 disabled="true"
+											 variant="label-hidden"/>
+					</aura:if>
+				</div>
+			<div class="slds-form-element slds-p-around--medium slds-small-size--1-of-2 slds-large-size--1-of-2 bit2flowAbstractFormElement" >
+				 <aura:if isTrue="{!v.addressMapping.withDetail == 'true'}">
+					<label class="slds-form-element__label" for="presso" > {!$Label.c.Location}</label>
+					<div class="slds-form-element__control">
+						<input class="slds-input"
+										 type="text"
+										 id="{!v.pressoId}"
+										 label=""
+										 value="{!v.detailString}"
+										 variant="label-hidden"
+										 disabled="{!v.addressMapping.pressodisabled}"
+										 onchange="{!c.getValuePresso}"
+										 name="Presso"/>
+					</div>
+				</aura:if>
+			</div>
+		</div>
+	  </aura:if>
+   </aura:if>
+	{!v.body}
+</aura:component>

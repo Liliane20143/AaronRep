@@ -1,0 +1,52 @@
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global" >
+    <!-- ATTRIBUTE SECTION -->
+        <aura:attribute name="progress" type="Integer" default="0" access="global"/>
+    <!--/ ATTRIBUTE SECTION -->
+
+    <!-- HANDLER SECTION  -->
+
+    <!-- / HANDLER SECTION  -->
+
+
+    <!-- BODY SECTION -->
+
+    <aura:if isTrue="{!and(v.progress gt 0, v.progress lt 100)}">
+        <lightning:spinner variant="brand" alternativeText="Loading" />
+        <div class="slds-gutters slds-grid slds-size_1-of-1">
+            <!-- EMPTY DIV -->
+            <div class="slds-size_1-of-3" /> 
+            <div class="slds-size_1-of-3" /> 
+            <!-- / EMPTY DIV -->
+
+            <div class="slds-size_1-of-3" > 
+                <span class="slds-size_1-of-2" > 
+                    <lightning:icon iconName="utility:warning" alternativeText="Warning!" variant="warning"/>
+                </span>
+                <span class="slds-size_1-of-2 alignRight" > 
+                    {!$Label.c.OB_Completed_Label} : <span class="boldPercentage" >  {!v.progress} % </span>
+                </span>
+            </div>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.progress ge 100}">
+        <div class="slds-gutters slds-grid slds-size_1-of-1">
+            <!-- EMPTY DIV -->
+            <div class="slds-size_1-of-3" /> 
+            <div class="slds-size_1-of-3" /> 
+            <!-- / EMPTY DIV -->
+
+            <div class="slds-size_1-of-3 slds-p-horizontal_medium alignRight" > 
+                <span class="slds-size_1-of-2" > 
+                    <lightning:icon iconName="utility:success" size="medium" alternativeText="" variant="success"/>
+                </span>
+                <span class="slds-size_1-of-2" > 
+                    {!$Label.c.OB_Completed_Label} : <span class="boldPercentage" > {!v.progress} % </span>
+                </span>
+            </div>
+        </div>    
+    </aura:if>
+    <div class="slds-size_1-of-1 slds-p-around_xx-small">
+        <lightning:progressBar aura:id="progressBar" class="slds-p-around_medium" value="{!v.progress}" />
+    </div>
+    <!-- / BODY SECTION -->
+</aura:component>

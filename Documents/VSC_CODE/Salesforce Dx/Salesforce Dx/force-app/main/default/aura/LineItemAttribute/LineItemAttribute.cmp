@@ -1,0 +1,39 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="getOrderItemsAttribute" access="global">
+    <aura:attribute name="orderId" type="String" default="0019E00000Yqj58QAB"/>
+    <aura:attribute name="orderItems" type="NE__OrderItem__c[]" />
+    <aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="nextCheckout" type="String" default="{!v.objectDataMap.unbind.nextCheckout}" />
+    <aura:attribute name="objectKey" type="String" default="" access="global"/>
+    <aura:attribute name="identifier" type="String" default="" access="global"/>
+    <aura:attribute name="field" type="Object" default="{}" access="global"/> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <div style="width:98%;margin-left:1%;margin-rigth:1%;margin-top:1%">
+        <aura:if isTrue="{! !empty(v.orderItems)}">
+            <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                <thead >
+                    <!-- mapLabelFieldName[key].fieldName -->
+                    <tr class="slds-text-title_caps">
+                        <th style="background: rgb(243, 242, 242); font-weight:bold;" aria-sort="none" aria-label="Name" scope="col">
+                            <div class="slds-truncate" title="Item">Item Name</div>
+                        </th>
+                        <th style="background: rgb(243, 242, 242); font-weight:bold;" aria-sort="none" aria-label="Name" scope="col">
+                            <div class="slds-truncate" title="Attribute Name">Attribute Name</div>
+                        </th>
+                        <th style="background: rgb(243, 242, 242); font-weight:bold;" aria-sort="none"  aria-label="Name" scope="col">
+                            <div class="slds-truncate" title="Value">Value</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- iteration v.records  currentItem= !record-->
+                    <aura:iteration items="{!v.orderItems}" var="item">
+                        <c:LineItemAttributeTable orderItems = "{!v.orderItems}"
+                                                  currentItem = "{!item}"/>
+                    </aura:iteration>
+                    <!-- end iteration -->
+                </tbody>
+            </table>
+        </aura:if>
+    </div>
+</aura:component>

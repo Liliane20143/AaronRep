@@ -1,0 +1,39 @@
+/**
+ * Created by capasso on 05/02/2019.
+ */
+.THIS {
+
+    }
+
+.THIS .slds-text-link{
+    cursor: pointer;
+}
+.THIS .max-height {
+    height: 300px;
+    max-width: 840px;
+}
+
+.THIS .min-height {
+    height: 70px;
+    max-width: 840px;
+}
+
+.THIS .mid-height {
+    height: 185px;
+    max-width: 840px;
+}
+.THIS .table-title-icon-spacing {
+    margin-top: 20px;
+    margin-bottom: 5px;
+}
+
+.THIS .slds-popover{
+    position: absolute;
+    /*margin-left: 7px;
+    margin-top: -4px;*/
+    margin-top: -41px;
+    margin-left: -279px;
+}
+.THIS .help-icon-m{
+    margin-top: 23px;
+}

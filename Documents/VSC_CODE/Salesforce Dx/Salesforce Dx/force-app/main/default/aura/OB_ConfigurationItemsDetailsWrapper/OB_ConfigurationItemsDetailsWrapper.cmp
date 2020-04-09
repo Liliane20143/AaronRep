@@ -1,0 +1,78 @@
+<aura:component implements="lightning:actionOverride,force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId"
+                controller="OB_ConfigurationItemsDetailsWrapper_CC">
+
+<aura:attribute name="recordId" type="String" access="global"/>
+<aura:attribute name="approvalRequestId" type="String" access="global"/>
+<aura:attribute name="currentURL" type="String" access="global"/>
+<aura:attribute name="approvalRequestApproved" type="String" access="global"/>
+<aura:attribute name="approvalRequestRejected" type="String" access="global"/>
+<aura:attribute name="showBackButton" type="Boolean" default="false" access="global"/>
+<!-- START gianluigi.virga 19/04/2019 - RI-26 - ADDED AURA ATTRIBUTE -->
+<aura:attribute name="userEnabled" type="Boolean" default="false" access="global"/>
+<!-- END gianluigi.virga 19/04/2019 - RI-26 -->
+<!--giovanni spinelli 29/03/2019-->
+<aura:attribute name="openModal"        type="Boolean" default="false" access="global"/>
+<aura:attribute name="textAreaMessage"  type="String" access="global"/>
+
+<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+<!-- <button class="slds-button slds-button_brand" onclick="{!c.goToConfigurationItemsDetail}">{!$Label.c.OB_ButtonBack}</button> -->
+
+    <div class="slds-col slds-size_1-of-3 ">
+        <!-- ANDREA MORITTU START 30-Sept-2019 - EVO_PRODOB_475 -->
+        <button class="slds-button slds-button_brand CTAStyle_BRAND"
+            onclick="{!c.goToConfigurationItemsDetail}">{!$Label.c.OB_ButtonBack}</button>
+            <!-- ANDREA MORITTU END 30-Sept-2019 - EVO_PRODOB_475 -->
+        <!-- START gianluigi.virga 19/04/2019 - RI-26 - ADDED AURA IF CONDITION -->
+        <aura:if isTrue="{!and(v.showBackButton, v.userEnabled)}">
+            <!-- END gianluigi.virga 19/04/2019 - RI-26 -->
+            <div style="float: right;padding-right: 14px;">
+                <lightning:buttonGroup>
+                    <button class="slds-button slds-button_neutral"
+                        onclick="{!c.submitApprovalRequest}">{!$Label.c.OB_ButtonSubmit}</button>
+                    <!--giovanni spinelli 11/06/2019 change button method start-->
+                    <button class="slds-button slds-button_neutral"
+                        onclick="{!c.openModalComments}">{!$Label.c.OB_ButtonReject}</button>
+                     <!--giovanni spinelli 11/06/2019 change button method end-->
+                </lightning:buttonGroup>
+            </div>
+        </aura:if>
+    </div>
+    <div class="slds-col slds-size_2-of-3 "></div>
+    <aura:if isTrue="{!v.openModal}">
+        <div class="demo-only" style="height: 100%;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <span style="float: right;">
+                        <lightning:icon iconName="utility:close" onclick="{!c.closeModalComments}" size="small"
+                            variant="neutral" title="close" alternativeText="Close window" style="float: right;"
+                            class="x_class" />
+                    </span>
+                    <header class="slds-modal__header">
+    
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                            {!$Label.c.OB_ConfigurationReject}</h2>
+                    </header>
+                    <!--text area-->
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div class="row">
+    
+                            <lightning:textarea name="input1" label="{!$Label.c.OB_Comments}" value="{!v.textAreaMessage}"
+                                class="textArea_class" />
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <button class="slds-button slds-button_neutral"
+                            onclick="{!c.closeModalComments}">{!$Label.c.OB_Cancel}</button>
+                        <button class="slds-button slds-button_brand"
+                            onclick="{!c.rejectApprovalRequest}">{!$Label.c.OB_ButtonReject}</button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    
+    
+    </aura:if>
+
+</aura:component>

@@ -1,0 +1,6 @@
+<aura:event type="APPLICATION" description="Event template" >
+    <aura:attribute name="whichAction" type="String" access="global" />
+    <!-- ANDREA MORITTU 02-Oct-2019 START - EVO_BACKLOG_245 -->
+    <aura:attribute name="oldVisaMastercard" type="Object" access="global" />
+    <!-- ANDREA MORITTU 02-Oct-2019 END - EVO_BACKLOG_245 -->
+</aura:event>

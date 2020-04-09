@@ -1,0 +1,64 @@
+.THIS .errorClass  {
+    /*background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(221, 219, 218);
+    border-color: rgb(194, 57, 52);
+    box-shadow: rgb(194, 57, 52) 0 0 0 1px inset;
+    background-clip: padding-box*/
+
+}
+.THIS .errorClass .slds-input
+{
+     background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(221, 219, 218);
+    border-color: rgb(194, 57, 52);
+    box-shadow: rgb(194, 57, 52) 0 0 0 1px inset;
+    background-clip: padding-box;
+}
+.THIS .classErrorMessage{
+    
+    color:rgb(194, 57, 52);
+    
+}
+.THIS .black-text{
+    color:#000000
+    
+}
+
+.THIS.radioField{
+    margin-left: 1%;
+    margin-top: 1%;
+}
+.THIS.slds-has-error .flow_required{
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(221, 219, 218);
+    border-color: rgb(194, 57, 52);
+    box-shadow: rgb(194, 57, 52) 0 0 0 1px inset;
+    background-clip: padding-box
+}
+.THIS .slds-has-error{
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(221, 219, 218);
+    border-color: rgb(194, 57, 52);
+    box-shadow: rgb(194, 57, 52) 0 0 0 1px inset;
+    background-clip: padding-box
+}
+
+.THIS .search-cf-button
+        {        
+        margin-top: 21px;
+        margin-left: 15%
+        }
+ .THIS      .search-cf-button-container
+        {
+        text-align: -webkit-center;
+        }    
+ .THIS       .error-input-message
+        {
+        position: absolute;
+        z-index: 1;
+        }
+ .THIS    .slds-spinner_container
+        {
+        position: absolute;
+        z-index: 1;
+        }

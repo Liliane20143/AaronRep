@@ -1,0 +1,160 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId,flexipage:availableForRecordHome,force:appHostable"
+                access="global"
+                controller="OB_MerchantGetDocument">
+
+    <!-- ATTRIBUTES -->
+    <aura:attribute name="documentsMap"     type="List" 		default="[]" 		access="global"/>
+    <aura:attribute name="filteredDocumentMap"     type="List" 		default="[]" 		access="global"/>
+    <aura:attribute name="showFilteredTable"     type="Boolean" 		default="false" 		access="global"/>
+    
+     
+    <aura:attribute name="documentIDS"     type="List" 		default="[]" 		access="global"/>
+    <aura:attribute name="url" type="String"/>
+    <!-- / ATTRIBUTES -->
+    <lightning:navigation aura:id="navLink"/>
+
+    <!-- HANDLER-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler event="force:navigateToSObject" action="{!c.navigate}"/>
+    <!-- / HANDLER-->
+
+    <!-- BODY-->
+   
+    <!-- ANDREA MORITTU START - NEW LAYOUT MERCHANT DOCUMENT-->
+    <div aura:id="docSpinner" class="slds-spinner_container slds-show " style="z-index:99;">
+        <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+        </div>
+    </div>
+        
+            <div class="slds-grid slds-size--1-of-1 slds-align_absolute-center">
+                <div class="slds-p-around--small">
+                    <lightning:input aura:id="documentType" name="enter-search" label="{!$Label.c.OB_Document_Type}"  type="search" />
+                </div>
+                <div class="slds-p-around--small">
+                    <lightning:input aura:id="ABI" name="enter-search" label="{!$Label.c.OB_MAINTENANCE_ABI}"  type="search"     />
+                </div>
+                <div class="slds-p-around--small">
+                    <lightning:input aura:id="servicePoint" name="enter-search" label="{!$Label.c.Service_Point}"  type="search"  />
+                </div>
+        </div>    
+    <div class="slds-grid slds-size--1-of-1 slds-align_absolute-center">
+        <lightning:button class="CTAStyle" variant="brand" label="{!$Label.c.OB_MAINTENANCE_SEARCH_BUTTON}" title="Brand action" onclick="{! c.startFiltering }"  />
+        <lightning:button class="CTAStyle" label="{!$Label.c.OB_EmptyLabel}" title="Neutral action" onclick="{!c.resetResearch}"/>
+    </div>
+    <div class="slds-grid">
+    <div class="slds-size--1-of-1">
+        <aura:if isTrue="{!not(empty(v.documentsMap))}">
+                <aura:if isTrue="{!and(not(empty(v.filteredDocumentMap)), v.showFilteredTable)}" >
+                    <ui:scrollerWrapper class="outerScroller" aura:id="scrollable">
+                        <header class="text_style_header center_style headerModalStyle">{!$Label.c.OB_AllMerchantDocuments}</header>
+                        <table class="slds-table--bordered slds-table_resizable-cols">
+                        <thead>
+                            <tr class="">
+                                <td class="labelStyle slds-size--1-of-26 slds-p-around--small" scope="col">{!$Label.c.OB_MAINTENANCE_ABI}</td>
+                                <td class="labelStyle slds-size--3-of-26 slds-p-around--small" scope="col">{!$Label.c.OB_DocumentDate}</td>
+                                <td class="labelStyle slds-size--3-of-26 slds-p-around--small" scope="col">{!$Label.c.OB_Document_Type}</td>
+                                <td class="labelStyle slds-size--5-of-26 slds-p-around--small" scope="col"> {!$Label.c.OB_MAINTENANCE_DOCUMENTS}</td>
+                                <td class="labelStyle slds-size--5-of-26 slds-p-around--small" scope="col">{!$Label.c.Service_Point}</td>
+                                <td class="labelStyle slds-size--5-of-26 slds-p-around--small" scope="col">{!$Label.c.OB_PraticaLabel}</td>
+                                <td class="labelStyle slds-size--5-of-26 slds-p-around--small" scope="col">Log Request</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <aura:iteration items="{!v.filteredDocumentMap}" var="doc" indexVar="key">
+                                <tr class="slds-hint-parent slds-size--1-of-1">
+                                    <td class="slds-size--1-of-26 slds-p-around--small" data-label="{!doc.value.$Label.c.OB_MAINTENANCE_ABI}">{!doc.ABI}</td>
+                                    <td class="slds-size--3-of-26 slds-p-around--small" data-label="">{!doc.dateCreated}</td>
+                                    <td class="slds-size--3-of-26 slds-p-around--small" data-label="{!doc.value.$Label.c.OB_DocumentType}">{!doc.documentType}</td>
+                                    <td class="slds-size--5-of-26 slds-p-around--small" data-label="{!doc.value.$Label.c.OB_DocumentFileName}">
+                                        <a id="{!doc.documentID+'_'+doc.salesPointId+ '_'+doc.orderId}" href="" target="" onclick="{!c.getDocument}" >
+                                            {!doc.documentFilename} 
+                                        </a>
+                                    </td>
+                                    <td class="slds-size--5-of-26 slds-p-around--small" data-label="{!doc.value.$Label.c.OB_ServicePoint}">
+                                        <a id="{!'NE__ServicePoint__c-' +doc.salesPointId}" href="" target="" onclick="{!c.redirectToObjectDetail}" > 
+                                            {!doc.servicePointName}
+                                        </a>
+                                    </td>
+                                    <td class="slds-size--5-of-26 slds-p-around--small" data-label=""> 
+                                        <a id="{!'NE__Order__c-'+doc.orderId}" href="" target="" onclick="{!c.redirectToObjectDetail}" > 
+                                            {!doc.orderName}
+                                        </a> 
+                                    </td>
+                                    <td class="slds-size--5-of-26 slds-p-around--small" data-label=""> 
+                                        <a id="{!'OB_LogRequest__c-'+doc.requestId}" href="" target="" onclick="{!c.redirectToObjectDetail}" >
+                                            {!doc.logRequestName} 
+                                        </a>
+                                    </td>
+                                    
+                                </tr>
+                            </aura:iteration>
+                        </tbody>
+                    </table>
+                    </ui:scrollerWrapper>
+                <aura:set attribute="else" >
+                    <ui:scrollerWrapper class="outerScroller" aura:id="scrollable">
+                    <header class="text_style_header center_style headerModalStyle">{!$Label.c.OB_AllMerchantDocuments}</header>
+					<table class="slds-table--bordered slds-table_resizable-cols">
+                            
+                            <thead>
+                                <tr class="slds-hint-parent slds-size--1-of-1">
+                                    <td class="labelStyle slds-size--1-of-26 slds-p-around--small" style="width:2px!important" scope="col">{!$Label.c.OB_MAINTENANCE_ABI}</td>
+                                    <td class="labelStyle slds-size--3-of-26 slds-p-around--small" scope="col">{!$Label.c.OB_DocumentDate}</td>
+                                    <td class="labelStyle slds-size--3-of-26 slds-p-around--small" scope="col">{!$Label.c.OB_Document_Type}</td>
+                                    <td class="labelStyle slds-size--5-of-26 slds-p-around--small" scope="col"> {!$Label.c.OB_MAINTENANCE_DOCUMENTS}</td>
+                                    <td class="labelStyle slds-size--5-of-26 slds-p-around--small" scope="col">{!$Label.c.Service_Point}</td>
+                                    <td class="labelStyle slds-size--5-of-26 slds-p-around--small" scope="col">{!$Label.c.OB_PraticaLabel}</td>
+                                    <td class="labelStyle slds-size--5-of-26 slds-p-around--small" scope="col">Log Request</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                    
+                                    
+                                    
+                                    
+                                <aura:iteration items="{!v.documentsMap}" var="doc" indexVar="key">
+                                    <tr class="slds-hint-parent">
+                                        <td class="slds-size--1-of-26 slds-p-around--small" data-label="{!doc.value.$Label.c.OB_MAINTENANCE_ABI}">{!doc.ABI}</td>
+                                        <td class="slds-size--3-of-26 slds-p-around--small" data-label="">{!doc.dateCreated}</td>
+                                        <td class="slds-size--3-of-26 slds-p-around--small" data-label="{!doc.value.$Label.c.OB_DocumentType}">{!doc.documentType}</td>
+                                        <td class="slds-size--5-of-26 slds-p-around--small" data-label="{!doc.value.$Label.c.OB_DocumentFileName}">
+                                            <a id="{!doc.documentID+'_'+doc.salesPointId+ '_'+doc.orderId}" href="" target="" onclick="{!c.getDocument}" >
+                                                {!doc.documentFilename} 
+                                            </a>
+                                        </td>
+                                        <td class="slds-size--5-of-26 slds-p-around--small" data-label="{!doc.value.$Label.c.OB_ServicePoint}">
+                                            <a id="{!'NE__ServicePoint__c-' +doc.salesPointId}" href="" target="" onclick="{!c.redirectToObjectDetail}" > 
+                                                {!doc.servicePointName}
+                                            </a>
+                                        </td>
+                                        <td class="slds-size--5-of-26 slds-p-around--small" data-label=""> 
+                                            <a id="{!'NE__Order__c-'+doc.orderId}" href="" target="" onclick="{!c.redirectToObjectDetail}" > 
+                                                {!doc.orderName}
+                                            </a> 
+                                        </td>
+                                        <td class="slds-size--5-of-26 slds-p-around--small" data-label=""> 
+                                            <a id="{!'OB_LogRequest__c-'+doc.requestId}" href="" target="" onclick="{!c.redirectToObjectDetail}" >
+                                                {!doc.logRequestName} 
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </aura:iteration>
+                            </tbody>
+                        </table>
+                    </ui:scrollerWrapper>
+                </aura:set>
+
+
+
+                </aura:if>
+        </aura:if>
+    </div>
+    </div>
+    
+    <!-- / BODY-->
+
+
+</aura:component>

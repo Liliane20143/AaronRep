@@ -1,0 +1,96 @@
+#header {
+    background-color: #064b99; height : 7%;
+    width: 100%;
+    height: 7%;
+}
+
+#ConfigurationInfo.slds-scope:not(html), .slds-scope body {
+    margin: 0;
+    font-size: .8125rem;
+    max-width: 100%;
+}
+
+#Catalog {
+    float: left;
+    margin-top: 36px;
+    margin-left: 14px;
+}
+
+#Configurator {
+   
+    float: left;
+    margin-top: 36px;
+    margin-left: 14px;
+}
+
+#BundleConfigurator {
+    float: left;
+    margin-top: 36px;
+    margin-left: 14px;
+}
+
+#Cart {
+    width: 24%;
+    float: right;
+    margin-top: 40px;
+    margin-right: 14px;
+}
+
+#recurringChargeCart {
+    margin-left: -50px;
+}
+
+#config {
+    margin-left: 45px;
+    margin-top: -7px;
+}
+
+div#Piano tariffario acquiring {
+    width: 183px;
+}
+
+div#header.background-families-list.slds-grid {
+    margin-top: -46px;
+}
+
+.principal-color-configurator {
+    width: 185px;
+}
+
+.slds-size--5-of-12 {
+    margin-top: 9px;
+}
+
+div#priceIncart {
+    display: none !important;
+}
+
+div.slds-text-heading--small {
+    display: none
+}
+/* div.slds-grid.NEBit2win_ConfigurationInfo{
+        display: none;
+    } */
+div.slds-size--1-of-10.background-account {
+    display: none;
+}
+
+div.slds-form-element.slds-grid.NEBit2win_CartInfo {
+    display: none;
+}
+
+.cartItem>slds-button {
+    background-color: #064b99 !important;
+}
+
+.slds-button.slds-button_brand.float-right.clear-right.checkout-button:enabled
+    {
+    background-color: #064b99 !important;
+}
+
+div.cartItem .slds-button {
+    background-color: #064b99 !important;
+}
+img.slds-icon.slds-icon_small{
+    margin-bottom: 46px;    
+}

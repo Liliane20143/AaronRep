@@ -1,0 +1,253 @@
+.THIS.offerCatalogContainer{
+	position: relative;
+    padding: 0;
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(221, 219, 218);
+    border-radius: .25rem;
+    background-clip: padding-box;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.10);
+    	padding-left: 2%;
+    padding-right: 2%;
+}
+.THIS .headerDescription{
+    font-family: 'Salesforce Sans Italic', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1em;
+    margin-top: 1%;
+    padding-left:1%;
+}
+ .THIS .titleBox{
+    margin-top: 1%;
+    border-bottom: 1px solid rgb(221, 219, 218);
+    border-color: rgb(221, 219, 218);
+ }
+ .THIS .title{
+    font-family: 'Salesforce Sans Light','Salesforce Sans Regular','Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-size: 2em;
+    color: #000000;
+
+ }
+
+.THIS .offerName{
+    font-family: 'Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.8em;
+    color: #4F6A92;
+    text-align: left;
+}
+.THIS .offerDescription{
+    font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-style: normal;
+    font-size: 1.1em;
+    margin-left: 2%;
+    margin-right: 2%;
+    margin-top: 2%;
+    /*min-height: 200px;*/
+}
+
+.THIS .pClass{
+	font-family: 'Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.1em;
+    color: #000000;
+
+}
+
+.THIS .offerBox{
+	margin-top: 2%;
+display: table-cell;
+
+}
+
+.THIS .cardsWrapper{
+	margin-left: 2%;
+	margin-right: 2%;
+	margin-bottom: 2%;
+
+
+}
+
+.THIS .slds-card__header {
+	padding: 0.40rem 1rem 0;
+	background-color: #d1ddb2;
+}
+
+.THIS .gutterCard{
+	margin-left: 0;
+	margin-right: 0;
+}
+.THIS .configureButtonDiv{
+    padding-bottom: 2%;
+    padding-top: 12%;
+}
+.THIS .overwriteConfigureButton{
+	font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #0070D2;
+    border-width: 1px; 
+    border-style: solid;
+    border-color: rgba(82, 158, 224, 1);
+    
+
+}
+
+.THIS .slds-card__body{
+    padding-right: 2%;
+    padding-left: 4%;
+    padding-top: 2%;
+    /*min-height: 350px;*/
+}
+
+.THIS .colClass{
+	padding-right: 0;
+    padding-left: 0;
+}
+
+.THIS .thumbnailimage{
+	border-radius: 100%;
+}
+
+/* WN-222 Micol Ferrari <micol.ferrari@accenture.com>, 31/07/2019 - START */
+.THIS .colOfferName {
+    padding-right: 0;
+    height: 65px;
+    font-size: 11px;
+    position: relative;
+    top: -10px;
+    line-height: initial;
+    margin-bottom: 7px;
+}
+.THIS .scrollableBox{
+	height: 14rem;
+    margin-bottom: 25px;
+}
+/* WN-222 Micol Ferrari <micol.ferrari@accenture.com>, 31/07/2019 - STOP */
+
+ .THIS .colBehaviour{
+     margin-left: 3%;
+}
+ 
+.THIS .searchInputClass {
+    font-family: 'Salesforce Sans Italic', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1em;
+    color: #999999;
+    text-align: left;
+}
+ 
+.THIS .pillSize{
+ width:100%;
+}
+
+.THIS .divOrderBy{
+	margin-top: 5%;
+	
+}
+.THIS .lookupSection{
+	 width: 100%;
+
+}
+
+.THIS .searchIcon > lightning-primitive-icon > svg > use{
+    fill: #0070D2;
+}
+
+.THIS .lookupAndOrderBySection{
+   padding-left: 1%
+}
+
+.THIS .oderBySection{
+	padding-top: 2.3%
+}
+
+.THIS .slds-gutters{
+	
+	margin-left:0;
+}
+.THIS .slds-col{
+	
+	margin-left:0;
+}
+.THIS .slds-gutters .slds-col {
+	padding-left:0;
+}
+
+
+@media screen and (max-width: 1200px) {
+  .THIS .scrollableBox{
+	height: 15rem; 
+	/*width: 16rem;*/
+  }
+}
+
+@media screen and (max-width: 1050px) {
+  .THIS .offerBox{
+	width: 50%;
+  }
+}
+
+@media screen and (max-width: 1450px) {
+  .THIS .offerName{
+	font-size: 1.5em;
+  }
+}
+
+@media screen and (max-width: 1400px) {
+  .THIS .offerName{
+	font-size: 1.4em;
+  }
+}
+
+@media screen and (max-width: 1100px) {
+  .THIS .offerName{
+	font-size: 1.3em;
+  }
+}
+
+/* BEAUTIFY SCROLLBARS */
+
+.THIS .slds-scrollable::-webkit-scrollbar, .THIS .slds-scrollable_x::-webkit-scrollbar, .THIS .slds-scrollable_y::-webkit-scrollbar
+{	
+	width: 10px;
+    height: 10px;	
+}
+
+.THIS .slds-scrollable::-webkit-scrollbar-thumb, .THIS .slds-scrollable_x::-webkit-scrollbar-thumb, .THIS .slds-scrollable_y::-webkit-scrollbar-thumb
+{
+	background: #e0e5ee;
+    border-radius: .5rem;
+    box-shadow: #fdfdfd 0 0 0 1px inset;	
+}
+
+.THIS .slds-scrollable::-webkit-scrollbar-track, .THIS .slds-scrollable_x::-webkit-scrollbar-track, .THIS .slds-scrollable_y::-webkit-scrollbar-track
+{
+	background: #fdfdfd;	
+}
+/* END BEAUTIFIY */
+
+/*13/05/19 START francesca ribezzi adding new classes*/
+.THIS .cardOfferButton{
+  text-transform: uppercase;
+}
+
+.THIS .buttonIconOfferBank > lightning-primitive-icon > svg > use{
+  fill: #0070D2;
+}
+
+.THIS .cancelButtonClass{
+  margin-right: 1%;
+}
+
+.THIS .messageIsEmptyClass{
+  color:rgb(0, 95, 178); 
+  font-size: 1.2em;
+}
+/*13/05/19 END francesca ribezzi */

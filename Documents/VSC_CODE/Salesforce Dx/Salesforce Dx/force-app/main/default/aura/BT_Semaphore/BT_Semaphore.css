@@ -1,0 +1,23 @@
+.THIS.slds-icon-action-approval {
+    background-color: rgb(72, 213, 151);
+}
+
+.THIS.slds-icon-action-close {
+    background-color: rgb(249, 66, 58);
+}
+
+.THIS.slds-icon-utility-warning {
+    background-color: #f2cf5b;
+    line-height: 1;
+    padding: 0.5rem;
+    border-radius: 50%
+}
+
+.THIS.slds-icon-utility-warning lightning-primitive-icon {
+    position: relative;
+    top: -4px;
+}
+
+.THIS.slds-icon-utility-warning lightning-primitive-icon svg.slds-icon {
+    fill: white;
+}

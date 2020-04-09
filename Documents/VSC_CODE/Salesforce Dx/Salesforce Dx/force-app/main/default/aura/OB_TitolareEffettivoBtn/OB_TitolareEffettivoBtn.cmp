@@ -1,0 +1,11 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+	<aura:registerEvent name="OB_DeleteContact" type="c:OB_DeleteContact"/> 
+
+	<aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object" access="global"/>
+	<aura:attribute name="field" type="Object" default="{}" access="global"/>
+
+	<div class="slds-grid slds-wrap slds-size--1-of-1">
+		<lightning:button label="{!$Label.c.OB_Btn_Clean_Data}" onclick="{!c.handleClick}"></lightning:button>
+	</div>
+</aura:component>

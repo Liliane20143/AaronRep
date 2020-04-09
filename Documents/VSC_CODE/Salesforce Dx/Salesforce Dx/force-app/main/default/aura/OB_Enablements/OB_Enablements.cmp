@@ -1,0 +1,36 @@
+<aura:component  implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global">
+        <aura:attribute name="enablementsListToView"  type="List" access="global"/>
+       
+        <aura:attribute name="isColumnToAdd" type="Boolean" default="false"/> 
+        <aura:iteration items="{!v.enablementsListToView}" var="enablement">
+                <tr class="slds-hint-parent">
+                    <aura:if isTrue="{!v.isColumnToAdd}">
+                        <td></td>
+                    </aura:if>
+                     <td  scope="row" data-label="Offerta"></td>
+                    <td data-label="POS">
+                        {!enablement.enablementName}
+                    </td>
+                    <td data-label="Abilitazioni" class="tdflag">
+                 <!-- Start antonio.vatrano antonio.vatrano@accenture.com tick or cross for value of eneblement.isEnabled -->
+                 <aura:if isTrue="{!enablement.isEnabled}">
+                     ✔
+                     <aura:set attribute="else">
+                         ✘
+                        </aura:set>
+                    </aura:if>
+                <!-- End antonio.vatrano antonio.vatrano@accenture.com tick or cross for value of eneblement.isEnabled -->
+                    </td>
+                    <td data-label="Data di installazione"></td>
+                    <td data-label="Term id"></td>
+                    <td data-label="ABI"></td>
+                    <td data-label="Client id"></td>
+                    <td data-label="Codice Stabilimento"></td>
+                    <td data-label="Codice convenzione"></td>
+                    <td data-label="GT"></td>
+                    <td data-label="Stato"></td>
+                    <td data-label="Attributi"></td>
+                </tr>
+          
+        </aura:iteration>
+</aura:component>

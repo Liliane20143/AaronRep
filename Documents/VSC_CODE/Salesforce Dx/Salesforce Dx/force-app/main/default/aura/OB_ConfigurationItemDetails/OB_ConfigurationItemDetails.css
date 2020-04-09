@@ -1,0 +1,93 @@
+.THIS #divcontainerId
+{
+	background-color: red!important;
+	width : 200px;
+	height : 200px;
+}
+
+.THIS .red {
+	background-color: #dddbda!important;
+	text-align: center;
+}
+
+.THIS .communityCenter {
+	text-align: center ;
+}
+
+.THIS .communityButton
+{
+	float: center;
+}
+/*giovanni spinelli start 10/09/2019 add style*/
+.THIS .tableContainer{
+	/*margin-top: 1%;*/
+	margin-bottom:1%; 
+	border-radius: 5px;
+	background-color: rgba(243, 245, 248, 1);
+	margin-top: 1rem;
+}
+.THIS.notFlowPadding{
+	
+	width:100%;
+	padding-top:1%;
+	padding-left: 1%;
+	padding-right: 1%;
+	min-height:300px; 
+}
+.THIS .center-text{
+	text-align: center;
+}
+.THIS .rowKey {
+	font-weight: 700;
+    color: #4F6A92;
+}
+.THIS .singleRowNumber{
+	font-weight: 700;
+	color: #000000;
+	padding-bottom: 1rem;
+
+}
+.THIS .label-style{
+	color: #4F6A92;
+}
+.THIS .tableContainerInner{
+	padding-right: 1.75rem;								
+	padding-left: 1.75rem;
+	
+}
+.THIS .u1730{
+	/*font-family: 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 22px;
+    color: #4F6A92;
+    /*line-height: 16px;*/
+    margin-top: 2%;
+	
+}
+.THIS .commissioni_info{
+    height: 100%;
+    border-bottom: 3px solid;
+	border-color:#d8dde6; 
+	margin-left: 1%;
+	margin-right: 1%;
+	padding: 1rem;
+}
+.THIS .CTAStyle {
+	font-size: 1.2em!important;
+	text-transform: uppercase!important;
+	font-weight: 600!important;
+	border-color: rgb(48, 58, 178);
+	border-width: 0,5px;
+	border-width: 1px;
+	color: rgb(48, 58, 178);
+	font-family: arial;
+}
+.THIS .info-style{
+	font-family: arial;
+    font-size: 1em;
+    color: gray;
+    font-style: italic;
+    float: right;
+}
+/*giovanni spinelli start 10/09/2019 add style*/

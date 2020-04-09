@@ -1,0 +1,244 @@
+.THIS.radioGroup .slds-form-element__label{
+    font-size:20pt;
+    font-weight: bold;
+}
+
+.THIS.radioGroup .slds-form-element__label{
+    font-size:12pt;
+}
+
+.THIS .u43_div {
+   
+    border-width:0px;
+    background:inherit;
+    background-color:rgba(255, 255, 255, 1);
+    box-sizing:border-box;
+    border-width:1px;
+    border-style:solid;
+    border-color:rgba(221, 219, 218, 1);
+    border-radius:4px;
+    -moz-box-shadow:0px 2px 5px rgba(153, 153, 153, 0.349019607843137);
+    -webkit-box-shadow:0px 2px 5px rgba(153, 153, 153, 0.349019607843137);
+    box-shadow:0px 2px 5px rgba(153, 153, 153, 0.349019607843137);
+    /*font-family: 'Salesforce Sans';*/
+    font-weight:700;
+    font-style:normal;
+    font-size:18px;
+    color:#0070D2;
+    text-align:left;
+    position:relative;
+
+}
+.THIS .u44 {
+    cursor: pointer;
+    border-width: 0px;
+    word-wrap: break-word;
+    padding: 1%;
+}
+.THIS .u43 {
+    border-width: 0px;
+    /*font-family: 'Salesforce Sans'; */
+    font-weight: 700;
+    font-style: normal;
+    font-size: 14px;
+    color: #0070D2;
+    margin-bottom: 2%;
+}
+
+.THIS .u45 {
+    border-width: 0px;
+   /* font-family: 'Salesforce Sans'; */
+    font-weight: 400;
+    font-style: normal;
+    font-size: 10px;
+    color: #0070D2;
+    text-align: right;
+   /* line-height: 28px; */
+}
+.THIS .u45_div {
+    border-width: 0px;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 0);
+    border: none;
+    border-radius: 0px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+   /* font-family: 'Salesforce Sans'; */
+    font-weight: 400;
+    font-style: normal;
+    font-size: 10px;
+    color: #0070D2;
+    text-align: right;
+   /* line-height: 28px; */
+}
+.THIS .u46 {
+    cursor: pointer;
+    border-width: 0px;
+    word-wrap: break-word;
+    color: #FFFFFF;
+    font-size: 11px;
+    line-height: 28px;
+    z-index: 3;
+}
+.THIS #base{
+    max-height: 400px;
+    /*overflow-y: scroll;*/
+    overflow-x: hidden;
+    padding-right: 1%;
+}
+.THIS.u4 {
+
+   /* font-family: 'Salesforce Sans'; */
+    font-size: 28px;
+}
+.THIS .u59{
+    background-color: #54698d;
+    /*font-family: 'Salesforce Sans'; */
+    color: #FFFFFF;
+    border-radius: 3px;
+    padding: 1%;
+    word-wrap: break-word;
+    display: flex;
+    justify-content: space-between;
+}
+
+.THIS .u86{
+ 
+
+   /* font-family: 'Salesforce Sans'; */
+    font-weight: 300;
+    font-style: normal;
+    font-size: 20px;
+    color: #666666;
+  /*  line-height: 28px; */
+}
+.THIS .u88{
+    /*border-width: 0px; */
+    text-align: left;
+    
+    
+}
+.THIS .u110{
+    border-width: 0px;
+
+    padding-top: 1%;
+
+}
+.THIS .u110_img{
+    border-width: 0px; /* what's it's purpose????  Nd Marco.Ferri */
+
+}
+.THIS .u80{
+    border-width: 0px;  
+  /*  font-family: 'Salesforce Sans'; */
+    font-weight: 400;
+    font-style: normal;
+    font-size: 13px;
+    vertical-align: middle;
+    margin-top: 2%;
+}
+.THIS .u82{
+    border-width: 0px;
+
+  /*  font-family: 'Salesforce Sans'; */
+    font-weight: 400;
+    font-style: normal;
+    font-size: 14px;
+}
+.THIS .u84{
+    border-width: 0px;
+  
+    font-size: 40px;
+    color: #CCCCCC;
+}
+
+.THIS .u84_div{
+ 
+
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(193, 217, 227, 1);
+    border-radius: 4px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    font-size: 40px;
+    color: #CCCCCC;
+}
+.THIS .u85{
+    border-width: 0px;
+    word-wrap: break-word;
+}
+
+.THIS .u112{
+    border-width: 0px;
+
+   /* font-family: 'Salesforce Sans Italic', 'Salesforce Sans Regular', 'Salesforce Sans'; */
+    font-style: italic;
+    font-size: 11px;
+    text-align: right;
+    line-height: 28px;
+}
+
+/*   EDITED BY class .right 
+.THIS .arrow_image{
+    background-image: url("/resource/newCartImages/images/dettaglio_offerta/u108.png");
+    background-repeat: no-repeat;
+    border-width: 0px; 
+    width: 23px; 
+    height: 47px;
+    margin-top: -44px;
+    margin-left: 359px;
+}
+*/
+.THIS .hidden{
+    display: none;
+}
+.THIS #dettaglio{
+    
+}
+.THIS.slds-spinner_container {  
+    z-index: 10000;
+    position: fixed;   
+}
+
+.THIS .right:after{
+	
+	content: " ";
+    width: 0px;
+    background: transparent;
+    height: 0;
+    position: absolute;
+    top: 0;
+    right: -35px;
+    border-left: 16px solid #54698d;
+    border-top: 16px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 20px solid transparent;	
+	
+}
+
+.THIS .tablelineSlim{
+	border-bottom: 1px solid;
+	border-color:#d8dde6; 	
+}
+
+.THIS .detailSuggest{
+	
+	font-style: italic;
+	/*font-family:'Salesforce Sans Italic', 'Salesforce Sans Regular', 'Salesforce Sans'; */
+	font-weight:400;
+	color:#666666;
+}
+
+.THIS .detailSuggest_bold{
+	
+	/*font-family:'Salesforce Sans Bold Italic', 'Salesforce Sans Regular', 'Salesforce Sans'; */
+	font-weight:700;
+	color:#000000;
+	
+}

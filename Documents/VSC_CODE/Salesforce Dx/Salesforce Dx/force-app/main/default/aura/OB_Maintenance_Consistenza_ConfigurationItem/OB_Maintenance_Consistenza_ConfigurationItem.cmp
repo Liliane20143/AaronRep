@@ -1,0 +1,365 @@
+<aura:component controller="OB_Maintenance_Consistenza_ConfItem_CC"
+				implements=
+				"flexipage:availableForRecordHome,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable" 
+				access="global">
+	<aura:attribute name="confItemId" 					type="String" 							access="global" />
+	<aura:attribute name="terminalId" 					type="String" 							access="global" />
+	<aura:attribute name="model" 						type="String" 							access="global" />
+	<aura:attribute name="modelDesc" 					type="String" 							access="global" />
+	<aura:attribute name="releaseDesc" 					type="String" 							access="global" />
+	<aura:attribute name="connectionDescr" 				type="String" 							access="global" />
+	<aura:attribute name="release" 						type="String" 							access="global" />
+	<aura:attribute name="connectionType" 				type="String" 							access="global" />
+	<aura:attribute name="installationDate" 			type="Datetime"							access="global" />
+	<aura:attribute name="installationStatus"			type="String" 							access="global" />
+	<aura:attribute name="unistallationDate"			type="Datetime" 						access="global" />
+	<aura:attribute name="rejectionReason"				type="String"							access="global" />
+	<aura:attribute name="action"						type="String"							access="global" />
+	<aura:attribute name="circuitNameTerm"				type="String" 							access="global" />
+	<aura:attribute name="startDateTerm" 				type="Datetime"							access="global" />
+	<aura:attribute name="endDateTerm"					type="String" 							access="global" />
+	<aura:attribute name="enablements"					type="Object[]"							access="global" />
+	<aura:attribute name="confId" 						type="String" 							access="global" />
+	<aura:attribute name="disabledButtons"				type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="isTerminal"					type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="configurationTerminalItem" 	type="Object" 							access="global" />
+	<aura:attribute name="showButtons"					type="Boolean" 		default="true"		access="global" />
+	<aura:attribute name="configurationTerminalObject"  type="Object"      	  	           		access="global" />
+	<aura:attribute name="showEnablement"				type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="isNotAdd"						type="Boolean"		default="true"		access="global" />
+	<aura:attribute name="isNotOperation"				type="Boolean"		default="false"		access="global"	/>
+	<aura:attribute name="setDisabledOnInputs"			type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="configuration"				type="Object"							access="global" />
+	<aura:attribute name="enstabilishmentSIACode"		type="String"							access="global" />
+	<aura:attribute name="progressiveSIACode"			type="String"							access="global" />
+	<aura:attribute name="SIACode"						type="String"							access="global" />
+	<aura:attribute name="requiredOnInstalled"			type="Boolean"		default="true"		access="global" />
+	<aura:attribute name="requiredOnUnistalled"			type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="requiredOnRejected"			type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="setDisabledOnInstalled"		type="Boolean"		default="true"		access="global" />
+	<aura:attribute name="setDisabledOnUnistalled"		type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="setDisabledOnRejected"		type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="isFinalStatus"				type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="isFirstPos" 					type="Boolean" 		default="false"		access="global"/>
+	<aura:attribute name="isAdd"						type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="isNone"						type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="isRemove"						type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="startDate"					type="String"							access="global" />
+	<aura:attribute name="ctiCode"						type="String"							access="global" />
+	<aura:attribute name="shopCode"						type="String"							access="global" />
+	<aura:attribute name="clientId"						type="String"							access="global" />
+	<aura:attribute name="isNotIntegrated" 					type="Boolean" 	default="false"		access="global"/><!-- START elena.preteni  descoping consistenza 28/06/2019-->
+	<!-- Start antonio.vatrano ri-100 13/06/2019 -->
+	<aura:attribute name="enstabSIACodeRO"		type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="progSIACodeRO"		type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="SIACodeRO"			type="Boolean"		default="false"		access="global" />
+	<!-- End antonio.vatrano ri-100 13/06/2019 -->
+	<!-- START Simone Misani F2WAVE2-66-18 08/07/2019 -->
+	<aura:attribute name="istechnicalconfigurator"		type="Boolean"		default="false"		access="global" />
+	<!-- END Simone Misani F2WAVE2-66-18 08/07/2019 -->
+	<aura:handler 	name="init" value="{!this}" action="{!c.doInit}" />
+
+	<!-- START 30/04/2019 shaghayegh.tofighian -->
+	<aura:if isTrue="{!v.configurationTerminalObject[0].NE__OrderId__r.OB_FulfilmentStatus__c =='pending'}"/>   
+	<div class="slds-size--1-of-2 slds-p-horizontal_medium"> 
+		<br></br>
+		<lightning:input 	 type="checkbox"
+							 value="{!v.configurationTerminalObject.OB_Replacement__c}"
+							 checked="{!v.configurationTerminalObject.OB_Replacement__c}"
+							 label="{!$Label.c.OB_Replacement}"/>  					  
+
+	</div>      
+	<!-- END 30/04/2019 shaghayegh.tofighian -->  
+
+
+	<div class="slds-grid slds-wrap slds-box slds-m-top_large" aura:id="MainDiv">
+        <!-- START	micol.ferrari 17/02/2019 -->
+        <!-- {! v.isFinalStatus} -->
+		<!-- END 	micol.ferrari 17/02/2019 -->
+		<!-- <div class="slds-size__1-of-1 slds-grid"> -->
+			<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+				<div class="slds-form-element ">
+					<lightning:input 	value="{!v.terminalId}" 
+										label ="{!$Label.c.OB_MAINTENANCE_TERMINAL_ID}"
+										aura:id="terminalId" 
+										disabled="true" />
+				</div>
+			</div>
+			<!--Andrea Saracini R1F2-24 16-04-19 START-->
+			<!-- RAC SIA -->
+			<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+				<div class="slds-form-element ">
+					<lightning:input 	aura:id="siaCode" 
+										label="{!$Label.c.OB_SIACodeLabel}" 
+										value="{!v.SIACode}"
+										required="true"
+										disabled="{!v.SIACodeRO}" /> <!-- antonio.vatrano ri-100 13/06/2019 -->
+				</div>
+			</div>
+			<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+				<div class="slds-form-element ">
+					<lightning:input 	aura:id="enstabilishmentSIACode" 
+										label="{!$Label.c.OB_EnstabilishmentSIACodeLabel}" 
+										value="{!v.enstabilishmentSIACode}"
+										required="true"
+										disabled="{!v.enstabSIACodeRO}" /> <!-- antonio.vatrano ri-100 13/06/2019 -->
+				</div>
+			</div>
+			<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+				<div class="slds-form-element ">
+					<lightning:input 	aura:id="codiceProgressivoSia" 
+										label="{!$Label.c.OB_ProgressiveSIACodeLabel}"  
+										value="{!v.progressiveSIACode}"	  
+										required="true"
+										disabled="{!v.progSIACodeRO}" /> <!-- antonio.vatrano ri-100 13/06/2019 -->
+				</div>
+			</div>										
+			<!--Andrea Saracini R1F2-24 16-04-19 STOP-->
+			<!-- MODELLO -->
+			<!-- START Simone Misani F2WAVE2-66-18 08/07/2019 -->
+			<aura:if isTrue="{!(v.isAdd || v.istechnicalconfigurator)}">
+			<!-- END Simone Misani F2WAVE2-66-18 08/07/2019 -->
+				<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+					<div class="slds-form-element ">
+						<lightning:input 	value="{!v.model}" 
+											label ="{!$Label.c.OB_MAINTENANCE_MODEL}" 
+											aura:id="model" 
+											disabled="{!or(or(v.setDisabledOnRejected,v.setDisabledOnUnistalled),v.isFinalStatus)}"  
+											required="{!and(v.requiredOnInstalled,!v.isFinalStatus)}"/>
+											<!--disabled="{!or(v.setDisabledOnRejected,v.setDisabledOnUnistalled,v.isFinalStatus)}"-->
+					</div>
+				</div>
+			</aura:if>
+		<!-- </div>
+		<div class="slds-size__1-of-1 slds-grid"> -->
+			<!-- DESCRIZIONE MODELLO -->
+			<!-- START Simone Misani F2WAVE2-66-18 08/07/2019 -->
+			<aura:if isTrue="{!(v.isAdd || v.istechnicalconfigurator)}">
+			<!-- END Simone Misani F2WAVE2-66-18 08/07/2019 -->
+				<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+					<div class="slds-form-element ">
+						<lightning:input 	value="{!v.modelDesc}" 
+											label ="{!$Label.c.OB_MAINTENANCE_MODEL_DESC}"
+											aura:id="modelDesc"  
+											disabled="{!or(or(v.setDisabledOnRejected,v.setDisabledOnUnistalled),v.isFinalStatus)}" 
+											required="{!and(v.requiredOnInstalled,!v.isFinalStatus)}"/>
+					</div>
+				</div>
+			</aura:if>
+			<!-- DESCRIZIONE RELEASE -->
+			<!-- START Simone Misani F2WAVE2-66-18 08/07/2019 -->
+			<aura:if isTrue="{!(v.isAdd || v.istechnicalconfigurator)}">
+			<!-- END Simone Misani F2WAVE2-66-18 08/07/2019 -->
+				<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+					<div class="slds-form-element ">
+						<lightning:input 	value="{!v.releaseDesc}" 
+											label ="{!$Label.c.OB_MAINTENANCE_RELEASE_DESC}" 
+											aura:id="releaseDesc"  
+											disabled="{!or(or(v.setDisabledOnRejected,v.setDisabledOnUnistalled),v.isFinalStatus)}" 
+											required="{!and(v.requiredOnInstalled,!v.isFinalStatus)}"/>
+					</div>
+				</div>
+			</aura:if>
+		<!-- </div>
+		<div class="slds-size__1-of-1 slds-grid"> -->
+			<!-- DESCRIZIONE CONNESSIONE -->
+			<!-- START Simone Misani F2WAVE2-66-18 08/07/2019 -->
+			<aura:if isTrue="{!(v.isAdd || v.istechnicalconfigurator)}">
+			<!-- END Simone Misani F2WAVE2-66-18 08/07/2019 -->
+				<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+					<div class="slds-form-element ">
+						<lightning:input 	value="{!v.connectionDescr}" 
+											label ="{!$Label.c.OB_MAINTENANCE_CONNECTION_DESC}" 
+											aura:id="connectionDescr"  
+											disabled="{!or(or(v.setDisabledOnRejected,v.setDisabledOnUnistalled),v.isFinalStatus)}" 
+											required="{!and(v.requiredOnInstalled,!v.isFinalStatus)}"/>
+					</div>
+				</div>
+			</aura:if>
+			<!-- RELEASE -->
+			<!-- START Simone Misani F2WAVE2-66-18 08/07/2019 -->
+			<aura:if isTrue="{!(v.isAdd || v.istechnicalconfigurator)}">
+			<!-- END Simone Misani F2WAVE2-66-18 08/07/2019 -->
+				<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+					<div class="slds-form-element ">
+						<lightning:input 	value="{!v.release}" 
+											label ="{!$Label.c.OB_MAINTENANCE_RELEASE}"
+											aura:id="release" 
+											disabled="{!or(or(v.setDisabledOnRejected,v.setDisabledOnUnistalled),v.isFinalStatus)}" 
+											required="{!and(v.requiredOnInstalled,!v.isFinalStatus)}"/>
+					</div>
+				</div>
+			</aura:if>
+		<!-- </div>
+		<div class="slds-size__1-of-1 slds-grid"> -->
+			<!-- MODALITA' COLLEGAMENTO -->
+			<!-- START Simone Misani F2WAVE2-66-18 08/07/2019 -->
+			<aura:if isTrue="{!(v.isAdd || v.istechnicalconfigurator)}">
+			<!-- END Simone Misani F2WAVE2-66-18 08/07/2019 -->
+			<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+				<div class="slds-form-element ">
+					<lightning:input 	value="{!v.connectionType}" 
+										label ="{!$Label.c.OB_MAINTENANCE_CONNECTIONTYPE}" 
+										aura:id="connectionType"  
+										disabled="{!or(or(v.setDisabledOnRejected,v.setDisabledOnUnistalled),v.isFinalStatus)}" 
+										required="{!and(v.requiredOnInstalled,!v.isFinalStatus)}" />
+				</div>
+			</div>
+		</aura:if>
+		<aura:if isTrue="{!v.isAdd}">
+			<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+				<div class="slds-form-element ">
+					<lightning:input 	value="{!v.configurationTerminalObject.NE__StartDate__c}"
+										type="date"
+										label ="{!$Label.c.OB_MAINTENANCE_INSTALLATIONDATE}" 
+										aura:id="installationDate"
+										format="dd/MM/yyyy" 
+										displayDatePicker="true"
+										disabled="{!or(or(v.setDisabledOnRejected,v.setDisabledOnUnistalled),v.isFinalStatus)}" 
+										required="{!and(v.requiredOnInstalled,!v.isFinalStatus)}"/>
+				</div>
+			</div>
+		</aura:if>
+		<!-- </div>
+		<div class="slds-size__1-of-1 slds-grid"> -->
+		<aura:if isTrue="{!or(v.isAdd,v.isRemove)}">
+			<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+				<div class="slds-form-element ">
+					<!-- <lightning:input 	value="{!v.installationStatus}" 
+										label ="{!$Label.c.OB_MAINTENANCE_INSTALLATIONSTATUS}" 
+										aura:id="installationStatus"  
+										disabled="{!v.setDisabledOnInputs}" /> -->
+
+									<aura:if isTrue="{!and(v.isNotOperation,!v.isFinalStatus)}">
+										<lightning:select aura:id="installationStatus" name="installationStatus" label="{!$Label.c.OB_MAINTENANCE_INSTALLATIONSTATUS}" required="true" onchange="{!c.changeStatus}">
+											<aura:if isTrue="{!v.action=='Add'}"><option value="Installato">Installato</option></aura:if>
+											<aura:if isTrue="{!v.action!='Add'}"><option value="Disinstallato">Disinstallato</option></aura:if>
+											<option value="Rifiutato">Rifiutato</option>
+										</lightning:select>
+										<aura:set attribute="else">
+											<lightning:input 	value="{!v.installationStatus}" 
+																label ="{!$Label.c.OB_MAINTENANCE_INSTALLATIONSTATUS}" 
+																aura:id="installationStatus"
+																disabled="true">
+											</lightning:input>
+										</aura:set>
+									</aura:if>
+										 
+										
+
+
+				</div>
+			</div>
+		</aura:if>
+		<aura:if isTrue="{!v.isRemove}">
+			<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+				<div class="slds-form-element ">
+					<lightning:input 	value="{!v.configurationTerminalObject.NE__EndDate__c}"
+										type="date"
+										label ="{!$Label.c.OB_MAINTENANCE_UNINSTALLATIONDATE}" 
+										aura:id="unistallationDate"
+										format="dd/MM/yyyy" 
+										displayDatePicker="true"
+										disabled="{!and(not(empty(v.configurationTerminalObject.NE__EndDate__c)), v.isFinalStatus)}" 
+										required="{!and(v.requiredOnUnistalled,v.isFinalStatus)}"/>
+				</div>
+			</div>
+		</aura:if>
+		<!-- </div>
+		<div class="slds-size__1-of-1 slds-grid"> -->
+		<!-- <aura:if isTrue="{!v.isAdd}">
+			<div class="slds-size__1-of-2 slds-p-right_medium">
+				<div class="slds-form-element ">
+					<lightning:input 	value="{!v.rejectionReason}" 
+										label ="{!$Label.c.OB_MAINTENANCE_REJECTREASON}" 
+										aura:id="rejectionReason"  
+										disabled="{!or(v.setDisabledOnInstalled,v.setDisabledOnUnistalled,v.isFinalStatus)}" 
+										required="{!and(v.requiredOnRejected,!v.isFinalStatus)}"/>
+				</div>
+			</div>
+		</aura:if> -->
+			<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+				<div class="slds-form-element ">
+					<lightning:input 	value="{!v.action}" 
+										label ="{!$Label.c.Action}"
+										aura:id="action"
+										disabled="true" />
+				</div>
+			</div>
+		<!-- </div> -->
+		<aura:if isTrue="{!and(v.showEnablement, !v.isRemove)}">
+<!-- ***************************ENABLEMENTS ******************************************-->
+			<div class="slds-size_1-of-1 slds-grid bold slds-m-top_large">
+				{!$Label.c.OB_MAINTENANCE_ENABLEMENTS_MODAL_TITLE}
+			</div>
+			<aura:iteration items="{!v.enablements}" var="currentEnablement">
+				<aura:if isTrue="{!currentEnablement.showEnablement}">
+					<div class="slds-size_3-of-4 slds-grid slds-m-top_large slds-wrap">
+						<div class="slds-size_1-of-4 slds-p-horizontal_medium">					
+							<div class="slds-m-top_x-large" style="font-size:16px;">
+								{!currentEnablement.NE__ProdId__r.Name}
+							</div>
+						</div>
+
+						<aura:if isTrue="{!currentEnablement.showStart}">
+							<div class="slds-size_1-of-4 slds-p-horizontal_medium">
+								<div class="slds-form-element">
+										<lightning:input 	value="{!currentEnablement.NE__StartDate__c}"
+															type="date"
+															label ="{!$Label.c.OB_MAINTENANCE_VALIDITYSTARTDATE}" 
+															aura:id="{!currentEnablement.Id}"
+															format="dd/MM/yyyy" 
+															displayDatePicker="true"
+															disabled="{!or(currentEnablement.disabledStart,v.isFinalStatus)}" 
+															required="{!and( currentEnablement.isNexi,and(!currentEnablement.disabledStart,!v.isFinalStatus))}"/>
+								</div>
+							</div>
+						</aura:if>
+
+						<aura:if isTrue="{!currentEnablement.showEnd}">
+							<div class="slds-size_1-of-4 slds-p-horizontal_medium">
+								<div class="slds-form-element">
+									<lightning:input 	value="{!currentEnablement.NE__EndDate__c}"
+														type="date"
+														label ="{!$Label.c.OB_MAINTENANCE_VALIDITYENDDATE}" 
+														aura:id="{!currentEnablement.Id}"												
+														format="dd/MM/yyyy" 
+														displayDatePicker="true"
+														disabled="{!or(currentEnablement.disabledEnd,v.isFinalStatus)}" 
+														required="{! and( currentEnablement.isNexi,and(!currentEnablement.disabledEnd,!v.isFinalStatus))}"/>
+								</div>	
+							</div>
+						</aura:if>
+						<div class="slds-size_1-of-4 slds-p-horizontal_medium" id="divmicol">
+							<label>Attivo</label>
+							<lightning:input type="checkbox" name="NAME" aura:id="AURAID"  checked="{! currentEnablement.disabledEnd}" 
+							label="" variant="label-hidden" value = "" disabled ="true"/>
+						</div>
+					</div>
+					<div class="slds-size_1-of-2"/>
+				</aura:if>
+			</aura:iteration>
+		</aura:if>
+				<!-- BUTTONS -->
+		<div class="slds-size_1-of-1 slds-grid slds-m-top_large">
+			<!--20/06/19 francesca.ribezzi - changing if condition: if isNotOperation is false -->
+			<!-- START Simone Misani F2WAVE2-66-18 08/07/2019 -->			
+			<aura:if isTrue="{!!v.istechnicalconfigurator}">
+				<!-- END Simone Misani F2WAVE2-66-18 08/07/2019 -->
+				<aura:if isTrue="{!and(and(not(v.isNotOperation),v.showButtons),v.isNotIntegrated)}">
+					<div class="slds-align_absolute-center">
+						<lightning:button 	label="{!$Label.c.OB_Save}" 
+											variant="brand" 	
+											onclick="{!c.save}"
+											disabled="{!or(v.disabledButtons,v.isFinalStatus)}"	/>
+						<lightning:button 	label="{!$Label.c.OB_Cancel}" 	
+											variant="neutral" 	
+											onclick=""
+											disabled="{!or(v.disabledButtons,v.isFinalStatus)}"	/>
+					</div>
+				</aura:if>
+			<!--  Simone Misani F2WAVE2-66-18 08/07/2019 -->		
+			</aura:if>	
+		</div>
+	</div>
+</aura:component>

@@ -1,0 +1,113 @@
+<aura:component controller= "commercialProductController"
+                implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global">
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="templateList" type="List" access="global" />
+    <aura:attribute name="orderItemList" type="List" access="global" />
+    <aura:attribute name="columns"      type="List"   access="global" />
+    <aura:attribute name="inputProduct" type="String" default=" " access="global"/>
+    <aura:attribute name="selectedRows" type="List" access="global" />
+    <aura:attribute name="showTable" type="Boolean" default="true" access="global"/>
+    
+
+
+
+
+    <article class="slds-card">
+        <div class="slds-box">
+            <div class="slds-card__header slds-grid">
+                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                    <div class="slds-media__figure">
+                        <span class="slds-icon_container slds-icon-standard-task" title="task">
+                            
+                            <span class="slds-assistive-text">task</span>
+                        </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <h2 class="slds-card__header-title">
+                            <span class="slds-text-heading_small">  </span>
+                            
+                        </h2>
+                    </div>
+                </header>
+            </div>     
+            
+     <form class="slds-form--inline slds-m-bottom--small">
+     	<div class="slds-grid slds-gutters">
+        
+          <!--   <lightning:input  aura:id ="templateId" 
+                                    label="Search by ID"  
+                                    name="searchInputId" 
+                                    value="{!v.inputProduct}"
+                                    type="text" 
+
+                                    /> 
+         
+       
+        
+             <lightning:buttonIcon  iconName="utility:search" 
+                                          size="large"  
+                                          alternativeText="Search"  
+                                          onclick="{!c.doSearch}" 
+                                          /> -->
+            
+         
+         </div> 
+           
+	   <!-- <lightning:dataTable 
+	                     data="{!v.templateList}"
+	                     columns="{! v.columns}"
+	                     keyField="id"
+	                     selectedRows="{!v.selectedRows}" 
+	                     onrowselection="{! c.getSelectedTemplate }"
+	                     hideCheckboxColumn="false"                                    
+	                     required="true"
+	                     /> -->
+         
+
+           <table class="slds-table slds-table_bordered slds-table_striped slds-table_cell-buffer slds-table_fixed-layout">
+          <thead>
+            <tr class="slds-text-heading_label">
+              <th scope="col"><div class="slds-truncate" title="ID">Product Name</div></th>
+             <!-- <th scope="col"><div class="slds-truncate" title="Name">Name</div></th>
+             <th scope="col"><div class="slds-truncate" title="Type">Commercial Product Name</div></th> -->
+              <th scope="col"><div class="slds-truncate" title="Delete">Generare</div></th> 
+            </tr>
+          </thead>
+                
+          <tbody>
+            <!-- Use the Apex model and controller to fetch server side data -->
+            <aura:iteration items="{!v.orderItemList}" var="order">
+                <tr>
+                    <th scope="row"><div class="slds-truncate" title="{!order.NE__ProdName__c}">{!order.NE__ProdName__c}</div></th>
+                    <!--<td><div class="slds-truncate" title="{!contract.Name}">{!contract.Name}</div></td>
+                    <td><div class="slds-truncate" title="{!contract.Type}">{!contract.OB_Commercial_Product__c}</div></td> -->
+                    <td> 
+                        <form class="account-form" onsubmit="{!c.deleteAccount}">
+                          <input type="hidden" value="{!order.Name}" class="account-name" />
+                          <!-- Use a Lightning Base Component To display an icon next to the label -->
+                          <lightning:button
+                            label="Generare"
+                            iconPosition="left"
+                            variant="brand"
+                            type="submit"
+                          />
+                        </form>
+                    </td>
+                </tr>
+            </aura:iteration>
+          </tbody>
+        </table>
+               <!-- </div> -->
+        <!-- /div -->
+    <!-- /div -->
+
+	</form>
+
+
+        </div>
+        
+    </article>
+    
+	
+</aura:component>

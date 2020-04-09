@@ -1,0 +1,8 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId" > 
+    <aura:attribute name="recordId" type="String" />
+    <!--<<aura:attribute name="responseMerchant" type="Object" />-->
+        
+    <c:OB_ContinuationBrokercomponentTest /> 
+    <c:OB_RetrieveServicePoint recordId="{!v.recordId}" isContainerRendered="{!v.isContainerRendered}" />
+
+</aura:component>

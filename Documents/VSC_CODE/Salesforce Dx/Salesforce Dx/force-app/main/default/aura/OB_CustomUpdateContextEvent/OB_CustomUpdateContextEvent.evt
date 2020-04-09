@@ -1,0 +1,7 @@
+<aura:event type="APPLICATION"  >
+
+	<aura:attribute name="contesto" type="Object"/>
+	<aura:attribute name="cartLength" type="Integer" default="0"/>
+	<aura:attribute name="disabledNextBtn" type="Boolean" default="true"/>
+	
+</aura:event>

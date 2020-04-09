@@ -1,0 +1,11 @@
+.THIS .boldPercentage {
+    font-weight: 600;
+}
+
+.THIS .alignRight {
+    text-align: right!important;
+}
+
+.THIS .completed {
+    background : rgb(14, 175, 102)!important;
+}

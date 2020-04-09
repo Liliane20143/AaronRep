@@ -1,0 +1,13 @@
+/*.THIS .maintenance-new-object
+{
+    border: solid 2px rgba(0, 112, 210, 0.54);
+    border-radius: 15px;
+}
+.THIS .maintenance-old-object
+{
+    border: solid 2px #ffffff;
+}
+.THIS .maintenance-new-object label 
+{
+    font-weight: bold;
+}*/

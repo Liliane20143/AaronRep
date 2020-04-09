@@ -1,0 +1,81 @@
+.THIS * {
+    font-family: 'KarbonApp';
+    font-size: .9rem;
+}
+
+.THIS .slds-page-header__title {
+    font-size: 1.25rem;
+}
+
+.THIS .slds-page-header {
+    background: #E0E1DD;
+}
+
+.THIS .slds-form-element__label {
+    font-size: .9rem;
+}
+
+.THIS .slds-text-heading_small * {
+    font-size: 1.25rem;
+}
+
+.THIS .slds-table thead .slds-text-title_caps {
+    color: black;
+}
+
+.THIS .slds-table tbody tr > td.has-input input {
+    width: 5.5rem;
+}
+
+.THIS.statusbar {
+    z-index: 95;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 0 1.5rem;
+    background-color: white;
+    width: 100%;
+    border-top: 1px solid rgb(224, 225, 221);
+}
+
+.THIS .slds-button_brand, .THIS .slds-button--brand {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.THIS .slds-button:not(.slds-progress__marker_icon):not(.slds-button_icon) {
+    line-height: 2rem;
+    font-size: 1.1rem;
+}
+
+.THIS.slds-spinner_container {
+    top: 100%;
+}
+
+.THIS .marginalita .uiInput {
+    display: flex;
+}
+
+.THIS .marginalita .uiInput label {
+    position: relative;
+    top: .5rem;
+    height: 100%;
+}
+
+.THIS .marginalita .uiInput input {
+    width: 22%;
+    margin: auto;
+}
+
+.THIS .text-bold {
+    font-weight: bold;
+}
+
+.THIS .pos-descr-column .slds-truncate {
+	white-space: normal;
+	font-size: .75rem;
+}
+
+.THIS .uiInput input.has-error {
+    border-color: rgb(194, 57, 52);
+}

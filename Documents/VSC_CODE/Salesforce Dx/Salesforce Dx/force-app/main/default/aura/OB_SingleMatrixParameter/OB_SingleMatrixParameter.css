@@ -1,0 +1,44 @@
+.THIS .arrow_image{
+    border-width: 0;
+    
+}
+
+.THIS .arrowCircleContainer{
+    border: 1px solid;
+    border-radius: 50%;
+    border-color:#d8dde6;      
+    background-color: white;
+}
+
+.THIS .arrow > lightning-primitive-icon > svg > use{
+    fill: #0070D2;
+}
+
+
+.THIS .showDetails{
+    cursor:pointer;
+    width: 26px;
+}
+
+.THIS .associaABIClass{
+    font-family: 'Salesforce Sans';
+    font-weight: 600;
+    font-style: normal;
+    font-size: 1em;
+    color: #0070d2;
+    margin-left: 23%;
+}
+/*START Andrea Saracini 23/05/2019 Catalog ON-OFF */
+.THIS .redColor{
+    color:red;
+}
+/*STOP Andrea Saracini 23/05/2019 Catalog ON-OFF */
+
+/*.THIS .slds-modal__content.slds-p-around--medium{
+    min-height: 400px;
+}*/
+/*START francesca.ribezzi 13/06/2019 Catalog ON-OFF */
+.THIS.rowClass{
+    background-color: #e0edf7;
+}
+/*END francesca.ribezzi 13/06/2019 Catalog ON-OFF */

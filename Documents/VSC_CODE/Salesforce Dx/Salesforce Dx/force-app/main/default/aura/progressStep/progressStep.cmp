@@ -1,0 +1,25 @@
+<aura:component extensible="true">
+    <aura:attribute name="label" type="String" />
+    <aura:attribute name="assistiveText" type="String" />
+    <aura:attribute name="state" type="String" />
+    <aura:attribute name="value" type="String" />
+    <aura:attribute name="click" type="Object" />
+
+    <aura:attribute name="tooltip" type="String" default="" />
+    <aura:attribute name="tooltipId" type="String" access="private"/>
+    <aura:attribute name="showTooltip" type="Boolean" default="false"/>
+    <aura:attribute name="timeoutId" type="Integer" access="private" />
+    <aura:attribute name="tooltipTimeout" type="Integer" default="5000" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <!--<aura:handler name="change" value="{!v.state}" action="{!c.stateChanged}" />-->
+
+    <li class="{!'slds-progress__item ' + (v.state == 'active' ? 'slds-is-active' : v.state == 'completed' ? 'slds-is-completed' : v.state == 'error' ? 'slds-has-error' : '')}" data-value="{!v.value}" onmouseover="{!c.showTooltip}" onmouseout="{!c.hideTooltip}" onclick="{!(v.click ? v.click : null)}">
+        {!v.body}
+        <aura:if isTrue="{!and(v.showTooltip, not(empty(v.tooltip)))}">
+            <div class="slds-popover slds-popover_tooltip slds-nubbin_top" role="tooltip" id="{!'step-' + v.tooltipId + '-tooltip'}">
+                <div class="slds-popover__body">{!v.tooltip}</div>
+            </div>
+        </aura:if>
+    </li>
+</aura:component>

@@ -1,0 +1,52 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" 
+				access="global"
+				controller="ModalLookupController">
+		
+	<aura:attribute name="mydata" type="Object"/>
+	<aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="nextCheckout" type="String" default="{!v.objectDataMap.unbind.nextCheckout}" />
+	<aura:attribute name="objectKey" type="String" default="" access="global"/>
+	<aura:attribute name="identifier" type="String" default="" access="global"/>
+	<aura:attribute name="field" type="Object" default="{}" access="global"/> 
+	<aura:attribute name="type" type="String" access="global"/>
+	<aura:attribute name="subType" type="String" access="global"/>
+	<aura:attribute name="objectString" type="String" access="global"/>
+	<aura:attribute name="mapOfSourceFieldTargetField" type="Map" access="global"/>
+	<aura:attribute name="mapLabelColumns" type="Map" default="{}" access="global"/>
+	<aura:attribute name="messageIsEmpty" type="String" default="" access="global"/>
+	<aura:attribute name="orderBy" type="String" access="global"/> 
+	<aura:attribute name="disabled" type="Boolean" default="false" access="global"/> 
+	<aura:attribute name="disabledInput_sp" type="Boolean" access="global"/>
+	<aura:attribute name="disabledCAB" type="Boolean" default="true" access="global"/>
+	
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:handler name="showModalEvent" event="c:modalLookupEvent"
+								action="{!c.handleShowModalEvent}"/> 
+	<!--<aura:handler event="aura:doneRendering" action="{!c.setCAB}"/> -->
+	
+            <div class="slds-grid slds-gutters" style="margin-left: 0.2%; width:50%">
+        <div class="slds-col slds-size_1-of-2" style="padding-right: 1%;" onkeyup="{!c.formPress}">
+           <label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.FiscalCode}">
+			<abbr class="slds-required" title="required">*</abbr>
+			CAB
+			</label> 
+            <span><lightning:input 	label="" 
+                                   aura:id="CAB"
+                                   name="searchInput"   
+                                   variant="label-hidden" 
+                                   value="{!v.objectDataMap.user.OB_CAB__c}" 
+                                   disabled="false"
+                                   class="flow_required"/></span>
+        </div>
+        <div class="slds-col slds-size_1-of-2" style="padding-left: 1%;     margin-top: 3%;">
+            <span> <lightning:button 	variant="neutral"
+							onclick="{!c.openModal_2}"
+							iconName="utility:search" 
+		/></span>
+        </div>
+
+    </div>
+
+	{!v.body}
+</aura:component>

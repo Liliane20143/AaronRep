@@ -1,0 +1,34 @@
+<aura:component >
+	<aura:attribute name="Id" 				type="String"  		access="global" />
+	<aura:attribute name="inputText" 		type="String" 		access="global" />
+	<aura:attribute name="orderHeaderId" 	type="String" 		access="global" />
+	<aura:attribute name="listFields" 		type="String[]" 	access="global"/>
+	<aura:attribute name="documentIdMap" 	type="Map" 			access="global"/>
+	<aura:attribute name="index" 			type="Integer"  	access="global" default="1"/>
+	<aura:attribute name="objectDataMap" 	type="Object"   	access="global"/>
+
+	<!--02/04/19 francesca.ribezzi adding these attributes. values taken from ShowProductDocuments2 cmp-->
+	<aura:attribute name="myMap" type="Map" access="global"/>
+	<aura:attribute name="singleDoc" type="String" access="global"/>
+
+	<!--03/04/19 francesca.ribezzi adding event to pass myMap to ShowProductDocuments2 cmp -->
+	<aura:registerEvent name="dynamicDocEvent" type="c:OB_DynamicDocumentsEvent"/> 
+	<!--<aura:registerEvent name="filenetDocumentId" type="c:OB_filenetDocumentIdEvt"/>-->
+
+	<div class="slds-grid slds-gutters  slds-grid_vertical-align-center myDocument">
+		<!-- Div of BUTTONS -->
+		<div class="slds-col slds-size_1-of-10" >
+			<input type="button" aura:id="{!v.Id}" value ="Remove"   onclick="{!c.delete}" class="slds-button slds-button--neutral LoadButton" />
+		</div>
+		<!-- Div of text Description -->
+		<div class="slds-col slds-size_7-of-10 myWord">
+			<lightning:icon iconName="utility:page" /><!--giovanni spinelli 04/06/2019 add icon document-->
+			{!v.inputText}
+		</div>
+		<!-- Div of Spinner and flag -->
+		<div class="slds-col slds-size_2-of-10 slds-col_bump-left myRight">
+			<lightning:icon aura:id="statusIcon" iconName="action:approval" size="xx-small" class="slds-show"/>
+		</div>
+
+	</div> <!-- CONTAINER -->
+</aura:component>

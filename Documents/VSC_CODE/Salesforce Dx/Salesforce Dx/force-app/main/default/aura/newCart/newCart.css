@@ -1,0 +1,30 @@
+.THIS .hidden{
+    display: none;
+}
+
+.THIS .nextBtnOverride{
+    z-index: 1000;
+    position:absolute;
+    top: 101%;
+    left: 90%;
+}
+
+/* On screens that are 992px or less */
+@media screen and (max-width: 992px) {
+  .THIS .nextBtnOverride{
+	   z-index: 1000;
+	   position:absolute;
+	   top: 101%;
+	   left: 80%;
+  }
+}
+
+/* On screens that are 600px or less */
+@media screen and (max-width: 600px) {
+	.THIS .nextBtnOverride{
+	    z-index: 1000;
+	    position:absolute;
+	    top: 101%;
+	    left: 68%;
+  }
+}

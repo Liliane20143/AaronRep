@@ -1,0 +1,112 @@
+.THIS .sep{
+	border: 0;
+    background-color: #4472c4 ;
+	height: 3px;
+    
+}
+.THIS .color-tr {
+	background-color: #4472c4;
+    color:white;
+    margin: auto;
+    padding: auto;
+}
+
+.THIS .content {
+	background-color: #fff;
+	padding: 1%;   
+}
+
+.THIS .act-percent-input {
+    width: 40%;
+    margin: 0px;
+    padding: 0px;
+    float:right;
+}
+
+.THIS .percent{
+    width: 70%;
+    text-align: center;
+    float: right;
+    padding: 0px !important;
+    border-radius: 0px !important; 
+}
+
+.THIS .error-label{
+   float: right;
+}
+
+.THIS .act-percent-label {
+    width: 60%;
+    margin: 0px;
+    padding: 0px;
+    display: block;
+    float:left;
+}
+.THIS .table-input {
+    width: 25% !important;
+    padding:0.2% !important;
+}
+.THIS .table-input-percent{
+    width: 100% !important;
+}
+.THIS .act-percent {
+    display: inline-block;
+}
+
+.THIS .header-css{
+    margin:0px !important;
+}
+
+.THIS .div-table_cont {
+    height: 250px;
+}
+.THIS .table-container-left{
+    padding-top: 1%;
+}
+.THIS .table-container-right{
+     padding-top: 0.71%;
+ }
+
+.THIS .div_scroll {
+    height: 100%;
+}
+
+.THIS .col_act{
+    width : 5%;
+}
+.THIS .col_code{
+    width : 15%;
+}
+
+.THIS .col_act_tab2 {
+    width: 7%;
+}
+.THIS .col_code_tab2 {
+    width: 18%;
+}
+.THIS .col_sede_tab2 {
+    width: 55%;
+}
+
+.THIS hr{
+    display: block;
+    margin: 1rem 0;
+    border-top: 1px solid rgb(221, 219, 218);
+    height: 1px;
+    clear: both;
+}
+
+.THIS .slds-grid_align-center > .slds-button_neutral {
+    display: none;
+}
+.THIS .slds-grid_align-center > .slds-button_brand {
+    display: none;
+}
+
+.THIS .slds-docked-form-footer{
+    height: 40px !important;
+}
+
+.THIS thh[aria-label="Action"]{
+    width: 15% !important;
+}

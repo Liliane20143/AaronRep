@@ -1,0 +1,51 @@
+.THIS{
+    background-color: white;
+}
+.THIS.myGrid{
+    margin-right: -.75rem;
+    margin-left: -.75rem;
+    vertical-align: middle !important;
+    align-items: center !important;
+    display: flex;
+}
+.THIS .myRow{
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+
+}
+.THIS .GeneraButton{
+    /*width: 135%;*/
+    /*giovanni spinelli remove style blue color: blue;*/
+    text-align: center;
+    width: 110px;
+    height: 30px;
+    /*giovanni spinelli 31/07/2019 add style upload button*/
+    font-weight: bold;
+    text-transform: uppercase;
+
+}
+.THIS .myWord{
+    padding-left: 47px;
+}
+.THIS .mySpinner {
+    position: relative;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    width: 25px;
+}
+.THIS .errorMessage{
+    color : #ef6e64;
+    text-align: right;
+
+}
+/* giovanni spinelli 14/05/2019 start add style text*/
+.THIS .myWord_italic {
+    font-style: italic;
+    color: gray;
+}
+/*giovanni spinelli 14/05/2019 end add style text*/
+/* START gianluigi.virga 02/10/2019 */
+.THIS .adjustPaddingIcon{
+    padding-right: 1.125rem;
+}
+/* END gianluigi.virga 02/10/2019 */

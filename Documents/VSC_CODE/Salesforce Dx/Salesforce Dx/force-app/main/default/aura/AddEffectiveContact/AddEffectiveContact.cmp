@@ -1,0 +1,29 @@
+<aura:component access="global">
+    <aura:attribute name="wizardStep" type="String"/>
+    <aura:attribute name="checked" type="Boolean" default="false"/>
+    <aura:attribute name="showPicklist" type="Boolean" default="false"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+ <!--   <aura:attribute name="options" type="List" default="[
+                                                        {'label': '1', 'value': '1'},
+                                                        {'label': '2', 'value': '2'},
+                                                        {'label': '3', 'value': '3'},
+                                                        {'label': '4', 'value': '4'},
+                                                        {'label': '5', 'value': '5'},
+                                                        {'label': '6', 'value': '6'},
+                                                        ]"/> -->
+    <div class="slds-grid slds-grid_vertical">
+        <div class="slds-col">
+            <ui:inputCheckbox aura:id="checkbox" label="Select?" change="{!c.onCheck}" value="{!v.checked}"/>
+        </div>
+        
+        
+        <p>{!v.wizardStep}</p>
+        
+        
+   <!--     <aura:if isTrue="{!v.showPicklist}">
+            <div class="slds-col">
+                <lightning:combobox style="font-size: .75rem" name="numTitolariEffettivi" label="Seleziona il numero dei titolari effettivi che vuoi inserire" value="1" placeholder="Select Progress" options="{!v.options}" onchange="{!c.handleChange}"/>
+            </div>
+        </aura:if> -->
+    </div>
+</aura:component>

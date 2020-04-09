@@ -1,0 +1,9 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes,force:hasRecordId" access="global" >
+	<!--
+    <bit2flow:dynWizardMenuUI />
+	<bit2flow:dynWizardSideMenu recordId='0039E00000VS5FXQA1'/>
+    
+	-->    
+	<bit2flow:dynWizardMain />
+
+</aura:component>

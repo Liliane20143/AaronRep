@@ -1,0 +1,44 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" >
+	<!-- ATTRIBUTE SECTION --> 
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/> 
+    
+    <aura:attribute name="identifier" type="String" default="" access="global"/>
+    <aura:attribute name="field" type="Object" default="{}" access="global"/>
+    <aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+    <aura:attribute name="inputField" type="String" default="" />
+    <aura:attribute name="changeLayout" type="Boolean" default="false"/>
+
+    <aura:attribute name="labelText" type="String"/>
+    <aura:attribute name="isEvenPosition" type="Boolean" default="true" access="global"/>
+    <aura:attribute name="mainSchema" type="Object"  default="{}" access="global" description="Attributes to store all the values of target and field"/>     	
+	<!-- ATTRIBUTE SECTION --> 
+    
+    <!-- HANDLER SECTION --> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <!-- / HANDLER SECTION --> 
+    
+    <!-- BODY SECTION -->
+    <aura:if isTrue="{!or(v.isEvenPosition eq false,v.isEvenPosition eq 'false') }"> 
+        <div class="slds-size--1-of-2 slds-grid slds-p-around--medium">						
+            <div class="slds-col slds-p-horizontal_xxx-small" />	
+        </div>
+    </aura:if>
+    <div class="slds-size--1-of-2 slds-grid slds-p-around--medium">
+            <div class="slds-col slds-p-horizontal_xxx-small">
+                <label class="slds-form-element__label labelMessage" for="inputNameSample1" >
+                    {!v.labelText}
+                </label>
+            </div>
+        <div class="slds-col slds-p-horizontal_xxx-small">
+                <lightning:input 	 aura:id="{!v.mainSchema.auraId}"
+                            type="checkbox"
+                            id="{!v.mainSchema.target}" 
+                            variant="label-hidden"
+                            checked="{!v.mainSchema.value}"
+                            class="flow_required"
+                            name="" 
+                            onchange="{!c.onChangeCheckboxes}"/>
+        </div>			
+    </div>
+    <!-- / BODY SECTION -->
+</aura:component>

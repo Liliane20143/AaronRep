@@ -1,0 +1,6 @@
+<aura:event type="COMPONENT" >
+
+
+    <aura:attribute name="pageBack" type="Integer"/>
+    <aura:attribute name="isBack"   type="Boolean"/>
+</aura:event>

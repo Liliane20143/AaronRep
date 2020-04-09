@@ -1,0 +1,142 @@
+<!--
+ - Created by adrian.dlugolecki on 14.06.2019.
+ -->
+
+<aura:component description="OB_LCP006_Maintenance_Titolari_Effettivi" controller="OB_LCC006_Maintenance_TE"  access="global" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable,flexipage:availableForRecordHome,lightning:actionOverride">
+
+    <aura:attribute name="newContact"   type="Object"   access="global" description="New contact. It is output rather than input parameter"/>
+    <aura:attribute name="oldContact"   type="Object"   access="global" description="Old contact. Not to be changed"/>
+    <aura:attribute name="accountId"    type="String"   access="global" description="AccountId"/>
+    <aura:attribute name="showModal"    type="Boolean"  access="global" default="false"  description="Change when save is complete, Output" />
+    <aura:attribute name="isNewContact" type="Boolean"  access="global" default="false" description="Set to true when init is complete"/>
+
+    <aura:attribute name="isLoaded"             type="Boolean"  access="private" default="false" description="Set to true when init is complete"/>
+    <aura:attribute name="contactFieldsLabel"   type="Object"   access="private" description="Object that contain labels for contact fields"/>
+    <aura:attribute name="companyLinkTypesList" type="List"     access="private" default="[]"    description="List that contain values for OB_Company_Link_Type__c picklist"	/>
+    <aura:attribute name="genderList"           type="List"     access="private" default="[]"    description="List that contain values for OB_Sex__c picklist"	/>
+    <aura:attribute name="objectDataMap"        type="Object"   access="private" default="{}"	    description=" contain internal data"/>
+
+    <aura:attribute name="postelComponentParamsBirthAddress" 		type="Object"  default="{}" 	access="private" />
+    <aura:attribute name="postelComponentParamsAddressDocRelease" 	type="Object"  default="{}" 	access="private" />
+    <aura:attribute name="postelComponentParamsContactAddress" 	type="Object"  default="{}" 	access="private" />
+    <aura:attribute name="postelComponentParamsCitizenship" 		type="Object"  default="{}" 	access="private" />
+    <aura:attribute name="postelComponentParamsFiscalCode" 		type="Object"  default="{}" 	access="private" />
+
+    <!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 START-->
+    <aura:attribute name="fiscalCodes"          type="List"     access="global"  description="List of fiscal codes" />
+    <aura:attribute name="hasTheSameFiscalCode" type="Boolean"  access="global"  description="Set to true when fiscal code is repeated" default="false" />
+    <!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 STOP-->
+    <!--NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 START-->
+    <aura:attribute name="disabledFields"		type="Object"	access="global" 	default="{}"	description="Object containing info which fields should disabled"/>
+    <!--NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 STOP-->
+
+    <aura:registerEvent name="teContactEvent" type="c:OB_LEV006_TEContactEvent"/>
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+
+    <aura:if isTrue="{! v.isLoaded }">
+        <div class="slds-form slds-form_compound" aura:id="MainDiv">
+            <div class="slds-form slds-form_compound" aura:id="secondDiv">
+
+                <lightning:accordion aura:id="accordion" activeSectionName="Section1" allowMultipleSectionsOpen="true" >
+                    <lightning:accordionSection name="Section1" label="{! $Label.c.OB_ActualOwnerData }">
+                        <div class="slds-form-element__row slds-grid slds-wrap">
+                            <div class="slds-form-element slds-size_5-of-6">
+                                <div class="slds-form-element__row">
+                                    <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                        <label class="slds-form-element__label" for="" value="" style="position: absolute;" >
+                                            <abbr class="slds-required" title="required">*</abbr>
+                                                {!$Label.c.LastName}
+                                        </label>
+                                        <lightning:input value="{!v.newContact.LastName}" label ="" aura:id="LastNameModal" id="LastNameModal" disabled="{! v.disabledFields.LastName }"/>
+                                        <!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 added disabled attribute-->
+                                    </div>
+
+                                    <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                        <label class="slds-form-element__label" for="" value="" style="position: absolute;" >
+                                            <abbr class="slds-required" title="required">*</abbr>
+                                                {!$Label.c.FirstName}
+                                        </label>
+                                        <lightning:input value="{!v.newContact.FirstName}" label ="" aura:id="FirstNameModal" id="FirstNameModal" disabled="{! v.disabledFields.LastName }"/>
+                                        <!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 added disabled attribute-->
+                                    </div>
+                                </div>
+
+                                <div class="slds-form-element__row">
+                                    <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                        <lightning:input type="checkbox" name="PEP" aura:id="OB_PEP__c" checked="{!v.newContact.OB_PEP__c}"
+                                                         label="{!v.contactFieldsLabel.ob_pep__c}" value = "{!v.newContact.OB_PEP__c}"/>
+                                    </div>
+                                </div>
+
+                                <div class="slds-form-element__row">
+                                    <c:OB_FlowInputText  objectDataMap="{!v.objectDataMap}"
+                                                         addressMapping="{!v.postelComponentParamsFiscalCode}"
+                                                         aura:id="FlowInputText"
+                                                         disabledFields="{! v.disabledFields }"
+                                    />
+                                    <!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 added disabled attribute-->
+                                    <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small executor-gender-div">
+                                        <label class="slds-form-element__label" for="" value="" style="position: absolute;">
+                                            <abbr class="slds-required" title="required">*</abbr>
+                                                {!v.contactFieldsLabel.ob_sex__c}
+                                        </label>
+                                        <lightning:select
+                                                variant="label-hidden"
+                                                label=""
+                                                value="{!v.newContact.OB_Sex__c}"
+                                                name="OB_Sex__c">
+                                            <option value="" aura:id=""></option>
+                                            <aura:iteration items="{!v.genderList}" var="item">
+                                                <option text="{!item.value}" value="{!item.key}" selected="{!item.value == v.newContact.OB_Sex__c}"/>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                </div>
+
+                                <div class="slds-form-element__row">
+                                    <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                        <lightning:input type="checkbox" name="CADASTRIALCODE" aura:id="OB_SkipCadastralCodeCheck__c" checked="{!v.newContact.OB_SkipCadastralCodeCheck__c}"
+                                                         label="{!v.contactFieldsLabel.ob_skipcadastralcodecheck__c}" value = "{!v.newContact.OB_SkipCadastralCodeCheck__c}"/>
+                                    </div>
+                                </div>
+
+                                <c:OB_FlowInputModal  objectDataMap="{!v.objectDataMap}"
+                                                      addressMapping="{!v.postelComponentParamsCitizenship}"
+                                                      aura:id="FlowInputModal"/>
+                                <!--NEXI-245 Marta Stempien <marta.stempien@accenture.com> 01/07/2019 Added parameter isTrueDisableFields = "{!!isNewContact}"-->
+                                <c:AutoCompleteComponentPostel   objectDataMap="{!v.objectDataMap}"
+                                                                 addressMapping="{!v.postelComponentParamsBirthAddress}"
+                                                                 isTrueDisableFields = "{!!v.isNewContact}"
+                                                                 aura:id="AutoCompleteComponentPostelBirth"/>
+                                <c:OB_DocumentReleaseAddressComponent  objectDataMap="{!v.objectDataMap}"
+                                                                       addressMapping="{!v.postelComponentParamsAddressDocRelease}"
+                                                                       disabledFields="{! v.disabledFields }"
+                                                                       aura:id="OB_DocumentReleaseAddressComponent"/>
+                                <!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 added disabled attribute-->
+                                <div class="slds-form-element__row">
+                                    <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                        <ui:outputText value="{!$Label.c.OB_MAINTENANCE_EXECUTOR_SECTION3}" />
+                                    </div>
+                                </div>
+                                <!-- START gianluigi.virga 08/01/2020 - Add Free Input Address Component -->
+                                <!-- <c:AutoCompleteComponentPostel  objectDataMap="{!v.objectDataMap}"
+                                                                addressMapping="{!v.postelComponentParamsContactAddress}"
+                                                                aura:id="AutoCompleteComponentPostelContactAddress"/> -->
+                                <c:OB_FreeInputAddress  objectDataMap="{!v.objectDataMap}"
+                                                                addressMapping="{!v.postelComponentParamsContactAddress}"
+                                                                aura:id="AutoCompleteComponentPostelContactAddress"
+                                                                changeLayout="true"/>
+                                <!-- END gianluigi.virga 08/01/2020 - Add Free Input Address Component -->
+                                <div class="slds-form-element__row">
+                                    <div  class="slds-align_absolute-center slds-m-top_medium">
+                                        <lightning:button variant="brand" aura:id="SaveButton"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON}" onclick="{! c.saveHandler }" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </lightning:accordionSection>
+                </lightning:accordion>
+            </div>
+        </div>
+    </aura:if>
+</aura:component>

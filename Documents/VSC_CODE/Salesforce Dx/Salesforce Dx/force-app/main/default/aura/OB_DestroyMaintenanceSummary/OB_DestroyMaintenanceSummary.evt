@@ -1,0 +1,10 @@
+<!-- ANDREA MORITTU START 2019.05.08 - ID_Stream_6_Subentro-->
+<aura:event type="APPLICATION" description="Event template">
+    <aura:attribute name="merchantTakeoverProcess" 
+                    type="Boolean" 
+                    access="global"/>
+    <aura:attribute name="bodyAttribute" 
+                    type="Aura.Component[]" 
+                    access="global"/>
+</aura:event>
+<!-- ANDREA MORITTU END 2019.05.08 - ID_Stream_6_Subentro-->

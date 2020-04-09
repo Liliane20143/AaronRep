@@ -1,0 +1,215 @@
+<aura:component implements="lightning:actionOverride,force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId" controller = "OB_OrderHeaderDetailsPage_CC">
+	<aura:attribute name="recordId" 
+					type="String" 
+					access="global"/>
+					
+	<aura:attribute name="confId"
+					type="String"
+					default = ""
+					access="global"/>
+	<!--
+	<aura:attribute name="auraForTerminali"
+					type="String"
+					default=""
+					access="global"/>
+	<aura:attribute name="auraForAcquiring"
+					type="String"
+					default=""
+					access="global"/>
+	-->
+	<aura:attribute name="trying"
+					type="Object"
+					default="{}"
+					access="global"/>
+	<aura:attribute name="loadme" 
+					type="Boolean" 
+					default="false"
+					access="global"/>	
+	
+	<aura:attribute name="products"
+					type="Object[]"
+					/>
+	<aura:attribute name="orderId"
+					type="String"
+					default=""
+					access="global"
+					/>
+	<aura:attribute name="orderParameter"
+					type="String"
+					default=""
+					access="global"
+					/>
+	<aura:attribute name="openPriceSummary"
+					type="Boolean"
+					default="false"
+					access="global"
+					/>
+	<aura:attribute name="openTechDetails"
+					type="Boolean"
+					default="false"
+					access="global"
+					/>
+	<!--giovanni spinelli start 10709/2019-->
+	<aura:attribute name="openPriceHistoryTable" 	type="String" 	default="" 		access="global"/>
+	<aura:attribute name="priceHistoryTable" 		type="List" 	default=""		access="global"/>
+	<aura:attribute name="numberOfTable" 			type="List" 	default=""		access="global"/>
+	<aura:attribute name="isCorrectOrderStatus" 	type="Boolean" 	default="false" access="global"/>
+	<!--giovanni spinelli end 10709/2019-->
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+		
+	<div class="slds-grid slds-gutters">
+		<div class="slds-col slds-size_1-of-3">
+
+			<aura:iteration items="{!v.products}" indexVar="key" var="product">
+				<div class="slds-card " style="border-color: #9d9d9d;"><!--giovanni spinelli add style--><!--card-detail-products-->
+
+				<header class="slds-card__header slds-grid">
+					<div class="slds-col slds-media slds-media--center">
+					<div class="slds-media__figure">
+						
+					</div>
+					<div class="slds-media__body">
+						<h3 class="slds-text-heading--small">{!product.productName}</h3>
+					</div>
+					</div>
+					
+				</header>
+				<aura:if isTrue="{!product.terminals.length > 0}">
+					<!-- CARD BODY = TABLE -->
+					<section class="slds-card__body">
+						<div class="slds-scrollable--x">
+							<table class="slds-table slds-table--bordered slds-max-medium-table--stacked-horizontal">
+								<thead>
+								<tr class="slds-no-hover">
+									<th class="slds-text-heading--label slds-size--1-of-3" scope="col">{!$Label.c.OB_Pos}</th>
+									<th class="slds-text-heading--label slds-size--1-of-3" scope="col">{!$Label.c.OB_Terminale}</th>
+									<th class="slds-text-heading--label slds-size--1-of-3" scope="col">n°</th><!--giovanni spinelli  04/07/2019 PRODOB_45-->
+									<th class="slds-text-heading--label slds-size--1-of-3" scope="col"></th>
+								</tr>
+								</thead>
+								<tbody>
+									<aura:iteration items="{!product.terminals}" indexVar="key" var="terminal">
+										<tr class="slds-hint-parent">
+											<td class="slds-size--1-of-2" data-label="{!terminal.Name}">{!terminal.Name}</td>
+											<td class="slds-size--1-of-2" data-label="{!terminal.TerminalId}">{!terminal.TerminalId}</td>
+											<td class="slds-size--1-of-2" data-label="{!terminal.TerminalId}">{!terminal.Quantity}</td><!--giovanni spinelli  04/07/2019 PRODOB_45-->
+											<!--giovanni spinelli - start 10/09/2019 add button to show price history-->
+											<aura:if isTrue="{!v.isCorrectOrderStatus}">
+												<td class="slds-size--1-of-2" data-label="{!terminal.TerminalId}">
+													<div class="slds-col slds-no-flex">
+														<lightning:button class="slds-button slds-button--neutral slds-button--small CTAStyle"
+															label="{!$Label.c.OB_PriceHistory}" onclick="{!c.showPricehistory}"
+															value="{!terminal.Id +'_'+ terminal.TerminalId}" aura:id="{!terminal.Id}" name="{!terminal.Name}" />
+														<!--giovanni spinelli add style-->
+													</div>
+												</td>
+											</aura:if>
+											<!--giovanni  spinelli - end 10/09/2019 add button to show price history-->
+										</tr>
+									</aura:iteration>
+								</tbody>
+							</table>
+						</div>
+					</section>
+					<!-- / CARD BODY = SECTION + TABLE -->
+					<footer class="slds-card__footer">
+						<div class="slds-col slds-no-flex">
+							<lightning:button  class="slds-button slds-button--neutral slds-button--small CTAStyle" label="{!$Label.c.OB_ButtonTerminale}" onclick="{!c.handleTechDetail}"  aura:id="{!product.orderId}" name="{!product.orderId}"/><!--giovanni spinelli add style-->
+						</div>
+					</footer>
+				</aura:if>
+				<aura:if isTrue="{!product.acquirings.length > 0}">  
+					<!-- CARD BODY = TABLE -->
+					<section class="slds-card__body">
+						<div class="slds-scrollable--x">
+							<table class="slds-table slds-table--bordered slds-max-medium-table--stacked-horizontal">
+								<thead>
+								<tr class="slds-no-hover">
+									<th class="slds-text-heading--label slds-size--1-of-1" scope="col">{!$Label.c.OB_Acquiring}</th>
+								</tr>
+								</thead>
+								<tbody>
+									<aura:iteration items="{!product.acquirings}" indexVar="key" var="acquiring">
+										<tr class="slds-hint-parent">
+											<td class="slds-size--1-of-2" data-label="Name">{!acquiring.Name}</td>
+										</tr>
+									</aura:iteration>
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</aura:if>
+				<!-- / CARD BODY = SECTION + TABLE -->
+				<footer class="slds-card__footer">
+					<div class="slds-col slds-no-flex">
+						<lightning:button  class="slds-button slds-button--neutral slds-button--small CTAStyle" label="{!$Label.c.OB_ButtonAcquiring}" onclick="{!c.handleCartPriceSummary}"  aura:id="{!product.orderId}" name="{!product.orderId}"/><!--giovanni spinelli add style-->
+					</div>
+				</footer>
+				</div>
+			</aura:iteration>
+	
+		</div>
+		<div class="slds-col slds-size_2-of-3">	
+			<!--giovanni spinelli start - 10/09/2019 add table to show price history-->
+			<aura:if isTrue="{!v.openPriceHistoryTable == 'OPEN TABLE' }">
+				<aura:iteration items="{!v.numberOfTable}" var="singletable" indexVar="firstIndex">
+					
+					<div name="componentWrapper" class="slds-card notFlowPadding">
+						<div class="slds-grid">
+							<div class="slds-col slds-size_6-of-6">
+								<div class="tableContainer">
+									<div class="tableContainerInner">
+										<div class="slds-col slds-size_2-of-10 slds-align_absolute-center commissioni_info">
+											<p class="u1730 slds-align_absolute-center"><span>{!singletable.key} </span></p>
+										
+										</div>
+									<table style="margin-top: 1rem;">
+											
+											<thead>
+													<tr class="slds-no-hover">
+														<th class="slds-text-heading--label slds-size--1-of-4" scope="col"></th>
+														<th class="slds-text-heading--label slds-size--1-of-4 center-text label-style" scope="col">{!$Label.c.OB_ValuePricingNew} </th>
+														<th class="slds-text-heading--label slds-size--1-of-4 center-text label-style" scope="col">{!$Label.c.OB_ValuePricingLast} </th>
+														<th class="slds-text-heading--label slds-size--1-of-4 center-text label-style" scope="col">{!$Label.c.OB_ValuePricingDefault}</th>
+													</tr>
+												</thead>
+										<aura:iteration items="{!singletable.value}" var="macroRow" indexVar="firstIndex">
+											<div class="rowKey"><b>{!macroRow.key}</b></div>
+											
+											<aura:iteration items="{!macroRow.value}" var="singleRow" indexVar="firstIndex">
+												<tr class="slds-hint-parent">
+													<td class="slds-size-1-of-2" >{!singleRow.name}</td>	
+													<td class="slds-size-1-of-2 center-text singleRowNumber" data-label="{!singleRow.newValue}">{!singleRow.newValue}</td>
+													<td class="slds-size-1-of-2 center-text singleRowNumber" data-label="{!singleRow.previousValue}">{!singleRow.previousValue}</td>
+													<td class="slds-size-1-of-2 center-text singleRowNumber" data-label="{!singleRow.defaultValue}">{!singleRow.defaultValue}</td>
+												</tr>
+											</aura:iteration>
+										</aura:iteration>
+									</table>
+									</div>
+									<div style="float: right;">
+										<lightning:icon iconName="utility:info_alt" alternativeText="Error!" size="x-small" />
+										<span class="info-style">{!$Label.c.OB_InfoPriceHistory}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+				</aura:iteration>
+				
+			</aura:if>
+			<div style="margin-top: 1.5rem;"></div>
+			<!--giovanni spinelli start - 10/09/2019 add table to show price history-->
+			<aura:if isTrue="{!v.openPriceSummary}">
+				<!-- 18/07/19 francesca.ribezzi using orderId - F2WAVE2-160 -->
+				<c:OB_newCartPriceSummary orderId="{!v.confId}"  isReadOnly="true" isFlow="false" approvalTypePricing="true"/>
+			</aura:if>
+			<aura:if isTrue="{!v.openTechDetails}">
+				<!--16/07/19 francesca.ribezzi changing component to OB_TechDetailService_New - performance--> 
+				<c:OB_TechDetailService_New orderId="{!v.confId}" isReadOnly="true" isFlow="false" isMaintenance="false"/>
+			</aura:if>
+			
+		</div>
+	</div>
+</aura:component>

@@ -1,0 +1,61 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="ModalLookupController" access="global"> 
+	<aura:attribute name="mydata" type="Object"/>
+	<aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="nextCheckout" type="String" default="{!v.objectDataMap.unbind.nextCheckout}" />
+	<aura:attribute name="objectKey" type="String" default="" access="global"/>
+	<aura:attribute name="identifier" type="String" default="" access="global"/>
+	<aura:attribute name="field" type="Object" default="{}" access="global"/> 
+	
+	<!-- <aura:attribute name="lovs" type="NE__Lov__c[]"/> -->
+	<aura:attribute name="type" type="String"/>
+	<aura:attribute name="subType" type="String"/>
+	<aura:attribute name="objectString" type="String"/>
+	<!--  <aura:attribute name="input" type="String"/> -->
+	<!--   <aura:attribute name="showModal" type="Boolean" default="false"/> -->
+	<aura:attribute name="disableDescriptionVat" type="Boolean" /> <!--BOOLEAN TO DISABLE THE INPUT-->
+	<aura:attribute name="mapOfSourceFieldTargetField" type="Map"/>
+	<aura:attribute name="mapLabelColumns" type="Map" default="{}"/>
+	<aura:attribute name="messageIsEmpty" type="String" default=""/>
+	<aura:attribute name="orderBy" type="String"/> 
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/> 
+	<aura:handler name="showModalEvent" event="c:modalLookupEvent"
+				  action="{!c.handleShowModalEvent}"/> 
+	
+
+
+	 <div class="slds-grid" id="vatnotpresentcontainer">
+		<div class="slds-form-element slds-small-size--11-of-12 slds-large-size--11-of-12">
+			<div class="slds-p-around--medium slds-form-element">
+				<label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.type_of_company}">
+					<abbr class="slds-required" title="required">*</abbr>
+					{!$Label.c.type_of_company}
+				</label>
+				<span> 
+					<lightning:input label="" 
+									 aura:id="typeOfCompany"
+									 id="typeOfCompany"
+									 name="searchInput"   
+									 variant="label-hidden" 
+									
+									 value="{!v.objectDataMap.merchant.OB_DescriptionVATNotPresent__c}" 
+									 placeholder="{!$Label.c.Enter_a_Type}"
+									 disabled="true"
+									 class="flow_required"
+									 style="width: 105%;border-top-right-radius: 0;border-bottom-right-radius: 0;"/>
+				</span>
+			</div> 
+		</div>
+		<div class="slds-form-element slds-small-size--1-of-12 slds-large-size--1-of-12 lens-search-button">
+			<div class="slds-p-around--medium slds-form-element">
+				<span>  
+					<lightning:button variant="neutral" onclick="{! c.openModal  }" iconName="utility:search" disabled="{!v.disableDescriptionVat}"/>
+				</span>
+			</div>
+		</div>
+	</div>
+
+	
+	{!v.body}
+
+</aura:component>

@@ -1,0 +1,829 @@
+<aura:component extends="c:OB_BaseComponent"  controller="OB_Maintenance_EditAccount_Controller" access="global" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" >
+	<ltng:require styles="{! $Resource.jqueryuiCSS}" scripts="{!join(',', $Resource.JQueryResourceCode ,  $Resource.jqueryuiJS) }"/>
+	<aura:attribute name="FlowData" type="string"  />
+    <aura:attribute name="FlowStep" type="string"  />
+ 	<aura:attribute name="ModifiedAccountAccount" type="Object"  />
+ 	<aura:attribute name="LegalOffice" type="Object" />
+	<aura:attribute name="DisabledFields" type="List"  />
+
+	<aura:attribute name="EditAccountSimple" type="Object" />
+	<!-- indernal status attirbute -->
+	<aura:attribute name="disabled" type="boolean" default="false"  /> <!--NEXI-179 Marta Stempien <marta.stempien@accenture.com> 14/07/2019 -->
+	<aura:attribute name="isLoaded" type="boolean" default="false"  />
+	<aura:attribute name="listEmpty" type="boolean" default="false"  />
+	<aura:attribute name="status" type="string" default="VIEW"  />
+
+	<aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest" />
+	<aura:attribute 	name="postelcomponentparamslegaladdress" type="Object" default="{}" access="global" />
+	<aura:attribute 	name="postelcomponentparamsadmoffice" type="Object" default="{}" access="global" />
+	<aura:attribute 	name="postelcomponentparamsCCIAA" type="Object" default="{}" access="global" />
+	<aura:attribute 	name="postelcomponentparamsLegalForm" type="Object" default="{}" access="global" />
+	<aura:attribute name="objectDataMap" type="Object" access="global" />
+	<!--ATTRIBUTE FOR FORMAL CHECK START-->
+	<aura:attribute name= "ErrorMessageEmail"  		type="String"    default=""      access="global"/>
+	<aura:attribute name= "ErrorBooleanEmail"  		type="Boolean"   default="false" access="global"/>
+	<aura:attribute name= "ErrorMessagePEC"  		type="String"    default=""      access="global"/>
+	<aura:attribute name= "ErrorBooleanPEC"  		type="Boolean"   default="false" access="global"/>
+	<aura:attribute name= "ErrorMessagePhone"  		type="String"    default=""      access="global"/>
+	<aura:attribute name= "ErrorBooleanPhone"  		type="Boolean"   default="false" access="global"/>
+<!-- Start AV 20-12-18 -->
+	<aura:attribute name="showSaveButton"	type="Boolean" 	access="global" 	default="false"/>
+<!-- End AV 20-12-18 add a boolean: conrtol if all docs are load-->
+
+	<!--ATTRIBUTE FOR FORMAL CHECK START-->
+	<!-- list of label to display-->
+	<aura:attribute name="AccountFieldsLabel" type="Object" />
+	<aura:attribute name="ContactFieldsLabel" type="Object" />
+	<aura:attribute name="showLegalOffice"    type="Boolean"   default="true" access="global"/>
+
+	<!-- ANDREA MORITTU START - 25-Jul-19 - (Untracked)NewLogicOnEmployeesNumberAnagrafica-->
+	<aura:attribute name="employeesNumberList"      type="List"      default=""						 description="the list where are salved the employees Number values"/>
+	<aura:attribute name="showemployeesNumberErrorMessage"      type="Boolean"      default=""/>
+
+	<!-- ANDREA MORITTU END - 25-Jul-19 - (Untracked)NewLogicOnEmployeesNumberAnagrafica-->
+
+	<aura:attribute name="errorMessage" type="string"  />
+	<aura:attribute name="documentationRequired" type="boolean" default="false" />
+	<aura:attribute name="logRequestId" type="String" default="" />
+
+	<aura:attribute name="logRequestIdForMip" type="String" default="" /><!-- Simone Misani WN-44-53 -->
+	<aura:attribute name="showMerchantDetails" type="boolean" default="true" />
+	<aura:attribute name="showExecutorDetails" type="boolean" default="true" />
+
+	<!-- Start antonio.vatrano 01/04/2019 Shortcut Maintenance Operation -->
+	<aura:attribute name="isFromOperation" type="boolean" default="false" />
+	<aura:attribute name="isCompany" type="boolean" default="false" />
+	<aura:attribute name="isExecutor" type="boolean" default="false" />
+	<aura:attribute name="hideBroker" type="boolean" default="false" />
+	<!-- End antonio.vatrano 01/04/2019 Shortcut Maintenance Operation -->
+
+	<!-- NEXI-93 marta.stempien@accenture.com 27/05/2019 Start -->
+	<aura:attribute name = "saeAtecoMapping"      type="Object"  access="global"       description="A map of parameters required in OB_SAEATCOContainer component"/>
+	<aura:attribute name = "saeAtecoHasChanged"     type="Boolean"  access = "private"  description = "Is set to true when SAE/ATECO values has been changed"   default ="false"/>
+	<!-- NEXI-93 marta.stempien@accenture.com 27/05/2019 Stop -->
+	<!-- NEXI-94 Marta Stempien <marta.stempien@accenture.com> 21/06/2019 Start -->
+	<aura:attribute name = "isFromEditAccount"        type="Boolean"     access="global"       description="The parameter passed to SAEATECO Container when we get into it from OB_Maintenance_EditAccount" />
+	<!-- NEXI-94 Marta Stempien <marta.stempien@accenture.com> 21/06/2019 Stop -->
+
+	<!--NEXI-58 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 30/05/2019 Start-->
+	<aura:attribute name = "areChangesOnOwnerSection" type="Boolean" access="private" default="false" description="This flac control buttons enablement"/>
+	<aura:attribute name = "showTEmodal" type="Boolean" access="private" description="Attribute that show modal for udate/insert of titolari effectivi" default="false"/>
+	<aura:attribute name="newOwnerLogRequests" type="List" access="private" description="Attribute contain log request that were added"/>
+	<aura:attribute name="changedOwnerLogRequests" type="List" access="private" description="Attribute contain log request that were changed"/>
+	<aura:attribute name="ownerDeletionLogRequests" type="List" access="private" description="Attribute contain log request that are delete of contact"/>
+	<aura:attribute name="refreshOwnersTable" type="Boolean" access="private" description="attribute used to refresh table with owners" default="true"/>
+	<!--NEXI-58 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 30/05/2019 Stop-->
+	<!--NEXI-60 Grzegorz Banach<grzegorz.banach@accenture.com>, 06/06/2019 START-->
+	<aura:attribute name="tableData"         type="List"                 access="private" description="Data source for OB_LCP006_ContactDataTable"/>
+	<!--NEXI-60 Grzegorz Banach<grzegorz.banach@accenture.com>, 06/06/2019 END-->
+	<!--NEXI-60 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 18/06/2019 START-->
+	<aura:attribute name="newContactEmptyObject" type="Object" access="private" description="New contact for modal"/>
+	<aura:attribute name="isTEConfirmed" type="Boolean" access="private" default="false" description="Flag to be used in document upload for TE"/>
+	<aura:attribute name="isTEEdit" type="Boolean"  access = "private"  description = "Set to true if there is modification on TE contact"   default ="false"/>
+	<aura:attribute name="isTEDeletePossible" type="Boolean"  access = "private"  description = "Set to true if there is 2 or more TE contact that can be deleted" />
+	<aura:attribute name="isTEInsertPossible" type="Boolean"  access = "private"  description = "Set to false if there is 6 TE contact " default="true" />
+	<!--NEXI-60 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 18/06/2019 STOP-->
+	<!--NEXI-60 Joanna Mielczarek <joanna.mielczarek@accenture.com, 20/06/2019 START -->
+	<aura:attribute name="hasLogRequest" type="Boolean" access="private" description="Controls disabling buttons in Dati Titolari Effettivo" />
+	<!--NEXI-60 Joanna Mielczarek <joanna.mielczarek@accenture.com, 20/06/2019 STOP -->
+	<!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 START-->
+	<aura:attribute name="fiscalCodes"   type="List" access="private" description="List of contacts fiscal codes" />
+	<!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 STOP-->
+	<!--NEXI-124 Marlena Lukomska-Rogala <m.lukomska-rogala@Accenture.com>, 03.07.2019 START-->
+	<aura:attribute name="oldLegalForm" type="String" access="private"  default="" description="Initial value of OB_Legal_Form__c"/>
+	<aura:attribute name="showCheckFCModal" type="Boolean" access="private" default="false" description="Set true if CheckFiscalModal should be shown." />
+	<!--NEXI-124 Marlena Lukomska-Rogala <m.lukomska-rogala@Accenture.com>, 03.07.2019 STOP-->
+	<!--NEXI-124 Marlena Lukomska-Rogala <m.lukomska-rogala@Accenture.com>, 3.07.2019 START-->
+	<aura:attribute name="legalFormAllowSave" type="Boolean" access="private" description="Set to true if, after change of Legal Form, Fiscal Code length is correct" default="true"/>
+	<!--NEXI-124 Marlena Lukomska-Rogala <m.lukomska-rogala@Accenture.com>, 3.07.2019 STOP-->
+	<!-- NEXI-186 Zuzanna Urban <z.urban@accenture.com> 09/07/2019 Start, add new section -->
+    <aura:attribute name="isNotEmptyTable" type="Boolean" access = "private" description="Not empty table" default="true" />
+	<aura:attribute name="externalSourceMappingColumns" type="List" access = "private" description="Columns for Societa section"/>
+	<aura:attribute name="listOfExternalSourceMapping" type="List" access = "private" description="Data for Societa section"/>
+	<aura:attribute name="oldExternalSourceMapping" type="List" access = "private" description="Data for Societa section - old data"/>
+	<aura:attribute name="showMerchantModal" type="Boolean" access = "private" description = "Show the modal" default="false"/>
+	<aura:attribute name="typeOptions" type="String[]" access = "private" description = "Available picklist value" />
+	<aura:attribute name="selectedESM" type="List" access = "private" description="Selected data from the table"/>
+    <aura:attribute name="isMaintenanceUpdate" type="Boolean" access = "private" description="Button for update disabled" default="true"/>
+	<!-- NEXI-186 Zuzanna Urban <z.urban@accenture.com> 09/07/2019 Start, add new section -->
+	 <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+	 <!-- START gianluigi.virga 05/09/2019 UX-55-->
+	<aura:attribute name="isEqualsAddress" type="Boolean" default="true" access="global"/>
+	<!-- END gianluigi.virga 05/09/2019 UX-55-->
+	<!--NEXI-124 Marlena Lukomska-Rogala <m.lukomska-rogala@Accenture.com>, 03.07.2019 START-->
+	<aura:handler name="change" value="{!v.objectDataMap.acc.OB_Legal_Form__c}" action="{!c.onLegalFormChange}" />
+	<!--NEXI-124 Marlena Lukomska-Rogala <m.lukomska-rogala@Accenture.com>, 03.07.2019 STOP-->
+    <aura:handler name="rowTableActionEvent" event="c:OB_LEV006_ContactDataTableEvent"	action="{!c.changeInOwnerSection}"/><!--NEXI-58 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 30/05/2019-->
+	<!--NEXI-60 Grzegorz Banach<grzegorz.banach@accenture.com>, 10/06/2019 START-->
+	<aura:handler name="modalEvent"     	 event="c:OB_LEV000_ModalEvent"  			action="{!c.handleModal}"/>
+	<aura:handler name="teContactEvent" 	 event="c:OB_LEV006_TEContactEvent"		action="{!c.handleContactEvent}"/>
+	<!--NEXI-60 Grzegorz Banach<grzegorz.banach@accenture.com>, 10/06/2019 STOP-->
+	<!--NEXI-298 Marta Stempien <marta.stempien@accenture.com>, 06/09/2019 Start -->
+	<!--NEXI-179 Marta Stempien <marta.stempien@accenture.com>, 11/07/2019 Start-->
+	<aura:attribute name = "newObject" 								type = "Object" default = "{}"  description = "New not integrated objects" 								access = "private"/>
+	<aura:attribute name = "oldObject" 								type = "Object" default = "{}"  description = "Old not integrated objects" 								access = "private"/>
+	<aura:attribute name = "newObjectNotIntegrated" 				type = "Object"	default = "{}"	description = "New not integrated objects" 								access = "private"/>
+	<aura:attribute name = "oldObjectNotIntegrated" 				type = "Object" default = "{}" 	description = "Old not integrated objects" 								access = "private"/>
+	<aura:attribute name = "companyMissingFields" 					type ="List" 	default = "[]" 	description = "List of missing fields of Dati Societa section" 			access = "private"/>
+	<aura:attribute name = "legalMissingFields" 					type ="List" 	default = "[]" 	description = "List of missing fields of Sede Legale section" 			access = "private"/>
+	<aura:attribute name = "adminOfficeMissingFields" 				type ="List" 	default = "[]" 	description = "List of missing fields of Sede Administrativo section" 	access = "private"/>
+	<!--NEXI-179 Marta Stempien <marta.stempien@accenture.com>, 11/07/2019 Stop-->
+	<aura:attribute name = "logRequestsRequiringDocumentation" 		type = "List"	default = "[]" 	description = "List of all created log requests that requires docs"		access = "private"/>
+	<!--NEXI-298 Marta Stempien <marta.stempien@accenture.com>, 06/09/2019 Stop -->
+	<!--NEXI-231 Marta Stempien <marta.stempien@accenture.com>, 19/07/2019 Start-->
+	<aura:attribute name = "showAteco" 					type="Boolean" 	default="false" access="private" description="Set to true when ATECO is required" />
+	<aura:attribute name = "missingAteco" 				type="Boolean" 	default="false" access="private" description="Set to true when ATECO is missing" />
+	<aura:attribute name = "missingSae" 				type="Boolean" 	default="false" access="private" description="Set to true when ATECO is missing" />
+	<aura:handler 	name = "change"  value = "{!v.missingAteco}" action = "{!c.callSettingRedBorderSaeAtecoContainer}" />
+	<aura:handler 	name = "change"  value = "{!v.missingSae}" action = "{!c.callSettingRedBorderSaeAtecoContainer}" />
+	<!--NEXI-231 Marta Stempien <marta.stempien@accenture.com>, 19/07/2019 Stop-->
+ <!-- Start antonio.vatrano 01/04/2019 Shortcut Maintenance Operation -->
+	<!--NEXI-124 Marlena Lukomska-Rogala <m.lukomska-rogala@Accenture.com>, 04.07.2019 START-->
+	<aura:if isTrue="{!v.showCheckFCModal}">
+		<c:OB_LCP007_CheckFiscalCodeModal isOpen="{!v.showCheckFCModal}"/>
+	</aura:if>
+	<!--NEXI-124 Marlena Lukomska-Rogala <m.lukomska-rogala@Accenture.com>, 04.07.2019 STOP-->
+<aura:if isTrue = "{!!v.isFromOperation}">
+ 	<div class="slds-form slds-form_compound" aura:id="MainDiv">
+			<c:OB_ContinuationBrokerComponent/>
+			<lightning:buttonGroup class="slds-align_absolute-left" >
+				<lightning:button variant="neutral" aura:id="cancelButton"  iconName="utility:back"  onclick="{! c.cancel }" />
+			</lightning:buttonGroup><!-- label="{!$Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON}"  -->
+			<aura:if isTrue="{!v.showMerchantDetails}">
+				<lightning:accordion aura:id="accordion" activeSectionName="" allowMultipleSectionsOpen="true" >
+					<lightning:accordionSection name="A" label="{!$Label.c.OB_MAINTENANCE_ACCOUNTEDIT_SECTION1}">
+						<div class="slds-form-element__row">
+							<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+								<lightning:input value="{!v.objectDataMap.acc.Name}" label ="{!$Label.c.Merchant_Name}" aura:id="Name" id="Name" onblur="{!c.formalCheck}"/>
+								<!--******PHONE MANDATORY ERROR MESSAGE-START****** -->
+								<aura:if isTrue="{!v.objectDataMap.errorFamily.ErrorName}">
+									<div class="error-input-message">
+                                 {!v.objectDataMap.errorFamilyMessage.ErrorMessageName}
+                              </div>
+								</aura:if>
+								<!--******PHONE MANDATORY ERROR MESSAGE-START****** -->
+							</div>
+							<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+								<lightning:input value="{!v.objectDataMap.acc.NE__Fiscal_code__c}" label ="{!v.AccountFieldsLabel.NE__Fiscal_code__c}" aura:id="NE__Fiscal_code__c" />
+							</div>
+						</div>
+						<div class="slds-form-element__row">
+							<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+								<lightning:input value="{!v.objectDataMap.acc.NE__VAT__c}" label ="{!v.AccountFieldsLabel.NE__VAT__c}" aura:id="NE__VAT__c" />
+							</div>
+							<aura:if isTrue="{!v.status == 'VIEW'}">
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Form__c}" label ="{!v.AccountFieldsLabel.OB_Legal_Form__c}" aura:id="OB_Legal_Form__c"/>
+								</div>
+							</aura:if>
+							<aura:if isTrue="{!v.status == 'EDIT'}">
+								<aura:if isTrue="{!v.isLoaded == true}">
+									<c:OB_FlowInputModal  objectDataMap="{!v.objectDataMap}"
+														  addressMapping="{!v.postelcomponentparamsLegalForm}"
+														  aura:id="FlowInputModal"/>
+								</aura:if>
+							</aura:if>
+						</div>
+                        <!-- ANDREA MORITTU START 25-Jul-19 - New Logic On employees Number in MAINTENANCE ANAGRAFICA-->
+                        <div class="slds-form-element__row">
+                            <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                <label class="slds-form-element__label" for="inputNameSample1"  style="margin-top: -4px; position: absolute;"><abbr class="slds-required" title="required">*</abbr>{!$Label.c.employeesNumber}</label>
+                                <lightning:select 	name="EmployeesNumber"
+                                                    aura:id="employeesNumber"
+                                                    label=""
+                                                    value="{!v.objectDataMap.acc.OB_Employees_Number__c}"
+                                                    title="{!$Label.c.employeesNumber}"
+                                                    onchange="{!c.removeRedBorder}">
+
+                                    <option value="" >{!v.employeesNumberList.value}</option>
+                                    <aura:iteration items="{!v.employeesNumberList}" var="item3">
+                                        <option text="{!item3.value}" value="{!item3.key}" selected="{!item3.value == v.objectDataMap.acc.OB_Employees_Number__c}"/>
+                                    </aura:iteration>
+                                </lightning:select>
+                                <aura:if isTrue="{!v.objectDataMap.errorFamily.ErrorName}">
+                                    <div class="error-input-message">
+                                        {!v.objectDataMap.errorFamilyMessage.ErrorMessageEmployees}
+                                    </div>
+                                </aura:if>
+                            </div>
+                        </div>
+                        <!-- ANDREA MORITTU END 25-Jul-19 - New Logic On employees Number in MAINTENANCE ANAGRAFICA-->
+						<!-- NEXI-93 Marta Stempien <marta.stempien@accenture.com> 27/05/2019 Start -->
+						<aura:if isTrue="{!v.isLoaded}">
+							<c:OB_SAEATECOContainer aura:id="saeAtecoComponent" objectDataMap="{!v.objectDataMap}"
+													fromMaintenance="{!v.isFromEditAccount}" addressMapping="{!v.saeAtecoMapping}"
+													isDisabled="{!v.disabled}" showATECO="{!v.showAteco}" /> <!--NEXI-231 Marta Stempien <marta.stempien@accenture.com> 19/07/2019 Added attribute, fix id name -->
+						</aura:if>
+						<!-- NEXI-93 Marta Stempien <marta.stempien@accenture.com> 27/05/2019 Stop -->
+					</lightning:accordionSection>
+					<!-- second data section -->
+					<lightning:accordionSection name="B" label="{!$Label.c.OB_MAINTENANCE_ACCOUNTEDIT_SECTION2}">
+						<aura:if isTrue="{!v.showLegalOffice}">
+							<div class="slds-form-element__row">
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+
+									<label class="slds-form-element__label" for="Phone" style="margin-top: -4px; position: absolute;">
+										<aura:if isTrue="{!v.status == 'EDIT'}">
+											<abbr class="slds-required" title="required">*</abbr>
+										</aura:if>
+										{!v.ContactFieldsLabel.Phone}
+									</label>
+									<lightning:input value="{!v.objectDataMap.legalOffice.Phone}" label ="" aura:id="Phone" id="Phone" onblur="{!c.formalCheck}">
+									<!-- 	<abbr class="slds-required" title="required">*</abbr> -->
+									</lightning:input>
+
+									<!--******PHONE ERROR MESSAGE-START****** -->
+									<aura:if isTrue="{!v.objectDataMap.errorFamily.errorPhone}">
+										<div class="error-input-message">
+											{!v.objectDataMap.errorFamilyMessage.ErrorMessagePhone}
+										</div>
+									</aura:if>
+									<!--******PHONE ERROR MESSAGE-END   ******-->
+								</div>
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+
+									<label class="slds-form-element__label" for="Email" style="margin-top: -4px; position: absolute;">
+										<aura:if isTrue="{!v.status == 'EDIT'}">
+											<abbr class="slds-required" title="required">*</abbr>
+										</aura:if>
+										{!v.ContactFieldsLabel.Email}
+									</label>
+									<lightning:input value="{!v.objectDataMap.legalOffice.Email}" label ="" aura:id="Email" id="Email" onblur="{!c.formalCheck}"/>
+
+									<!--******EMAIL ERROR MESSAGE-START****** -->
+									<aura:if isTrue="{!v.objectDataMap.errorFamily.errorEmail}">
+										<div class="error-input-message">
+											{!v.objectDataMap.errorFamilyMessage.ErrorMessageEmail}
+										</div>
+									</aura:if>
+									<!--******EMAIL ERROR MESSAGE-END   ******-->
+								</div>
+							</div>
+						</aura:if>
+						<div class="slds-form-element__row">
+							<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+								<lightning:input value="{!v.objectDataMap.acc.OB_CCIAA__c}" label ="{!v.AccountFieldsLabel.OB_CCIAA__c}" aura:id="OB_CCIAA__c" id="OB_CCIAA__c" onblur="{!c.formalCheck}" />
+								<aura:if isTrue="{!v.objectDataMap.errorFamily.errorCCIAA}">
+									<div class="error-input-message">
+										{!v.objectDataMap.errorFamilyMessage.ErrorMessageCCIAA}
+									</div>
+								</aura:if>
+							</div>
+							<aura:if isTrue="{!v.status == 'VIEW'}">
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_CCIAA_Province__c}" label ="{!v.AccountFieldsLabel.OB_CCIAA_Province__c}" aura:id="OB_CCIAA_Province__c" />
+								</div>
+							</aura:if>
+							<aura:if isTrue="{!v.status == 'EDIT'}">
+								<aura:if isTrue="{!v.isLoaded == true}">
+									<c:AutoCompleteComponentPostel  objectDataMap="{!v.objectDataMap}"
+															addressMapping="{!v.postelcomponentparamsCCIAA}"
+															aura:id="AutoCompleteComponentPostelCCIAA"/>
+
+								</aura:if>
+							</aura:if>
+
+						</div>
+						<aura:if isTrue="{!v.status == 'VIEW'}">
+							<div class="slds-form-element__row">
+							<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Address_State__c}" label ="{!v.AccountFieldsLabel.OB_Legal_Address_State__c}" aura:id="OB_Legal_Address_State__c" />
+								</div>
+							<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Address_City__c}" label ="{!v.AccountFieldsLabel.OB_Legal_Address_City__c}" aura:id="OB_Legal_Address_City__c" />
+								</div>
+							</div>
+							<div class="slds-form-element__row">
+							<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Address_Detail__c}" label ="{!v.AccountFieldsLabel.OB_Legal_Address_Detail__c}" aura:id="OB_Legal_Address_Detail__c" />
+								</div>
+							<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Address_Street__c}" label ="{!v.AccountFieldsLabel.OB_Legal_Address_Street__c}" aura:id="OB_Legal_Address_Street__c" />
+								</div>
+							</div>
+							<div class="slds-form-element__row">
+							<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Address_Street_Number__c}" label ="{!v.AccountFieldsLabel.OB_Legal_Address_Street_Number__c}" aura:id="OB_Legal_Address_Street_Number__c" />
+								</div>
+							<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Address_ZIP__c}" label ="{!v.AccountFieldsLabel.OB_Legal_Address_ZIP__c}" aura:id="OB_Legal_Address_ZIP__c" />
+								</div>
+							</div>
+						</aura:if>
+						<aura:if isTrue="{!v.status == 'EDIT'}">
+							<aura:if isTrue="{!v.isLoaded == true}">
+								<!-- START gianluigi.virga 09/09/2019 - UX-55 -->
+								<!-- <c:AutoCompleteComponentPostel  objectDataMap="{!v.objectDataMap}"
+														addressMapping="{!v.postelcomponentparamslegaladdress}"
+														aura:id="AutoCompleteComponentPostelLegalAddress"/> -->
+								<c:OB_FreeInputAddress  objectDataMap="{!v.objectDataMap}"
+														addressMapping="{!v.postelcomponentparamslegaladdress}"
+														aura:id="AutoCompleteComponentPostelLegalAddress"
+														changeLayout="true"/>
+								<!-- END gianluigi.virga 09/09/2019 - UX-55 -->
+							</aura:if>
+						</aura:if>
+						<!-- third data section -->
+					</lightning:accordionSection>
+					<lightning:accordionSection name="c" label="{!$Label.c.OB_MAINTENANCE_ACCOUNTEDIT_SECTION3}">
+						<aura:if isTrue="{!v.status == 'VIEW'}">
+							<div class="slds-form-element__row">
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_Administrative_Office_State__c}" label ="{!v.AccountFieldsLabel.OB_Administrative_Office_State__c}" aura:id="OB_Administrative_Office_State__c" />
+								</div>
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_Administrative_Office_City__c}" label ="{!v.AccountFieldsLabel.OB_Administrative_Office_City__c}" aura:id="OB_Administrative_Office_City__c" />
+								</div>
+							</div>
+							<div class="slds-form-element__row">
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_Administrative_Office_Address_Details__c}" label ="{!v.AccountFieldsLabel.OB_Administrative_Office_Address_Details__c}" aura:id="OB_Administrative_Office_Address_Details__c" />
+								</div>
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_Administrative_Office_Street__c}" label ="{!v.AccountFieldsLabel.OB_Administrative_Office_Street__c}" aura:id="OB_Administrative_Office_Street__c" />
+								</div>
+							</div>
+							<div class="slds-form-element__row">
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<!--  R1-53 Micol Ferrari <micol.ferrari@accenture.com>, 10/05/2019 - START -->
+									<lightning:input value="{!v.objectDataMap.acc.OB_Administrative_Office_Street_number__c}" label ="{!v.AccountFieldsLabel.OB_Administrative_Office_Street_number__c}" aura:id="OB_Administrative_Office_Street_Number__c" />
+									<!--  R1-53 Micol Ferrari <micol.ferrari@accenture.com>, 10/05/2019 - STOP -->
+								</div>
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_Administrative_Office_ZIP__c}" label ="{!v.AccountFieldsLabel.OB_Administrative_Office_ZIP__c}" aura:id="OB_Administrative_Office_ZIP__c" />
+								</div>
+							</div>
+						</aura:if> 
+						<aura:if isTrue="{!v.status == 'EDIT'}">
+							<aura:if isTrue="{!v.isLoaded == true}">
+								<!-- START gianluigi.virga 09/09/2019 - UX-55 -->
+								<!-- <c:AutoCompleteComponentPostel  objectDataMap="{!v.objectDataMap}"
+														addressMapping="{!v.postelcomponentparamsadmoffice}"
+														aura:id="AutoCompleteComponentPostelAdmAddress"/> -->
+								<c:OB_FreeInputAddress  objectDataMap="{!v.objectDataMap}"
+														addressMapping="{!v.postelcomponentparamsadmoffice}"
+														aura:id="AutoCompleteComponentPostelAdmAddress"
+														changeLayout="true"
+														isEqualsAddress="{!v.isEqualsAddress}"
+														isMaintenanceAnagrafica="true"/>  	<!--francesca.ribezzi - R1F3-106 - 24/09/19 adding isMaintenanceAnagrafica-->
+								<!-- END gianluigi.virga 09/09/2019 - UX-55 -->
+							</aura:if>
+							<!-- <aura:if isTrue="{!v.status == 'EDIT'}">
+								<aura:if isTrue="{!v.isLoaded == true}">
+									<c:AutoCompleteComponentPostel  objectDataMap="{!v.objectDataMap}"
+																	addressMapping="{!v.postelcomponentparamsadmoffice}"
+																	aura:id="AutoCompleteComponentPostelAdmAddress"/>
+
+								</aura:if>-->
+						</aura:if> 
+					</lightning:accordionSection>
+				</lightning:accordion>
+
+			</aura:if>
+
+	</div>
+	<aura:if isTrue="{!v.showMerchantDetails}">
+		<lightning:buttonGroup class="slds-grid slds-align_absolute-center" >
+		<aura:if isTrue="{! equals(v.status,'VIEW')}">
+		   <lightning:button class="button-modify" variant="brand" aura:id="ModifyButton"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_MODIFY}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_MODIFY}" onclick="{! c.modify }" />
+	   </aura:if>
+	   <aura:if isTrue="{! equals(v.status,'EDIT')}">
+		   <div class="slds-p-around_xx-small">
+			   <lightning:button class="button-modify" variant="neutral" aura:id="undo"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON}" onclick="{! c.revertModify }" />
+		   </div>
+		   <div class="slds-p-around_xx-small">
+			   <lightning:button class="button-modify" variant="brand" aura:id="SaveButton"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON}" onclick="{! c.savecustom }" />
+		   </div>
+	   </aura:if>
+	   </lightning:buttonGroup>
+	</aura:if>
+	   <div class=" flow-section-separator" />
+	   <div class="slds-border_bottom " style="margin-top: 2%" />
+
+	<aura:if isTrue="{!v.showExecutorDetails}">
+		<c:OB_Maintenance_EditNewExecutor_intermediate  FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}" showMerchantDetails="{!v.showMerchantDetails}" />
+	</aura:if>
+	<!-- Start antonio.vatrano 01/04/2019 Shortcut Maintenance Operation -->
+	<aura:set attribute="else">
+		<aura:if isTrue = "{!v.isCompany}">
+			<div class="slds-form slds-form_compound" aura:id="MainDiv">
+				<aura:if isTrue = "{!!v.hideBroker}">
+					<c:OB_ContinuationBrokerComponent />
+				</aura:if>
+				<aura:if isTrue="{!v.showMerchantDetails}">
+					<lightning:accordion aura:id="accordion" activeSectionName="" allowMultipleSectionsOpen="true">
+						<lightning:accordionSection name="A" label="{!$Label.c.OB_MAINTENANCE_ACCOUNTEDIT_SECTION1}">
+							<div class="slds-form-element__row">
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.Name}" label="{!$Label.c.Merchant_Name}"
+										aura:id="Name" id="Name" onblur="{!c.formalCheck}" />
+									<!--******PHONE MANDATORY ERROR MESSAGE-START****** -->
+									<aura:if isTrue="{!v.objectDataMap.errorFamily.ErrorName}">
+										<div class="error-input-message">
+											{!v.objectDataMap.errorFamilyMessage.ErrorMessageName}
+										</div>
+									</aura:if>
+									<!--******PHONE MANDATORY ERROR MESSAGE-START****** -->
+								</div>
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.NE__Fiscal_code__c}"
+										label="{!v.AccountFieldsLabel.NE__Fiscal_code__c}" aura:id="NE__Fiscal_code__c" />
+								</div>
+							</div>
+							<div class="slds-form-element__row">
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.NE__VAT__c}"
+										label="{!v.AccountFieldsLabel.NE__VAT__c}" aura:id="NE__VAT__c" />
+								</div>
+								<aura:if isTrue="{!v.status == 'VIEW'}">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Form__c}"
+											label="{!v.AccountFieldsLabel.OB_Legal_Form__c}" aura:id="OB_Legal_Form__c" />
+									</div>
+								</aura:if>
+								<aura:if isTrue="{!v.status == 'EDIT'}">
+									<aura:if isTrue="{!v.isLoaded == true}">
+										<c:OB_FlowInputModal objectDataMap="{!v.objectDataMap}"
+											addressMapping="{!v.postelcomponentparamsLegalForm}"
+															  aura:id="FlowInputModal" />
+
+									</aura:if>
+								</aura:if>
+							</div>
+							<!-- NEXI-261 Marta Stempien <marta.stempien@accenture.com> 12/08/2019 Start -->
+							<div class="slds-form-element__row">
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<label class="slds-form-element__label" for="inputNameSample1"  style="margin-top: -4px; position: absolute;"><abbr class="slds-required" title="required">*</abbr>{!$Label.c.employeesNumber}</label>
+									<lightning:select 	name="EmployeesNumber"
+														 aura:id="employeesNumber"
+														 label=""
+														 value="{!v.objectDataMap.acc.OB_Employees_Number__c}"
+														 title="{!$Label.c.employeesNumber}"
+														 onchange="{!c.removeRedBorder}">
+
+										<option value="" >{!v.employeesNumberList.value}</option>
+										<aura:iteration items="{!v.employeesNumberList}" var="item3">
+											<option text="{!item3.value}" value="{!item3.key}" selected="{!item3.value == v.objectDataMap.acc.OB_Employees_Number__c}"/>
+										</aura:iteration>
+									</lightning:select>
+									<aura:if isTrue="{!v.objectDataMap.errorFamily.ErrorName}">
+										<div class="error-input-message">
+											{!v.objectDataMap.errorFamilyMessage.ErrorMessageEmployees}
+										</div>
+									</aura:if>
+								</div>
+							</div>
+							<!-- NEXI-261 Marta Stempien <marta.stempien@accenture.com> 12/08/2019 Stop -->
+							<!-- NEXI-93 Marta Stempien <marta.stempien@accenture.com> 27/05/2019 Start -->
+							<aura:if isTrue="{!v.isLoaded}">
+								<c:OB_SAEATECOContainer aura:id="saeAtecoComponentFromOperational" objectDataMap="{!v.objectDataMap}"
+														fromMaintenance="{!v.isFromEditAccount}" addressMapping="{!v.saeAtecoMapping}"
+														isDisabled="{!v.disabled}" showATECO="{!v.showAteco}"  /> <!--NEXI-231 Marta Stempien <marta.stempien@accenture.com> 19/07/2019 Added attribute, fix id name  -->
+							</aura:if>
+							<!-- NEXI-93 Marta Stempien <marta.stempien@accenture.com> 27/05/2019 Stop -->
+						</lightning:accordionSection>
+						<!-- NEXI-186 Zuzanna Urban <z.urban@accenture.com> 09/07/2019 Start, add new section -->
+						<lightning:accordionSection name="M" label="{!$Label.c.OB_MAINTENANCE_MERCHANTEDIT_SECTIONSOCIETA}">
+							<aura:if isTrue="{!v.isNotEmptyTable}">
+								<div>
+									<lightning:datatable
+											columns="{! v.externalSourceMappingColumns }"
+											data="{! v.listOfExternalSourceMapping }"
+											keyField="Id"
+											aura:id="ExternalSourceMappingTable"
+											onrowselection="{!c.updateSelectedRows }"/>
+								</div>
+								<div class="slds-align_absolute-center buttons">
+								<lightning:button variant="brand" aura:id="refresh" label="{! $Label.c.OB_MAINTENANCE_UPDATE }"
+												  title="{! $Label.c.OB_MAINTENANCE_UPDATE }" onclick="{! c.showTheModal }"
+												  disabled="{! v.isMaintenanceUpdate}"/>
+								</div>
+                                <aura:set attribute="else">
+                                    <div>
+                                        {! $Label.c.OB_NoDataFoundLabel }
+                                    </div>
+                                </aura:set>
+							</aura:if>
+						</lightning:accordionSection>
+						<aura:if isTrue="{! v.showMerchantModal }">
+							<c:strike_modal title="{! $Label.c.OB_MerchantRendicontazione }"
+											primaryButtonLabel="Ok" secondaryButtonLabel="Cancel"
+											showHeader="true" showFooter="false"
+											showClose="false"
+											showModal="{! v.showMerchantModal }"
+											size="small">
+								{!$Label.c.OB_MerchantRendiInfo}
+								<lightning:select aura:id="selectedESMValue" name="select" label="{! $Label.c.OB_ESMRecordType}">
+									<aura:iteration items="{!v.typeOptions}" var="typeOption">
+										<option text="{!typeOption}"></option>
+									</aura:iteration>
+								</lightning:select>
+								<div class="slds-align_absolute-center">
+									<div class="slds-p-around_xx-small">
+										<lightning:button variant="brand" aura:id="confirmRendicontazione"
+														  label="{!$Label.c.OB_Confirm}"
+														  onclick="{!c.confirmChanges}" />
+										<lightning:button variant="neutral" aura:id="cancelRendicontazione"
+														  label="{!$Label.c.OB_Cancel}"
+														  onclick="{!c.closeTheModal}" />
+									</div>
+								</div>
+							</c:strike_modal>
+						</aura:if>
+						<!-- NEXI-186 Zuzanna Urban <z.urban@accenture.com> 09/07/2019 Stop, add new section -->
+						<lightning:accordionSection name="B" label="{!$Label.c.OB_MAINTENANCE_ACCOUNTEDIT_SECTION2}">
+							<aura:if isTrue="{!v.showLegalOffice}">
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<label class="slds-form-element__label" for="Phone"
+											style="margin-top: -4px; position: absolute;">
+											<aura:if isTrue="{!v.status == 'EDIT'}">
+												<abbr class="slds-required" title="required">*</abbr>
+											</aura:if>
+											{!v.ContactFieldsLabel.Phone}
+										</label>
+
+										<lightning:input value="{!v.objectDataMap.legalOffice.Phone}" label="" aura:id="Phone"
+											id="Phone" onblur="{!c.formalCheck}">
+											<!-- 	<abbr class="slds-required" title="required">*</abbr> -->
+										</lightning:input>
+
+										<!--******PHONE ERROR MESSAGE-START****** -->
+										<aura:if isTrue="{!v.objectDataMap.errorFamily.errorPhone}">
+											<div class="error-input-message">
+												{!v.objectDataMap.errorFamilyMessage.ErrorMessagePhone}
+											</div>
+										</aura:if>
+										<!--******PHONE ERROR MESSAGE-END   ******-->
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+
+										<label class="slds-form-element__label" for="Email"
+											style="margin-top: -4px; position: absolute;">
+											<aura:if isTrue="{!v.status == 'EDIT'}">
+												<abbr class="slds-required" title="required">*</abbr>
+											</aura:if>
+											{!v.ContactFieldsLabel.Email}
+										</label>
+										<lightning:input value="{!v.objectDataMap.legalOffice.Email}" label="" aura:id="Email"
+											id="Email" onblur="{!c.formalCheck}" />
+
+										<!--******EMAIL ERROR MESSAGE-START****** -->
+										<aura:if isTrue="{!v.objectDataMap.errorFamily.errorEmail}">
+											<div class="error-input-message">
+												{!v.objectDataMap.errorFamilyMessage.ErrorMessageEmail}
+											</div>
+										</aura:if>
+										<!--******EMAIL ERROR MESSAGE-END   ******-->
+									</div>
+								</div>
+							</aura:if>
+							<div class="slds-form-element__row">
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<lightning:input value="{!v.objectDataMap.acc.OB_CCIAA__c}"
+										label="{!v.AccountFieldsLabel.OB_CCIAA__c}" aura:id="OB_CCIAA__c" id="OB_CCIAA__c"
+										onblur="{!c.formalCheck}" />
+									<aura:if isTrue="{!v.objectDataMap.errorFamily.errorCCIAA}">
+										<div class="error-input-message">
+											{!v.objectDataMap.errorFamilyMessage.ErrorMessageCCIAA}
+										</div>
+									</aura:if>
+								</div>
+								<aura:if isTrue="{!v.status == 'VIEW'}">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_CCIAA_Province__c}"
+											label="{!v.AccountFieldsLabel.OB_CCIAA_Province__c}" aura:id="OB_CCIAA_Province__c" />
+									</div>
+								</aura:if>
+								<aura:if isTrue="{!v.status == 'EDIT'}">
+									<aura:if isTrue="{!v.isLoaded == true}">
+										<c:AutoCompleteComponentPostel objectDataMap="{!v.objectDataMap}"
+											addressMapping="{!v.postelcomponentparamsCCIAA}"
+											aura:id="AutoCompleteComponentPostelCCIAA" />
+									</aura:if>
+								</aura:if>
+
+							</div>
+							<aura:if isTrue="{!v.status == 'VIEW'}">
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Address_State__c}"
+											label="{!v.AccountFieldsLabel.OB_Legal_Address_State__c}"
+											aura:id="OB_Legal_Address_State__c" />
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Address_City__c}"
+											label="{!v.AccountFieldsLabel.OB_Legal_Address_City__c}"
+											aura:id="OB_Legal_Address_City__c" />
+									</div>
+								</div>
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Address_Detail__c}"
+											label="{!v.AccountFieldsLabel.OB_Legal_Address_Detail__c}"
+											aura:id="OB_Legal_Address_Detail__c" />
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Address_Street__c}"
+											label="{!v.AccountFieldsLabel.OB_Legal_Address_Street__c}"
+											aura:id="OB_Legal_Address_Street__c" />
+									</div>
+								</div>
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Address_Street_Number__c}"
+											label="{!v.AccountFieldsLabel.OB_Legal_Address_Street_Number__c}"
+											aura:id="OB_Legal_Address_Street_Number__c" />
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Legal_Address_ZIP__c}"
+											label="{!v.AccountFieldsLabel.OB_Legal_Address_ZIP__c}"
+											aura:id="OB_Legal_Address_ZIP__c" />
+									</div>
+								</div>
+							</aura:if>
+							<aura:if isTrue="{!v.status == 'EDIT'}">
+								<aura:if isTrue="{!v.isLoaded == true}">
+									<!-- START gianluigi.virga 09/09/2019 - UX-55 -->
+									<!-- <c:AutoCompleteComponentPostel objectDataMap="{!v.objectDataMap}"
+										addressMapping="{!v.postelcomponentparamslegaladdress}"
+										aura:id="AutoCompleteComponentPostelLegalAddress" /> -->
+									<c:OB_FreeInputAddress objectDataMap="{!v.objectDataMap}"
+															addressMapping="{!v.postelcomponentparamslegaladdress}"
+															aura:id="AutoCompleteComponentPostelLegalAddress"
+															changeLayout="true" />
+									<!-- END gianluigi.virga 09/09/2019 - UX-55 -->
+								</aura:if>
+							</aura:if>
+						<!-- third data section -->
+						</lightning:accordionSection>
+						<lightning:accordionSection name="c" label="{!$Label.c.OB_MAINTENANCE_ACCOUNTEDIT_SECTION3}">
+							<aura:if isTrue="{!v.status == 'VIEW'}">
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Administrative_Office_State__c}"
+											label="{!v.AccountFieldsLabel.OB_Administrative_Office_State__c}"
+											aura:id="OB_Administrative_Office_State__c" />
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Administrative_Office_City__c}"
+											label="{!v.AccountFieldsLabel.OB_Administrative_Office_City__c}"
+											aura:id="OB_Administrative_Office_City__c" />
+									</div>
+								</div>
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Administrative_Office_Address_Details__c}"
+											label="{!v.AccountFieldsLabel.OB_Administrative_Office_Address_Details__c}"
+											aura:id="OB_Administrative_Office_Address_Details__c" />
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Administrative_Office_Street__c}"
+											label="{!v.AccountFieldsLabel.OB_Administrative_Office_Street__c}"
+											aura:id="OB_Administrative_Office_Street__c" />
+									</div>
+								</div>
+								<div class="slds-form-element__row">
+									<!-- Start antonio.vatrano 16/05/2019 ri-53 modify Number to number-->
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Administrative_Office_Street_number__c}"
+											label="{!v.AccountFieldsLabel.OB_Administrative_Office_Street_number__c}"
+											aura:id="OB_Administrative_Office_Street_number__c" />
+									<!-- end antonio.vatrano 16/05/2019 ri-53 modify Number to number-->
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.acc.OB_Administrative_Office_ZIP__c}"
+											label="{!v.AccountFieldsLabel.OB_Administrative_Office_ZIP__c}"
+											aura:id="OB_Administrative_Office_ZIP__c" />
+									</div>
+								</div>
+							</aura:if>
+							<aura:if isTrue="{!v.status == 'EDIT'}">
+								<aura:if isTrue="{!v.isLoaded == true}">
+									<!-- START gianluigi.virga 09/09/2019 - UX-55 -->
+									<!-- <c:AutoCompleteComponentPostel objectDataMap="{!v.objectDataMap}"
+										addressMapping="{!v.postelcomponentparamsadmoffice}"
+										aura:id="AutoCompleteComponentPostelAdmAddress" /> -->
+									<c:OB_FreeInputAddress objectDataMap="{!v.objectDataMap}"
+															addressMapping="{!v.postelcomponentparamsadmoffice}"
+															aura:id="AutoCompleteComponentPostelAdmAddress"
+															changeLayout="true" 
+															isEqualsAddress="{!v.isEqualsAddress}"/>
+									<!-- END gianluigi.virga 09/09/2019 - UX-55 -->
+								</aura:if>
+							</aura:if>
+						</lightning:accordionSection>
+					</lightning:accordion>
+				</aura:if>
+		    	</div>
+			    <aura:if isTrue="{!v.showMerchantDetails}">
+				    <lightning:buttonGroup class="slds-grid slds-align_absolute-center">
+					    <aura:if isTrue="{! equals(v.status,'EDIT')}">
+					    	<div class="slds-p-around_xx-small">
+						    	<lightning:button class="button-modify" variant="neutral" aura:id="undo"
+						    		label="{!$Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON}"
+						    		title="{!$Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON}" onclick="{! c.revertModify }" />
+					    	</div>
+						    <div class="slds-p-around_xx-small">
+						    	<lightning:button class="button-modify" variant="brand" aura:id="SaveButton" label="{!$Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON}" onclick="{! c.savecustom }" />
+						    </div>
+				    	</aura:if>
+		    		</lightning:buttonGroup>
+		    	</aura:if>
+	    	</aura:if>
+		    <!-- NEXI-94 Marta Stempien <marta.stempien@accenture.com> 27/05/2019 Start -->
+		    <aura:if isTrue="{!v.showExecutorDetails}">
+		    	<c:OB_Maintenance_EditNewExecutor_intermediate  FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}" showMerchantDetails="{!v.showMerchantDetails}" />
+		    </aura:if>
+		    <!-- NEXI-94 Marta Stempien <marta.stempien@accenture.com> 27/05/2019 Stop -->
+	    </aura:set>
+    </aura:if>
+    <!-- End antonio.vatrano  Shortcut Maintenance Operation -->
+
+
+
+	<!--OB_Maintenance_EditAccount_CompanyDetails -->
+
+
+
+	<aura:if isTrue="{!v.documentationRequired}">
+		<c:strike_modal
+		    title="{!$Label.c.OB_MAINTENANCE_DOCUMENTS}"
+		    primaryButtonLabel="Ok"
+		    secondaryButtonLabel="Cancel"
+		    showHeader="true"
+		    showFooter="false"
+		    showClose="false"
+		    showModal="{!v.documentationRequired}"
+            size="large">
+			<c:OB_Maintenance_AttachedDocumentations logRequests = "{!v.logRequestsRequiringDocumentation}" recordId="{!v.logRequestId}" isDraftModal="true" showSaveButton="{!v.showSaveButton}" listIsEmpty = "{!v.listEmpty}" saeAtecoHasChanged="{!v.saeAtecoHasChanged}" isTEEdit="{!v.isTEEdit}"/>
+            <!-- NEXI-298 Marta Stempien <marta.stempien@accenture.com> 10/09/2019 Added logRequests param-->
+
+		    <lightning:buttonGroup class="slds-align_absolute-center" >
+				<aura:if isTrue = "{!!v.listEmpty}">
+					<div>
+						<lightning:button class ="draft" variant="neutral" aura:id="SaveAsDraft"  label="{!$Label.c.OB_MAINTENANCE_SAVEASDRAFT}" title="{!$Label.c.OB_MAINTENANCE_SAVEASDRAFT}" onclick="{! c.saveAsDraft }" />
+					</div>
+					<!-- micol.ferrari 24/01/2019 - REMOVED class="close" -->
+					<div>
+						<lightning:button variant="brand" aura:id="closeModal"  label="{!$Label.c.OB_MAINTENANCE_CONFIRM}" title="{!$Label.c.OB_MAINTENANCE_CONFIRM}" onclick="{! c.closeModal }" />
+					</div>
+					<aura:set attribute="else">
+						<lightning:button variant="brand" aura:id="closeModal"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_CLOSEBUTTON}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_CLOSEBUTTON}" onclick="{! c.closeModalNoDocs }" />
+					</aura:set>
+				</aura:if>
+			</lightning:buttonGroup>
+
+		</c:strike_modal>
+	</aura:if>
+	<!-- NEXI-56 grzegorz.banach@accenture.com 23.05.2019 START -->
+	<lightning:accordion allowMultipleSectionsOpen="true">
+		<lightning:accordionSection name="ActualOwnersData" label="{!$Label.c.OB_ActualOwnerData}">
+			<!--NEXI-58 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 30/05/2019 Start-->
+			<aura:if isTrue="{! v.isLoaded }">
+				<aura:if isTrue="{! v.refreshOwnersTable }">
+					<c:OB_LCP006_ContactDataTable tableData="{!v.tableData}"
+												  accountId="{!v.objectDataMap.acc.Id}"
+												  fiscalCodes="{! v.fiscalCodes }"
+												  isTEDeletePossible="{!v.isTEDeletePossible}"
+												  isTEInsertPossible="{!v.isTEInsertPossible}"
+
+					/>
+				</aura:if>
+			</aura:if>
+
+			<lightning:layout>
+				<lightning:layoutItem size="3">
+				</lightning:layoutItem>
+				<lightning:layoutItem size="6">
+					<lightning:layout >
+						<lightning:layoutItem padding="horizontal-small" >
+							<lightning:button label="{!$Label.c.OB_NewEffectiveOwner}" variant="brand" onclick="{!c.openOwnerSectionModal}" disabled="{! v.hasLogRequest || !v.isTEInsertPossible }"/>
+						</lightning:layoutItem>
+						<lightning:layoutItem padding="horizontal-small">
+							<lightning:button label="{!$Label.c.OB_ConfirmChangeOfOwners}" variant="brand" disabled="{!!v.areChangesOnOwnerSection}" onclick="{!c.confirmOwnerChanges}"/>
+						</lightning:layoutItem>
+						<lightning:layoutItem padding="horizontal-small">
+							<lightning:button label="{!$Label.c.OB_CancelChangeOfOwners}" disabled="{!!v.areChangesOnOwnerSection}" onclick="{!c.cancelOwnerChanges}"/>
+						</lightning:layoutItem>
+					</lightning:layout>
+				</lightning:layoutItem>
+				<lightning:layoutItem size="3">
+				</lightning:layoutItem>
+			</lightning:layout>
+
+			<aura:if isTrue="{!v.showTEmodal}">
+				<!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 START added fiscalCodes-->
+				<c:OB_LCP006_NewOrModifyContactModal accountId="{!v.objectDataMap.acc.id}"
+													 oldContact="{!v.newContactEmptyObject}"
+													 isNewContact="true"
+													 fiscalCodes="{! v.fiscalCodes }"
+													 showTEmodal="{! v.showTEmodal }"
+				/>
+				<!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 STOP-->
+			</aura:if>
+			<!--NEXI-58 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 30/05/2019 Stop-->
+		</lightning:accordionSection>
+	</lightning:accordion>
+	<!-- NEXI-56 grzegorz.banach@accenture.com 23.05.2019 END -->
+</aura:component>

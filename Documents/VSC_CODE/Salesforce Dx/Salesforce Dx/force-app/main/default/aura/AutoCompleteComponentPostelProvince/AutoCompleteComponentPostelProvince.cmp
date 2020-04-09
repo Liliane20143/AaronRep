@@ -1,0 +1,143 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="AutoCompleteComponentController">
+	
+	<ltng:require styles="{! $Resource.jqueryuiCSS}" scripts="{!join(',', $Resource.JQueryResourceCode ,  $Resource.jqueryuiJS) }"/>
+
+	<!-- START::: Doris T 20/09/2018 -->
+	<!--<aura:handler name="change" value="{!v.objectDataMap.setRedBorder}" action="{!c.setRedBorder}"/> --> 
+	<!-- END::: Doris T 20/09/2018 --> 
+	<!--COMPONENT EVENT SENDER-->
+	<aura:registerEvent name="AutocompleteEvent" type="c:OB_AutocompleteEvent"/>
+	<!-- calling event handling action method. "name" attribute should be same
+   as mentioned on event registration in child component -->
+	<aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:method name="reInit" action="{!c.doInit}" description="Runs the init method again ">
+	</aura:method>
+	<aura:method name="blankValue" action="{!c.blankValue}" description="set to blank the value">
+	</aura:method>
+	<aura:attribute name="provinceList" type="List" default="{}" access="global"/>
+	<aura:attribute name="responseProv" type="Object" default="{}" access="global"/>
+	<aura:attribute name="response" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"   access="global"/>
+	<aura:attribute name="valueProvince" type="String" default=""/>
+	<aura:attribute name="provinceValue" type="String" />
+	<aura:attribute name="provinceValue2" type="String" default="" />
+	<aura:attribute name="caps" type="List"  />
+	<aura:attribute name="disabledInput_sp" type="Boolean"/> 
+	<aura:attribute name="triggleSpinner" type="Boolean" default = "false"/>
+	<aura:attribute name="provinceString" type="String" />
+	<aura:attribute name="provinceCodeString" type="String" />
+	<aura:attribute name="provinceId" type="String" default="provincia"/>
+	<aura:attribute name="provinceEEId" type="String" default="provinceEE"/>
+	<aura:attribute name="provinceMap" type="Object" default="{}" access="global"/>
+	<aura:attribute name="isEE" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="province" type="String" default=""/>
+
+	<!-- START  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+  	<aura:attribute name="identifier" type="String" default="" access="global"/>
+  	<aura:attribute name="field" type="Object" default="{}" access="global"/>
+  	<aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+  	<!-- END  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+  	<!-- START giovanni spinelli 23/11/2018 - map and list of province and symbol -->
+  	<aura:attribute name="mapSymbolProvince" type="Map" default="{}" access="global"/>
+  	<aura:attribute name="provinceListFromService"      type="List" default="[]" access="global"/>
+  	<!-- START giovanni spinelli 23/11/2018 - map and list of province and symbol -->
+
+  	<!-- START 	micol.ferrari 21/12/2018 -->
+	<aura:attribute name="isServiceDown" type="Boolean" default="false" access="global"/>
+ 	<!-- END 	micol.ferrari 21/12/2018 -->
+
+	<!-- NEXI-245 Marta Stempien <marta.stempien@accenture.com> 01/08/2019 Start -->
+	<aura:attribute name = "isTrueDisableFields" 	type = "Boolean" 	default="false" 					access = "global" 	description = "Value is set to true when specified fields should be disabled" />
+	<aura:attribute name = "disabledFields" 		type = "List" 		default="['OB_Birth_State__c']" 	access = "private"	description = "List contains fields for which province input should be disabled in some cases" />
+	<aura:attribute name = "isLoaded" 				type = "Boolean" 	default="false" 					access = "private" 	description = "Value is set when in the end of init function" />
+	<!-- NEXI-245 Marta Stempien <marta.stempien@accenture.com> 01/08/2019 Stop -->
+
+
+	
+  <div class="slds-p-around--medium slds-form-element">
+			<!-- {!$Label.c.Province} -->
+			<!-- START  micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+			<aura:if isTrue="{!v.addressMapping.sectionaddress=='sedelegale'}">
+				  <label class="slds-form-element__label" for="{!$Label.c.OB_Legal_Address_Province}">
+						<aura:if isTrue="{!v.isEE != true}"><abbr class="slds-required" title="required">*</abbr></aura:if>{!$Label.c.OB_Legal_Address_Province}
+				  </label>
+			</aura:if>
+			<aura:if isTrue="{!v.addressMapping.sectionaddress=='sedeamministrativa'}">
+				  <label class="slds-form-element__label" for="{!$Label.c.OB_Administrative_Office_State}">
+						<aura:if isTrue="{!v.isEE != true}"><abbr class="slds-required" title="required">*</abbr></aura:if>{!$Label.c.OB_Administrative_Office_State}
+				  </label>
+			</aura:if>
+			<aura:if isTrue="{!v.addressMapping.sectionaddress=='generaladdress'}">
+				  <label class="slds-form-element__label" for="{!$Label.c.OB_Address_Province}">
+						<aura:if isTrue="{!v.isEE != true}"><abbr class="slds-required" title="required">*</abbr></aura:if>{!$Label.c.OB_Address_Province}
+				  </label>
+			</aura:if>
+			<aura:if isTrue="{!v.addressMapping.sectionaddress=='documentrelease'}">
+				  <label class="slds-form-element__label" for="{!$Label.c.OB_Document_Release_State}">
+						<aura:if isTrue="{!v.isEE != true}"><abbr class="slds-required" title="required">*</abbr></aura:if>{!$Label.c.OB_Document_Release_State}
+				  </label>
+			</aura:if>
+			<aura:if isTrue="{!v.addressMapping.sectionaddress=='birthaddress'}">
+				  <label class="slds-form-element__label" for="{!$Label.c.OB_Birth_State}">
+						<aura:if isTrue="{!v.isEE != true}"><abbr class="slds-required" title="required">*</abbr></aura:if>{!$Label.c.OB_Birth_State}
+				  </label>
+			</aura:if>
+			
+			<aura:if isTrue="{!v.addressMapping.sectionaddress=='CCIAA'}">
+				<label class="slds-form-element__label" for="{!$Label.c.OB_CCIAA_ProvinceLabel }">
+					{!$Label.c.OB_CCIAA_ProvinceLabel }
+				</label>
+			</aura:if>        
+			<!-- END  micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+			<aura:if isTrue="{!and(!v.isEE, v.isLoaded)}" > <!-- NEXI-245 Marta Stempien <marta.stempien@accenture.com 01/08/2019 Added condition to aura:if-->
+				<div class="slds-form-element__control">
+					<input  disabled="{!v.addressMapping.provincedisabled}"
+							id="{!v.provinceId}"
+						   	class="flow_required slds-input"
+						   	label=""
+						   	value="{!v.provinceString}"
+						   	type="text"
+						   	onchange="{!c.getValue}"
+						   	onfocus="{!c.callProvince}"
+							onkeyup="{!c.provincia}"
+						   	onkeydown="{!c.clearInput }"
+						   	onblur="{!c.removeRedBorder}"
+						   	name="provincia"/>
+				</div>
+				 <div class="slds-form-element__control">
+					<input id="provincecode"   
+						   label=""
+						   value="{!v.provinceCodeString}" 
+						   type="text" 
+						   class="slds-hide"
+						   name="zipCode"/>
+					
+				</div>
+			 </aura:if>
+			 <aura:if isTrue="{!v.isEE == true}">
+				<div class="slds-form-element__control">
+					<input  disabled="{!v.addressMapping.provincedisabled}"
+						   id="{!v.provinceEEId}"  
+						   class="flow_required slds-input" 
+						   label=""
+						   value="{!v.provinceString}" 
+						   type="text" 
+						   onchange="{!c.getValueEE}" 
+						   />
+				 </div>
+			 </aura:if>
+				<div class="slds-input__icon-group slds-input__icon-group_right" style = "width: 40px; height: 37px;">
+					<div role="status" class=" slds-spinner_brand slds-spinner_x-small slds-input__spinner">
+					  
+					  <aura:if isTrue="{! v.triggleSpinner}"> 
+						<div role="status" class="slds-spinner slds-spinner_brand slds-spinner_small">
+							<span class="slds-assistive-text">Loading</span>
+							<div  class="slds-spinner__dot-a"></div>
+							<div  class="slds-spinner__dot-b"></div>
+						</div>
+					  </aura:if>
+				  </div>
+			</div>
+		</div>
+</aura:component>

@@ -1,0 +1,91 @@
+<aura:component>
+    <div class="slds-grid slds-gutters slds-wrap labelsHeader calendarAndEditingSection" style="width:100%">	
+        <!--R1F2_RP_010 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 08/04/2019 Start-->
+        <div class="slds-col slds-size_1-of-12 voceClass">
+            <span>
+                <p class="minLabelHeader">
+                    <label class="labelAndTitles" >{!$Label.c.OB_Item}</label>
+                    <br> </br>
+                </p>
+            </span>
+        </div>
+        <div class="slds-col slds-size_1-of-12 labelHeaderSubDiv">
+            <span>
+                <p class="minLabelHeader" style="text-align:center">
+                    <label class="labelAndTitles " >{!$Label.c.OB_Value} </label>
+                </p>
+            </span>
+        </div>
+        <div class="slds-col slds-size_1-of-12 labelHeaderSubDiv">
+            <span>
+                <p class="labelHeaderText minLabelHeader">
+                    <label class="labelAndTitles">  {!$Label.c.OB_MaximumPrice} </label>
+                </p>
+            </span>
+        </div>
+        <div class="slds-col slds-size_1-of-12 labelHeaderSubDivNoBoder">
+            <span>
+                <p class="labelHeaderText minLabelHeader">
+                    <label class="labelAndTitles" >{!$Label.c.OB_MinimumValue}</label>
+                </p>
+            </span>
+        </div>
+        <div class="slds-col slds-size_1-of-12 labelHeaderSubDiv">
+            <span>
+                <p class="labelHeaderText minLabelHeader">
+                    <label class="labelAndTitles" >{!$Label.c.OB_MaximumValue}</label>
+                </p>
+            </span>
+        </div >
+        <div class="slds-col slds-size_1-of-12 labelHeaderSubDivNoBoder ">
+            <span>
+                <p class="labelHeaderText minLabelHeader">
+                    <label class="labelAndTitles" >{!$Label.c.OB_L3_Min}</label>
+                </p>
+            </span>
+        </div>
+        <div class="slds-col slds-size_1-of-12 labelHeaderSubDivNoBoder ">
+            <span>
+                <p class="labelHeaderText minLabelHeader">
+                    <label class="labelAndTitles" >{!$Label.c.OB_L2_Min}</label>
+                </p>
+            </span>
+        </div>
+        <div class="slds-col slds-size_1-of-12 labelHeaderSubDivNoBoder">
+            <span>
+                    <p class="labelHeaderText minLabelHeader">
+                        <label class="labelAndTitles" >{!$Label.c.OB_L1_Min}</label>
+                </p>
+            </span>
+        </div>
+        <div class="slds-col slds-size_1-of-12 labelHeaderSubDivNoBoder">
+            <span>
+                <p class="labelHeaderText minLabelHeader">
+                    <label class="labelAndTitles" >{!$Label.c.OB_L1_Max}</label>
+                </p>
+            </span>
+        </div>
+        <div class="slds-col slds-size_1-of-12 labelHeaderSubDivNoBoder">
+            <span>
+                <p class="labelHeaderText minLabelHeader">
+                    <label class="labelAndTitles" >{!$Label.c.OB_L2_Max}</label>
+                </p>
+            </span>
+        </div>
+        <div class="slds-col slds-size_1-of-12 labelHeaderSubDivNoBoder">
+            <span>
+                    <p class="labelHeaderText minLabelHeader">
+                        <label class="labelAndTitles" >{!$Label.c.OB_L3_Max}</label>
+                </p>
+            </span>
+        </div>
+        <div class="slds-col slds-size_1-of-12 labelHeaderSubDivBorderLeft">
+            <span>
+                <p class="labelHeaderText minLabelHeader">
+                    <label class="editHeaderTable" >{!$Label.c.OB_Editable}?</label>
+                </p>
+            </span>
+        </div>
+    </div>
+    <!--R1F2_RP_010 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 08/04/2019 Start-->
+</aura:component>

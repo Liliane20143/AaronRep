@@ -1,0 +1,21 @@
+.THIS .cell-break-line{
+	white-space: normal !important;
+}
+
+.THIS .minimal-window-height  {
+    height: 60vh;
+}
+
+.THIS .navigation  {
+    min-width: 200px;
+    border-right: 1px solid #e7e7e7;
+}
+
+.THIS .warning-color {
+	color: #9c6d00;
+}
+
+.THIS .absolute-positioning {
+	position: absolute;
+    z-index: 1;
+}

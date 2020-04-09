@@ -1,0 +1,21 @@
+<aura:component implements="force:lightningQuickAction,force:hasRecordId" access="global" 
+	controller="OB_RetrieveAnagraficaSPController">
+    <aura:attribute name="servicePointsFromService" type="NE__Service_Point__c[]" default="{}" access="global"/>
+    <aura:attribute name="recordId" type="String" default="{}" access="global"/>   
+    <aura:attribute name="responseServicePoint" type="NE__Service_Point__c" default="{}" access="global"/>
+    <aura:attribute name="responseServiceServicePoint" type="NE__Service_Point__c" default="{}" access="global"/>
+    <aura:attribute name="ServicePointFromSalesforce" type="NE__Service_Point__c" default="{}" access="global"/>
+    <aura:attribute name="ServicePointFromService" type="NE__Service_Point__c" default="{}" access="global"/>
+    <aura:attribute name="FiscalCode" type="String" default="{}" access="global"/>
+    <aura:attribute name="MCC" type="String" default="{}" access="global"/>
+    <aura:attribute name= "ZipCode" type="String" default="{}" access="global"/>
+    <aura:attribute name= "Processor" type="String" default="{}" access="global"/>
+        <aura:iteration items="{!v.servicePointsFromService}" var="servicePointFromService">
+        <tr>
+            <td><div class="slds-truncate" title="{!servicePointFromService.Name}">{!servicePointFromService.Name}</div></td>
+            <td><div class="slds-truncate" title="{!servicePointFromService.Type}">{!servicePointFromService.Type}</div></td>
+        </tr>
+    </aura:iteration>
+    <aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+    <aura:handler name="init" action="{!c.handleClick}" value="{!this}"/>
+</aura:component>

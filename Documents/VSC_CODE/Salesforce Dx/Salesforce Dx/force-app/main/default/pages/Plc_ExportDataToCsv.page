@@ -1,0 +1,16 @@
+<apex:page controller="Plc_ExportDataToCsvCnt" action="{!exportToExcel}" readOnly="true" contentType="application/vnd.ms-excel#{!titleHead}.csv">
+Applied filters
+Logistic Division:  {!ldnToShow}
+Warehouse:  {!warehouseName}
+Solution:  {!solutionNameToShow}
+Model:  {!modelName}
+Date:  {!dateToShow}
+Time:  {!timeToShow}
+
+{!header}
+
+
+  <apex:repeat value="{!allstring}" var="a">
+    <apex:outputText value="{!a}"/>
+  </apex:repeat>
+</apex:page>

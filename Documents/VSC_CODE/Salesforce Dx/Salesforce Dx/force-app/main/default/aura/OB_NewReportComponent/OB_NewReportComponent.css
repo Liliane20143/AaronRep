@@ -1,0 +1,7 @@
+.THIS .selected{
+    color:orange;
+}
+
+.THIS .slds-button_icon-bare { 
+    display: none;    
+}

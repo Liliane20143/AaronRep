@@ -1,0 +1,10 @@
+<aura:event type="APPLICATION" description="Event template">
+	<aura:attribute name="checkAttributeRules" type="String"/> <!--values accepted: ok, warning or error -->
+	<aura:attribute name="IdChildItem" type="String"/>
+	<aura:attribute name="ChildItem" type="Object"/>
+	<aura:attribute name="ChildItemAttribute" type="Object"/>
+	<aura:attribute name="regexField" type="String"/>
+
+	<aura:attribute name="newValue" type="Decimal"/> <!--francesca.ribezzi 25/11/19 - performance - adding new and old value to pass these to FlowCart -->
+	<aura:attribute name="oldValue" type="Decimal"/> 
+</aura:event>

@@ -1,0 +1,48 @@
+.THIS .hidden{
+    display: none;
+}
+
+
+
+.THIS .nextBtnOverride{
+   /* z-index: 1000;
+    position:absolute;
+   
+    left: 94%;*/
+}
+
+.THIS .previousBtn{
+     /*z-index: 1000;
+    position:absolute;
+    left: 87%;*/
+}
+/* On screens that are 992px or less */
+/*@media screen and (max-width: 992px) {
+  .THIS .nextBtnOverride{
+        z-index: 1000;
+        position:absolute;
+        top: 101%;
+        left: 80%;
+  }
+}
+
+
+@media screen and (max-width: 600px) {
+     .THIS .nextBtnOverride{
+         z-index: 1000;
+         position:absolute;
+         top: 101%;
+         left: 68%;
+  }
+}*/
+
+.THIS .buttonGroup{
+     margin-bottom: 0.7%;
+     float:right;
+}
+
+.THIS .padding-button{
+	
+	padding-bottom: 4%;
+	
+}

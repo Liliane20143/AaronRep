@@ -1,0 +1,26 @@
+<aura:component >
+    <aura:attribute name="selectable" type="Boolean" default="false" />
+    <aura:attribute name="selected" type="Boolean" default="false" />
+    <aura:attribute name="highlighted" type="Boolean" default="false" />
+    <aura:attribute name="rendered" type="Boolean" default="true" />
+    
+    <aura:if isTrue="{!v.rendered}">
+        <tr class="{!'slds-hint-parent ' + (v.highlighted ? 'row-highlighted' : '')}">
+            <aura:if isTrue="{!v.selectable}">
+                <td>
+                    <div class="slds-checkbox" onclick="{!c.checkboxClicked}">
+                        <input type="checkbox" checked="{!v.selected}"/>
+                        <label class="slds-checkbox__label">
+                            <span class="slds-checkbox_faux">
+                            </span>
+                            <span class="slds-form-element__label slds-assistive-text">
+                                Select this item
+                            </span>
+                        </label>
+                    </div>
+                </td>
+            </aura:if>
+            {!v.body}
+        </tr>
+    </aura:if>
+</aura:component>

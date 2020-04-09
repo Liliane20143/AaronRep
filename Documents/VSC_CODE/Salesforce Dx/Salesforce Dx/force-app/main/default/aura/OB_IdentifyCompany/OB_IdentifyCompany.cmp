@@ -1,0 +1,876 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" 
+				access="global"
+				controller="OB_IdentifyCompany_CC">
+	
+	<ltng:require  scripts="{!$Resource.FiscalCodeControl2}" afterScriptsLoaded="{!c.doInit}"/>
+	
+     
+	<aura:registerEvent name="appEvent" type="c:OB_EventNextButton"/>
+	<!--CALL SERVICE EVENT-->
+	<aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+	<!-- START  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+    <aura:attribute name="postelcomponentparams" type="Object" default="{}" access="global"/>
+    <!-- END  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW --> 
+	<aura:attribute name="hideField"                type="Boolean"  default="{!v.objectDataMap.hideField}"   access="global"/>
+	<aura:attribute name="fiscalCode"               type="String"   default=""       access="global"/>
+	<aura:attribute name="userId"                   type="String"                    access="global"/>
+	<aura:attribute name="bankId"                   type="String"                    access="global"/>
+	<aura:attribute name="accountList"              type="Account[]" default="[]"    access="global"/><!-- ???-->
+	<aura:attribute name="merchantServiceList"      type="Object" default ="{}"   				/><!--save the service merchant results-->
+	<aura:attribute name="selectedRows" 			type="List" 					 access="global"/>
+	<aura:attribute name="columns" 					type="List" 					 access="global"/>
+	<aura:attribute name= "ErrorMessageFiscalCode"  type="String"    default=""      access="global"/>
+	<aura:attribute name= "ErrorBooleanFiscalCode"  type="Boolean"   default="false" access="global"/>
+	<aura:attribute name= "ErrorMessageVat"  		type="String"    default=""      access="global"/>
+	<aura:attribute name= "ErrorMessagePhone"  		type="String"    default=""      access="global"/>
+	<aura:attribute name= "ErrorBooleanPhone"  		type="Boolean"   default="false" access="global"/>
+	<aura:attribute name= "ErrorMessageEmail"  		type="String"    default=""      access="global"/>
+	<aura:attribute name= "ErrorBooleanEmail"  		type="Boolean"   default="false" access="global"/>
+	<aura:attribute name= "ErrorMessageannualRevenue"  		type="String"    default=""      access="global"/>
+	<aura:attribute name= "ErrorBooleanannualRevenue"  		type="Boolean"   default="false" access="global"/>
+	<aura:attribute name= "ErrorMessageannualNegotiated"  		type="String"    default=""      access="global"/>
+	<aura:attribute name= "ErrorBooleanannualNegotiated"  		type="Boolean"   default="false" access="global"/>
+	<aura:attribute name= "redBorderChild"  		type="Boolean"   default="false" access="global"/>
+	<aura:attribute name= "showHidePicklist"  		type="Boolean"   default="{!v.objectDataMap.showHidePicklist}" access="global"/>
+	<aura:attribute name="merchantFromSFDC"         type="Object"    default="{}"    access="global"/>
+	<aura:attribute name="legalFormMap"             type="Object"    default="{}"    access="global"/>
+	<aura:attribute name="countryMap"               type="Object"    default="{}"    access="global"/>
+	<aura:attribute name= "isLoading"  		        type="Boolean"   default="false" access="global"/>
+	<aura:attribute name= "resultFromPromise"  	    type="String"    default=""      access="global"/>
+	<aura:attribute name= "isTimeOut"  		        type="Boolean"   default="false" access="global"/>
+	
+            
+
+	
+	
+	<aura:attribute name= "ErrorBooleanVat"  		type="Boolean"   default="false" access="global"/>
+	<aura:attribute name="hideFiscalCode"           type="Boolean"   default="{!v.objectDataMap.hideFiscalCode}" access="global"/>
+	<aura:attribute name="hideVat"                  type="Boolean"   default="{!v.objectDataMap.hideVat}"        access="global"/>
+	<aura:attribute name="showButtons"              type="Boolean"   default="{!v.objectDataMap.showButtons}" />  <!--default value for previous button-->
+	<aura:attribute name="disableName"              type="Boolean"   default="{!v.objectDataMap.disableName}" />
+	
+	<aura:attribute name="showMerchantData"         type="Boolean"   default="{!v.objectDataMap.showMerchantData}" />
+	<aura:attribute name="searchMerchantButton"     type="Boolean"   default="{!v.objectDataMap.searchMerchantButton}" />
+	<aura:attribute name="booleanForNewMerchant"    type="Boolean"   default="false"  description="used to understad if I have or not a merchant from service"/>
+	<aura:attribute name="idAnnualRevenure"         type="Object"    default="{}" description="store the id from annual revenue picklist"/>
+	
+	<aura:attribute name="toggleSpinner"            type="boolean"   default="false"				 description="set the spinner after the merchant search"      />
+	<aura:attribute name="nameVat"                  type ="String"/>
+	<aura:attribute name="showOtherInput"           type="boolean"   default="{!v.objectDataMap.showOtherInput}" description="show the service point input"                   />
+	<aura:attribute name="annualRevenueList"        type="Map"      default=""                      description="the list where are salved the annual revenue values" />
+	<aura:attribute name="annualNegotiatedList"     type="Map"       default=""						 description="the list where are salved the annual negotiation values"/>
+	<aura:attribute name="employeesNumberList"      type="List"      default=""						 description="the list where are salved the employees Number values"/>
+	<aura:attribute name="valuePreviousAnnRev"      type ="String"   	/>
+	<aura:attribute name="valuePreviousAnnNeg"      type ="String"   	/>
+	<aura:attribute name="valuePreviousEmplNumb"    type ="String"   	/>
+
+	<aura:attribute name="listCodeSFDCnotInMIP"     type="List"      default=""/>   
+	<aura:attribute name="listCodeMIPnotInSFDC"     type="List"      default=""/>
+
+	<aura:attribute name="showModal"                type="Boolean"   default="{!v.objectDataMap.showModal}"/>
+	<aura:attribute name="disabledVat"              type="Boolean"   default="{!v.objectDataMap.disabledVat}"/>
+	<aura:attribute name="showPvErrorMessage"       type="Boolean"   default=""/>
+	<aura:attribute name="showNewOrder"             type="Boolean"   default=""/>
+	<aura:attribute name="disableDescriptionVat"    type="Boolean"   default="{!v.objectDataMap.disableDescriptionVat}"								 description="disable the modal input if there is a merchant" /> 
+	<aura:attribute name="messagetoshow" 			type="String"	 default="" 					 description="message for error banner"/>
+	<aura:attribute name="hasMessage" 				type="Boolean" 	 default="false"/>
+	<aura:attribute name="showAlertNewReasearch"    type="Boolean" 	 default="false"				 description="boolean to open the modal of new research"/>
+	<aura:attribute name="showShopSignInput"     	type="boolean" 					default="false" access="global" />
+
+	<aura:attribute name="showMerchantModal"        type="Boolean"   default="false"/>
+	<aura:attribute name="setUppercCaseMethod"      type="Boolean"   default="true"/>
+	<aura:attribute name="merchantNull"             type="Boolean"   default="false"/>
+	
+	<aura:attribute name="wizardWrapper"            type="Object"    default="{}"    access="global"/>
+	<aura:attribute name="objectDataMap"            type="Object"    default="{}"    access="global"/>
+	<aura:attribute name="accId"                    type="String"    default="{!v.objectDataMap.merchant.Id}" /> 
+	<aura:attribute name="nextCheckout"             type="String"    default="{!v.objectDataMap.unbind.nextCheckout}" />
+	<aura:attribute name="objectKey"                type="String"    default=""      access="global"/>
+	<aura:attribute name="identifier"               type="String"    default=""      access="global"/>
+	<aura:attribute name="field"                    type="Object"    default="{}"    access="global"/>
+	
+	<!-- francesca.ribezzi 23/08/2018 attributes for ABI and CAB-->
+	<!-- START -->    
+	<aura:attribute name="type"    		               type="String"                 />
+	<aura:attribute name="subType" 					   type="String"                 />
+	<aura:attribute name="objectString" 			   type="String"                 />
+	<aura:attribute name="mapOfSourceFieldTargetField" type="Map"                    />
+	<aura:attribute name="mapLabelColumns" 			   type="Map"    default="{}"    />
+	<aura:attribute name="messageIsEmpty"              type="String" default=""      />
+	<aura:attribute name="orderBy"                     type="String"                 /> 
+	<aura:attribute name="disabled"                    type="Boolean" default="false"/> 
+	<aura:attribute name ="disabledCAB" 			   type="Boolean" default="{!v.objectDataMap.disabledCAB}" />
+	<aura:attribute name ="disabledABI" 			   type="Boolean" default="{!v.objectDataMap.disabledABI}" />
+	<aura:attribute name="searchABI" 				   type="Boolean" default="false"/>    
+	<aura:attribute name="subTypeField"                type="String"                 /> 
+	<aura:attribute name="correctABI" 			       type="Boolean" default="{!v.objectDataMap.correctABI}"/> 
+	<aura:attribute name="correctCAB"                  type="Boolean" default="{!v.objectDataMap.correctCAB}"/> 
+	<aura:attribute name="showFiscalCodeSection"       type="Boolean" default="false" access="global"/> 
+	<aura:attribute name="isCommunityUser"             type="Boolean" default="false"/> 
+	<!-- END -->
+	<aura:attribute name="showModalErrorParsing"       type="Boolean" default="false"/> 
+	
+	<!-- Doris D. ****** 07/03/2019 ***** START-->
+	<aura:attribute name="setMerchantFC"               type="Boolean" default="true"/>
+	<aura:attribute name="showMessage"       		   type="Boolean" default= "false"/>
+	<aura:attribute name="showMessageresetButton"      type="Boolean" default= "false"/>
+	<aura:attribute name="showMessageCheckbox"         type="Boolean" default= "false"/>
+	<!-- Doris D. ****** 07/03/2019 ***** END -->
+
+	<aura:attribute name="responseMerchant"            type="Object"  default="{}" access="global" description="save the call service response"/>
+	<!-- ANDREA MORITTU START 11/02/2019 -->
+	<aura:attribute name= "NDGError"				   type="Boolean" default="false" access="global"/>
+	<!-- ANDREA MORITTU END 11/02/2019 --> 
+	<!-- START gianluigi.virga 15/07/2019 - BACKLOG-153 -->
+	<aura:attribute name="checkInDate" type="String" access="global"/>
+	<!-- END gianluigi.virga - BACKLOG-153-->
+	<aura:attribute name="oldWrapperInformation"  		type="Object" access="global" />
+	<!-- ANDREA MORITTU START 2019.05.09 - ID_Stream_6_Subentro*/ --> 
+	<aura:attribute name="loadABIandCABcomponent"  		type="Boolean" access="global" />
+	<!-- ANDREA MORITTU END 2019.05.09 - ID_Stream_6_Subentro*/ --> 
+	<!--ANDREA MORITTU START 28-Jun-19 - Fix new Merchant on takeover - attribute for pass to identify service point sp typology-->
+	<aura:attribute name="oldInformationSPtype"			type="String"	default=""	access="global" />
+	<!--ANDREA MORITTU END 28-Jun-19 - Fix new Merchant on takeover - attribute for pass to identify service point sp typology-->
+	<!-- NEXI-30 Customer DS-2 & FG-2 grzegorz.banach@accenture.com 06.05.2019 START!-->
+	<aura:attribute name="isDocumentInfoModalVisible"   type="Boolean"  default="false" access="private" description="Defines if Document Modal for Bank Data modification should be visible"/>
+	<!-- NEXI-30 Customer DS-2 & FG-2 grzegorz.banach@accenture.com 06.05.2019 END!-->
+
+	<lightning:input aura:id="stepId" label="" name="testBoolean" class="slds-hide" value="step_getMerchant" />
+	
+	<aura:handler name="change"         value="{!v.correctABI}"      action="{!c.getBankProfile}"/> 
+	<aura:handler name="change"         value="{!v.correctCAB}"      action="{!c.getBankProfile}"/>
+	<!--davide.franzini - WN-212 - 30/07/2019 -->
+	<!-- <aura:handler name="init"           value="{!this}"              action="{!c.doInit}"/> -->
+	<aura:handler                       event="c:OB_EventNextButton" action="{!c.handleErrorEvent}"/>
+	<aura:handler name="showModalEvent" event="c:modalLookupEvent"   action="{!c.handleShowModalEventIdentifyCompany}"/> 
+	<aura:handler name="change"         value="{!v.isTimeOut}"       action="{!c.isTimeOutMethod}"/> 
+	
+	<aura:handler   name="change" value="{!v.objectDataMap.setRedBorder}" action="{!c.setRedBorder}"/> 
+
+	<aura:handler name="change" value="{!v.objectDataMap.merchant.OB_DescriptionVATNotPresent__c}" action="{!c.removeErrorMeassagefromVatNotPresent}"/>
+
+	<aura:handler name="change" value="{!v.objectDataMap.pvAlreadyExist }" action="{!c.showBannerSameSp}"/>
+	<!--spinelli giovanni 27/09/2019 start-->
+	<aura:attribute name="pvNode" type="Object" default="{}" access="global"/>
+	<aura:handler name="render" value="{!this}" action="{!c.onRender}"/>
+	<aura:attribute name ="isFromMaintenance" type="Boolean" default="false" access="global"/>
+	<aura:attribute name ="automaticServicePointId" type="String" default="" access="global"/>
+	<!--spinelli giovanni 27/09/2019 end-->
+
+	<!--NEXI-30 Customer DS- 2 & FG -2 grzegorz.banach@accenture.com 06/05/2019 START -->
+	<aura:handler name="modalEvent" event="c:OB_LEV000_ModalEvent" action="{!c.handleDocumentInfoEvent}"/>
+	<!--NEXI-30 Customer DS -2 & FG -2 grzegorz.banach@accenture.com 06/05/2019 END -->
+
+	<style>
+	.search-cf-button
+	{        
+	margin-top: 21px;
+	margin-left: 15%
+	}
+	.search-cf-button-container
+	{
+	text-align: -webkit-center;
+	}    
+	.error-input-message
+	{
+	position: absolute;
+	z-index: 1;
+	}
+	.slds-spinner_container
+	{
+	position: absolute;
+	z-index: 1;
+	}
+
+	.lens-search-button
+	{
+		margin-top: 20.5px !important;
+		margin-left: 3px !important;
+	}
+	.lens-search-button button 
+	{
+		width: 35px;
+		margin-left: -15px;
+	}
+	.lens-search-button button svg
+	{
+		margin-left: -6px;
+	}
+
+	.bit2flowDynWizard .slds-tabs_path .slds-is-current {
+    background-color: rgb(0, 112, 210);
+	}
+	.bit2flowDynWizard .slds-tabs_path .slds-is-current:hover{
+	    background-color: rgb(0, 95, 178);;
+	}
+	.bit2flowDynWizard .slds-tabs_path.slds-is-current + .slds-is-incomplete:before {
+	    background-color: rgb(0, 112, 210);
+	}
+	.bit2flowDynWizard .slds-tabs_path.slds-is-current + .slds-is-incomplete:before:hover {
+	    background-color: rgb(0, 112, 210);
+	}
+	.slds-tabs_path .slds-is-current+.slds-is-incomplete:before, .slds-tabs--path .slds-is-current+.slds-is-incomplete:before 
+	{
+	background-color: rgb(0, 112, 210);
+	} 
+	.lens-search-abicab-button
+	{
+	    width: 51px;
+	    height: 32px;
+	    border-top-left-radius: 0;
+	    border-bottom-left-radius: 0;
+	}
+	.ABICAB-input input
+	{
+	    border-top-right-radius: 0;
+	    border-bottom-right-radius: 0;
+	}
+	.slds-button_icon-brand{
+			border-radius: 50% ;
+			transform: rotate(90deg)!important;
+			margin-top: 19px;
+		}
+	</style>
+
+	<!-- NEXI-30 Customer DS -2 & FG -2 grzegorz.banach@accenture.com 06/05/2019 START -->
+	<aura:if isTrue="{!v.isDocumentInfoModalVisible}">
+		<c:OB_LCP000_GenericModal headerName="{!$Label.c.OB_Warning}"
+						   headerContent="{!$Label.c.OB_Company_Registration_Document_Required}"
+						   saveOrProceedButtonName="{!$Label.c.OB_Continue}"
+						   cancelButtonName="{!$Label.c.OB_Cancel}"
+						   isInvertedButtonOrder="true"
+		/>
+	</aura:if>
+	<!-- NEXI-30  Customer DS -2 & FG -2 grzegorz.banach@accenture.com 06/05/2019 END -->
+
+	<!--26/06/19 francesca.ribezzi removing duplicate OB_ABI_CAB_Selection cmp - HOTFIX -->
+
+	<!-- ANDREA MORITTU START 25/03/2019-->
+	<c:OB_ABI_CAB_Selection objectDataMap="{!v.objectDataMap}" 
+							correctABI= "{!v.correctABI}" 
+							correctCAB= "{!v.correctCAB}" 
+							showModalFromCabFieldUser="{!v.showModalFromCabFieldUser}" 
+							oldWrapperInformation="{!v.oldWrapperInformation}"/>
+	<!-- ANDREA MORITTU END 25/03/2019-->
+	<!--**********************************************BANNER MESSAGE WHEN THERE IS A PARSING ERROR FROM SERVICE-START*********************************************************-->
+	<aura:if isTrue="{!v.showModalErrorParsing}">
+		<div class="demo-only" style="height: 640px;">
+			<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-slide-up-saving slds-modal_medium">
+				
+				<div class="slds-modal__container">
+
+					<header class="slds-modal__header"  style="background-color: #c23934;">
+						<lightning:buttonIcon
+										class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+										iconName="utility:close" size="large" alternativeText="Close"
+										variant="bare" onclick="{!c.refreshPage}" />
+						<!-- <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.refreshPage}"> -->
+
+							
+							<span class="slds-assistive-text">Close</span>
+						<!-- </button> -->
+						<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate"><b style="color: white; font-family: helvetica;"> {!$Label.c.OB_ServerErrorHeader}</b></h2>
+					</header>
+					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1" style="background: #f5f5f0;">
+						<p style=" text-align: center; font-family: helvetica;">{!$Label.c.OB_ServerErrorMessage}</p>
+							
+					</div>
+							
+				</div>
+			</section>
+				<div class="slds-backdrop slds-backdrop_open"></div>
+		</div>
+	</aura:if>
+	<!--**********************************************BANNER MESSAGE WHEN THERE IS A PARSING ERROR FROM SERVICE-END*********************************************************--> 
+	<!--##########################################################################################################################################################-->
+	<!--**********************************************BANNER MESSAGE TO FORCE USER TO DO A RESEARCH-START*********************************************************--> 
+	<aura:if isTrue="{!v.hasMessage}">
+		<div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+			<span class="slds-assistive-text">error</span>
+
+			<!-- ERROR -->
+			
+				<span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small" title="Description of icon when needed">
+				
+				</span>
+			<h2>{!v.messagetoshow}</h2>&#160;&#160;<lightning:icon class="icon" iconName="utility:search"  variant="inverse" size="x-small"/> 
+			<button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close">
+				<span class="slds-assistive-text">Close</span>
+			</button>
+		</div>
+	</aura:if>
+	<!--**********************************************BANNER MESSAGE TO FORCE USER TO DO A RESEARCH-END***********************************************************-->
+	<!--##########################################################################################################################################################-->
+	<!--*******************************************************MODAL TO RESET THE RESEARCH-START******************************************************************-->
+	<aura:attribute name="Si" type="String" default=""/>
+	<aura:attribute name="No" type="String" default=""/>
+	<aura:if isTrue="{!v.showAlertNewReasearch}">
+		<div aura:id="modal" class="modalContainer" style="height: 800px;">
+			<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+				<div class="slds-modal__container" style = "height: 99%">
+					<header class="slds-modal__header">
+						<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+							<span class="slds-assistive-text">{!v.Close}</span>
+						</button>
+						<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!$Label.c.NewMerchantResearch}</h2>
+					</header>
+
+					<div class="slds-modal__content slds-p-around_large" id="modal-content-id-1">
+						<div class="slds-p-around_small">
+							<p>{!$Label.c.ResetResearchMessage}</p>
+						</div>
+						<fieldset class="slds-form-element">
+							<div class="slds-p-around_small slds-form-element__control">
+								<span class="slds-radio">
+									<input type="radio" aura:id="selectionIdYes" id="selectionYes" value="Si" name="newcontract" onclick="{!c.getSelection}" title="Yes_selection"/>
+									<label class="slds-radio__label" for="selectionYes">
+										<span class="slds-radio_faux"></span>
+										<span class="slds-form-element__label">{!v.Si}</span>
+									</label>
+								</span>
+							</div>
+							<div class="slds-p-around_small slds-form-element__control">
+								<span class="slds-radio">
+									<input type="radio" aura:id="selectionIdNo" id="selectionNo" value="No" name="newcontract" onclick="{!c.getSelection}" title="No_selection"/>
+									<label class="slds-radio__label" for="selectionNo">
+										<span class="slds-radio_faux"></span>
+										<span class="slds-form-element__label">{!v.No}</span>
+									</label>
+								</span>
+							</div>
+						</fieldset>
+					</div>
+
+					<div class="slds-size_1-of-12 slds-p-around_small search-cf-button-container"> 
+				
+					</div>
+					
+				</div>
+			</section>
+
+			 <div class="slds-backdrop slds-backdrop_open"></div>
+			
+		</div>
+	</aura:if>
+	<!--*******************************************************MODAL TO RESET THE RESEARCH-END********************************************************************--> 
+	
+	<div aura:id="step_container" id="step_container" class="step_getMerchant" style="width:100% !important;">
+		<div class="form" style="width:100% !important;">
+			<aura:if isTrue="{!v.toggleSpinner}">
+				<div class="slds-spinner_container">
+					<div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+						<span class="slds-assistive-text">Loading</span>
+						<div class="slds-spinner__dot-a"></div>
+						<div class="slds-spinner__dot-b"></div>
+					</div>
+				</div>
+			</aura:if> 
+			
+			
+			<!-- francesca.ribezzi 23/08/2018 END-->
+			<div class="slds-grid slds-size--1-of-1" >
+				<div class="slds-size--5-of-12 slds-grid">
+					<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+						<div class="slds-p-around--medium slds-form-element">
+							<!--*********************************************************************************************************************-->                   
+							<!-- aura:if added by Francesca: checking if ABI and CAB are correct, then showing fiscal code input--> 
+
+							<aura:if  isTrue="{!or(and(v.correctABI, v.correctCAB), v.showFiscalCodeSection)}" > 
+								<label class="slds-form-element__label" for="inputNameSample1" ><abbr class="slds-required" title="required">*</abbr>
+									
+									{!$Label.c.FiscalCode}</label>
+								
+									<lightning:input id="fiscalCode"
+													 aura:id="fiscalCode"
+													 label="" 
+													 type="text"
+													 name="FiscalCode"
+													 value="{!v.objectDataMap.merchant.NE__Fiscal_code__c}"
+													 
+													 disabled="{!v.hideFiscalCode}"
+													 onblur ="{!c.redBorderFiscalCode}"
+													 variant="label-hidden"
+													 class="flow_required , black-text "
+													 onchange="{!c.upperCaseMethod}"
+													 
+													 />
+							</aura:if> 
+							<!--******FISCAL CODE ERROR MESSAGE-START****** -->
+							<aura:if isTrue="{!v.ErrorBooleanFiscalCode}">
+								<div class="error-input-message">
+									{!v.ErrorMessageFiscalCode}                      
+								</div>
+							</aura:if>
+							<!--******FISCAL CODE ERROR MESSAGE-END   ******-->
+						</div>
+					</div>
+
+				</div>
+				<!-- Doris D. ****** 07/03/2019 ***** START-->
+				<div class="slds-form-element slds-small-size--1-of-12 slds-large-size--1-of-12 lens-search-button" >
+					<span class="slds-p-around--medium slds-form-element" id="btnSearchContainer" onmouseover="{!c.open}" onmouseout="{!c.close}" style = "padding: 42%!important; ">
+						<aura:if  isTrue="{!or(and(v.correctABI, v.correctCAB) , v.isCommunityUser) }" >
+							<span >
+								  <lightning:buttonIcon
+								  						variant="brand"
+														onclick="{!c.handleClickBack}"
+														iconName="utility:sort"
+														alternativeText=""
+														disabled="{!v.setMerchantFC}"
+
+
+													  /><!-- class="flow_required" -->
+							</span>
+						</aura:if>
+					</span>
+					<!-- start antonio.vatrano r1f2-49 30/04/2019 add condition for auraif-->
+					<aura:if isTrue="{!and(v.showMessage,or(and(v.correctABI, v.correctCAB), v.showFiscalCodeSection))}"> 
+					<!-- end antonio.vatrano r1f2-49  30/04/2019 add condition for auraif-->
+						<!-- START	micol.ferrari@accenture.com 09/04/2019 - ALIGNMENT WITH PROD -->
+						<span class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left" role="tooltip" id="help" style="position: absolute; top:-65px; left: 2px; pointer-events:none;width:20em">
+							<div class="slds-popover__body">{!$Label.c.OB_Copy}</div>              
+						</span> 
+						<!-- END	micol.ferrari@accenture.com 09/04/2019 - ALIGNMENT WITH PROD -->
+				   </aura:if>
+				</div>
+				<!-- Doris D. ****** 07/03/2019 ***** END  -->
+			
+				<div class="slds-size--5-of-12 slds-grid">
+					<div class="slds-form-element slds-small-size--11-of-12 slds-large-size--11-of-12">
+						<div class="slds-p-around--medium slds-form-element" >
+							<aura:if  isTrue="{!or(and(v.correctABI, v.correctCAB), v.showFiscalCodeSection)}" >
+								<label  class="slds-form-element__label" for="inputNameSample1" >
+									{!$Label.c.Value_Added_Tax}
+								</label>
+								<span> <lightning:input id="vat"
+														aura:id="vat"
+														label=""                                         
+														name="vat"
+														type="text"
+														onblur = "{! c.redBorderVat}"
+														variant="label-hidden"
+														value="{!v.objectDataMap.merchant.NE__VAT__c}"
+														class="flow_required "
+														onchange="{!c.upperCaseMethod}"
+														disabled="{!v.hideVat}"
+
+														/></span><!--onkeydown="{!c.helpErrorMessage}"-->
+							</aura:if>
+							<!--******VAT ERROR MESSAGE-START****** -->
+							<aura:if isTrue="{!v.ErrorBooleanVat}">
+								<div class="error-input-message">
+									{!v.ErrorMessageVat}                      
+								</div>
+							</aura:if>
+							<!--******VAT ERROR MESSAGE-END   ******-->
+						</div> 
+					<!--start  masoud zaribaf 03/05/2019 modify title  -->
+					</div>
+					<div class="slds-form-element slds-small-size--1-of-12 slds-large-size--1-of-12 lens-search-button" >
+						<div class="slds-p-around--medium slds-form-element" id="btnSearchContainer" style = "margin-top: 0.3em;">
+							<aura:if  isTrue="{!or(and(v.correctABI, v.correctCAB) , v.isCommunityUser) }" > 
+								<span>  <lightning:button aura:id="btnSearch"
+														  variant="neutral" 
+														  onclick="{!c.handleClick}" 
+														  iconName="utility:search"
+														  class="flow_required"
+														  disabled="{!v.searchMerchantButton}"
+													      title="{!$Label.c.btnsearch}"												  
+														  />
+                	<!--end  masoud zaribaf 03/05/2019 modify title  -->
+														  	
+										<!-- <a onclick="{!c.handleClick}" aura:id="btnSearch">PROVA GS</a> -->
+								</span>
+								
+							</aura:if>
+						</div>
+					</div>
+				</div> 
+				
+				<!--DATA TABLE FOR MERCHANT RESULT START-->
+                <aura:renderIf isTrue="{!v.showMerchantModal}">
+	                <c:OB_DataTableMerchant merchantServiceList ="{!v.merchantServiceList}"
+	                						showMerchantModal   ="{!v.showMerchantModal}"
+	                						objectDataMap       ="{!v.objectDataMap}"
+	                						showButtons         ="{!v.showButtons}"
+	                						showMerchantData    ="{!v.showMerchantData}"
+	                						toggleSpinner       ="{!v.toggleSpinner}"
+	                						hideFiscalCode      ="{!v.hideFiscalCode}"
+	                						showOtherInput      ="{!v.showOtherInput}"
+	                						hideVat             ="{!v.hideVat}"/>
+                </aura:renderIf>
+				<!--DATA TABLE FOR MERCHANT RESULT END-->
+				<!-- end aura if added by Francesca -->
+				<!--*********************************************************************************************************************-->
+			</div>
+			
+				<!--***************MERCHANT DATA START***************-->
+				<!--START VAT NOT PRESENT CHECKBOX-->
+			<aura:if isTrue="{!v.showMerchantData}">
+
+				<!--####### RESET BUTTON START #######-->
+				
+				<div class="slds-col--padded slds-size--6-of-12"  style=" margin-top:3%;">
+						
+						<lightning:layoutitem  size="6" >
+							<!--  Doris D. ****** 22/03/2019 ***** START -->
+							<span  onmouseover="{!c.openTooltipResetButton}" onmouseout="{!c.closeTooltipResetButton}" style = "padding-top:4rem; position: relative;">
+								<!--  Doris D. ****** 22/03/2019 ***** END -->	
+								<lightning:button   variant="neutral"
+													label="{!$Label.c.ResetResearch}"
+													onclick="{! c.resetResearch}"
+													iconName="utility:search"
+													aura:id="resetButton"												
+													/> <!--title="btnSearch"-->
+							
+							
+								<!--  Doris D. ****** 22/03/2019 ***** START -->
+								<aura:if isTrue="{!v.showMessageresetButton}">	
+									<span class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left" role="tooltip" id="help" style="position: absolute; top:-4px; left:45px; pointer-events:none;width:15rem">
+										<div class="slds-popover__body">{!$Label.c.OB_GoBackTooltip}</div>              
+									</span>
+								</aura:if>
+							</span>	
+						<!-- Doris D. ****** 22/03/2019 ***** END-->	
+				</lightning:layoutitem>					
+				</div>				
+					
+				<!-- Doris D. 28/02/ 2019 ................. START-->
+				<div class="flow-section-separator-container" style = "margin-top: 3em;margin-left: -12px!important;">
+					<form class="slds-size_1-of-1 slds-form">
+						<fieldset class="bit2flowFormSectionCmp" name="servicePointData"
+							data-aura-class="bit2flowFormSectionCmp">
+							<legend class="slds-form-element__label">{!$Label.c.OB_HelpInfo}</legend>
+						</fieldset>
+					</form>
+				</div>
+				<div class="sectionColsContainer flow-section-separator" style = "margin-left: -12px!important;" />
+				<!-- Doris D. 28/02/ 2019 ................. END  -->
+
+				<!--####### RESET BUTTON END #######-->
+
+				<div class="slds-grid slds-size--1-of-1" >
+					
+					<!--START NAME INPUT-->
+					<div class="slds-size--1-of-2 slds-grid">
+						
+						<div class="{!v.disableName ? 'slds-form-element slds-small-size--3-of-4 slds-large-size--3-of-4' : 'slds-form-element slds-small-size--1-of-1 slds-large-size--1-of-1'}"><!-- NEXI-30 Customer DS-1 & FG-1 grzegorz.banach@accenture.com 06.05.2019 !-->
+							<div class="slds-p-around--medium slds-form-element">
+								<label class="slds-form-element__label" for="inputNameSample1" >
+									<abbr class="slds-required" title="required">*</abbr>{!$Label.c.Merchant_Name}</label>
+							
+								<lightning:input id="name"
+												 aura:id="name"
+												 label="" 
+												 name="name"
+												 disabled="{!v.disableName}"
+												 
+												 variant="label-hidden"
+												 value="{!v.objectDataMap.merchant.Name}"
+												 class="flow_required"
+												 onblur="{!c.removeRedBorder}"
+												 title="Merchant _name"
+												 />
+							</div>
+						</div>
+						<!--NEXI-29 Customer DS-1 & FG-1 grzegorz.banach@accenture.com 06.05.2019 START!-->
+						<aura:if isTrue="{!v.disableName}">
+							<div class="slds-form-element slds-small-size--1-of-4 slds-large-size--1-of-4">
+								<div class="slds-p-right--medium slds-p-top--x-large slds-form-element">
+									<lightning:button class="slds-m-top--x-small slds-button_stretch" label="{!$Label.c.OB_MAINTENANCE_BUTTON_MODIFY}" onclick="{!c.openDocumentInfoModal}"/>
+								</div>
+							</div>
+						</aura:if>
+						<!--NEXI-29 Customer DS-1 & FG-1 grzegorz.banach@accenture.com 06.05.2019 END!-->
+					</div> 
+					<div class="slds-size--1-of-2 slds-grid slds-grid_align-spread">
+						<div class="slds-form-element slds-col">
+							<div class="slds-p-around--medium slds-form-element">
+						
+								<label class="slds-form-element__label" for="inputNameSample1" value="" style="white-space:  nowrap">{!$Label.c.V_A_T_not_present}</label>  
+								<!-- Doris D. ****** 12/03/2019 ***** START-->
+								<lightning:helptext content= "{!$Label.c.OB_SelectFlagTooltip}" /> 
+								<!-- Doris D. ****** 12/03/2019 ***** END-->
+								<lightning:input name="vatCheck" 
+												 aura:id="vatInput"
+												 id="vatInput"
+												 label=""
+												 type="checkbox" 
+												 variant="label-hidden"
+												 disabled="{!v.disabledVat}" 
+												 onchange="{!c.vatCheck}"
+												 value="{!v.objectDataMap.merchant.OB_VAT_Not_Present__c}" 
+												 checked="{!v.objectDataMap.merchant.OB_VAT_Not_Present__c}"
+												 
+												 />
+							</div>
+						</div>					
+					
+						<!--END VAT NOT PRESENT CHECKBOX-->
+						<!--START MODAL SEARCH-->
+						<div class="slds-form-element slds-col  " >      
+							<aura:if isTrue="{!v.showModal}" >
+								<!--<c:SearchVatNotPresent objectDataMap="{!v.objectDataMap}"
+													   disableDescriptionVat="{!v.disableDescriptionVat}"
+													   />-->
+								<c:OB_SearchVATNotPresent objectDataMap="{!v.objectDataMap}"
+													   disableDescriptionVat="{!v.disableDescriptionVat}"
+													   />
+							</aura:if>
+						</div> 
+					</div>
+					<!--END MODAL SEARCH-->				
+				</div>
+				<div class="slds-grid slds-size--1-of-1" >
+					<!--START EMAIL-->
+					<div class="slds-size--1-of-2 slds-grid">
+						
+						<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+							<div class="slds-p-around--medium slds-form-element">
+								<label class="slds-form-element__label" for="inputNameSample1" >
+									<abbr class="slds-required" title="required">*</abbr>{!$Label.c.E_Mail}</label>
+								<lightning:input id="eMail"
+                                                 aura:id="eMail"
+                                                 label=""
+												 name="Merchant_eMail"
+                                                 disabled="{!v.hideField}"
+                                                 onkeydown = "{! c.removeRedBorder}"
+                                                 variant="label-hidden"
+                                                 value="{!v.objectDataMap.merchant.NE__E_mail__c}"
+                                                 class="flow_required"
+                                                 title="Merchant_email"
+                                                 onblur="{!c.validateEmail}"
+                                />
+								<!--******VAT ERROR MESSAGE-START****** -->
+								<aura:if isTrue="{!v.ErrorBooleanEmail}">
+									<div class="error-input-message">
+										{!v.ErrorMessageEmail}                      
+									</div>
+								</aura:if>
+							<!--******VAT ERROR MESSAGE-END   ******-->
+							</div>
+						</div>
+					</div>
+					<!--END EMAIL-->
+					<!--START PHONE-->
+					<div class="slds-size--1-of-2 slds-grid">						
+						<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+							<div class="slds-p-around--medium slds-form-element">
+								<label class="slds-form-element__label" for="inputNameSample1" >
+									<abbr class="slds-required" title="required">*</abbr>{!$Label.c.Phone}</label>
+									<lightning:input id="phone"
+													 aura:id="phone"
+													 label="" 
+													 name="Merchant_phone"
+													 disabled="{!v.hideField}"
+													 onkeydown = "{! c.removeRedBorder}"
+													 variant="label-hidden"
+													 value="{!v.objectDataMap.merchant.Phone}"
+													 class="flow_required"
+													 onblur="{!c.validate}"
+													 title="Merchant_phone"
+													 />
+							<!--******PHONE ERROR MESSAGE-START****** -->
+							<aura:if isTrue="{!v.ErrorBooleanPhone}">
+								<div class="error-input-message">
+									{!v.ErrorMessagePhone}                      
+								</div>
+							</aura:if>
+							<!--******PHONE ERROR MESSAGE-END   ******-->
+
+							</div>
+						</div>					
+					</div>
+					<!--END PHONE-->
+				</div>
+				<!--<aura:if isTrue="{!!v.showHidePicklist}">-->
+					
+					<div class="slds-grid slds-size--1-of-1" >
+						<!--START NEW RADIO BUTTON NOW PICKLSIT-->
+						<div class="slds-size--1-of-2 slds-grid">						
+							<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+								<div class="slds-p-around--medium slds-form-element">
+									<label class="slds-form-element__label" for="inputNameSample1"><abbr class="slds-required" title="required">*</abbr>{!$Label.c.Annual_Revenue}</label>
+									<!-- Doris D. ****** 12/03/2019 ***** START-->
+									<lightning:helptext content= "{!$Label.c.OB_AnnualRevenueTooltip}" /> 
+									<!-- Doris D. ****** 12/03/2019 ***** END-->
+									<!-- START gianluigi.virga 11/06/2019 - Added onchange -->
+									<lightning:input id="annualRevenue"
+										aura:id="annualRevenue"
+										label="" 
+										type="number"
+										name="Merchant_annualRevenue"
+										disabled="{!v.hideField}"
+										onkeydown = "{! c.removeRedBorder}"
+										variant="label-hidden"
+										value="{!v.objectDataMap.merchant.OB_Annual_Revenue__c}"
+										class="flow_required"
+										title="Merchant_annualRevenue"
+										onblur="{! c.validateAnnualRevenue}"
+										onchange="{!c.CheckLength}"
+										/>
+									<!-- END gianluigi.virga 11/06/2019-->
+										<aura:if isTrue="{!v.ErrorBooleanannualRevenue}">
+											<div class="error-input-message">
+												{!v.ErrorMessageannualRevenue}                      
+											</div>
+										</aura:if>
+
+									</div>
+								</div>					
+							</div>
+						<!--START NEGOZIATO ANNUO-->
+						
+						<div class="slds-size--1-of-2 slds-grid">						
+							<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+								<div class="slds-p-around--medium slds-form-element">
+									<label class="slds-form-element__label" for="inputNameSample1" >{!$Label.c.AnnualNegotiated}</label>
+									<!-- Doris D. ****** 12/03/2019 ***** START-->
+									<lightning:helptext content= "{!$Label.c.OB_AnnualNegotiatedTooltip}" /> 
+									<!-- Doris D. ****** 12/03/2019 ***** END-->
+									<!-- START gianluigi.virga 11/06/2019 - Added onchange -->
+									<lightning:input id="annualNegotiated"
+										aura:id="annualNegotiated"
+										label="" 
+										type="number"
+										name="Merchant_annualNegotiated"
+										disabled="{!v.hideField}"
+										onkeydown = "{! c.removeRedBorder}"
+										variant="label-hidden"
+										value="{!v.objectDataMap.merchant.OB_Annual_Negotiated__c }"
+										onblur="{! c.validateAnnualRevenue}"
+										onchange="{!c.CheckMaxLength}"
+										/>
+									<!-- END gianluigi.virga 11/06/2019-->
+										<aura:if isTrue="{!v.ErrorBooleanannualNegotiated}">
+											<div class="error-input-message">
+												{!v.ErrorMessageannualNegotiated}                      
+											</div>
+										</aura:if>
+								</div>
+							</div>					
+						</div>
+					</div>
+				
+				<!--END NEGOZIOATO ANNUO-->
+				<!--START EMPLOYEEs NUMBER####picklsit-->
+				<div class="slds-grid slds-size--1-of-1" >
+					<div class="slds-size--1-of-2 slds-grid">						
+						<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+							<div class="slds-p-around--medium slds-form-element">
+								<label class="slds-form-element__label" for="inputNameSample1"  style="margin-top: -4px; position: absolute;"><abbr class="slds-required" title="required">*</abbr>{!$Label.c.employeesNumber}</label>
+								<lightning:select name="Merchant_mySelect"
+												  aura:id="employeesNumber"
+												  label=""  
+												  value="{!v.objectDataMap.merchant.OB_Employees_Number__c}"
+                                                  disabled="{!v.hideField}"
+												  onchange="{!c.setPickListValue}"
+												  title="Merchant_mySelect">
+
+									<option value="" >{!v.employeesNumberList.value}</option>
+									<aura:iteration items="{!v.employeesNumberList}" var="item3">
+										<option text="{!item3.value}" value="{!item3.key}" selected="{!item3.value == v.valuePreviousEmplNumb}"/>
+										
+									</aura:iteration>
+								</lightning:select>
+							</div>
+						</div>
+					</div>
+					<!--Andrea Morittu start 11/02/2019 -> if checkbox of bank profile is true, show the field on configuration -->
+						<!--Simone Misani  04/07/2019 F2WAVE2-95- START-->
+						<aura:if isTrue="{!v.objectDataMap.bankProfile.OB_NDG__c}"><!--antonio.vatrano 02/05/2019 RI_36 -->
+						<!--Simone Misani  04/07/2019 F2WAVE2-95- end-->
+							<div class="slds-size--1-of-2 slds-grid">						
+								<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+									<div class="slds-p-around--medium slds-form-element" style="margin-top: -0.3rem;">
+										<label class="slds-form-element__label" for="inputNameSample1" >
+											<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_NDGLabel}</label>
+										<lightning:input 	aura:id="NDGOrderHeader"
+															id="NDGOrderHeader"
+															label="" 
+															variant="label-hidden"
+															value="{!v.objectDataMap.OrderHeader.OB_NDG__c}"
+															class="flow_required"
+															name="NDGOrderHeader"
+															onblur="{!c.checkvalidityNDG}"
+															onkeydown = "{! c.removeRedBorder}"/>
+										<aura:if isTrue="{!v.NDGError == true}">
+											<div class="error-input-message">
+												{!$Label.c.OB_NDGErrorLabel}              
+											</div> 
+										</aura:if>
+					
+									</div>
+								</div>					
+							</div>	
+						</aura:if>
+						<!--Andrea Morittu end 11/02/2019 -> if checkbox of bank profile is true, show the field on configuration -->
+				</div>
+			<!--</aura:if>-->
+			<!--END   EMPLOYEEs NUMBER####picklsit-->
+			<!-- START gianluigi.virga 12/07/2019 - BACKLOG-153 -->
+			<div class="slds-grid slds-size--1-of-1" >
+				<aura:if isTrue="{!v.objectDataMap.bankProfile.OB_Show_check_in_date__c == 'true'}">
+					<div class="slds-size--1-of-2 slds-grid">						
+						<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+							<div class="slds-p-around--medium slds-form-element" style="margin-top: -0.3rem;">
+								<label class="slds-form-element__label" for="inputNameSample1" >
+									<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Check_in_date}</label>
+									<lightning:input    aura:id = "orderCheckInDate"
+															id="orderCheckInDate"
+															name="orderCheckInDate"
+															type="date"
+															variant="label-hidden"
+															value="{!v.checkInDate}"
+															dateStyle="short" 
+															displayDatePicker="true"															
+															onchange="{!c.changeValueDate}"
+															onblur="{!c.removeRedBorderDate}"/>
+							</div>
+						</div>					
+					</div>	
+				</aura:if>
+			</div>
+			<!-- END gianluigi.virga -->
+
+			
+			<!--***************MERCHANT DATA END***************-->
+			</aura:if>
+			<div class="slds-grid slds-size--1-of-1" >
+
+				<!--*********************************************************************************************************************-->
+				<!--CALL SERVICE POINT COMPONENT-->
+				<!--AURA IF TO SHOW THE SEARCH AND NEW SP BUTTON-->
+				<div class="slds-medium-size_12-of-12 slds-col ">
+					
+					<aura:if isTrue="{!or( or(v.showButtons , v.showOtherInput) ,  v.showNewOrder)}">
+						<aura:if isTrue="{!v.isLoading}">
+							<c:OB_IdentifyServicePoint objectDataMap="{!v.objectDataMap}"
+														fiscalCode="{!objectDataMap.merchant.NE__Fiscal_code__c}"
+														showOtherInput="{!v.showOtherInput}"
+														showButtons="{!v.showButtons}"
+														showNewOrder="{!v.showNewOrder}"
+														idAnnualRevenure="{!v.idAnnualRevenure}"
+														postelcomponentparams="{!v.postelcomponentparams}"
+														redBorderChild="{!v.redBorderChild}"
+														hasMessage="{!v.hasMessage}"
+														showShopSignInput="{!v.showShopSignInput}"
+														isLoading="{!v.isLoading}"
+														oldWrapperInformation = "{!v.oldWrapperInformation}"
+														oldInformationSPtype = '{!v.oldInformationSPtype}'
+														aura:id="servicePointIdentifyCompany"	
+														/><!--giovanni spinelli 27/09/2019 add aura:id--><!--ANDREA MORITTU START 28-Jun-19 - Fix new Merchant on takeover - attribute for pass to identify service point sp typology-->
+														<!-- ANDREA MORITTU 2019.05.09 - ID_Stream_6_Subentro*/ --> 
+						</aura:if>
+													
+
+					</aura:if>
+					
+				</div>
+			</div> 
+		</div>
+	</div>
+	
+	{!v.body}
+
+</aura:component>

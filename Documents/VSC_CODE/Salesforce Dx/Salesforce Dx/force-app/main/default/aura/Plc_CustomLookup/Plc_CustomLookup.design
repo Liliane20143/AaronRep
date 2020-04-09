@@ -1,0 +1,14 @@
+<!--
+ - Created by dilorenzo on 22/01/2019.
+ -->
+
+<design:component label="Custom Lookup">
+    <design:attribute name="searchKeyWord" label="The word to search"/>
+    <design:attribute name="objectAPIName" label="The object API Name on which making the query"/>
+    <!-- Icons web page https://www.lightningdesignsystem.com/icons/ -->
+    <design:attribute name="iconName" label="The name of the icon to show"/>
+    <design:attribute name="label" label="Label to show above text input"/>
+    <design:attribute name="disabled" label="Disable or not the input field"/>
+    <design:attribute name="noResultMessage" label="A Message to show when no result is found"/>
+    <design:attribute name="resultsLimit" label="Number of results showed by lookup list"/>
+</design:component>

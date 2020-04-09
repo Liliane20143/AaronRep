@@ -1,0 +1,74 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="OB_IdentifyCompany_CC" access="global"> 
+	<aura:attribute name="mydata" type="Object"/>
+	<aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="nextCheckout" type="String" default="{!v.objectDataMap.unbind.nextCheckout}" />
+	<aura:attribute name="objectKey" type="String" default="" access="global"/>
+	<aura:attribute name="identifier" type="String" default="" access="global"/>
+	<aura:attribute name="field" type="Object" default="{}" access="global"/> 
+	<aura:attribute name="type"    type="String"/>
+	<aura:attribute name="subType" type="String"/>
+	<aura:attribute name="level"   type="String" />
+	<aura:attribute name="lookupLov"   type="String" default="" access="global"/>
+	<aura:attribute name="lookupLovL2"                          type="String"                   default=""/>
+	<aura:attribute name="objectString" type="String"/>
+	<aura:attribute name="mapOfSourceFieldTargetField" type="Map"/>
+	<aura:attribute name="mapLabelColumns" type="Map" default="{}"/>
+	<aura:attribute name="messageIsEmpty" type="String" default=""/>
+	<aura:attribute name="orderBy" type="String"/> 
+	<aura:attribute name="disabled" type="Boolean" default="false"/> 
+	<aura:attribute name="valueMCC"   type="String" />
+	<aura:attribute name="idvalue"   type="String" default=""/>
+	<aura:attribute name="label"   type="String" default=""/>
+
+	<aura:attribute name="avoidDoubleClick" type="Boolean" default="false"/> 
+	<!-- Doris D. ****** 12/03/2019 ***** START-->
+	<aura:attribute name="showMCCTooltip" type="Boolean" default="false"/> 
+	<!-- Doris D. ****** 12/03/2019 ***** END-->
+
+    
+	<!-- boolean to disable field MCC Description -->
+	<aura:attribute name="disabledInput_sp" type="Boolean"/>
+	<aura:attribute name="disableButtonMcc" type="Boolean" default="true"/>
+
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/> 
+	<aura:handler name="showModalEvent" event="c:modalLookupEvent" action="{!c.handleShowModalEvent}"/> 
+	<aura:method name="reInit" action="{!c.doInit}" description="Runs the init method again ">
+    </aura:method> 
+				
+
+	
+	<div class="slds-size--1-of-1 slds-grid">						
+		<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+			<div class="slds-p-around--medium slds-form-element" onkeyup="{!c.formPress}">
+
+				<label for="inputNameSample1 " class="slds-form-element__label" value="{!$Label.c.OB_MCC_Description}">
+					<abbr class="slds-required" title="required">*</abbr>
+					{!v.label} 
+				</label> 
+				
+				<div class="slds-grid slds-size--1-of-1"> 
+					<div class="slds-size--11-of-12 mccdescriptioninput">
+						<lightning:input 	 aura:id="mccDescription" 
+											 id="{!v.idvalue}" 
+											 variant="label-hidden" 
+											 name="searchInput" 
+											 value="{!v.valueMCC}" 
+											 class="flow_required" 
+											 disabled="true"/>
+					</div> 
+					<div class="slds-size--1-of-12"> 
+						<lightning:button variant="neutral" 
+									  onclick="{! c.openModal}" 
+									  iconName="utility:search"
+									  disabled="{!or(v.disableButtonMcc, v.avoidDoubleClick)}"
+									  class="lens-search-mcc-button"/>
+									  <!-- disabled="{!if(empty(v.objectDataMap.merchant.NE__Fiscal_code__c), true)}"-->			
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{!v.body}
+	
+</aura:component>

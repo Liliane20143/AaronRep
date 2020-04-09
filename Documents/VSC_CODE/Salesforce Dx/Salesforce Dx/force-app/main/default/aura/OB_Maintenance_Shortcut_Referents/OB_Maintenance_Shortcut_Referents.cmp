@@ -1,0 +1,39 @@
+<aura:component controller = "OB_Maintenance_Shortcut_Referents_CC" implements="flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:appHostable,force:hasSObjectName,force:hasRecordId">
+    <aura:attribute name="recordId" type="String" access="global" default="" />
+    <aura:attribute name="servicePointId" type="String" access="global" default="" />
+    <aura:attribute name="retrieveDone" type="Boolean" access="global" default="false" />
+    <aura:attribute name="showModal" type="Boolean" access="global" default="false" />
+    <aura:attribute name="OperationUser" type="Boolean" access="global" default="false" />
+    <aura:attribute name="rightRecordType" type="Boolean" access="global" default="false" />
+    <aura:attribute name="FlowData" type="string" access="global" default="" />
+    <aura:attribute name="FlowStep" type="string" access="global" default="" />
+
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/> 
+
+
+    <aura:if isTrue="{!and(v.OperationUser,v.rightRecordType)}"> 
+        <div style="background: white">
+            <!-- antonio.vatrano 18/04/2019 add label OB_ModifyReferents -->
+            <lightning:button class = "slds-align_absolute-center" variant="brand" label="{!$Label.c.OB_ModifyReferents}" title="{!$Label.c.OB_ModifyReferents}"
+            onclick="{! c.showModalModify}" />
+
+        </div>
+
+        <aura:if isTrue="{!v.showModal}">
+            <!-- antonio.vatrano 18/04/2019 add label OB_ModifyReferents -->
+            <c:strike_modal title="{!$Label.c.OB_ModifyReferents}" 
+                            primaryButtonLabel="Ok" secondaryButtonLabel="Cancel"
+                            showHeader="true" showFooter="false" 
+                            showClose="true" 
+                            showModal="{!v.showModal}" 
+                            size="large">
+                <aura:if isTrue="{!v.retrieveDone}">
+                        <c:OB_Maintenance_EditServicePoint FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}" modifyServicePointId="{!v.servicePointId}" DisabledFields="['OB_MCC_Description__c']" fromShortCutSP="false"  fromShortCutReferents="true" shortcutContactId="{!v.recordId}"/>
+                        
+                    </aura:if>
+               
+            </c:strike_modal>
+        </aura:if>
+    </aura:if>
+
+</aura:component>

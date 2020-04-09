@@ -1,0 +1,83 @@
+<!--
+ - Created by Belometti on 05/08/2019.
+ -->
+
+ <apex:page id="Plc_StockOrderPrintLabelCsv" standardController="Bit2Shop__StockOrder__c" extensions="Plc_StockOrderPrintLabelCnt"
+ sidebar="false" applyBodyTag="false" applyHtmlTag="false"
+ showHeader="false" standardStylesheets="false" renderAs="PDF">
+
+
+ <head>
+  <style type="text/css" media="print" >
+   @page {
+     size: 62mm 25mm;
+     margin-bottom: 0.2%;
+     margin-right: 0.1%;
+     margin-left: 0.1%;
+     margin-top:  0.2%;
+  }
+
+   span{
+      font-weight: bold;
+      font-family: Arial Unicode MS;
+  }
+  h1
+  {
+      font-size: 11px;
+      visibility: hidden;
+      color: green;
+      text-decoration: none;
+  }
+  </style>
+</head>
+
+<apex:variable var="cnt" value="{!0}"/>
+<apex:repeat value="{!soli}" var="StockOrdLinItem">
+  <div style="{!if(cnt > 0, 'page-break-before:always;','page-break-before:avoid;')}; font-size: 9px;">
+
+      <table width= "100%">
+          <tr style="vertical-align:middle; text-align:left; ">
+              <td style="text-align:left">
+                <i>Prod SKU.:</i> {!StockOrdLinItem.Bit2Shop__Product_Stock_Id__r.Plc_ProductSku__c}
+              </td>
+          </tr>
+      </table>
+
+      <table width= "100%">
+
+          <tr style="vertical-align:middle; text-align:left; ">
+              <td style="text-align:left">
+                  {!StockOrdLinItem.Bit2Shop__Product_Stock_Id__r.Bit2Shop__Product_Description__c} 
+              </td>
+          </tr>
+
+          <tr style="vertical-align:middle; text-align:left; font-size: 1px;">
+              <td style="text-align:left">
+                  <br/> <!-- Empty line -->
+              </td>
+          </tr>
+
+          <tr style="vertical-align:middle; text-align:center">
+              <td style="text-align:center">
+                  <!-- <apex:image value="{!imageUrl}"/> CON servizion tramite URL-->
+
+                  <c:Plc_BarcodeGenerator />
+
+                  <!-- solo con VF
+                  <svg id="barcode"></svg>
+                  <script type ="text/javascript">
+                      JsBarcode("#barcode", "{!StockSerialWO.Plc_EncodedSerialNumber__c}");
+                  </script>
+                  -->
+              </td>
+          </tr>
+          <tr style="vertical-align:middle; text-align:center;">
+              <td style="text-align:center">
+                {!StockOrdLinItem.Plc_StockSerial__r.Plc_EncodedSerialNumber__c}
+              </td>
+              <apex:variable var="cnt" value="{!cnt+1}"/>
+          </tr>
+      </table>
+  </div>
+</apex:repeat>
+</apex:page>

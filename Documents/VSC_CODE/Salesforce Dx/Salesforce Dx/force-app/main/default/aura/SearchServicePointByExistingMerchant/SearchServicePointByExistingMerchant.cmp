@@ -1,0 +1,614 @@
+<aura:component
+	implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes"
+	access="global" controller="OB_IdentifyCompany_CC">
+
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+	<aura:handler name="showModalEvent" event="c:modalLookupEvent" action="{!c.handleShowModalEvent}" />
+	<!-- HANDLER TO SET RED BORDER OF TYPOLOGY FIELD-->
+	<aura:handler name="change" value="{!v.redBorderChild}" action="{!c.redBorderChild}" />
+	<!-- START micol.ferrari 15/10/2018 -->
+	<aura:handler name="change" value="{!v.objectDataMap.pv}" action="{!c.enableRetrieveServicePoint}" />
+	<!-- END   micol.ferrari 15/10/2018 -->
+	<aura:registerEvent name="appEvent" type="c:OB_EventNextButton" />
+
+	<!-- START  THE CONTINUATION EVENT -->
+	<aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest" />
+	<!-- END  THE CONTINUATION EVENT -->
+	<input id="hiddenFieldServicePoint" type="text" value="" class="slds-hide" onblur="{!c.clearForm}"></input>
+	<!-- START  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+	<aura:attribute name="postelcomponentparams" type="Object" default="{}"
+		access="global" />
+	<!-- END  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+	<!--  attributi per il form di inserimento di un nuovo Punto Vendita /INIT-->
+
+	<aura:attribute name="Name" type="String" default="" access="global" />
+	<aura:attribute name="MCCCode" type="String" default="" access="global" />
+	<aura:attribute name="city" type="String" default="" access="global" />
+	<aura:attribute name="street" type="String" default="" access="global" />
+	<aura:attribute name="country" type="String" default="" access="global" />
+	<aura:attribute name="nomeisegna" type="String" default="" 	access="global" />
+	<aura:attribute name="zipcode" type="String" default="" access="global" />
+	<aura:attribute name="listaCity" type="NE__Service_Point__c[]" 	access="global" />
+	<aura:attribute name="servicePoint" type="NE__Service_Point__c"  access="global" />
+	<aura:attribute name="insertAddress" type="NE__Service_Point__c" default="{ 'sobjectType': 'NE__Service_Point__c'}" access="global" />
+
+	<!-- attributi per il  form di inserimento di un nuovo Punto Vendita /END -->
+
+	<!-- Define Attribute to insert a new service point /START-->
+
+	<aura:attribute name="objectDataMap" type="Object" access="global" />
+	<aura:attribute name="servicePointEvent" type="NE__Service_Point__c" access="global" />
+	<aura:attribute name="servicePointData" type="NE__Service_Point__c[]" default="[]" access="global" />
+	<aura:attribute name="columns" type="List" access="global" />
+	<aura:attribute name="servicelist" type="NE__Service_Point__c[]" access="global" />
+	<aura:attribute name="servicePointFields" type="NE__Service_Point__c" access="global" />
+	<aura:attribute name="selectedRows" type="List" access="global" />
+	<aura:attribute name="formService" type="Boolean" default="false" access="global" />
+	<aura:attribute name="selectServicePoint" type="NE__Service_Point__c" access="global" />
+	<aura:attribute name="displayedSection" type="string" default="" />
+	<aura:attribute name="fiscalCode" type="String" access="global" />
+	<aura:attribute name="showEmptyInput" type="Boolean" default="false" access="global" />
+	<aura:attribute name="hideNewButton" type="Boolean" default="true" 	access="global" />
+	<aura:attribute name="showTable" type="Boolean" default="true" access="global" />
+	<aura:attribute name="showTableNew1" type="Boolean" default="false" access="global" />
+	<aura:attribute name="showTableNew2" type="Boolean" default="true" access="global" />
+	<aura:attribute name="showPvErrorMessage" type="Boolean" default="" />
+	<aura:attribute name="showNewOrder" type="Boolean" default="" />
+	<aura:attribute name="annualRevenueList_ServicePoint" type="List" default="" />
+	<aura:attribute name="annualNegotiatedList_ServicePoint" type="List" default="" />
+	<aura:attribute name="disabledInput_sp" type="Boolean" default="" />
+
+	<!-- Added attribute for grabbing ServicePoint.OB_Typology (Picklist) -->
+	<aura:attribute name="typologyList" type="List" default="" />
+
+	<aura:attribute name="responseServicePoint" type="List" access="global" />
+
+	<aura:attribute name="responseServicePointFilter" type="List" access="global" />
+
+	<aura:attribute name="showOtherInput" type="boolean" default="{!v.objectDataMap.showOtherInput}" />
+	<aura:attribute name="showButtons" type="Boolean" default="{!v.objectDataMap.showButtons}" access="global" />
+	<aura:attribute name="objectDataMapServicePoint" type="String" access="global" />
+	<aura:attribute name="showModal" type="Boolean" />
+	<aura:attribute name="isOpen" type="boolean" default="false" access="global" />
+
+	<aura:attribute name="MandatoryMCCfield" type="boolean" default="false" />
+
+	<aura:attribute name="idAnnualRevenure" type="Object" default="{}" description="store the id from annual revenue picklist" />
+
+	<!-- ATTRIBUTE FOR A FILTER TO SEARCG SERVICE POINT/ START-->
+	<aura:attribute name="searchByAddress" type="String" default=" " access="global" />
+	<aura:attribute name="searchByName" type="String" default=" " access="global" />
+	<aura:attribute name="servicePointListFiltered" type="NE__Service_Point__c[]" access="global" />
+	<aura:attribute name="booleanDoSearch" type="boolean" default="true" access="global" />
+	<!-- ATTRIBUTE FOR A FILTER TO SEARCG SERVICE POINT/ END-->
+
+	<aura:attribute name="msgInsertServicepoint" type="String" access="global" />
+	<aura:attribute name="servicePointDataInsert" type="boolean" default="false" access="global" />
+	<aura:attribute name="booleanResponse" type="boolean" default="true" access="global" />
+	<aura:attribute name="booleanFilter" type="boolean" default="false" access="global" />
+
+
+	<!--\START\ ATTRIBUTE  WHEN INSERT MCC AND CAP  IN MODAL TABLE -->
+	<aura:attribute name="openModalMccCap" type="Boolean" default="false" access="global" />
+	<aura:attribute name="type" type="String" access="global" />
+	<aura:attribute name="objectString" type="String" access="global" />
+	<aura:attribute name="mapOfSourceFieldTargetField" type="Map" access="global" />
+	<aura:attribute name="mapLabelColumns" type="Map" default="{}" access="global" />
+	<aura:attribute name="orderBy" type="String" access="global" />
+	<aura:attribute name="modalHeader" type="String" default="CATEGORIE MERCEOLOGICHE" />
+
+	<aura:attribute name="disabledCap" type="boolean" default="true" access="global" />
+	<aura:attribute name="disabledMCCDesc" type="boolean" default="true" access="global" />
+	<aura:attribute name="optional" type="String" access="global" />
+
+
+	<!-- \END\ ATTRIBUTE  WHEN INSERT MCC AND CAP  IN MODAL TABLE -->
+
+	<!-- ATTRIBUTE FOR MESSAGE WHEN SEARCH  SERVICE POINT IN MODAL TABLE -->
+	<aura:attribute name="messageIsEmpty" type="String" access="global" />
+	<aura:attribute name="showMessage" type="boolean" default="false" access="global" />
+
+	<!-- ATTRIBUTE  TO SHOW MESSAGE WHEN YOU DON'T SEARCH SERVICE POINT-->
+	<aura:attribute name="warningMessage" type="boolean" default="false" access="global" />
+	<!-- ATTRIBUTE TO SET RED BORDER OF TYPOLOGY FIELD-->
+	<aura:attribute name= "redBorderChild"  type="Boolean"   default="" access="global"/>
+
+
+	<div class="slds-grid slds-grid_vertical">
+		<div>
+
+			<lightning:layout verticalAlign="end">
+
+				<lightning:layoutitem size="6">
+
+					<!-- Open modal to search service point -->
+					<div class="slds-p-around--medium slds-form-element">
+						<aura:if isTrue="{!or(v.showButtons, v.showNewOrder)}">
+							<lightning:button variant="neutral"
+								label="{!$Label.c.SearchServicePoint}"
+								onclick="{! c.openModalMccCap}" iconName="utility:search"
+								aura:id="searchButton" />
+						</aura:if>
+					</div>
+
+				</lightning:layoutitem>
+
+				<!-- START MODAL MCC&CAP-->
+				<aura:if isTrue="{!v.openModalMccCap}">
+					<div aura:id="modal" class="modalContainer" style="height: 800px;">
+						<section role="dialog" tabindex="-1"
+							aria-labelledby="modal-heading-01" aria-modal="true"
+							aria-describedby="modal-content-id-1"
+							class="slds-modal slds-fade-in-open">
+							<div class="slds-modal__container" style="height: 99%">
+								<header class="slds-modal__header">
+									<lightning:buttonIcon
+										class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+										iconName="utility:close" size="large" alternativeText="Close"
+										variant="bare" onclick="{!c.closeModel}" />
+									<h2 id="modal-heading-01" class="slds-modal__footer">
+										{!$Label.c.SearchServicePoint}</h2>
+
+								</header>
+								<div
+									class="slds-modal__content slds-p-around_medium slds-is-relative"
+									style="height: 800px" id="modal-content-id-1">
+
+
+									<aura:if isTrue="{!v.disabledCap}">
+										<!--  <div class="slds-grid slds-gutters" style="">
+									 
+										  <div class="slds-col slds-size_2-of-3" style="padding-right: 1%;"  >
+											<span><lightning:input 
+																   label="{!$Label.c.PostalCode}"
+																   aura:id="zipcode"
+																   id="zipcode"
+																   name ="searchInput" 
+																   value=
+																   "{!v.objectDataMap.pv.NE__Zip_Code__c}"
+																   onchange ="{!c.enableRetrieveServicePoint}"
+																   />
+											</span>
+										  </div>
+
+										  <div class="slds-form-element" style=" margin-top:  5%;margin-left: 4%;">
+											<div class="slds-form-element__control">
+										   
+											  <lightning:input name="ecommerce" 
+															   aura:id="ecommerce"
+															   id="ecommerce"
+															   label="{!$Label.c.e_Commerce}"
+															   type="checkbox"
+															   default = "false"
+															   alternativeText="checkbox" 
+															   onchange="{!c.enableRetrieveServicePoint}"
+															   checked="{!v.objectDataMap.pv.OB_Ecommerce__c}" 
+															   />
+											</div>
+										  </div>
+
+										</div>      -->
+										<div class="slds-form-element slds-size--1-of-1 slds-grid">
+											<div
+												class="slds-p-around--medium slds-form-element slds-size_2-of-3">
+												<lightning:input label="{!$Label.c.PostalCode}"
+													aura:id="zipcode" id="zipcode" name="searchInput"
+													value="{!v.objectDataMap.pv.NE__Zip_Code__c}"
+													onchange="{!c.enableRetrieveServicePoint}"
+													style="margin-right: -20px;" />
+											</div>
+											<div
+												class="slds-p-around--medium slds-form-element slds-size_1-of-3">
+												<div class="slds-form-element__control"
+													style="margin-top: 22px; margin-left: 20px;">
+													<lightning:input name="ecommerce" aura:id="ecommerce"
+														id="ecommerce" label="{!$Label.c.e_Commerce}"
+														type="checkbox" default="false" alternativeText="checkbox"
+														onchange="{!c.enableRetrieveServicePoint}"
+														checked="{!v.objectDataMap.pv.OB_Ecommerce__c}" />
+												</div>
+											</div>
+										</div>
+									</aura:if>
+
+									<aura:if isTrue="{!v.disabledMCCDesc}">
+										<!-- <div class="slds-grid slds-gutters" style=" margin-top: 5%;"> 
+										  <div class="slds-col  slds-size_2-of-3" style="padding-right: 1%;" >
+											<span><lightning:input label ="{!$Label.c.OB_MCC_Description}"
+																   aura:id="MCCDescription"
+																   id="MCCDescription" 
+																   name  ="searchInput" 
+																   value ="{!v.objectDataMap.pv.OB_MCC_Description__c}"
+																	disabled="true" />
+											</span>
+										  </div>
+										  
+										  <div class="slds-col" style=" margin-top:3.7%; padding-left: 1%;margin-left: 3%;">
+											<span><lightning:buttonIcon iconName="utility:search" 
+																		size="large" 
+																		alternativeText="search" 
+																		onclick="{!c.openModal}"/>
+											</span>
+										  </div>
+										</div>   -->
+										<div
+											class="slds-form-element slds-small-size--2-of-3 slds-large-size--2-of-3">
+											<div class="slds-p-around--medium slds-form-element">
+												<label for="inputNameSample1 "
+													class="slds-form-element__label"
+													value="{!$Label.c.OB_MCC_Description}"> <abbr
+													class="slds-required" title="required">*</abbr>
+													{!$Label.c.OB_MCC_Description}
+												</label>
+												<div class="slds-grid slds-size--1-of-1">
+													<div class="slds-size--11-of-12">
+														<lightning:input label="" aura:id="MCCDescription"
+															id="MCCDescription" name="searchInput"
+															value="{!v.objectDataMap.pv.OB_MCC_Description__c}"
+															disabled="true" variant="label-hidden"
+															class="mccdescriptionmodal" />
+													</div>
+													<div class="slds-size--1-of-12">
+														<lightning:buttonIcon iconName="utility:search"
+															size="large" alternativeText="search"
+															onclick="{!c.openModal}"
+															class="lens-search-mccmodal-button" />
+													</div>
+												</div>
+											</div>
+										</div>
+									</aura:if>
+
+
+									<!--call service  -->
+									<div class="slds-grid slds-gutters" style="">
+
+										<div class="slds-col--padded slds-size--8-of-12"
+											style="margin-top: 9%; margin-left: 1.8%;">
+											<span><lightning:layoutitem size="6">
+
+													<!--Search Punto Vendita -->
+													<aura:if isTrue="{!or(v.showButtons, v.showNewOrder)}">
+														<lightning:button variant="neutral"
+															label="{!$Label.c.SearchServicePoint}"
+															onclick="{! c.callService}" iconName="utility:search"
+															aura:id="searchButton" disabled="{!v.hideNewButton}" />
+													</aura:if>
+
+												</lightning:layoutitem> </span>
+										</div>
+
+									</div>
+
+									{!v.body}
+
+								</div>
+
+
+								<div
+									class="slds-col--padded slds-size--1-of-2 slds-medium-size--5-of-6 slds-large-size--6-of-12">
+									<lightning:layoutitem size="6">
+										<lightning:buttonIcon
+											class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+											iconName="utility:close" size="large" alternativeText="Close"
+											variant="bare" onclick="{! c.CloseClick}" />
+
+									</lightning:layoutitem>
+
+								</div>
+
+								<div class="slds-modal__footer">
+									<button class="slds-button slds-button--neutral"
+										onclick="{!c.closeModel}">{!$Label.c.Close}</button>
+								</div>
+							</div>
+
+
+						</section>
+
+						<div class="slds-backdrop slds-backdrop_open"></div>
+					</div>
+
+				</aura:if>
+
+				<!-- END  MODAL MCC&CAP-->
+
+				<!-- START MODAL -->
+				<aura:if isTrue="{!v.isOpen}">
+
+					<div aura:id="modal" class="modalContainer">
+						<section role="dialog" tabindex="-1"
+							aria-labelledby="modal-heading-01" aria-modal="true"
+							aria-describedby="modal-content-id-1"
+							class="slds-modal slds-fade-in-open">
+							<div class="slds-modal__container"
+								style="max-width: 80%; width: 80%;">
+								<header class="slds-modal__header">
+									<lightning:buttonIcon
+										class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+										iconName="utility:close" size="large" alternativeText="Close"
+										variant="bare" onclick="{!c.closeModel}" />
+									<h1 id="modal-heading-01" class="slds-modal__footer">
+										{!$Label.c.ServicePointList}</h1>
+									<div class="slds-grid slds-gutters slds-m-top--large">
+										<div class="slds-col">
+											<span><lightning:input aura:id="searchInputNameId"
+													label="{!$Label.c.SearchByName}" name="searchInputName"
+													value="{!v.searchByName}" onchange="{!c.onClickToSearch}"
+													id="inputSearchName" /> </span>
+										</div>
+
+										<div class="slds-col">
+											<span><lightning:input aura:id="searchInputAddressId"
+													label="{!$Label.c.SearchByStreet}"
+													name="searchInputAddress" value="{!v.searchByAddress}"
+													onchange="{!c.onClickToSearch}" id="inputSearchStreet" />
+											</span>
+										</div>
+
+										<div class="slds-col" style="margin-top: 2%;">
+											<span> <lightning:buttonIcon iconName="utility:search"
+													size="large" alternativeText="Search"
+													onclick="{!c.doSearch}" disabled="{!v.booleanDoSearch}" />
+											</span>
+
+										</div>
+
+										<div class="slds-col" style="margin-top: 2%;">
+											<span><lightning:buttonIcon iconName="utility:refresh"
+													size="large" alternativeText="Reset"
+													onclick="{!c.resetSearch}" /> <!-- searchClick --> </span>
+
+										</div>
+
+									</div>
+								</header>
+
+								<div
+									class="slds-modal__content slds-p-around_medium slds-is-relative"
+									id="modal-content-id-1">
+									<div class="slds-col" id="dataTableId">
+										<aura:if
+											isTrue="{!and(not(empty(v.responseServicePoint)),v.booleanResponse)}">
+
+											<lightning:dataTable data="{!v.responseServicePoint}"
+												columns="{! v.columns}" keyField="id"
+												selectedRows="{!v.selectedRows}"
+												onrowselection="{! c.getSelectedServicePoints}"
+												hideCheckboxColumn="false" required="true" />
+
+										</aura:if>
+
+										<!-- lea.emalieu START 13/09/2018 -->
+										<!-- Second Modal to show the filter of service point list with street and name  -->
+										<aura:if isTrue="{!v.showMessage}">
+											<p
+												style="color: rgb(23, 22, 134); text-align: center; font-size: 25px;">
+												{!$Label.c.No_records_found}</p>
+										</aura:if>
+										<aura:if
+											isTrue="{!and(not(empty(v.responseServicePointFilter)),v.booleanFilter)}">
+
+											<lightning:dataTable data="{!v.responseServicePointFilter}"
+												columns="{! v.columns}" keyField="id"
+												selectedRows="{!v.selectedRows}"
+												onrowselection="{! c.getSelectedServicePoints}"
+												hideCheckboxColumn="false" required="true" />
+
+
+										</aura:if>
+										<!-- lea.emalieu END 13/09/2018 -->
+									</div>
+
+								</div>
+
+								<div class="slds-modal__footer">
+									<button class="slds-button slds-button--neutral"
+										onclick="{!c.closeModel}">{!$Label.c.Close}</button>
+
+								</div>
+							</div>
+
+						</section>
+
+						<div class="slds-backdrop slds-backdrop_open"></div>
+
+					</div>
+				</aura:if>
+
+				<!-- END MODAL -->
+
+
+
+
+				<!--Nuovo Punto Vendita  -->
+
+				<lightning:layoutitem class="slds-col" size="6">
+					<aura:if isTrue="{!v.showButtons}">
+						<div class="slds-p-around--medium slds-form-element">
+							<lightning:button variant="brand"
+								label="{!$Label.c.NewServicePoint}"
+								onclick="{! c.newServicePoint}" disabled="{!v.hideNewButton}" />
+						</div>
+					</aura:if>
+				</lightning:layoutitem>
+
+			</lightning:layout>
+		</div>
+
+
+		<!-- START *** BOOLEAN TO SHOW THE  MESSAGE WHEN YOU DON'T SEARCH SERVICE POINT -->
+		<aura:if isTrue="{!v.warningMessage}">
+			<div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert">
+				<span class="slds-assistive-text">warning</span>
+							
+					<span class="slds-icon_container slds-icon-utility-warning slds-m-right_x-small" title="Description of icon when needed">
+					
+					</span>
+				<h2> Search service point is riquired</h2>&#160;&#160;<lightning:icon class="icon" iconName="utility:search"  variant="inverse" size="x-small"/> 
+				<button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close">
+					<span class="slds-assistive-text">Close</span>
+				</button>
+			</div>
+		</aura:if>
+		<!-- END *** BOOLEAN TO SHOW THE  MESSAGE WHEN YOU DON'T SEARCH SERVICE POINT -->
+
+
+
+		<aura:if
+			isTrue="{!or(or(!empty(v.selectServicePoint),v.showEmptyInput),v.showOtherInput)}">
+
+			<!-- <div class="slds-border_bottom slds-p-around_small ">{!$Label.c.ServicePointData} </div> -->
+			<div class="flow-section-separator-container">
+				<form class="slds-size_1-of-1 slds-form">
+					<fieldset class="bit2flowFormSectionCmp" name="servicePointData"
+						data-aura-class="bit2flowFormSectionCmp">
+						<legend class="slds-form-element__label">{!$Label.c.ServicePointData}</legend>
+					</fieldset>
+				</form>
+			</div>
+			<div class="sectionColsContainer flow-section-separator" />
+
+			<form>
+				<!--  Andrea Morittu: Adding picklist field -->
+				<div class="slds-grid slds-size--1-of-1">
+					<div class="slds-size--1-of-2 slds-grid">
+						<div
+							class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+							<div class="slds-p-around--medium slds-form-element">
+
+								<label class="slds-form-element__label Typology"
+										for="inputNameSample1"
+										value="{!$Label.c.OB_ServicePointTypologyLabel}" 
+										style="margin-top: -4px; position: absolute;" > 
+									<abbr class="slds-required" title="required">*</abbr>
+									{!$Label.c.OB_ServicePointTypologyLabel}
+								</label>
+								
+								<lightning:select   name="picklistTypology" 
+													aura:id="typologySP" 
+													value="{!v.objectDataMap.pv.OB_Typology__c }"
+													onchange="{!c.setTypologyPickListValue_SP}"
+													onblur="{!c.removeRedBorder}">
+									<option value="" class="slds-hide"></option>
+									<aura:iteration items="{!v.typologyList}" var="item">
+										<option text="{!item.value}" value="{!item.key}"
+											selected="{!item.selected}" />
+									</aura:iteration>
+								</lightning:select>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div id="showForm">
+					<div class="slds-grid slds-size--1-of-1">
+						<div class="slds-size--1-of-2 slds-grid">
+							<div
+								class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+								<div class="slds-p-around--medium slds-form-element">
+
+									<label class="slds-form-element__label" for="inputNameSample1"
+											value="{!$Label.c.Name}"> <abbr class="slds-required"
+											title="required">*</abbr>{!$Label.c.Name}
+									</label>
+									<lightning:input aura:id="namePv"
+												    id="namePv" 
+												    name=""
+													label="{!$Label.c.Name}" type="text"
+													value="{!v.objectDataMap.pv.Name}" variant="label-hidden"
+													class="flow_required " disabled="{!v.disabledInput_sp}"
+													onblur="{!c.removeRedBorder}" />
+								</div>
+							</div>
+						</div>
+						<div class="slds-size--1-of-2 slds-grid">
+
+							<!-- TEST new Component for MCC Description -->
+							<c:inputMCCdescriptionServicePoint
+								objectDataMap="{!v.objectDataMap}" aura:id="inputMCCdescription"
+								disabledInput_sp="{!v.disabledInput_sp}" />
+							<!-- end test -->
+
+						</div>
+					</div>
+
+				</div>
+
+				<!--  <lightning:layoutitem padding="around-small" size="6" >
+	 <lightning:button variant="brand" 
+		   label="Submit" 
+		   onclick="{! c.ClickSave}" 
+		   
+		   /> 
+	</lightning:layoutitem> -->
+
+				<!-- micol.ferrari 23/08/2018 - ADDED ADDRESSMAPPING AS INPUT ATTRIBUTE -->
+				<c:AutoCompleteComponentPostel objectDataMap="{!v.objectDataMap}"
+					disabledInput_sp="{!v.disabledInput_sp}"
+					addressMapping="{!v.postelcomponentparams}"
+					aura:id="AutoCompleteComponentPostel" isPV="true" />
+				<!-- isPV = "true" -->
+
+				<c:OB_ContinuationBrokerComponent />
+
+				<!--START NEW RADIO BUTTON NOW PICKLSIT-->
+				<div class="slds-grid slds-size--1-of-1">
+					<div class="slds-size--1-of-2 slds-grid">
+						<div
+							class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+							<div class="slds-p-around--medium slds-form-element">
+								<!--<label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.Name}">
+	  <abbr class="slds-required" title="required">*</abbr>{!$Label.c.Annual_Revenue}</label>-->
+
+								<lightning:select name="mySelect" aura:id="annualRevenue_SP"
+									label="{!$Label.c.Annual_Revenue}"
+									value="{!v.objectDataMap.pv.OB_Annual_Revenue__c }"
+									onchange="{!c.setPickListValue_SP}">
+
+									<option value=""></option>
+									<aura:iteration items="{!v.annualRevenueList_ServicePoint}"
+										var="item">
+										<option text="{!item.value}" value="{!item.key}"
+											selected="{!item.selected}" />
+
+									</aura:iteration>
+
+								</lightning:select>
+
+							</div>
+						</div>
+					</div>
+					<!--END NEW RADIO BUTTON NOW PICKLSIT-->
+					<!--START NEGOZIATO ANNUO-->
+
+					<div class="slds-size--1-of-2 slds-grid">
+						<div
+							class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+							<div class="slds-p-around--medium slds-form-element">
+
+								<lightning:select name="mySelect"
+									label="{!$Label.c.AnnualNegotiated}"
+									aura:id="annualNegotiated_SP"
+									value="{!v.objectDataMap.pv.OB_Annual_Negotiated__c }"
+									onchange="{!c.setPickListValue_SP}">
+									<option value=""></option>
+
+									<aura:iteration items="{!v.annualNegotiatedList_ServicePoint}"
+										var="item2">
+										<option text="{!item2.value}" value="{!item2.key}"
+											selected="{!item2.selected}" />
+									</aura:iteration>
+								</lightning:select>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!--END NEGOZIOATO ANNUO-->
+			</form>
+		</aura:if>
+	</div>
+</aura:component>

@@ -1,0 +1,25 @@
+<aura:component >
+    <aura:attribute name="att" type="NE__Order_Item_Attribute__c" />
+    <aura:attribute name="enableEdit" type="Boolean" default="false"/>
+    <div class="slds-truncate" title="Cloudhub">
+        <lightning:layout verticalAlign="end">
+            <lightning:layoutItem size="6" > 
+                <div onkeyup="{!c.formPress}" style="position: relative; top: 0;"> 
+<!--<input id="{!key}" name="{!col.fieldName}" value="{!col.value}" type="{!col.type}" class="slds-input" placeholder="Placeholder Text"/>-->
+                    <lightning:input access="global" aura:id="input" value="{!v.att.NE__Value__c}" label="" disabled="{! !v.enableEdit}"  ></lightning:input>
+                </div>
+                </lightning:layoutItem>
+            <aura:if isTrue="{! !v.enableEdit}">
+                <lightning:layoutItem size="6" >
+                    <lightning:buttonIcon iconName="utility:edit" alternativeText="" onclick="{!c.enableEdit}"/>
+                </lightning:layoutItem>
+                <aura:set attribute="else">
+                    <lightning:layoutItem size="6">
+                        <lightning:buttonIcon iconName="utility:check" alternativeText="" onclick="{!c.disableEdit}"/>
+                    </lightning:layoutItem>
+                </aura:set>
+            </aura:if>
+        </lightning:layout>
+    </div>
+    
+</aura:component>

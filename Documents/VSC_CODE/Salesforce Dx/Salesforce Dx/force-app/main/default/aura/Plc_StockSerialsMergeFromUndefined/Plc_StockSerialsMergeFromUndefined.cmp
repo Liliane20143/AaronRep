@@ -1,0 +1,585 @@
+<!--
+ - Created by dilorenzo on 17/01/2019.
+ -->
+
+<aura:component description="Plc_StockSerialsMergeFromUndefined" implements="lightning:isUrlAddressable,force:lightningQuickActionWithoutHeader,force:hasRecordId" access="global" controller="Plc_StockSerialsMergeFromUndefinedCnt">
+
+    <aura:registerEvent name="updateEvent" type="c:Plc_StockSerialsMergeFromUndefinedEvt"/>
+
+    <!--   <aura:registerEvent name="UpdateField" type="c:updateFieldEvent"/>
+    <aura:handler event="c:updateFieldEvent" action="{!c.updateField}" /> -->
+
+    <aura:attribute access="public" name="recordId" type="Id" description=""/>
+    <aura:attribute access="private" name="translationMap" type="Map" default="{}" description="Contains translated labels got from server call in the init function" />
+    <aura:attribute access="private" name="propertiesMap" type="Map" default="{}" description="Contains some context and utility data" />
+    <aura:attribute access="private" name="StockSerialIndefiniti" type="Map" default="{}" description="Stock Serial indefiniti" />
+    <aura:attribute access="private" name="StockSerialModelSelected" type="Map" default="{}" description="Stock Serial Selezionato" />
+
+    <aura:attribute access="private" name="identicModelSerial" type="Boolean" default="false"/>
+
+    <aura:attribute access="private" name="profileEnable" type="Boolean" default="false"/>
+    <aura:attribute access="private" name="enableSearchArea" type="Boolean" default="false"/>
+    <aura:attribute access="private" name="showErrorModal" type="Boolean" default="false"/>
+
+    <aura:attribute access="private" name="serialCode" type="String" default=""/>
+    <aura:attribute access="private" name="currentRecordFDL" type="String"/>
+
+    <aura:attribute access="private" name="selection" type="String" default=""/>
+
+    <!-- radio button -->
+    <aura:attribute access="private" name="valueRadioButtonIndefinito" type="String"/>
+    <aura:attribute access="private" name="idValueRadioButtonIndef" type="String"/>
+    <aura:attribute access="private" name="radioToAble" type="Boolean" default="false"/>
+    <aura:attribute access="private" name="radioToAbleIndef" type="Boolean" default="false"/>
+
+    <aura:attribute access="private" name="optionsRadioButtonId" type="String"/>
+    <aura:attribute access="private" name="optionsRadioButtonLabel" type="String"/>
+
+    <aura:attribute access="private" name="flagRadioButton" type="Boolean" default="false"/>
+    <aura:attribute access="private" name="usePickList" type="Boolean" default="false"/>
+
+    <aura:attribute access="private" name="idSFDCLookupSelected" type="String" />
+
+    <aura:attribute access="private" name="radioGrpValue" type="List"/>
+
+    <aura:attribute access="private" name="fieldSS2ToShow" type="List" default="[Id,Plc_EncodedSerialNumber__c,Plc_ManufacturerSerialNumber__c,Plc_DllSerialNumber__c,Plc_DepreciationDuration__c,Plc_DepreciationPercentage__c,Plc_DepreciationCompleted__c,Plc_VoiceCode__c,Plc_Pin__c,Plc_Puk1__c,Plc_Puk2__c,Plc_Note__c,Bit2Shop__Product_Stock_Id__c,Bit2Shop__Shipment_Date__c,Plc_FirstInstallationDate__c,Plc_PurchaseDate__c,Bit2Shop__Purchase_Price__c,Plc_PurchaseWarrantyStartDate__c,Plc_PurchaseWarrantyEndDate__c,Plc_LastRepairCost__c,Plc_RepairWarrantyStartDate__c,Plc_RepairWarrantyEndDate__c,Plc_RentalStartDate__c,Plc_RentalEndDate__c,Plc_PTSCode__c,Plc_PcipedModel__c,Plc_PCIPEDLetterOfApproval__c,Plc_PcipedApprovalNumber__c,Plc_PcipedVersion__c,Plc_PcipedExpiryDate__c]"/>
+
+    <aura:attribute access="private" name="otherModelToSearch" type="Object" description="Selected SS2 by Model"/>
+
+    <aura:attribute access="private" name="listStockSerial2" type="List"/>
+    <aura:attribute access="private" name="radioValueSearchCode" type="String" />
+
+    <div class="{!v.showErrorModal ? 'slds-backdrop slds-backdrop_open' : 'slds-hide'}"></div>
+    <!-- END ERROR MODAL -->
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        height:unset !important;
+        max-height:unset !important;
+        overflow: initial;
+        }
+
+        .THIS .slds-dropdown{
+        height:200px !important;
+        }
+    </aura:html>
+
+    <div class ="slds-align--absolute-center">
+        <div aura:id="main-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+            <lightning:spinner class="slds-is-fixed" variant="brand" size="large" alternativeText="text"/>
+        </div>
+        <div class ="slds-card slds-medium-size_xx-large">
+
+            <!--<header class="slds-modal__header">
+                <h2 class="slds-text-heading_medium">
+                    Aggiornamento matricola dal Deposito Indefiniti
+                </h2>
+            </header>-->
+            <!-- BEGIN Component header -->
+            <div class="slds-page-header slds-p-around_medium">
+                <div class="slds-media">
+                    <div class="slds-media__figure slds-icon">
+                        <lightning:icon iconName="custom:custom24" size="medium" alternativeText="ALTERNATIVE"/>
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-grid">
+                            <div class="slds-col slds-container_left">
+                                <p class="slds-text-heading_label">
+                                    <!-- MOD                 {!'Import ' + v.translationMap.Bit2Shop__Stock_Serials2__c} -->
+                                </p>
+                                <div class="slds-page-header__title">
+                                        {!v.propertiesMap.stockSerial.Plc_Model__c}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END Component header -->
+            </div>
+
+            <div class="slds-modal__content">
+                <aura:if isTrue="{! v.enableSearchArea}">
+
+                    <div class="slds-p-around_small">
+                        <div class="slds-box">
+                            <lightning:layout>
+                                <lightning:layoutItem size="1">
+                                    <lightning:icon iconName="utility:warning" variant="warning" size="small"  alternativeText="warning"/>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem size="11">
+                                    <h2 id="header1" class="slds-text-heading--x-small slds-text-align_center">{!$Label.c.Plc_LightningComponentStockSerialsMergeFromUndefinedMessageForProductSelection}</h2>
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                        </div>
+                    </div>
+                </aura:if>
+
+                <div class="slds-p-around_small">
+                    <div class="slds-box">
+                        <lightning:layout multipleRows="true" >
+
+                            <div class="slds-align_absolute-center slds-text-align_center slds-medium-size_x-large">
+                                <aura:if isTrue="{! v.enableSearchArea}">
+                                    <lightning:layoutItem size="12" >
+                                        <div aura:id="searchWithLookup">
+                                            <b>
+                                                <c:Plc_CustomLookup aura:id="newModelStockSerialLk" required="false" selectedRecord="{!v.otherModelToSearch}"
+                                                    objectAPIName="B2WExtCat__External_Catalog_Item__c" iconName="custom:custom21" label="Select other Model" additionalFieldsToQuery="B2WExtCat__External_Catalog_Item_Name__c"
+                                                    sObjectFieldToDisplayList="B2WExtCat__External_Catalog_Item_Name__c"
+                                                    whereCondition="{!' B2WExtCat__External_Catalog_Item_Name__c LIKE :searchKey AND B2WExtCat__Status__c = ' + '\'Active\' '}"/>
+                                            </b>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </aura:if>
+                            </div>
+
+                            <aura:if isTrue="{! !v.enableSearchArea}">
+                                <lightning:layoutItem size="12" >
+                                    <div aura:id="searchSerialArea">
+                                        <lightning:input aura:id="serialCodeInput" required="false" value="{!v.serialCode}" name="SerialCode" label="{!$Label.c.Plc_LightningComponentPlcStockSerialsMergeFromUndefinedSearchSerialNumber}" placeholder="{!$Label.c.Plc_LightningComponentPlcStockSerialsMergeFromUndefinedInsertSerialtosearch}" updateOn="keyup"/>
+
+                                        <div class="{!v.propertiesMap.showWarningArea == true ? '' : 'slds-hide'}">
+                                            <lightning:layout class="slds-p-top_small">
+                                                <!-- <lightning:layoutItem class="slds-align_absolute-center" size="1"> -->
+                                                <lightning:layoutItem size="1">
+                                                    <lightning:icon iconName="utility:error" variant="error" size="small"  alternativeText="error"/>
+                                                </lightning:layoutItem>
+                                                <lightning:layoutItem size="11" class="slds-text-color_error">
+                                                        {!$Label.c.Plc_LightningComponentPlcStockSerialsMergeFromUndefinedWarningSerialNumnotfound}
+                                                </lightning:layoutItem>
+                                            </lightning:layout>
+                                        </div>
+
+                                        <lightning:button aura:id="searchDoInit" onclick="{!c.showResultsSearch}" label="{!$Label.c.Plc_LightningComponentPlcStockSerialsMergeFromUndefinedNext}" class="slds-m-top_medium" disabled="{!empty(v.serialCode)}"/>
+                                    </div>
+                                </lightning:layoutItem>
+                            </aura:if>
+
+                            <aura:if isTrue="{! v.enableSearchArea}">
+                                <lightning:layoutItem size="12" class="slds-p-top_x-large">
+                                    <div aura:id="searchResultArea1" >
+                                        <lightning:layout>
+                                            <lightning:layoutItem size="6" >
+                                                <div class="slds-form-element__label">
+                                                    {!$Label.c.Plc_LightningComponentPlcStockSerialsMergeFromUndefinedModel}
+                                                </div>
+
+                                                <h1 class="slds-text-heading--label slds-p-right_large">
+                                                    <b>
+                                                        <lightning:input type="checkbox" class="slds-border_bottom slds-m-bottom_xxx-small" label="{! v.propertiesMap.stockSerial.Plc_Model__c }" name="currentModelSS2" checked="{! v.radioToAble}" aura:id="currentModelSS2" onchange="{! c.isRadioButtonSelected}"/>
+                                                    </b>
+                                                </h1>
+                                                <!-- FB 11-09-2019: replacing recordForm with single fields [START] -->
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_EncodedSerialNumber__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" class="slds-border_bottom slds-m-bottom_xxx-small" value="{!v.propertiesMap.stockSerial.Plc_EncodedSerialNumber__c}" readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_ManufacturerSerialNumber__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" class="slds-border_bottom slds-m-bottom_xxx-small" value="{!v.propertiesMap.stockSerial.Plc_ManufacturerSerialNumber__c}" readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_DllSerialNumber__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" class="slds-border_bottom slds-m-bottom_xxx-small" value="{!v.propertiesMap.stockSerial.Plc_DllSerialNumber__c}" readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_DepreciationDuration__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_DepreciationDuration__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_DepreciationPercentage__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_DepreciationPercentage__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_DepreciationCompleted__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="checkbox" variant="label-hidden" checked="{!v.propertiesMap.stockSerial.Plc_DepreciationCompleted__c}" class="slds-border_bottom slds-m-bottom_xxx-small" disabled="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_VoiceCode__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_VoiceCode__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_Pin__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_Pin__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_Puk1__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_Puk1__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_Puk2__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_Puk2__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_Note__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_Note__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Bit2Shop__Shipment_Date__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Bit2Shop__Shipment_Date__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_FirstInstallationDate__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_FirstInstallationDate__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PurchaseDate__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_PurchaseDate__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Bit2Shop__Purchase_Price__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Bit2Shop__Purchase_Price__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PurchaseWarrantyStartDate__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_PurchaseWarrantyStartDate__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PurchaseWarrantyEndDate__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_PurchaseWarrantyEndDate__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_LastRepairCost__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_LastRepairCost__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_RepairWarrantyStartDate__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_RepairWarrantyStartDate__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_RentalEndDate__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_RentalEndDate__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PTSCode__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_PTSCode__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PcipedModel__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_PcipedModel__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PcipedApprovalNumber__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_PcipedApprovalNumber__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PcipedVersion__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_PcipedVersion__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Name}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Name}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Bit2Shop__Warehouse_Id__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Bit2Shop__Warehouse_Id__r.Name}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Bit2Shop__Status__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Bit2Shop__Status__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_Status2__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_Status2__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_Manufacturer__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.propertiesMap.stockSerial.Plc_Manufacturer__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <!-- FB 11-09-2019: replacing recordForm with single fields [END] -->
+                                                <!-- <lightning:recordForm
+                                                        recordId="{!v.propertiesMap.stockSerial.Id}"
+                                                        objectApiName="Bit2Shop__Stock_Serials2__c"
+                                                        columns="1"
+                                                        fields="{!v.fieldSS2ToShow}"
+                                                        layoutType="Compact"
+                                                        mode="readonly" /> -->
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="6" >
+                                                <div class="slds-form-element__label">
+                                                    {!$Label.c.Plc_LightningComponentPlcStockSerialsMergeFromUndefinedModel}
+                                                </div>
+                                                <h1 class="slds-text-heading--label slds-p-right_large">
+                                                    <b>
+                                                        <lightning:input type="checkbox" class="slds-border_bottom slds-m-bottom_xxx-small" label="{!v.StockSerialIndefiniti.Plc_Model__c}" name="searchModelSS2"  checked="{! v.radioToAbleIndef}" aura:id="modelSearchCodeSS2" onchange="{! c.isRadioButtonSelectedIndef}"/>
+                                                    </b>
+                                                </h1>
+
+                                                <!-- FB 11-09-2019 : replacing recordForm with single fields [START] -->
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_EncodedSerialNumber__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" class="slds-border_bottom slds-m-bottom_xxx-small" value="{!v.StockSerialIndefiniti.Plc_EncodedSerialNumber__c}" readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_ManufacturerSerialNumber__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" class="slds-border_bottom slds-m-bottom_xxx-small" value="{!v.StockSerialIndefiniti.Plc_ManufacturerSerialNumber__c}" readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_DllSerialNumber__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" class="slds-border_bottom slds-m-bottom_xxx-small" value="{!v.StockSerialIndefiniti.Plc_DllSerialNumber__c}" readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_DepreciationDuration__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_DepreciationDuration__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_DepreciationPercentage__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_DepreciationPercentage__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_DepreciationCompleted__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="checkbox" variant="label-hidden" checked="{!v.StockSerialIndefiniti.Plc_DepreciationCompleted__c}" class="slds-border_bottom slds-m-bottom_xxx-small" disabled="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_VoiceCode__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_VoiceCode__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_Pin__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_Pin__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_Puk1__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_Puk1__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_Puk2__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_Puk2__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_Note__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_Note__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Bit2Shop__Shipment_Date__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Bit2Shop__Shipment_Date__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_FirstInstallationDate__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_FirstInstallationDate__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PurchaseDate__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_PurchaseDate__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Bit2Shop__Purchase_Price__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Bit2Shop__Purchase_Price__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PurchaseWarrantyStartDate__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_PurchaseWarrantyStartDate__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PurchaseWarrantyEndDate__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_PurchaseWarrantyEndDate__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_LastRepairCost__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_LastRepairCost__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_RepairWarrantyStartDate__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_RepairWarrantyStartDate__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_RentalEndDate__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_RentalEndDate__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PTSCode__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_PTSCode__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PcipedModel__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_PcipedModel__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PcipedApprovalNumber__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_PcipedApprovalNumber__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_PcipedVersion__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_PcipedVersion__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Name}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Name}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Bit2Shop__Warehouse_Id__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Bit2Shop__Warehouse_Id__r.Name}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Bit2Shop__Status__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Bit2Shop__Status__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_Status2__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_Status2__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <div class="slds-form-element__label">
+                                                    {!v.translationMap.Plc_Manufacturer__c}
+                                                </div>
+                                                <h1 class="slds-p-right_large">
+                                                    <lightning:input type="text" variant="label-hidden" value="{!v.StockSerialIndefiniti.Plc_Manufacturer__c}" class="slds-border_bottom slds-m-bottom_xxx-small"  readonly="true" />
+                                                </h1>
+                                                <!-- <lightning:recordForm
+                                                        recordId="{!v.propertiesMap.stockSerialIndef.Id}"
+                                                        objectApiName="Bit2Shop__Stock_Serials2__c"
+                                                        columns="1"
+                                                        fields="{!v.fieldSS2ToShow}"
+                                                        layoutType="Compact"
+                                                        mode="readonly" /> -->
+                                                <!-- FB 11-09-2019 : replacing recordForm with single fields [END] -->
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </div>
+                                </lightning:layoutItem>
+                            </aura:if>
+
+
+                            <aura:if isTrue="{! v.enableSearchArea}">
+                                <lightning:layoutItem size="12" >
+                                    <div aura:id="saveButtonArea" class="slds-align_absolute-center">
+                                        <lightning:button aura:id="saveButton" onclick="{! c.saveRadio}" label="Save" class="slds-m-top_medium slds-button_brand" />
+                                    </div>
+                                </lightning:layoutItem>
+                            </aura:if>
+
+                            <lightning:layoutItem size="12">
+                                <div aura:id="cancelButtonArea" class="slds-float_right">
+                                    <lightning:button aura:id="cancelButton" onclick="{!c.backSS2Page}" label="{!$Label.c.Plc_LightningComponentPlcStockSerialsMergeFromUndefinedCancel}" class="slds-m-top_medium slds-button_destructive"/>
+                                </div>
+                            </lightning:layoutItem>
+
+
+                        </lightning:layout>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</aura:component>

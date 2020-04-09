@@ -1,0 +1,303 @@
+<!--
+/**
+ * *************************************************
+ *     * @Author nunzio.capasso@/webresults.it
+ *     * @date  05/02/2019 11:56
+ *     * @description component that allows u to upload a csv file
+ *     * @Modified by
+ *   ***********************************************
+ **/
+ -->
+
+ <aura:component description="Plc_UploadCsvCmp" controller="Plc_UploadCsvCnt">
+    <!-- public attributes -->
+
+    <aura:attribute name="stockSerialStatus"
+                    access="public"
+                    type="String"
+                    description="stockSerialStatus to filter on (to check if csv data are present in SFDC) List separeted by ';' "
+                    default=""/>
+
+    <aura:attribute name="warehouseId"
+                    access="public"
+                    type="String"
+                    description="warehouseId to filter on (to check if csv data are present in SFDC) "
+                    default=""/>
+
+    <aura:attribute name="distributionListItemModels"
+                    access="public"
+                    type="String"
+                    description="model to filter on (to check if csv data are present in SFDC) List separeted by ';' "
+                    default=""/>
+
+    <!-- private attributes -->
+    <aura:attribute name="validData"
+                    access="private"
+                    type="List"
+                    description="list of valid record extracted from the CSV"
+                    default="[{'indexCol1':'','indexCol2':'','indexCol3':''}]"/>
+
+    <aura:attribute name="returnMap"
+                    access="private"
+                    type="Map"
+                    description="list of valid record extracted from the CSV to send in the 'confirm' event"
+                    default=""/>
+
+    <aura:attribute name="invalidData"
+                    access="private"
+                    type="List"
+                    description="list of Invalid record extracted from the CSV"
+                    default="[{'indexCol1':'','indexCol2':'','indexCol3':''}]"/>
+
+    <aura:attribute name="validDataLenght"
+                    access="private"
+                    type="Integer"
+                    description="valid record list size"
+                    default="0"/>
+
+    <aura:attribute name="invalidDataLenght"
+                    access="private"
+                    type="Integer"
+                    description="Invalid record list size"
+                    default="0"/>
+
+    <aura:attribute name="dataLenght"
+                    access="private"
+                    type="Integer"
+                    description="csv record list size"
+                    default="0"/>
+
+    <aura:attribute name="columnsValidData"
+                    access="private"
+                    type="List"
+                    description="columns to show in the valid record table"
+                    default="[{'fieldName':'indexCol1','label':'Column Name','type':'text'}]"/>
+
+    <aura:attribute name="columnsInvalidData"
+                    access="private"
+                    type="List"
+                    description="columns to show in the invalid record table"
+                    default="[{'fieldName':'indexCol1','label':'Column Name','type':'text'}]"/>
+
+    <aura:attribute name="showTables"
+                    access="private"
+                    description="show tables only if a file is been loaded"
+                    type="Boolean"/>
+
+    <aura:attribute name="showSpinner"
+                    access="private"
+                    description="toggle spinner on\off"
+                    default="false"
+                    type="Boolean"/>
+
+    <aura:attribute name="validRecordtableHeightcss"
+                    access="private"
+                    description="dinamic table height"
+                    default="min-height"
+                    type="String"/>
+
+    <aura:attribute name="invalidRecordtableHeightcss"
+                    access="private"
+                    description="dinamic table height"
+                    default="min-height"
+                    type="String"/>
+
+    <aura:attribute name="columnsNotFoundCSV"
+                    access="private"
+                    description="List of columns not found in CSV."
+                    default=""
+                    type="String"/>
+
+    <aura:attribute name="helpButtonClicked"
+                    access="private"
+                    description="toggle help text on\off"
+                    default="false"
+                    type="Boolean"/>
+
+    <aura:attribute name="CSVSampleLink"
+                    access="private"
+                    description="csv sample satic resource link"
+                    default="{!$Resource.Plc_csvSample}"
+                    type="String"/>
+
+    <!-- FB 20190627 NEXIPLC-589 [START] -->
+    <aura:attribute name="CSVSampleLinkWithTechnician"
+                    access="private"
+                    description="csv sample satic resource link (with technician)"
+                    default="{!$Resource.Plc_CSVSampleWithTechnician}"
+                    type="String"/>
+    <!-- FB 20190627 NEXIPLC-589 [END] -->
+
+    <!-- STARTFIX - L.B - 04/03/2019 -->
+    <aura:attribute name="skipOriginalMethods" type="Boolean" description="If true skip the original methofs of Plc_UploadCSV" default="false"/>
+    <!-- ENDFIX - L.B - 04/03/2019 -->
+
+    <!-- FB 20190627 NEXIPLC-589 [START] -->
+    <aura:attribute name="configurationMap" type="Map" description="Used to store additional information" default="{}"/>
+    <aura:attribute name="showLoadingSpinner" type="Boolean" description="Used to show loading spinner" default="false"/>
+    <!-- FB 20190627 NEXIPLC-589 [START] -->
+
+    <!--INIT HANDLER-->
+    <aura:handler name="init" value="{!this}" action="{!c.initComponent}"/>
+    <aura:registerEvent name="Plc_FilterEvt" type="c:Plc_FilterEvt"
+                        description="The event fired  when user closes the csv-modal or loads the csv records.(check actionType of this event: hideModal , sendCsvResults)"/>
+    <!--<aura:handler event="c:Plc_FilterEvt"
+                  action="{!c.testevt}"
+                  description="Used to reset 'showModal' attribute"/>-->
+
+    <!--SPINNER-->
+
+    <lightning:spinner aura:id="bwspinner" variant="brand" size="large"
+                       class="{!v.showSpinner ? 'spinnerlayer slds-is-fixed' : 'spinnerlayer slds-is-fixed slds-hide'}"/>
+
+
+    <!--###### MODAL BOX Start######-->
+    <div class="slds-m-around_xx-large">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                 aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div style="min-width: 55rem;" class="slds-modal__container">
+
+                <!-- ###### MODAL BOX HEADER Start ######-->
+                <header class=" slds-modal__header slds-theme_info slds-theme_alert-texture">
+
+                    <lightning:buttonIcon iconName="utility:close"
+                                          onclick="{!c.hideModal}"
+                                          alternativeText="close"
+                                          variant="bare-inverse"
+                                          class="slds-modal__close"/>
+                    <h2 id="modal-heading-01"
+                        class="slds-text-heading_medium slds-hyphenate">{!$Label.c.Plc_ModalHeaderLabel}</h2>
+                </header>
+
+                <!--###### MODAL BOX BODY Part Start######-->
+                <div class="slds-modal__content slds-p-around_medium slds-is-relative" id="modal-content-id-1">
+                    <!-- FB 20190627 NEXIPLC-589 [START] -->
+                    <div aura:id="main-spinner" role="dialog" tabindex="-1" class="{!v.showLoadingSpinner == true ? 'slds-spinner_medium slds-fade-in-open' : 'slds-hide'}">
+                        <lightning:spinner variant="brand" size="large" alternativeText="text"/>
+                    </div>
+                    <!-- FB 20190627 NEXIPLC-589 [END] -->
+                    <lightning:layout
+                            class="{!v.columnsNotFoundCSV != '' ? 'slds-hide' : 'slds-align_absolute-center'}">
+
+                        <!-- CSV HELP BUTTON START-->
+                        <lightning:layoutItem class="help-icon-m">
+
+                            <!-- CSV HELP BUTTON TOOLTIP START-->
+                            <aura:if isTrue="{!v.helpButtonClicked}">
+                                <section aria-describedby="dialog-body-id-8"
+                                         aria-label="csv help tooltip"
+                                         class="slds-popover slds-popover slds-nubbin_bottom-right"
+                                         role="dialog">
+
+                                    <lightning:buttonIcon
+                                            class="slds-button slds-button_icon slds-button_icon-small slds-float_right slds-popover__close"
+                                            iconName="utility:close"
+                                            variant="bare"
+                                            alternativeText="Help"
+                                            size="small"
+                                            onclick="{!c.toggleHelpText}"/>
+
+                                    <div class="slds-popover__body">
+                                        <p>{!$Label.c.Plc_csvHelpTooltipText}
+
+                                            <!--<a href="{!c.saveAsCSV}" ><br/>{!$Label.c.Plc_csvHelpTooltipLink}</a>-->
+                                            <br/>
+                                            <span class="slds-text-link" onclick="{!c.saveAsCSV}">{!$Label.c.Plc_csvHelpTooltipLink}</span>
+                                        </p>
+                                    </div>
+                                </section>
+                            </aura:if>
+                            <!-- CSV HELP BUTTON TOOLTIP END-->
+
+                            <lightning:buttonIcon
+                                    iconName="utility:help"
+                                    variant="border-filled"
+                                    alternativeText="Help-button"
+                                    size="large"
+                                    onclick="{!c.toggleHelpText}"/>
+                        </lightning:layoutItem>
+                        <!-- CSV HELP BUTTON END-->
+
+
+                        <!-- CSV FILE UPLOAD BUTTON-->
+                        <lightning:layoutItem>
+                            <lightning:input aura:id="fileId"
+                                             type="file"
+                                             class="slds-m-around_small slds-align_absolute-center"
+                                             label="{!$Label.c.Plc_InputUploadButtonLabel}"
+                                             isLoading="{!!v.showTables}"
+                                             disabled="{!v.showTables}"
+                                             onchange="{! c.handleFilesChange }" multiple="false" accept=".csv"/>
+                        </lightning:layoutItem>
+
+                    </lightning:layout>
+
+                    <aura:if isTrue="{!v.columnsNotFoundCSV != ''}">
+                        <p class="slds-text-heading_medium slds-text-align--center slds-text-color_error slds-m-around--large">
+                            <lightning:icon class="slds-m-right_small slds-m-left_x-small slds-m-bottom--medium"
+                                            iconName="action:close" size="medium"/>
+                            <br/>
+                            <aura:unescapedHtml value="{!v.columnsNotFoundCSV}"/>
+                        </p>
+                    </aura:if>
+
+                    <aura:if isTrue="{!v.showTables &amp;&amp; v.columnsNotFoundCSV == ''}">
+                        <p class="table-title-icon-spacing slds-text-title--caps slds-line-height--reset">
+                            <lightning:icon class="slds-m-right_small slds-m-left_x-small"
+                                            iconName="action:approval" size="xx-small"/>
+                            {!$Label.c.Plc_ValidRowsSectionLabel}&nbsp;&nbsp;{!v.validDataLenght} / {!v.dataLenght} :
+                        </p>
+
+                        <lightning:layout class="slds-m-around--xxx-small slds-box_border">
+                            <lightning:layoutItem flexibility="grow">
+                                <div>
+                                    <lightning:datatable
+                                            class="slds-m-bottom_xx-large slds-p-bottom_xx-large"
+                                            columns="{!v.columnsValidData}"
+                                            keyField="Bit2Shop__Serial_Number__c" data="{!v.validData}"
+                                            hideCheckboxColumn="true" resizeColumnDisabled="true"/>
+                                </div>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+
+
+                        <p class="table-title-icon-spacing slds-text-title--caps slds-line-height--reset">
+                            <lightning:icon class="slds-m-right_small slds-m-left_x-small" iconName="action:close"
+                                            size="xx-small"/>
+                            {!$Label.c.Plc_InvalidRowsSectionLabel}&nbsp;&nbsp;{!v.invalidDataLenght} / {!v.dataLenght}
+                            :
+                        </p>
+                        <lightning:layout class="slds-m-around--xxx-small slds-box_border">
+                            <lightning:layoutItem flexibility="grow">
+                                <div>
+                                    <lightning:datatable
+                                            class="slds-m-bottom_xx-large slds-p-bottom_xx-large"
+                                            columns="{!v.columnsInvalidData}"
+
+                                            keyField="Bit2Shop__Serial_Number__c" data="{!v.invalidData}"
+                                            resizeColumnDisabled="true" hideCheckboxColumn="true"/>
+                                </div>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                    </aura:if>
+
+
+                </div>
+                <!--###### MODAL BOX FOOTER Part Start ######-->
+                <footer class="slds-modal__footer slds-theme_default">
+                    <lightning:button variant="neutral"
+                                      label="{!$Label.c.Plc_CancelButtonLabel}"
+                                      onclick="{!c.hideModal}"/>
+                    <lightning:button variant="brand"
+                                      label="{!$Label.c.Plc_LoadValidRecordsButtonLabel}"
+                                      onclick="{!c.handleButtonAcceptRecords}"
+                                      disabled="{!!v.showTables || (v.validDataLenght == 0)}"/>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+        <!--###### MODAL BOX Part END Here ######-->
+    </div>
+
+
+</aura:component>

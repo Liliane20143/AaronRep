@@ -1,0 +1,87 @@
+<!--
+ - Created by dilorenzo on 22/01/2019.
+ -->
+
+<aura:component controller="Plc_CustomLookupCnt" description="Plc_CustomLookup" access="global">
+    <!-- This component represents a text field with the possibility of choosing a specific element (which type is described by objectAPIName) while typing
+     suggested by a list of searching results. The component simulates the behavior of standard lookup fields -->
+    <!--declaring attributes-->
+    <aura:attribute access="public" name="selectedRecord" type="sObject" default="{}" description="Use in order to store selected sObject Record"/>
+    <aura:attribute access="public" name="sObjectFieldToDisplayList" type="String[]" default="Name"  description="Used to show additional fields in results list" />
+    <aura:attribute access="public" name="listOfSearchRecords" type="List" description="Use, for storing the list of search records which returns from apex class"/>
+    <aura:attribute access="public" name="initID" type="String" default="" description="From a given id, the custom lookup shows the matching record name" />
+    <aura:attribute access="public" name="disabled" type="Boolean" default="false" description="Set whether the custom lookup is disabled or not" />
+    <aura:attribute access="public" name="additionalFieldsToQuery" type="String[]" default="" description="Additional fields to retrieve for lookup given object"/>
+    <aura:attribute access="public" name="iconName" type="String" default="" description="icon to show" />
+    <aura:attribute access="public" name="objectAPIName" type="String" default="" description="SF object on which making the query"/>
+    <aura:attribute access="public" name="label" type="String" default="" description="label to show above custom lookup" />
+    <aura:attribute access="public" name="whereCondition" type="String" default=" Name LIKE: searchKey " description="The additional where clause used server side to show results list"/>
+    <aura:attribute access="public" name="required" type="Boolean" default="false" description="used to set whether the field is required or not"/>
+    <aura:attribute access="public" name="searchWithSosl" type="Boolean" default="false" description="set research with SOSL if set to true" />
+    <aura:attribute access="private" name="showedTextSelectedRecord" type="String" description="String used to show a specific label when a record is selected" />
+    <aura:attribute access="private" name="searchKeyWord" type="String" default="" description="keyword to search"/>
+    <aura:attribute access="private" name="noResultMessage" type="String" default="" description="message showed when no result is found" />
+    <aura:attribute access="private" name="errors" type="Object[]" description="Used to show error messages above input text field when some error occurs with input data" />
+    <aura:attribute access="private" name="resultsLimit" type="Integer" default="5" description="number of results showed by custom lookup"/>
+    <aura:attribute access="private" name="showSearchIcon" type="Boolean" default="true" description="Decides whether show search icon"/>
+    <!--declaring events handlers-->
+<!--    <aura:handler event="c:ClearFieldsLtgEvt" action="{!c.handleClearEvent}"/> -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler name="render" value="{!this}" action="{!c.afterRender}"/>
+    <aura:handler name="change" value="{!v.selectedRecord}" action="{!c.handleSelectedRecordChange}"/>
+    <aura:handler name="oSelectedRecordEvent" event="c:Plc_SelectObjectRecordEvent" action="{!c.handleComponentEvent}" />
+    <!--declaring event registration -->
+    <aura:registerEvent name="oDeselectedRecordEvent" type="c:Plc_DeselectObjectRecordEvent"/>
+    <aura:registerEvent name="oSelectedRecordEventLookup" type="c:Plc_SelectObjectRecordEvent" />
+    <!--declaring public reachable method -->
+    <aura:method access="public" name="checkValidity" action="{!c.checkValidity}" />
+    <div onmouseleave="{!c.onblur}" aura:id="searchRes" class="slds-form-element slds-lookup slds-is-close" data-select="single">
+        <label class="slds-form-element__label">
+            <span class="{!v.required ? 'slds-text-color_error':'slds-hide'}">* </span>
+            <span>{!v.label}</span>
+        </label>
+        <!--This part is for display search bar for lookup-->
+        <div class="slds-form-element__control">
+            <div class="slds-input-has-icon slds-input-has-icon--right pillcontainer">
+                <!-- Adding attribute aura:id="searchIcon" for adding/removing CSS -->
+                <lightning:icon class="{!v.showSearchIcon ? 'custom-top slds-input__icon' : 'slds-hide'}" iconName="utility:search" size="x-small" alternativeText="search" />
+                <!-- This markup is for when an record is selected -->
+                <div aura:id="lookup-pill" class="slds-pill-container slds-hide">
+                    <aura:if isTrue="{!v.disabled}">
+                        <lightning:pill class="{!'pillSize ' + if(v.disabled, 'disabled-pill', '')}" label="{!v.selectedRecord.Name}" name="{!v.selectedRecord.Name}">
+                            <aura:set attribute="media">
+                                <lightning:icon iconName="{!v.iconName}" size="x-small" alternativeText="{!v.iconName}"/>
+                            </aura:set>
+                        </lightning:pill>
+                        <aura:set attribute="else">
+                            <lightning:pill class="pillSize" label="{!v.showedTextSelectedRecord}" name="{!v.showedTextSelectedRecord}" onremove="{!c.clear}">
+                                <aura:set attribute="media">
+                                    <lightning:icon iconName="{!v.iconName}" size="x-small" alternativeText="{!v.iconName}" />
+                                </aura:set>
+                            </lightning:pill>
+                        </aura:set>
+                    </aura:if>
+                </div>
+                <div aura:id="lookupField" class="slds-show">
+                <span class="custom-top slds-icon_container slds-combobox__input-entity-icon" title="record">
+                    <!-- Icon -->
+                    <lightning:icon class="slds-icon slds-icon_small slds-icon-text-default" iconName="{!v.iconName}" size="x-small" alternativeText="icon"/>
+                    <span class="slds-assistive-text"></span>
+                </span >
+                    <ui:inputText click="{!c.onfocus}" updateOn="keyup" keyup="{!c.keyPressController}" errors="{!v.errors}"
+                                  class="slds-lookup__search-input slds-input leftPaddingClass" value="{!v.searchKeyWord}" placeholder="{!$Label.c.Plc_AllAllSearchLabel}" disabled="{!v.disabled}" />
+                                  <!--class="slds-lookup__search-input slds-input leftPaddingClass" value="{!v.searchKeyWord}" placeholder="{!$Label.c.All_All_Search}" disabled="{!v.disabled}" /> -->
+
+                </div>
+            </div>
+        </div>
+        <!--This part is for Display typehead lookup result List-->
+        <ul class="result-list slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-lookup__menu slds" role="listbox">
+            <lightning:spinner class="slds-hide" variant="brand" size="small" aura:id="loadingSpinner" alternativeText="Loading" />
+            <center>{!v.noResultMessage}</center>
+            <aura:iteration items="{!v.listOfSearchRecords}" var="singleRec">
+                <c:Plc_CustomLookupResult additionalFieldsToShow="{!v.sObjectFieldToDisplayList}" oRecord="{!singleRec}" iconName="{!v.iconName}" />
+            </aura:iteration>
+        </ul>
+    </div>
+</aura:component>

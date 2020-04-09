@@ -1,0 +1,5 @@
+<design:component>
+    <design:attribute name="reportName" label="reportName" />
+    <design:attribute name="listFixNameFilters" label="listFixNameFilters" />
+    <design:attribute name="listNameFilters" label="listNameFilters" /> 
+</design:component>

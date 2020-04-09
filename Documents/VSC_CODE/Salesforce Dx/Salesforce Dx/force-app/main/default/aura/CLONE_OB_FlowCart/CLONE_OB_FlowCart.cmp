@@ -1,0 +1,168 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="OB_CatalogController">
+  
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+    <aura:attribute name="lightningFromParam" type="String" access="global" />
+    	
+    <aura:attribute name="validItems" type="Object[]"/>
+    <aura:attribute name="validBundles" type="Object[]"/>
+    <aura:attribute name="step" type="Integer" default="0"/>
+    <aura:attribute name="productCategories" type="Object"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    
+    <!-- NEW Attributes to have the dynamic components to switch -->
+    <aura:attribute name="bundleStep" type="Integer" default="0"/>
+    <aura:attribute name="bundleElementName" type="String"  />
+    <aura:attribute name="configureBundle" type="Boolean" default="false"/>
+    <aura:attribute name="contextOutput" type="Object"/>
+    <aura:attribute name="offertaId" type="ID"/>
+    <aura:attribute name="orderId" type="String"/> 
+    <aura:attribute name="requestCheckout" type="Boolean" default="false"/>
+    <aura:attribute name="afterSummary" type="Boolean" default="false"/>
+    <aura:attribute name="goToNextStep" type="Boolean" default="false"/>
+    
+    <aura:attribute name="isUnusualStep" type="Boolean" default="false"/>
+    <aura:attribute name="isCheckNextRequired" type="Boolean" default="false" />  
+	
+	<aura:attribute name="startBundle" type="Boolean" default="false"/> 
+	
+	<aura:attribute name="urlImages" type="String" default="/servlet/servlet.FileDownload?file="/>
+	
+	<aura:attribute name ="qtyMax" type="Integer" default="900"/>
+    <aura:attribute name="clearCart" type="Boolean" default="false"/> 
+    <aura:attribute name="backToOfferSelection" type="Boolean" default="false"/>
+    <aura:attribute name="checkAttributeRules" type="String" default="ok"/> <!-- ok,warning,error  NEW-->
+    <aura:attribute name="showWarningModal" type="Boolean" default="false"/> <!-- NEW-->
+    
+    <aura:attribute name="bundleMaxQty" type="Integer" /> <!-- NEW-->
+    <aura:attribute name="bundleMinQty" type="Integer" /> <!-- NEW-->
+    <aura:attribute name="selectedBundle" type="Object"/> <!-- NEW-->
+    
+    <aura:attribute name="MapAttributeItemsError" type="Object"/>
+    <aura:attribute name="MapAttributeItemsWarning" type="Object"/>
+    
+   
+    
+    <!--  modal stuff -->
+	<aura:attribute name="modalHeader" type="String"/>
+	<aura:attribute name="modalDesc" type="String" />
+	<aura:attribute name="modalButton" type="String"/>
+    
+	
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <!--  event to get context updates from children -->
+    <aura:handler action="{!c.onUpdateContextChildren}" event="c:OB_CustomUpdateContextEvent" />
+    <!--  NEW event to update attribute checkAttributeRules -->
+    <aura:handler action="{!c.onUpdateApprovalOrderRules}" event="c:OB_ApprovalOrderRulesEvent" />
+    
+    <!--  NEW event to update maps -->
+    <aura:handler action="{!c.onUpdateParentMapAttribute}" event="c:OB_UpdateParentMapAttribute" />
+    
+ 	<!--  ============================================== -->
+ 	<aura:handler action="{!c.onUpdateContext}" event="NE:Bit2win_Event_UpdateContext" />
+ 	<aura:handler action="{!c.handleAfterCheckOut}" event="NE:Bit2win_Event_CartEvent" />
+ 	<!-- <aura:handler name="change" value="{!v.goToNextStep}" action="{!c.handleGoToNextStep}"/>  -->
+ 	
+    <!--  <ltng:require scripts="{!$Resource.ruleStepOffertaNext}"/> -->
+
+    <div name="newCartWrapper" style="width:100%">
+	    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+        </aura:if> 
+        
+     <!-- modal for every occasion -->
+	<aura:if isTrue="{!v.showWarningModal}">
+	<div class="modalStyle">
+	  <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+	    <div class="slds-modal__container">
+	      <header class="slds-modal__header">
+                    <lightning:buttonIcon class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" iconName="utility:close" size="large" alternativeText="Close" variant="bare" onclick="{!c.handleModalCancel}"/>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                        {!v.modalHeader}
+                    </h2>                    
+                </header> 
+	      <div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
+	        <p class="centeredText">{!v.modalDesc}</p>
+	      </div>
+	      <footer class="slds-modal__footer slds-theme_default">
+	      <!-- insert aura if here to know which button label we want -->
+   		  	<lightning:button label="OK" onclick="{!c.handleModalButton}" variant="brand" class="slds-m-top_medium"/>
+   		  	<lightning:button label="{!$Label.c.OB_Cancel}" onclick="{!c.handleModalCancel}" class="slds-m-top_medium" />
+	      </footer>
+	    </div>
+	  </section>
+	  <div class="slds-backdrop slds-backdrop_open"></div>
+	</div>
+	</aura:if>
+        
+	    <div>
+	     <!-- <NE:B2WGin_Core_Engine aura:id="lightning" parameters="{!v.objectDataMap.Configuration.NE__Parameters__c}" disableRedirect="true"/>  -->
+	      <NE:B2WGin_Core_Engine aura:id="lightning" parameters="lightningFromVF=false;ordId=a0y9E000004WYetQAG" disableRedirect="true"/> 
+	    	<!-- -->
+	    </div>  
+	    <aura:if isTrue="{!v.step == 0}">
+		    <div aura:id="offertaComponent" id="offertaComponentId" class="padding-button">
+				 <!--  <NE:Bit2win_CatalogsNavigator></NE:Bit2win_CatalogsNavigator> -->  
+				<c:OB_SelectOffer objectDataMap ="{!v.objectDataMap}" offertaId="{!v.offertaId}" urlImages="{!v.urlImages}" />
+		    </div>
+	    </aura:if>
+
+	    <aura:if isTrue="{! and(v.bundleStep == 0,v.step == 1,v.isUnusualStep == false) }"> <!-- and(v.bundleStep == 0,v.step == 1) -->
+		    <div aura:id="POSComponent" id="POSComponentId" class="padding-button">	
+		        <c:OB_ConfigurePOS objectDataMap ="{!v.objectDataMap}"  bundleStep ="{!v.bundleStep}" isCheckNextRequired ="{!v.isCheckNextRequired}"  bundleMaxQty = "{!v.bundleMaxQty}" bundleMinQty = "{!v.bundleMinQty}" urlImages="{!v.urlImages}"/>
+		    </div>
+	    </aura:if> 
+	    
+	    <aura:if isTrue="{!and(v.bundleElementName == 'Gestione Pagobancomat',v.step == 1)}">
+		    <div aura:id="PagoBancomat" id="PagoBancomatId" class="padding-button">
+	        	<c:OB_newCartBancomat objectDataMap ="{!v.objectDataMap}" bundleStep ="{!v.bundleStep}" bundleMaxQty = "{!v.bundleMaxQty}" bundleMinQty = "{!v.bundleMinQty}" urlImages="{!v.urlImages}" />
+	    	</div> 
+     	</aura:if>
+     	 
+     	<aura:if isTrue="{!and(v.bundleElementName == 'Selezione Acquiring',v.step == 1)}">
+	    	<div aura:id="Acquiring" id="AcquiringId" class="padding-button">		<!-- aura:id="Acquiring" id="AcquiringId" class="hidden" -->
+	        	<c:OB_newCartAcquiring objectDataMap ="{!v.objectDataMap}"  bundleStep ="{!v.bundleStep}" isCheckNextRequired ="{!v.isCheckNextRequired}" bundleMaxQty = "{!v.bundleMaxQty}" bundleMinQty = "{!v.bundleMinQty}" urlImages="{!v.urlImages}"/>
+	    	</div>	
+   		</aura:if>
+   		 
+   		<aura:if isTrue="{!and(v.bundleElementName == 'Selezione VAS',v.step == 1)}">
+	    	<div aura:id="VASComponent" id="VASComponentId" class="padding-button">
+	        	<c:OB_ConfigureVAS objectDataMap ="{!v.objectDataMap}" bundleStep ="{!v.bundleStep}" isCheckNextRequired ="{!v.isCheckNextRequired}" bundleMaxQty = "{!v.bundleMaxQty}" bundleMinQty = "{!v.bundleMinQty}" urlImages="{!v.urlImages}"/>
+	    	</div>
+	    </aura:if>
+	    
+		<aura:if isTrue="{!and(v.step == 1,v.isUnusualStep == true)}">
+	    	<div aura:id="GenericComponent" id="GenericComponentId" class="padding-button">
+	        	<c:OB_ConfigureVAS objectDataMap ="{!v.objectDataMap}" bundleStep ="{!v.bundleStep}" isCheckNextRequired ="{!v.isCheckNextRequired}" bundleMaxQty = "{!v.bundleMaxQty}" bundleMinQty = "{!v.bundleMinQty}" urlImages="{!v.urlImages}"/>
+	    	</div>
+	    </aura:if>
+	   
+	    <aura:if isTrue="{!or(v.step == 2, and(v.step > 2, v.checkAttributeRules == 'warning')) }">
+	    	<div aura:id="PriceSummary" id="PriceSummaryId" >
+	        	<c:OB_newCartPriceSummary objectDataMap ="{!v.objectDataMap}"/>
+	    	</div>
+	    </aura:if>
+	    <div class="slds-button-group buttonGroup" role="group">
+	     	<div aura:id="previousButtonDiv" class="previousBtn hidden" >
+	    		<button id="previousBtn" onclick="{! c.previousStepBundle }" class="slds-button slds-button_neutral" disabled="false">{!or(v.step == 2, and(v.step > 2, v.checkAttributeRules == 'warning'))? $Label.c.OB_BackToSelectOffer:$Label.c.OB_PreviousLabel}</button>
+	    	</div> 
+		    <div aura:id="buttondiv" class="nextBtnOverride" >
+		        <button id="nextBtnOffertaId" onclick="{! c.nextStep }"  class="slds-button slds-button_neutral slds-button--brand" disabled="true">{!$Label.c.OB_NextLabel}</button>
+		    </div>
+		    <div aura:id="navigateStepBundle" class="nextBtnOverride hidden" >
+		        <button id="nextBtnId" onclick="{! c.nextStepBundle }" class="slds-button slds-button_neutral slds-button--brand" disabled="true">{!$Label.c.OB_NextLabel}</button>
+		    </div>
+		    <!--  NOT USED ANYMORE -->
+		    <div aura:id="checkout" class="hidden" > 
+		        <button onclick="{! c.checkout }"  class="slds-button slds-button_neutral slds-button--brand">Checkout</button>
+		    </div> 
+		</div>
+
+    </div>
+</aura:component>

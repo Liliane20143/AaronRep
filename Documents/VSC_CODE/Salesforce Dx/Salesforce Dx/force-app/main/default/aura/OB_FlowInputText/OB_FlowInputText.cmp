@@ -1,0 +1,32 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+<ltng:require scripts="{!join(',', 
+    $Resource.wizardController, 
+    $Resource.wizardHandler)}" afterScriptsLoaded="{!c.doInit}"/>
+
+	<aura:attribute name="objectDataMap" type="Object" access="global"/>
+	<aura:attribute name="field" type="Object" default="{}" access="global"/> 
+	<aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+	<aura:attribute name="validState" type="Boolean" default="true" access="global"/>
+    <aura:attribute name="errMsg" type="String"  default="" access="global"/>
+    <aura:attribute name="customLabelFlow" type="String"  default="" access="global"/>
+    <aura:method name="validate" action="{!c.validate}" access="global"/>
+	<aura:handler   name="change" value="{!v.objectDataMap.setRedBorderCompanyData}" action="{!c.removeRedBorderIfOK}"/>
+	<aura:handler event="c:OB_EventAutoCompleteRedBorder" action="{!c.removeRedBorderIfOK}"/>
+	<!-- START gianluigi.virga 04/07/2019 - PRODOB-284 -->
+	<aura:handler name="change" value="{!v.objectDataMap.fiscalCodeisDuplicate}" action="{!c.showErrorMessage}"/>
+	<!-- END gianluigi.virga 04/07/2019 - PRODOB-284 -->
+	<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 START -->
+	<aura:attribute name="disabledFields"	type="Object"	default="{}"	access="global" 	description="Object containing info which fields should disabled"/>
+	<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 STOP -->
+
+<!-- 	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/> -->
+<div class="slds-size--1-of-2 slds-grid">
+	<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+		<div class="slds-p-around--medium slds-form-element">
+			<label class="slds-form-element__label" value="{!v.customLabelFlow}">
+				<aura:if isTrue="{!v.addressMapping.isRequired == 'true'}"><abbr class="slds-required" title="required">*</abbr></aura:if>{!v.customLabelFlow}</label>
+					{!v.body}
+		</div>
+	</div>
+</div>
+</aura:component>

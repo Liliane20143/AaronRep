@@ -1,0 +1,446 @@
+<apex:page standardController="BT_Simulation__c" extensions="BT_SimulationDocumentExtension" applyHtmlTag="false" applyBodyTag="false" showHeader="false" renderAs="pdf">
+    <apex:variable var="isReferral" value="{!BT_Simulation__c.BT_Account__r.BT_IsReferral__c}" />
+    <html>
+        <head>
+            <style type="text/css" media="print">
+                @page {
+                    @top-center {
+                        content: element(header);
+                    }
+                    @bottom-left {
+                        content: element(footer);
+                    }
+                }
+                div.header {
+                    padding: 20px 10px 10px 10px;
+                    position: running(header);
+                }
+                div.footer {
+                    display: block;
+                    padding: 10px;
+                    position: running(footer);
+                }
+                .pagenumber:before {
+                    content: counter(page);
+                }
+                .pagecount:before {
+                    content: counter(pages);
+                }
+                .content {
+                	margin-top: 30px;
+                }
+                @font-face{
+                    font-family: 'KarbonApp';
+                    src: url('{!URLFOR($Resource.BT_FontKarbon, '/FontKarbon/KarbonApp-Light.ttf')}') format('ttf');  /* Modern browsers*/
+                    font-style: normal;
+                }
+                body {
+                    padding: 20px 0 0 0;
+                    font-family: 'KarbonApp',Arial,Helvetica;
+                    font-size: 13px;
+                }
+                h1 {
+                    font-size: 1.7em;
+                }
+                table, th, td {
+                    border-collapse: collapse;
+                    text-align: center;
+                }
+                table {
+                    margin: 0 auto;
+                    font-size: 0.9em;
+                }
+                .tableBorder {
+                    border: 1px solid black;
+                }
+                .tableBorderBottom {
+                    border-bottom: 1px solid black;
+                }
+                .tableBorderRight {
+                    border-right: 1px solid black;
+                }
+                ul.bullet{
+                    list-style-type: circle;
+                }
+                ul,p {
+                    margin:auto;
+                }                
+                .titleCell {
+                    background-color: #2D32AA;
+                    color: white;
+                    text-align: left;
+                }
+                .centerCell {
+                    text-align: center;
+                }
+                .greyCell {
+                    background-color: #E0E1DD;
+                    text-transform: uppercase;
+                    text-align: left;
+                }
+                .capitalizeCell {
+                    text-transform: uppercase;
+                    text-align: left;
+                }
+                .topSign {
+                    float: right;
+                }
+                .topName {
+                    margin: 20px 0 25px 0;
+                    padding-top: 30px;
+                }
+                .divTitle {
+                    text-align: left;
+                }
+                .desc1 {
+                    margin: 20px 0 10px 0;
+                    page-break-inside: avoid;
+                }
+                .bottomSign {
+                    margin: 10px 0 0 0;
+                    float: right;
+                }
+                .footerContent {
+                    /*border-top: 1px solid #2D32AA;*/
+                    border-top: 1px solid black;
+                    width: 100%;
+                    padding-top: 5px;
+                }
+                .footerLeft {
+                    float: left;
+                    width: 400px;
+                    /*font-weight: bold;*/
+                    font-size: 0.8em;
+                    /*color: #2D32AA;*/
+                }
+                .footerRight {
+                    float: right;
+                    font-style: italic;
+                    color: #747678;
+                    font-size: 0.7em;
+                }
+                .disclaimer {
+                    font-style: italic;
+                    font-size: 0.9em;
+                }
+                .bulletSection {
+                    padding: 20px 0 20px 40px;
+                }
+                .mainLogo {
+                    display: inline;
+                }
+                .accountLogo {
+                    display: inline;
+                    float: right;
+                }
+                .accountLogo img {
+                   width: 100px;
+                }
+                .referralTitleCellOffer {
+                    text-align: left;
+                    font-size: 1.1em;
+                    font-weight: bold;
+                    width: 25%;
+                    padding: 0 0 10px 50px;
+                }
+                .referralValueCellOffer {
+                    text-align: right;
+                    font-weight: normal;
+                    padding: 0 50px 10px 0;
+                }
+                .referralTitleCellTopOffer {
+                    text-align: left;
+                    font-weight: bold;
+                    width: 130px;
+                    padding: 0 0 10px 50px;
+                }
+                .breakAvoid {
+                    page-break-inside: avoid;
+                }
+                .textLeft {
+                    text-align: left;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="mainLogo">
+                    <img src="{!URLFOR($Resource.LogoNexiRGBColore, '/NEXI_RGB_Colore.png')}" width="100px"/>
+                </div>
+                <apex:outputPanel styleClass="accountLogo" rendered="{!NOT(ISBLANK(config.BT_Logo__c))}" layout="block">
+                    <apex:outputField value="{!config.BT_Logo__c}" />
+                </apex:outputPanel>
+            </div>
+            <!--
+            <div class="footer">
+                <div class="footerContent">
+                    <div class="footerLeft">
+                    </div>
+                    <div class="footerRight">
+                        Corso sempione 55, 20149 Milano &#8226; T. +39 02 3488.1 &#8226; F. +39 02 3488.4180 &#8226; www.nexi.it<br/>
+                        Reg. Imprese Milano, Monza Brianza e Lodi, C.F. e P. IVA n. 04107060966 &#8226; REA Milano n. 1725898 &#8226; Capitale Sociale € 61.628.798,40 i.v. Albo IMEL art. 114-quarter del D. Lgs. 385/1993 n. 32875.7 &#8226; Società soggetta all'attività di direzione e coordinamento di Nexi SpA
+                    </div>
+                    <div>Pagina <span class="pagenumber"/> di <span class="pagecount"/></div>
+                </div>
+            </div>
+            -->
+            <apex:outputField value="{!BT_Simulation__c.BT_Account__c}" rendered="false" /> <!-- used in extension -->
+            <div class="content">
+                <div class="topSign">{!$Label.BT_Spettabile} ______________________</div>
+                <div class="topName">
+                    <!--{!DAY(TODAY())}/{!MONTH(TODAY())}/{!YEAR(TODAY())}-->
+                    <apex:outputText value="{0,date,dd/MM/yyyy}">
+                        <apex:param value="{!BT_Simulation__c.CreatedDate}" />
+                    </apex:outputText>
+                </div>
+                <div style="margin-top: 40px">
+                    <div class="divTitle">               
+                        <h1>{!$Label.BT_AccettazionePagamenti}</h1>
+                    </div>
+                    <div class="desc1">{!$Label.BT_CondizioniEconomiche}</div>
+                    <!-- Referral offer description -->
+                    <apex:outputPanel layout="block" styleClass="breakAvoid" rendered="{!isReferral}">
+                        <table style="text-align: left; margin: 0;">
+                            <tr>
+                                <th class="referralTitleCellTopOffer">{!UPPER($Label.BT_NomeOfferta)}:</th>
+                                <th class="referralValueCellOffer">{!BT_Simulation__c.BT_NomeOfferta__c}</th>
+                            </tr>
+                            <tr>
+                                <th class="referralTitleCellTopOffer">{!$Label.BT_CodiceConvenzione}:</th>
+                                <th class="referralValueCellOffer">{!BT_Simulation__c.BT_CodOfferta__c}</th>
+                            </tr>
+                            <tr>
+                                <th class="referralTitleCellTopOffer">{!$Label.BT_CodicePOS}</th>
+                                <th class="referralValueCellOffer">
+                                    {!BT_Simulation__c.BT_CodiciPOS__c}
+                                </th>
+                            </tr>
+                        </table>
+                    </apex:outputPanel>
+                    <table class="breakAvoid">
+                        <tr class="tableBorder">
+                            <th rowspan="2" colspan="2" class="titleCell tableBorder">{!$Label.BT_TipoProdotto}</th>
+                            <th colspan="2" class="titleCell centerCell tableBorder">{!$Label.BT_Commissioni+' '+$Label.BT_DiAcquiring}</th>
+                        </tr>
+                        <tr>
+                            <th class="centerCell tableBorderBottom" width="120px">%</th>
+                            <th class="centerCell tableBorderBottom tableBorderRight">{!$Label.BT_Magg+' '+$Label.BT_ExtraEEA}</th>
+                        </tr>
+                        <tr>
+                            <th rowspan="10" class="greyCell tableBorder">{!$Label.BT_CreditoDebitoPrepagate}</th>
+                            <th class="capitalizeCell">{!$Label.BT_VISAConsumerCredit}</th>
+                            <th>{!BT_Simulation__c.BT_VisaConsumerCreditAcq__c}</th>
+                            <th class="tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_VisaConsumerCreditAcqEEA__c-BT_Simulation__c.BT_VisaConsumerCreditAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="capitalizeCell">{!$Label.BT_VISAConsumerPrepaid}</th>
+                            <th>{!BT_Simulation__c.BT_VisaConsumerPrepaidAcq__c}</th>
+                            <th class="tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_VisaConsumerPrepaidAcqEEA__c-BT_Simulation__c.BT_VisaConsumerPrepaidAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="capitalizeCell">{!$Label.BT_VISAConsumerDebit}</th>
+                            <th>{!BT_Simulation__c.BT_VisaConsumerDebitAcq__c}</th>
+                            <th class="tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_VisaConsumerDebitAcqEEA__c-BT_Simulation__c.BT_VisaConsumerDebitAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="capitalizeCell">{!$Label.BT_VPAYConsumerDebit}</th>
+                            <th>{!BT_Simulation__c.BT_VPayConsumerDebitAcq__c}</th>
+                            <th class="tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_VPayConsumerDebitAcqEEA__c-BT_Simulation__c.BT_VPayConsumerDebitAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="capitalizeCell">{!$Label.BT_VPAYConsumerPrepaid}</th>
+                            <th>{!BT_Simulation__c.BT_VPayConsumerPrepaidAcq__c}</th>
+                            <th class="tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_VPayConsumerPrepaidAcqEEA__c-BT_Simulation__c.BT_VPayConsumerPrepaidAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="capitalizeCell">{!$Label.BT_MasterCardConsumerCredit}</th>
+                            <th>{!BT_Simulation__c.BT_MastercardConsumerCreditAcq__c}</th>
+                            <th class="tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_MastercardConsumerCreditAcqEEA__c-BT_Simulation__c.BT_MastercardConsumerCreditAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="capitalizeCell">{!$Label.BT_MasterCardConsumerDebit}</th>
+                            <th>{!BT_Simulation__c.BT_MastercardConsumerDebitAcq__c}</th>
+                            <th class="tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_MastercardConsumerDebitAcqEEA__c-BT_Simulation__c.BT_MastercardConsumerDebitAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="capitalizeCell">{!$Label.BT_MasterCardConsumerPrepaid}</th>
+                            <th>{!BT_Simulation__c.BT_MastercardConsumerPrepaidAcq__c}</th>
+                            <th class="tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_MastercardConsumerPrepaidAcqEEA__c-BT_Simulation__c.BT_MastercardConsumerPrepaidAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="capitalizeCell">{!$Label.BT_MaestroConsumerDebit}</th>
+                            <th>{!BT_Simulation__c.BT_MaestroConsumerDebitAcq__c}</th>
+                            <th class="tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_MaestroConsumerDebitAcqEEA__c-BT_Simulation__c.BT_MaestroConsumerDebitAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="capitalizeCell tableBorderBottom">{!$Label.BT_MaestroConsumerPrepaid}</th>
+                            <th class="tableBorderBottom">{!BT_Simulation__c.BT_MaestroConsumerPrepaidAcq__c}</th>
+                            <th class="tableBorderBottom tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_MaestroConsumerPrepaidAcqEEA__c-BT_Simulation__c.BT_MaestroConsumerPrepaidAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th rowspan="3" class="greyCell tableBorder">{!$Label.BT_Commercial}</th>
+                            <th class="capitalizeCell">{!$Label.BT_VISACommercial}</th>
+                            <th>{!BT_Simulation__c.BT_VisaCommercialAcq__c}</th>
+                            <th class="tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_VisaCommercialAcqEEA__c-BT_Simulation__c.BT_VisaCommercialAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="capitalizeCell">{!$Label.BT_MaestroCommercial}</th>
+                            <th>{!BT_Simulation__c.BT_MaestroCommercialAcq__c}</th>
+                            <th class="tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_MaestroCommercialAcqEEA__c-BT_Simulation__c.BT_MaestroCommercialAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="capitalizeCell tableBorderBottom">{!$Label.BT_MasterCardCommercial}</th>
+                            <th class="tableBorderBottom">{!BT_Simulation__c.BT_MastercardCommercialAcq__c}</th>
+                            <th class="tableBorderBottom tableBorderRight">
+                                <apex:outputText value="{0,number,+0.00}%">
+                                    <apex:param value="{!MAX(BT_Simulation__c.BT_MastercardCommercialAcqEEA__c-BT_Simulation__c.BT_MastercardCommercialAcq__c, 0)}"/>
+                                </apex:outputText>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="greyCell tableBorder">{!$Label.BT_Pagobancomat}</th>
+                            <th class="capitalizeCell tableBorderBottom">{!$Label.BT_Pagobancomat}</th>
+                            <th class="tableBorderBottom">{!BT_Simulation__c.BT_PagobancomatAcq__c}</th>
+                            <th class="tableBorderBottom tableBorderRight">-</th>
+                        </tr>
+                        <tr>
+                            <th rowspan="2" class="greyCell tableBorder">{!$Label.BT_CircuitiAsiatici}</th>
+                            <th class="capitalizeCell">{!$Label.BT_JCB}</th>
+                            <th>{!BT_Simulation__c.BT_JCBAcq__c}</th>
+                            <th class="tableBorderRight">-</th>
+                        </tr>
+                        <tr>
+                            <th class="capitalizeCell tableBorderBottom">{!$Label.BT_UPI}</th>
+                            <th class="tableBorderBottom">{!BT_Simulation__c.BT_UPIAcq__c}</th>
+                            <th class="tableBorderBottom tableBorderRight">-</th>
+                        </tr>
+                    </table>
+                    <!-- Referral offer details -->
+                    <apex:outputPanel layout="block" styleClass="breakAvoid" rendered="{!isReferral}">
+                        <table style="margin: 30px 0 0 0;">
+                            <tr>
+                                <th class="referralTitleCellOffer">{!$Label.BT_DescrizioneOfferta}:</th>
+                                <th class="referralValueCellOffer"><apex:outputText value="{!BT_Simulation__c.BT_DescrizioneOfferta__c}" escape="false"/></th>
+                            </tr>
+                            <tr>
+                                <th class="referralTitleCellOffer">{!$Label.BT_Eccezioni}:</th>
+                                <th class="referralValueCellOffer"><apex:outputText value="{!BT_Simulation__c.BT_Eccezioni__c}" escape="false"/></th>
+                            </tr>
+                            <tr>
+                                <th class="referralTitleCellOffer">{!UPPER($Label.BT_Note)}</th>
+                                <th class="referralValueCellOffer">
+                                    <apex:outputText value="{!BT_Simulation__c.BT_Note__c}" escape="false"/>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th class="referralTitleCellOffer">{!UPPER($Label.BT_Promozioni)}</th>
+                                <th class="referralValueCellOffer"><apex:outputText value="{!BT_Simulation__c.BT_PromozioniCommissioni__c}" escape="false"/></th>
+                            </tr>
+                        </table>
+                    </apex:outputPanel>
+                    <div class="bulletSection ">
+                        <ul>
+                            <!-- POS -->
+                            <c:BT_DocumentPOSElement label="{!$Label.BT_SmartPOS}" q="{!BT_Simulation__c.BT_QtaSmartPos__c}" price="{!BT_Simulation__c.BT_CanMensSmartPos__c}" />
+                            <c:BT_DocumentPOSElement label="{!$Label.BT_SmartPOSCassa}" q="{!BT_Simulation__c.BT_QtaSmartPosCassa__c}" price="{!BT_Simulation__c.BT_CanMensSmartPosCassa__c}" />
+                            <c:BT_DocumentPOSElement label="{!$Label.BT_SmartPOSPremium}" q="{!BT_Simulation__c.BT_QtaSmartPosPremium__c}" price="{!BT_Simulation__c.BT_CanMensSmartPosPremium__c}" />
+                            <c:BT_DocumentPOSElement label="{!$Label.BT_SmartPOSCassaPremium}" q="{!BT_Simulation__c.BT_QtaSmartPosCassaPremium__c}" price="{!BT_Simulation__c.BT_CanMensSmartPosCassaPremium__c}" />
+                            <c:BT_DocumentPOSElement label="{!$Label.BT_POSTradizionaleSmart}" q="{!BT_Simulation__c.BT_QtaPosTradSmart__c}" price="{!BT_Simulation__c.BT_CanMensPosTradSmart__c}" />
+                            <c:BT_DocumentPOSElement label="{!$Label.BT_POSCordlessSmart}" q="{!BT_Simulation__c.BT_QtaPosCordlSmart__c}" price="{!BT_Simulation__c.BT_CanMensPosCordlSmart__c}" />
+                            <c:BT_DocumentPOSElement label="{!$Label.BT_POSPortatileGPRSSmart}" q="{!BT_Simulation__c.BT_QtaPosPortGprsSmart__c}" price="{!BT_Simulation__c.BT_CanMensPosPortGprsSmart__c}" />
+                            <c:BT_DocumentPOSElement label="{!$Label.BT_MobilePOSSmart}" q="{!BT_Simulation__c.BT_QtaMobilePosSmart__c}" price="{!BT_Simulation__c.BT_CanMensMobilePosSmart__c}" />
+                            <c:BT_DocumentPOSElement label="{!$Label.BT_POSTradizionalePremium}" q="{!BT_Simulation__c.BT_QtaPosTradPremium__c}" price="{!BT_Simulation__c.BT_CanMensPosTradPremium__c}" />
+                            <c:BT_DocumentPOSElement label="{!$Label.BT_POSCordlessWIFIPremium}" q="{!BT_Simulation__c.BT_QtaPosWifiPremium__c}" price="{!BT_Simulation__c.BT_CanMensPosWifiPremium__c}" />
+                            <c:BT_DocumentPOSElement label="{!$Label.BT_POSPortatile3GPremium}" q="{!BT_Simulation__c.BT_QtaPos3GPremium__c}" price="{!BT_Simulation__c.BT_CanMensPos3GPremium__c}" />
+                        </ul>
+                    </div>
+                    <!-- Referral POS details -->
+                    <apex:outputPanel layout="block" styleClass="breakAvoid" rendered="{!isReferral}">
+                        <table style="margin: 30px 0 0 0;">
+                            <tr>
+                                <th class="referralValueCellOffer" colspan="2">{!$Label.BT_ReferralOffertaPOSHeader}</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2">&nbsp;</th>
+                            </tr>
+                            <tr>
+                                <th class="referralTitleCellOffer">{!$Label.BT_ProfiloSmart}</th>
+                                <th class="referralValueCellOffer"><apex:outputText value="{!BT_Simulation__c.BT_DescrizioneProfiloSmart__c}" escape="false"/></th>
+                            </tr>
+                            <tr>
+                                <th class="referralTitleCellOffer">{!$Label.BT_ProfiloPremium}</th>
+                                <th class="referralValueCellOffer">
+                                    <apex:outputText value="{!BT_Simulation__c.BT_DescrizioneProfiloPremium__c}" escape="false"/>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th class="referralTitleCellOffer">{!$Label.BT_Promozioni}</th>
+                                <th class="referralValueCellOffer"><apex:outputText value="{!BT_Simulation__c.BT_PromozioniPOS__c}" escape="false"/></th>
+                            </tr>
+                        </table>
+                    </apex:outputPanel>
+                    <div class="desc1">{!$Label.BT_Saluti}</div>
+                    <div class="bottomSign"><b>{!BT_Simulation__c.BT_Account__r.Name}</b></div>
+                    <div class="desc1" style="margin-top: 70px; margin-bottom: 40px; line-height: 200%;">
+                        {!$Label.BT_ParlatoCon}:<br />
+                        {!$Label.BT_Nome}:______________________________ {!$Label.BT_Telefono}:____________________<br />
+                        {!$Label.BT_Email}:_______________________________<br />
+                        {!$Label.BT_Filiale}:______________________________
+                        <apex:outputText value="{!$Label.BT_CodicePreventivo+': '+BT_Simulation__c.Name}" />
+                    </div>
+                    <apex:outputPanel styleClass="disclaimer" rendered="{!NOT(ISBLANK(config.BT_Disclaimer__c))}">
+                        <apex:outputField value="{!config.BT_Disclaimer__c}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+        </body>
+    </html>
+</apex:page>

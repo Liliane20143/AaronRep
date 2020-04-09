@@ -1,0 +1,8 @@
+<!--
+ - Created by adrian.dlugolecki on 24.05.2019.
+ -->
+
+<aura:event type="COMPONENT" description="Event Send From Table sub component (OB_LCP006_ContactDataTableActionColumn)">
+    <aura:attribute type="String" name="actionType" default="none" access="public"/>
+    <aura:attribute type="String" name="recordId" access="public"/>
+</aura:event>

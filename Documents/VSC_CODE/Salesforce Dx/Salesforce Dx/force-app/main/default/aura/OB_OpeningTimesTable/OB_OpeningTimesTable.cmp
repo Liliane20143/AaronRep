@@ -1,0 +1,277 @@
+<aura:component
+	implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes"
+	access="global">
+
+	<aura:attribute name="mydata" type="Object" />
+	<aura:attribute name="wizardWrapper" type="Object" default="{}" access="global" />
+	<aura:attribute name="objectDataMap" type="Object" default="{}" access="global" />
+	<aura:attribute name="nextCheckout" type="String"  default="{!v.objectDataMap.unbind.nextCheckout}" />
+	<aura:attribute name="objectKey"  type="String" default="" 	access="global" />
+	<aura:attribute name="identifier" type="String" default=""  access="global" />
+	<aura:attribute name="field" type="Object" default="{}" access="global" />
+	<aura:attribute name="days" type="String[]" access="global" />
+	<aura:attribute name="selectedValue" type="String" />
+	<aura:attribute name="mapIdOptionOpeningTime" 	type="Map" />
+	<aura:attribute name="isFromMaintenance" 		type="Boolean"  access="global" default="false"/>
+<!-- START s.m. - g.v. 15/03/2019 -->
+	<aura:attribute name="listOpenAfternoon" type="Boolean[]" access="global"/>
+	<aura:attribute name="listOpenMorning" type="Boolean[]" access="global"/>
+<!-- END s.m. - g.v. 15/03/2019 -->	
+	<aura:handler   name="init" value="{!this}" action="{!c.doInit}" />
+	<aura:handler   name="change" value="{!v.objectDataMap.setRedBorderServicePointStep}" action="{!c.setRedBorderSP}"/> 
+	<!-- START DD 12/10/2018 -->
+	<aura:handler   name="change" value="{!v.objectDataMap.setRedBorderServicePointStepValidation}" action="{!c.setRedBorderSP}" />
+	<!-- END   DD 12/10/2018 --> 
+
+
+
+<!-- 			<div class="slds-size_11-of-12">
+				<table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+					<thead>
+						<tr class="slds-text-title_caps">
+							<aura:iteration items="{!v.days}" var="day">
+								<th scope="col">
+									<div class="slds-truncate" title="Days">{!day}</div>
+								</th>
+							</aura:iteration>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<aura:iteration items="{!v.days}" var="item" indexVar="index">
+								<td data-label="OpenClose">
+									<div class="slds-truncate" title="OpenClose">
+										<div>
+											<div class="slds-form-element">
+												<div class="slds-form-element__control">
+													<div class="slds-select_container">
+														<select class="slds-select" name="mySelect"
+															id="{!index+'m'}" value="{!v.selectedValue}"
+															onchange="{!c.handleChangeOption}">
+															<option aura:id="opened">{!$Label.c.OB_Opening_Times_Open}</option>
+															<option aura:id="closed">{!$Label.c.OB_Opening_Times_Closed}</option>
+														</select>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</td>
+							</aura:iteration>
+						</tr>
+						<tr>
+							<aura:iteration items="{!v.days}" var="item" indexVar="index">
+								<td data-label="OpenClose">
+									<div class="slds-truncate" title="OpenClose">
+										<div >
+											<div class="slds-form-element">
+												<div class="slds-form-element__control">
+													<div class="slds-select_container">
+														<select class="slds-select" name="mySelect"
+															id="{!index+'p'}" value="{!v.selectedValue}"
+															onchange="{!c.handleChangeOption}">
+															<option>{!$Label.c.OB_Opening_Times_Open}</option>
+															<option>{!$Label.c.OB_Opening_Times_Closed}</option>
+														</select>
+													</div>
+
+												</div>
+											</div>
+										</div>
+									</div>
+								</td>
+							</aura:iteration>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div> -->
+
+	<div class="slds-grid slds-size--1-of-1 slds-p-around--medium ">
+		<div class="slds-size--1-of-1 slds-grid">
+			<div class="slds-size_1-of-12">
+				<div class="slds-col tableHeaderContainer">
+					<span class="tableHeaderText">{!$Label.c.OB_Opening_Times_Morning}</span>
+				</div>
+				<div class="tableHeaderContainer">
+					<span class="tableHeaderText">{!$Label.c.OB_Opening_Times_Afternoon}</span>
+				</div>
+			</div>
+
+			<div class="slds-col slds-size_11-of-12">
+				<table
+					class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+					<thead>
+						<tr class="slds-text-title_caps">
+							<aura:iteration items="{!v.days}" var="day">
+								<th scope="col">
+									<div class="slds-truncate" title="Days">{!day}</div>
+								</th>
+							</aura:iteration>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+			<!-- START s.m. - g.v. 15/03/2019 -->
+							<aura:iteration items="{!v.listOpenMorning}" var="item" indexVar="index">
+								<td data-label="OpenClose">
+									<div class="slds-truncate" title="OpenClose">
+										<div>
+											<div class="slds-form-element" >
+												<div class="slds-form-element__control">
+													<div class="slds-select_container">
+														<aura:if isTrue="{!item}">
+															<select class="slds-select" name="mySelect"
+																id="{!index+'m'}" value="{!v.selectedValue}"
+																onchange="{!c.handleChangeOption}">
+																<option aura:id="opened">{!$Label.c.OB_Opening_Times_Open}</option>
+																<option aura:id="closed">{!$Label.c.OB_Opening_Times_Closed}</option>
+															</select>
+														<aura:set attribute="else">
+															<select class="slds-select" name="mySelect"
+															id="{!index+'m'}" value="{!v.selectedValue}"
+															onchange="{!c.handleChangeOption}">
+																<option aura:id="closed">{!$Label.c.OB_Opening_Times_Closed}</option>
+																<option aura:id="opened">{!$Label.c.OB_Opening_Times_Open}</option>
+															</select>
+														</aura:set>
+													</aura:if>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</td>
+							</aura:iteration>
+						</tr>
+						<tr>
+							<aura:iteration items="{!v.listOpenAfternoon}" var="item" indexVar="index">
+								<td data-label="OpenClose">
+									<div class="slds-truncate" title="OpenClose">
+										<div >
+											<div class="slds-form-element" >
+												<div class="slds-form-element__control">
+													<div class="slds-select_container">
+															<aura:if isTrue="{!item}">
+																	<select class="slds-select" name="mySelect"
+																		id="{!index+'p'}" value="{!v.selectedValue}"
+																		onchange="{!c.handleChangeOption}">
+																		<option aura:id="opened">{!$Label.c.OB_Opening_Times_Open}</option>
+																		<option aura:id="closed">{!$Label.c.OB_Opening_Times_Closed}</option>
+																	</select>
+																<aura:set attribute="else">
+																	<select class="slds-select" name="mySelect"
+																	id="{!index+'p'}" value="{!v.selectedValue}"
+																	onchange="{!c.handleChangeOption}">
+																		<option aura:id="closed">{!$Label.c.OB_Opening_Times_Closed}</option>
+																		<option aura:id="opened">{!$Label.c.OB_Opening_Times_Open}</option>
+																	</select>
+																</aura:set>
+															</aura:if>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</td>
+							</aura:iteration>
+			<!-- END s.m. - g.v. 15/03/2019 -->
+						</tr>
+					</tbody>
+				</table>
+			</div>
+	    </div>
+	</div>
+	
+	<aura:if isTrue="{!!v.isFromMaintenance == true}">
+		<div class="slds-grid slds-size--1-of-1 slds-m-vertical--xxx-small" aura:id="inputTimes">
+			<div class="slds-size--1-of-1" >
+				<div class="slds-size--1-of-1 slds-grid">
+					<div class="slds-size_1-of-2" >
+						<div class="slds-p-around--medium slds-form-element">
+						<label class="slds-form-element__label"
+													for="inputNameSample1"
+													value="{!$Label.c.OB_OpeningTimeLabel}" 
+													style="margin-top: -4px; position: absolute;" > 
+								<!-- <abbr class="slds-required" title="required">*</abbr> -->
+												{!$Label.c.OB_OpeningTimeLabel}
+							</label>
+							<lightning:input aura:id="openingTime"
+											 id="openingTime"
+											 class="flow_required" 
+											 type="time" 
+											 name="input4"
+											 placeholder="{!$Label.c.OB_OpeningTimeLabel}"
+											 value="{!v.objectDataMap.pv.OB_Opening_Time__c}" 
+											 onchange="{!c.removeRedBorderSp}"/>
+						</div>
+					</div>
+					<div class="slds-size_1-of-2">
+						<div class="slds-p-around--medium slds-form-element">
+							<label class="slds-form-element__label"
+													for="inputNameSample1"
+													value="{!$Label.c.OB_ClosingTime}" 
+													style="margin-top: -4px; position: absolute;" > 
+								<!-- <abbr class="slds-required" title="required">*</abbr> -->
+												{!$Label.c.OB_ClosingTime}
+							</label>
+							<lightning:input aura:id="ClosingTime" 
+											 id="ClosingTime"
+											 class="flow_required"
+											 type="time" 
+											 name="input4"
+											 placeholder="{!$Label.c.OB_ClosingTime}"
+											 value="{!v.objectDataMap.pv.OB_Ending_Time__c}" 
+											 onchange="{!c.removeRedBorderSp}"/>
+						</div>
+					</div>
+				</div>
+	
+				<div class="slds-size--1-of-1 slds-grid">
+			 		<div class="slds-size_1-of-2" >
+			 			<div class="slds-p-around--medium slds-form-element">
+				 			<label class="slds-form-element__label"
+												for="inputNameSample1"
+												value="{!$Label.c.OB_BreakStartTimeLabel}" 
+												style="margin-top: -4px; position: absolute;" > 
+											<!-- <abbr class="slds-required" title="required">*</abbr> -->
+											{!$Label.c.OB_BreakStartTimeLabel}
+										</label>
+				 			<lightning:input aura:id="breakStartTime"
+				 							 id= "breakStartTime"
+				 							 type="time"
+				 							 class="flow_required" 
+				 							 name="input4"
+				 							 onblur="{!c.setFormalMessage}"
+											 placeholder="{!$Label.c.OB_StartBreak}"
+											 value="{!v.objectDataMap.pv.OB_Break_Start_Time__c}" 
+											 onchange="{!c.removeRedBorderSp}"
+											 />
+						</div>
+					</div>
+					<div class="slds-size_1-of-2" id="inputTimes">
+						<div class="slds-p-around--medium slds-form-element">
+							<label class="slds-form-element__label"
+													for="inputNameSample1"
+													value="{!$Label.c.OB_BreakEndTime}" 
+													style="margin-top: -4px; position: absolute;" > 
+								<!-- <abbr class="slds-required" title="required">*</abbr> -->
+												{!$Label.c.OB_BreakEndTime}
+							</label>
+							<lightning:input aura:id="breakEndTime" 
+											 id="breakEndTime" 
+											 type="time" 
+											 class="flow_required"
+											 name="input4"
+											 placeholder="{!$Label.c.OB_EndBreak}"
+											 value="{!v.objectDataMap.pv.OB_Break_End_Time__c}"
+											 onchange="{!c.removeRedBorderSp}" />
+						</div>
+					</div>
+				</div>
+	
+			</div>
+		</div>
+	</aura:if>
+</aura:component>

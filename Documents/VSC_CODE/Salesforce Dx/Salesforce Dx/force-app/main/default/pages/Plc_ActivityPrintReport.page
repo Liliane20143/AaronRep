@@ -1,0 +1,574 @@
+<!--
+ - Created by dilorenzo on 27/02/2019.
+ -->
+
+<apex:page id="Plc_ActivityPrintReport" standardController="wrts_prcgvr__Activity__c" extensions="Plc_ActivityPrintReportCnt"
+           sidebar="false" applyBodyTag="false" applyHtmlTag="false"
+           showHeader="false" standardStylesheets="false" renderAs="pdf"> <!--  -->
+
+    <head>
+        <style type="text/css" media="print" >
+
+        @page {
+            size: A4;
+            margin-bottom: 2%;
+            /*margin-right: 15%;*/
+            /*margin-left: 15%;*/
+            margin-left: 10%;
+            margin-right: 10%;
+            margin-top: 2%;
+        }
+
+        span {
+            font-weight: bold;
+            font-family: Arial Unicode MS;
+        }
+
+        h1 {
+            vertical-align:middle;
+            text-align:center;
+            font-size: 18px;
+            font-weight:bold;
+            color: black;
+            text-decoration: none;
+            padding: 14px;
+        }
+
+        #activityReport {
+          font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+
+        #activityReport td, #activityReport th {
+
+          border: 1px solid #ddd;
+          padding: 5px;
+        }
+
+        #activityReport tr:nth-child(even) {background-color: #f2f2f2;}
+
+        #activityReport tr:hover {background-color: #ddd;}
+
+        #activityReport th {
+            padding-top: 10px;
+            padding-bottom: 10px;
+            text-align: center;
+            background-color: #A7A8AA;
+            color: black;
+        }
+
+        .first-column-width {
+            width:240px;
+        }
+
+    </style>
+    </head>
+
+<!--
+    <apex:repeat value="{!activityToPrintMap}" var="actToPrint5">
+        <table id="activityReport5">
+
+            <tr>
+                <td>
+                    <apex:outputLabel value="{!activityToPrintMap['Plc_Bluetooth__c']}" />
+                </td>
+                <td>
+                    <apex:outputLabel value="{!activityToPrintMap['Plc_Bluetooth__c'].Plc_Bluetooth__c}" />
+                </td>
+            </tr>
+
+        </table>
+    </apex:repeat>
+
+    <apex:pageBlock >
+-->
+
+    <!--
+        <apex:pageBlockSection>
+            <apex:form>
+
+
+
+            <apex:pageBlockTable value="{!activityToPrint}" var="actToPrint" align="center" border="1">
+
+            <apex: value="{!activityToPrintMap['Plc_Bluetooth__c'].Id}"/>
+            <apex:column value="{!activityToPrintMap['Plc_Bluetooth__c'].Plc_Bluetooth__c}"/>
+
+
+            </apex:pageBlockTable>
+            </apex:form>
+        </apex:pageBlockSection>
+
+    </apex:pageBlock>
+-->
+
+    <!--
+    <apex:pageBlock>
+        <apex:pageBlockTable value="{!activityToPrintMap}" var="key" id="leadTable">
+            <apex:repeat value="{!activityFields}" var="FieldLabel">
+                <apex:column value="{!activityToPrintMap['Plc_Bluetooth__c'].Plc_Bluetooth__c}"/>
+            </apex:repeat>
+        </apex:pageBlockTable>
+    </apex:pageBlock>
+-->
+
+    <apex:repeat value="{!activityToPrint}" var="actToPrint2">
+
+    <h1>
+        <i>{!$Label.Plc_ActivityReportFaultReport}</i>
+    </h1>
+        <div>
+            <table id="activityReport">
+
+                <tr>
+                    <th colspan="2">
+                        <i>{!$Label.Plc_ActivityReportFaultData}</i>
+                    </th>
+                </tr>
+
+                <!-- Description -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.wrts_prcgvr__Description__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:outputText value="{!actToPrint2.wrts_prcgvr__Description__c}"/>
+                    </td>
+                </tr>
+
+                <!-- Data -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$Label.Plc_ActivityReportDate}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:outputText value="{!actToPrint2.Plc_ActivityReportDateReportFault__c}"/>
+                    </td>
+                </tr>
+
+                <!-- Società -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.Bit2Shop__Stock_Serials2__c.fields.Plc_Manufacturer__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:outputText value="{!actToPrint2.Plc_StockSerial2__r.Plc_Manufacturer__c}"/>
+                    </td>
+                </tr>
+
+                <!-- SKU -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.Bit2Shop__Stock_Serials2__c.fields.Plc_ProductSku__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:outputText value="{!actToPrint2.Plc_StockSerial2__r.Plc_ProductSku__c}"/>
+                    </td>
+                </tr>
+
+                <!-- Modello POS -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.Bit2Shop__Stock_Serials2__c.fields.Plc_Model__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:outputText value="{!actToPrint2.Plc_StockSerial2__r.Plc_Model__c}"/>
+                    </td>
+                </tr>
+
+                <!-- Numero Ordine -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$Label.Plc_ActivityReportOrderNumber}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:outputLabel value="{!actToPrint2.Plc_StockSerial2__r.Bit2Shop__Transfer_Order_Id__r.Plc_WorkOrder__r.WorkOrderNumber}" />
+                    </td>
+                </tr>
+
+                <!-- Tipo Lavoro -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$Label.Plc_ActivityReportWorkType }" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:outputLabel value="{!actToPrint2.Plc_WorkType__c}" />
+                    </td>
+                </tr>
+
+                <!-- Terminal ID -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.Plc_TermId__c.fields.Plc_TermIdCode__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:outputText value="{!actToPrint2.Plc_StockSerial2__r.Plc_TermId__r.Plc_TermIdCode__c}"/>
+                    </td>
+                </tr>
+
+                <!-- Manufacturer Serial Number -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.Bit2Shop__Stock_Serials2__c.fields.Plc_ManufacturerSerialNumber__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:outputText value="{!actToPrint2.Plc_StockSerial2__r.Plc_ManufacturerSerialNumber__c}"/>
+                    </td>
+                </tr>
+
+                <!-- Encoded Serial Number -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.Bit2Shop__Stock_Serials2__c.fields.Plc_EncodedSerialNumber__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:outputText value="{!actToPrint2.Plc_StockSerial2__r.Plc_EncodedSerialNumber__c}"/>
+                    </td>
+                </tr>
+
+                <!-- Checklist eseguita -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_ChecklistExecuted__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_ChecklistExecuted__c==true,true,false)}" width="20" height="20"/>
+                        <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_ChecklistExecuted__c==false,true,false)}" width="20" height="20"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <p></p>
+        <p></p>
+
+        <div>
+            <table id="activityReport">
+
+            <tr>
+                <th colspan="4">
+                    <i>{!$Label.Plc_ActivityReportFaultType}</i>
+                </th>
+            </tr>
+
+            <!-- Difetti estetici -->
+            <tr>
+                <td class="first-column-width">
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_EsteticDefect__c.Label}" />
+                </td>
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_EsteticDefect__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_EsteticDefect__c==false,true,false)}" width="20" height="20"/>
+                </td>
+                <!-- Il pos non si accende -->
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_PosDoesNotTurnOn__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_PosDoesNotTurnOn__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_PosDoesNotTurnOn__c==false,true,false)}" width="20" height="20"/>
+                </td>
+            </tr>
+
+            <!-- Tastiera -->
+            <tr>
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_Keyboard__c.Label}" />
+                </td>
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_Keyboard__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_Keyboard__c==false,true,false)}" width="20" height="20"/>
+                </td>
+                <!-- Display -->
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_Display__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_Display__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_Display__c==false,true,false)}" width="20" height="20"/>
+                </td>
+            </tr>
+            <!-- Problemi di collegamento -->
+            <tr>
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_ConnectionIssue__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_ConnectionIssue__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_ConnectionIssue__c==false,true,false)}" width="20" height="20"/>
+                </td>
+                <!-- Stampante -->
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_Printer__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_Printer__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_Printer__c==false,true,false)}" width="20" height="20"/>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_Bluetooth__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_Bluetooth__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_Bluetooth__c==false,true,false)}" width="20" height="20"/>
+                </td>
+                <!-- Lettore Banda Magnetica -->
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_ReaderMagneticBand__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_ReaderMagneticBand__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_ReaderMagneticBand__c==false,true,false)}" width="20" height="20"/>
+                </td>
+            </tr>
+
+            <!-- Lettore Chip -->
+            <tr>
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_ChipReader__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_ChipReader__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_ChipReader__c==false,true,false)}" width="20" height="20"/>
+                </td>
+                <!-- Lettore ContactLess -->
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_ContactlessReader__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_ContactlessReader__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_ContactlessReader__c==false,true,false)}" width="20" height="20"/>
+                </td>
+            </tr>
+            <!-- Bluetooth -->
+            <tr>
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_Bluetooth__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_Bluetooth__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_Bluetooth__c==false,true,false)}" width="20" height="20"/>
+                </td>
+                <!-- WiFi -->
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_WiFi__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_WiFi__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_WiFi__c==false,true,false)}" width="20" height="20"/>
+                </td>
+            </tr>
+            <!-- PinPad -->
+            <tr>
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_PinPad__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_PinPad__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_PinPad__c==false,true,false)}" width="20" height="20"/>
+                </td>
+                <!-- Terminale in blocco sicurezza -->
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_SecurityBlock__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_SecurityBlock__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_SecurityBlock__c==false,true,false)}" width="20" height="20"/>
+                </td>
+            </tr>
+            <!-- Power Supply -->
+            <tr>
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_PowerSupply__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_PowerSupply__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_PowerSupply__c==false,true,false)}" width="20" height="20"/>
+                </td>
+
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_BrokenOrExhaustedBattery__c.Label}" />
+                </td>
+                <!-- Batteria esaurita o guasta -->
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_BrokenOrExhaustedBattery__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_BrokenOrExhaustedBattery__c==false,true,false)}" width="20" height="20"/>
+                </td>
+            </tr>
+            <!-- Base per POS portatili-->
+            <tr>
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_BaseForMobilePos__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_BaseForMobilePos__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_BaseForMobilePos__c==false,true,false)}" width="20" height="20"/>
+                </td>
+                <!-- Release non aggiornabile -->
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_ReleaseNotUpdatable__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_ReleaseNotUpdatable__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_ReleaseNotUpdatable__c==false,true,false)}" width="20" height="20"/>
+                </td>
+            </tr>
+            <!-- Perdita Software -->
+            <tr>
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_SoftwareLoss__c.Label}" />
+                </td>
+
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_SoftwareLoss__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_SoftwareLoss__c==false,true,false)}" width="20" height="20"/>
+                </td>
+
+                <td>
+                    <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_AccessoriesRestoration__c.Label}" />
+                </td>
+                <!-- Reintegro Accessori -->
+                <td class="bordered" align="center">
+                    <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_AccessoriesRestoration__c==true,true,false)}" width="20" height="20"/>
+                    <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_AccessoriesRestoration__c==false,true,false)}" width="20" height="20"/>
+                </td>
+            </tr>
+            </table>
+        </div>
+
+        <p></p>
+
+        <div>
+            <table id="activityReport">
+                <tr>
+                    <th colspan="4">
+                        <i>{!$Label.Plc_ActivityReportAccessories}</i>
+                    </th>
+                </tr>
+                <!-- Accessori Alimentatore -->
+                <tr>
+                    <td class="first-column-width">
+                        <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_PowerSupplyAccessory__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_PowerSupplyAccessory__c==true,true,false)}" width="20" height="20"/>
+                        <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_PowerSupplyAccessory__c==false,true,false)}" width="20" height="20"/>
+                    </td>
+                    <!-- Accessori Cavo telefono -->
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_PhoneCableAccessory__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_PhoneCableAccessory__c==true,true,false)}" width="20" height="20"/>
+                        <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_PhoneCableAccessory__c==false,true,false)}" width="20" height="20"/>
+                    </td>
+                </tr>
+                <!-- Accessori Cavo ethernet -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_EthernetCableAccessory__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_EthernetCableAccessory__c==true,true,false)}" width="20" height="20"/>
+                        <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_EthernetCableAccessory__c==false,true,false)}" width="20" height="20"/>
+                    </td>
+                    <!-- Accessori Alimentatore da auto -->
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_CarPowerSupplyAccessory__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_CarPowerSupplyAccessory__c==true,true,false)}" width="20" height="20"/>
+                        <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_CarPowerSupplyAccessory__c==false,true,false)}" width="20" height="20"/>
+                    </td>
+                </tr>
+                <!-- Accessori Connessione cavo ECR -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_ECRConnectionCableAccessory__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_ECRConnectionCableAccessory__c==true,true,false)}" width="20" height="20"/>
+                        <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_ECRConnectionCableAccessory__c==false,true,false)}" width="20" height="20"/>
+                    </td>
+                    <!-- Base -->
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_BaseAccessory__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_BaseAccessory__c==true,true,false)}" width="20" height="20"/>
+                        <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_BaseAccessory__c==false,true,false)}" width="20" height="20"/>
+                    </td>
+                </tr>
+                <!-- Batteria -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_BatteryAccessory__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_BatteryAccessory__c==true,true,false)}" width="20" height="20"/>
+                        <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_BatteryAccessory__c==false,true,false)}" width="20" height="20"/>
+                    </td>
+                    <!-- Sportello stampante -->
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_PrinterFlapAccessory__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_PrinterFlapAccessory__c==true,true,false)}" width="20" height="20"/>
+                        <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_PrinterFlapAccessory__c==false,true,false)}" width="20" height="20"/>
+                    </td>
+                </tr>
+                <!-- Sportello posteriore -->
+                <tr>
+                    <td>
+                        <apex:outputLabel value="{!$ObjectType.wrts_prcgvr__Activity__c.fields.Plc_BackFlapAccessory__c.Label}" />
+                    </td>
+
+                    <td class="bordered" align="center">
+                        <apex:image url="{!$Resource.Plc_Checked}" rendered="{!IF(actToPrint2.Plc_BackFlapAccessory__c==true,true,false)}" width="20" height="20"/>
+                        <apex:image url="{!$Resource.Plc_Unchecked}" rendered="{!IF(actToPrint2.Plc_BackFlapAccessory__c==false,true,false)}" width="20" height="20"/>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+
+    </apex:repeat>
+</apex:page>

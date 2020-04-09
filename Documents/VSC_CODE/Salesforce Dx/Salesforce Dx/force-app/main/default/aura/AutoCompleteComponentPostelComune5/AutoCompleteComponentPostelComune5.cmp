@@ -1,0 +1,91 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="AutoCompleteComponentController">
+	
+	<ltng:require styles="{! $Resource.jqueryuiCSS}" scripts="{!join(',', $Resource.JQueryResourceCode ,  $Resource.jqueryuiJS) }"/>
+
+	<aura:method name="reInit" action="{!c.doInit}" description="Runs the init method again ">
+    </aura:method>
+	<aura:method name="blankValue" action="{!c.blankValue}" description="Reset to blank the value">
+    </aura:method>
+	<aura:attribute name="disabledInput_sp" type="Boolean"/> 
+	<aura:attribute name="comuni" type="List" default="{}" access="global"/>
+	<aura:attribute name="responseCom" type="Object" default="{}" access="global"/>
+	<aura:attribute name="response" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="triggleSpinner" type="Boolean" default = "false"/>
+	
+	<aura:attribute name="province" type="String" />
+	<aura:attribute name="comune" type="String"  />
+	<aura:attribute name="caps" type="List"  />
+	<aura:attribute name="cityString" type="String"/>
+    <aura:attribute name="cityId" type="String" default="comune"/>
+    <aura:attribute name="cityEEId" type="String" default="cityEE"/>
+	<!-- ############################################################################ -->
+	<!-- BIT2FLOW -->
+	<!-- ############################################################################ -->
+	<aura:attribute name="objectDataMap" type="Object" default="{}"/>
+	<aura:attribute name="objectKey" type="String" default=""/>
+	<aura:attribute name="identifier" type="String" default=""/>
+	<aura:attribute name="addressMapping" type="Object" access="global"/>
+	<aura:attribute name="isEE" type="Boolean" default="false" access="global"/>
+	<!-- ############################################################################ -->
+
+	<!-- joanna.mielczarek@accenture.com 28/03/2019 START -->
+	<aura:attribute name="filteredOptions" type="String[]" access="public" description="Options displayed as predictions"/>
+	<aura:attribute name="listaComuni" type="List" access="public" />
+	<aura:attribute name="inputLabel" type="String" access="private" />
+	<!-- joanna.mielczarek@accenture.com 28/03/2019 STOP -->
+
+	<aura:registerEvent name="AutocompleteEvent" type="c:OB_AutocompleteEvent"/>
+	<aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+	<div class="slds-p-around--medium slds-form-element">
+		<div class="slds-form-element__control">
+			 <aura:if isTrue="{!v.isEE != true}">
+                 <lightning:input aura:id="{!v.cityId}" id="{!v.cityId}" value="{!v.cityString}" onchange="{!c.callCities}" onblur="{!c.comune}" label="{!v.inputLabel}" disabled="{!v.addressMapping.citydisabled}"/>
+				 <!-- joanna.mielczarek@accenture.com 28/03/2019 START -->
+				 <div aura:id="addressSuggestion" id="listbox-unique-id" role="listbox" class="slds-hide">
+					 <ul class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid " role="presentation">
+						 <aura:iteration items="{!v.filteredOptions}" var="option" indexVar="index" >
+							 <li aura:id="selectedAddress" role="presentation"
+								 class="slds-listbox__item"
+								 onclick="{!c.selectOption}"
+								 data-value="{!option.value}"
+								 data-record="{!index}"
+								 data-placeid="{!option.PlaceId}"
+								 data-locaval="{!option.locaval}"
+							 >
+                            <span id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                <span class="slds-media__body">
+                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity">{!option.label}</span>
+                                </span>
+                            </span>
+							 </li>
+						 </aura:iteration>
+					 </ul>
+				 </div>
+				 <!-- joanna.mielczarek@accenture.com 28/03/2019 STOP -->
+			</aura:if>
+			<aura:if isTrue="{!v.isEE == true}">
+				<input id="{!v.cityEEId}"  
+					   value="{!v.cityString}"
+					   class="flow_required slds-input" 
+					   label =""
+					   type="text" 
+					   onchange="{!c.getValueEE}" 
+					   disabled="{!v.addressMapping.citydisabled}"
+					   /> 
+			</aura:if>
+		</div>
+		<div class="slds-input__icon-group slds-input__icon-group_right" style = "width: 40px; height: 37px;">
+				<div role="status" class=" slds-spinner_brand slds-spinner_x-small slds-input__spinner">
+				  <aura:if isTrue="{! v.triggleSpinner}">
+					<div role="status" class="slds-spinner slds-spinner_brand slds-spinner_small">
+						<span class="slds-assistive-text">Loading</span>
+						<div  class="slds-spinner__dot-a"></div>
+						<div  class="slds-spinner__dot-b"></div>
+					</div>
+				  </aura:if>
+			  </div>
+		</div>
+	</div>
+</aura:component>

@@ -1,0 +1,266 @@
+<aura:component controller = "OB_Active_Asset_View" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global">
+
+    <aura:attribute name="posList"  type="List" access="global"/>
+    <aura:attribute name="posListFiltered"  type="List" access="global"/>
+    <aura:attribute name="pagoList"  type="List" access="global"/>
+    <aura:attribute name="pagobancomatListFiltered"  type="List" access="global"/>
+    <aura:attribute name="acquiringList"  type="List" access="global"/>
+    <aura:attribute name="acquiringListFiltered"  type="List" access="global"/>
+    <aura:attribute name="vasList"  type="List" access="global"/>
+    <aura:attribute name="vasListFiltered"  type="List" access="global"/>
+    <aura:attribute name="enablementsList"  type="List" access="global"/>
+    <aura:attribute name="enablementsListToView"  type="List" access="global"/>
+    <!-- Start simone.misani@accenturte.com  attribute for  eneblements Vas  RI-34 03/05/2019 -->
+    <aura:attribute name="enablementsListToViewVas"  type="List" access="global"/>
+    <!-- End simone.misani@accenturte.com  attribute for  eneblements Vas  RI-34 03/05/2019 -->
+    <aura:attribute name="recordId" type="String" /> 
+    <aura:attribute name="showTable" type="Boolean" default="false"/>
+    <aura:attribute name="proposerABI" type="String" /> 
+    <aura:attribute name="accountName" type="String" /> 
+    <aura:attribute name="isFiltered" type="Boolean" default="false"/>
+    <aura:attribute name="bundleIdMap" type="Object"/>
+    <aura:attribute name="mapItem" type="Object"/>
+    <aura:attribute name="mapAbi" type="Object"/>
+    <aura:attribute name="mapAssetConfig" type="Object"/>
+    <aura:attribute name="mapAssetBundleConfig" type="Object"/>
+    <aura:attribute name="FlowData" type="string"  />
+    <aura:attribute name="FlowStep" type="string"  />
+    <!-- Start antonio.vatrano antonio.vatrano@accenture.com set default false for visibility of component, ONLY operation   -->
+    <aura:attribute name="showOffer" type="Boolean" default="false"/>
+     <!-- End antonio.vatrano antonio.vatrano@accenture.com set default false for visibility of component, ONLY operation   -->
+    <aura:attribute name="bundleConfiguration" type="string"  />
+    <!-- Start simone.misani@accenturte.com  attribute for  columns datatable Vas  RI-34 03/05/2019 -->
+    <aura:attribute name="columnsPos" type = "List" access="global"/>
+    <aura:attribute name="columnsPago" type = "List" access="global"/>
+    <aura:attribute name="columnsAcquiring" type = "List" access="global"/>
+     <!-- End simone.misani@accenturte.com  attribute for  columns datatable Vas  RI-34 03/05/2019 -->
+    <aura:attribute name="columnsVas" type = "List" access="global"/>
+    <!-- Start simone.misani@accenturte.com  attribute for  eneblements Vas  RI-34 03/05/2019 -->
+    <aura:attribute name="columnsEnablementsAcquiring" type = "List" access="global"/>
+    <aura:attribute name="columnsEnablementsVas" type = "List" access="global"/>
+    <!-- End simone.misani@accenturte.com  attribute for  eneblements Acquiring and Vas  RI-34 03/05/2019 -->
+    <aura:attribute name="attributesList" type = "List" access="global"/>
+    <aura:attribute name="attributeColumns" type = "List" access="global"/>
+    <aura:attribute name="isToShowAttribute" type = "Boolean" access="global" default="false"/>
+     <!-- Start simone.misani@accenturte.com  attribute for show modals  RI-34 03/05/2019 -->
+    <aura:attribute name="isToshowEnablements" type = "Boolean" access="global" default="false"/>
+     <!-- End simone.misani@accenturte.com  attribute for show modals   RI-34 03/05/2019 -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <div style="background: white">
+        <aura:if isTrue="{!v.showTable}">
+        <!--START elena.preteni add label 15/4/19--> 
+        <!--START Simone misani 4/05/2019--> 
+        <lightning:card variant="Narrow" title="{!$Label.c.OB_Active_Assets_SP}" iconName="standard:asset_relationship" footer="{!$Label.c.OB_Filter_by}"/>
+        <!--END  Simone misani 4/05/2019--> 
+            <!--END elena.preteni add label 15/4/19-->  
+            <!-- Start **** Simone Misani mail: simone.misani@accenture.it fix css -->
+             <!-- Start simone.misani@accenturte.com  add input filter  RI-34 03/05/2019 -->
+            <div class="slds-form slds-form_compound " aura:id="MainDiv">
+                <div class="slds-form-element__row slds-align_absolute-center">
+                    
+                    <div class="slds-form-element slds-size_1-of-7 slds-p-around_xx-small">
+                        <lightning:input   label ="ABI" aura:id="abi"/>
+                    </div>
+                    <div class="slds-form-element slds-size_1-of-7 slds-p-around_xx-small">
+                        <lightning:input    label ="Terminal Id" aura:id="terminalId"/>
+                    </div>
+                    <div class="slds-form-element slds-size_1-of-7 slds-p-around_xx-small">
+                        <lightning:input   label ="Codice RAC-SIA" aura:id="codiceRacSia"/>
+                    </div>
+                    <div class="slds-form-element slds-size_1-of-7 slds-p-around_xx-small">
+                        <lightning:input   label ="Codice Cliente Monetica" aura:id="codiceMonetica"/>
+                    </div>
+                </div>
+                <div class="slds-form-element__row slds-align_absolute-center">
+
+                    <div class="slds-form-element slds-size_1-of-7 slds-p-around_xx-small">
+                        <lightning:input    label ="Codice Stabilimento" aura:id="codiceStabilimento"/>
+                    </div>
+                    <div class="slds-form-element slds-size_1-of-7 slds-p-around_xx-small">
+                        <lightning:input    label ="Codice Società Monetica" aura:id="codiceSocieta" />
+                    </div>
+                    <div class="slds-form-element slds-size_1-of-7 slds-p-around_xx-small">
+                        <lightning:input   label ="Codice PV" aura:id="codicePV"/>
+                    </div>
+                    <div class="slds-form-element slds-size_1-of-7 slds-p-around_xx-small">
+                        <lightning:input   label ="Business Model" aura:id="BusinessModel"/>
+                    </div>
+                </div>
+
+
+                <div class="slds-form-element slds-size_1-of-8 slds-p-around_xx-small slds-align_absolute-center">
+                    <lightning:button    label ="Cerca" onclick="{!c.filter}" />
+                </div>
+            </div>
+             <!-- End simone.misani@accenturte.com  attribute for show modals  RI-34 03/05/2019 -->
+             <!-- Start simone.misani@accenturte.com  Add dataTable for terminal pagobancomat Acquiring  and datatable filtered RI-34 03/05/2019 -->
+            
+                <aura:if isTrue="{!!v.isFiltered}">
+                    <aura:if isTrue="{!!empty(v.posList)}">
+                            <div class='noBorderButton slds-m-top_x-large'>
+                        <!--  Masoud zaribaf 08/05/2019 add class hide arrows -->
+                            <lightning:datatable    class="hideArrows" 
+                                                    columns="{!v.columnsPos}" 
+                                                    data="{!v.posList}" 
+                                                    keyField="Id" 
+                                                    aura:id="posList" 
+                                                    initialWidth="100" 
+                                                    hideCheckboxColumn="true" 
+                                                    onrowaction="{!c.showofferOrAttributes}" />
+                        </div>
+                    </aura:if>
+                    <aura:set attribute="else">
+                        <aura:if isTrue="{!!empty(v.posListFiltered)}">
+                                <div class='noBorderButton slds-m-top_x-large'>
+                                 <!--  Masoud zaribaf 08/05/2019 add class hide arrows -->
+                                <lightning:datatable    
+                                                         class="hideArrows"
+                                                        columns="{!v.columnsPos}" 
+                                                        data="{!v.posListFiltered}" 
+                                                        keyField="Id" 
+                                                        aura:id="posList" 
+                                                        initialWidth="200" 
+                                                        hideCheckboxColumn="true" 
+                                                        onrowaction="{!c.showofferOrAttributes}" />
+                            </div>
+                        </aura:if>
+                    </aura:set>
+                </aura:if>
+            
+           
+                <aura:if isTrue="{!!v.isFiltered}">
+                    <aura:if isTrue="{!!empty(v.pagoList)}">
+                            <div class='noBorderButton slds-m-top_x-large'>  
+                            <!--  Masoud zaribaf 08/05/2019 add class hide arrows -->  
+                            <lightning:datatable  class="hideArrows"                                                                
+                                                    columns="{!v.columnsPago}" 
+                                                    data="{!v.pagoList}" 
+                                                    keyField="Id" 
+                                                    aura:id="pagoList" 
+                                                    initialWidth="200" 
+                                                    hideCheckboxColumn="true"
+                                                    onrowaction="{!c.showofferOrAttributes}" />
+                        </div>
+                    </aura:if>
+                    <aura:set attribute="else">
+                        <aura:if isTrue="{!!empty(v.pagobancomatListFiltered)}">
+                                <div class='noBorderButton slds-m-top_x-large'>
+                                <!--  Masoud zaribaf 08/05/2019 add class hide arrows -->
+                                <lightning:datatable   
+                                                        class="hideArrows" 
+                                                        columns="{!v.columnsPago}" 
+                                                        data="{!v.pagobancomatListFiltered}"    
+                                                        keyField="Id" 
+                                                        aura:id="pagoList" 
+                                                        initialWidth="200" 
+                                                        hideCheckboxColumn="true"
+                                                        onrowaction="{!c.showofferOrAttributes}" />
+                            </div>
+                        </aura:if>
+                    </aura:set>
+                </aura:if>
+            
+           
+                <aura:if isTrue="{!!v.isFiltered}">
+                    <aura:if isTrue="{!!empty(v.acquiringList)}">
+                        <div class='noBorderButton slds-m-top_x-large'>
+                            <!--  Masoud zaribaf 08/05/2019 add class hide arrows -->
+                            <lightning:datatable    
+                                                    class="hideArrows"
+                                                    columns="{!v.columnsAcquiring}" 
+                                                    data="{!v.acquiringList}" 
+                                                    keyField="Id" 
+                                                    aura:id="acquiringList" 
+                                                    initialWidth="200" 
+                                                    hideCheckboxColumn="true" 
+                                                    sortedDirection="desc"
+                                                    onrowaction="{!c.showofferOrAttributes}"/>
+                        </div>
+                    </aura:if>
+                    <aura:set attribute="else">
+                        <aura:if isTrue="{!!empty(v.acquiringListFiltered)}">
+                                <div class='noBorderButton slds-m-top_x-large'>
+                                <!--  Masoud zaribaf 08/05/2019 add class hide arrows -->
+                                <lightning:datatable    
+                                                        class="hideArrows"
+                                                        columns="{!v.columnsAcquiring}" 
+                                                        data="{!v.acquiringListFiltered}" 
+                                                        keyField="Id" 
+                                                        aura:id="acquiringList" 
+                                                        initialWidth="200" 
+                                                        hideCheckboxColumn="true" 
+                                                        onrowaction="{!c.showofferOrAttributes}"/>  
+                            </div>
+                        </aura:if>           
+                    </aura:set>
+                </aura:if>
+            
+        </aura:if>
+        <!-- End **** Simone Misani mail: simone.misani@accenture.it fix css -->
+    </div>
+     <!-- End simone.misani@accenturte.com  Add dataTable for terminal pagobancomat Acquiring  and datatable filtered RI-34 03/05/2019 -->
+    
+<aura:if isTrue="{!v.showOffer}">
+            <!-- Start **** Simone Misani mail: simone.misani@accenture.it add label for title of StrikeModal -->
+    <c:strike_modal title="{!$Label.c.OB_OfferAsset}" size="large" primaryButtonLabel="Ok" secondaryButtonLabel="Cancel" showHeader="true" showFooter="false" showClose="true" showModal="{!v.showOffer}" >
+        <c:OB_Maintenance_Summary recordId="{!v.recordId}" FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}" ViewMode="EDIT" modifyServicePointId="{!v.recordId}" proposerABI="{!v.proposerABI}"  
+                    showMainAnag="false"  bundleConfiguration="{!v.bundleConfiguration}" hideBackToSearch = "true" />  
+                    <!--  antonio.vatrano antonio.vatrano@accenture.com add:paramater to hide button 'backToSearch' in strikeModal --> 
+        </c:strike_modal>
+</aura:if>
+<!--Start- simone.misani@accenture.com 03/05/2019 strike modal for the attributs for terminal. -->
+<aura:if isTrue="{!v.isToShowAttribute}">
+    <c:strike_modal title="Attributi" size="large" primaryButtonLabel="Ok" secondaryButtonLabel="Cancel" showHeader="true" showFooter="false" showClose="true" showModal="{!v.isToShowAttribute}" >
+            <div><!--  Masoud zaribaf 08/05/2019 add class hide arrows -->
+                <lightning:datatable
+                class="hideArrows"
+                columns="{! v.attributeColumns }"
+                data="{! v.attributesList }"
+                keyField="Id"
+                aura:id="attributeTable"
+                hideCheckboxColumn = "true"
+                
+                />
+            </div>
+    </c:strike_modal>
+</aura:if>
+<!--End- simone.misani@accenture.com 03/05/2019 strike modal for the attributs for terminal. -->
+<!-- Start simone.misani@accenturte.com  Add strike modal for view Eneblements for Acquiring and Vas two  differents table RI-34 03/05/2019 -->
+<aura:if isTrue="{!v.isToshowEnablements}">
+    <c:strike_modal title="Attivazioni" primaryButtonLabel="Ok" secondaryButtonLabel="Cancel" showHeader="true" showFooter="false" showClose="true"  showModal="{!v.isToshowEnablements}"  size="large" >
+            <aura:if isTrue="{!and(!empty(v.enablementsListToView),!empty(v.enablementsListToViewVas))}">
+            <div><!--  Masoud zaribaf 08/05/2019 add class hide arrows -->
+                <aura:if isTrue="{!!empty(v.enablementsListToView)}">
+                    <lightning:datatable
+                                        class="hideArrows"
+                                        columns="{! v.columnsEnablementsAcquiring }"
+                                        data="{! v.enablementsListToView }"
+                                        keyField="Id"
+                                        aura:id="attributeTable"
+                                        hideCheckboxColumn = "true"                
+                    />
+                </aura:if><!--  Masoud zaribaf 08/05/2019 add class hide arrows -->
+                <aura:if isTrue="{!!empty(v.enablementsListToViewVas)}">
+                    <lightning:datatable
+                                        class="hideArrows"
+                                        columns="{! v.columnsEnablementsVas }"
+                                        data="{! v.enablementsListToViewVas }"
+                                        keyField="Id"
+                                        aura:id="attributeTable"
+                                        hideCheckboxColumn = "true"                
+                    />
+                   
+                </aura:if>
+            </div>
+            <aura:set attribute="else">
+                <div class='emptyTable'>
+                    {!$Label.c.OB_MAINTENANCE_LOGREQUEST_NODATA}
+                </div>
+            </aura:set>
+        </aura:if> 
+    </c:strike_modal>
+</aura:if>
+<!-- End simone.misani@accenturte.com  Add strike modal for view Eneblements for Acquiring and Vas two  differents table RI-34 03/05/2019 -->
+
+</aura:component>

@@ -1,0 +1,49 @@
+.THIS .uiInputRadio .uiLabel span{
+    margin-right: .5rem;
+}
+
+.THIS .slds-col {
+    flex: 1;
+}
+
+.THIS .slds-input[disabled] {
+	background-color: rgb(224, 225, 221);
+}
+
+.THIS .slds-select[disabled] {
+	background-color: rgb(224, 225, 221);
+}
+
+.THIS .slds-input.slds-is-disabled .slds-select.slds-is-disabled{
+	background-color: rgb(224, 225, 221);
+}
+
+.THIS .align-bottom {
+	bottom: .75rem;
+}
+
+.THIS .align-center {
+	left: calc(50% - (1*92.1px));
+}
+
+.THIS .popover {
+	position: absolute;
+	left: 8rem;
+	top: 0%;
+}
+
+.THIS lightning-input label.slds-form-element__label:first-of-type {
+    display: none;
+}
+
+.THIS .slds-grid.slds-grid_pull-padded-medium.section-container lightning-input:first-of-type {
+	margin-bottom: .5rem;
+}
+
+.THIS .slds-radio_button [type=radio][disabled]:checked+.slds-radio_button__label {
+	background-color: rgb(201, 199, 197);
+}
+
+.THIS legend.slds-form-element__legend.slds-form-element__label {
+	margin-bottom: .5rem;
+}

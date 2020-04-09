@@ -1,0 +1,12 @@
+<aura:component implements="flexipage:availableForAllPageTypes" 
+                access="global"
+                controller="AccountingDataApex">
+   
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="billingProfileList" type="String[]"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/> 
+    
+	<input id="prova" type="text" value="" onblur="{!c.insertFields}" class="slds-hide"></input>
+    
+</aura:component>

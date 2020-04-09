@@ -1,0 +1,46 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" >
+
+	<aura:attribute name="FlowData" type="string"  />
+    <aura:attribute name="FlowStep" type="string"  />
+	<aura:attribute name="searchStep" type="string"   default ="{!$Label.c.OB_MAINTENANCE_STEP_SEARCH}"/>
+	<aura:attribute name="summaryStep" type="string"   default ="{!$Label.c.OB_MAINTENANCE_STEP_SUMMARY}"/>
+    <aura:attribute name="editAccountStep" type="string"   default ="{!$Label.c.OB_MAINTENANCE_STEP_EDITACCOUNT}"/>
+    <aura:attribute name="assetFilters"  type="Object"  access="global"/>
+    <aura:attribute name="editServicePointStep" type="string"   default ="{!$Label.c.OB_MAINTENANCE_STEP_EDITSERVICEPOINT}"/>
+    <aura:attribute name="varCoBaStep" type="string"   default ="{!$Label.c.OB_MAINTENANCE_ACTIONS_VARCOBA}" access="private"/> <!--NEXI-33 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 07/05/2019-->
+    <aura:attribute name ="modifyServicePointId" type="string" />
+    <aura:attribute name ="proposerABI"  type="String"  access="global"/>
+    <!--21/06/19 francesca.ribezzi adding fiscalCode attribute-->
+    <aura:attribute name ="fiscalCode"  type="String"  access="global"/>
+    <!--  DG - 28/03/2019 - MAIN_RP_019 - START -->
+    <aura:attribute name ="UserWrapper"  type="Object"  access="global"/>
+    <!--  DG - 28/03/2019 - MAIN_RP_019 - END -->
+    <!--giovanni spinelli start 27/09/2019-->
+    <aura:attribute name ="filterToRedirect"    type="String"   access="global"/>
+    <aura:attribute name ="myBaseURL"  			type="String"   access="global"/>
+    <aura:attribute name ="userProfile"  		type="String"  								access="global"/>
+    <!--giovanni spinelli start 27/09/2019-->
+    <!--21/06/19 francesca.ribezzi adding handler - descoping-consistenza-->
+    <aura:handler event="c:OB_ConfigureActivePOSevent" action="{!c.handleRefresh}"/>
+
+    <div>
+        <aura:if isTrue="{! equals(v.FlowStep,v.searchStep)}" >
+                <!--21/06/19 francesca.ribezzi passing fiscalCode-->
+                <c:OB_Maintenance_Search  fiscalCode="{!v.fiscalCode}" FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}" proposerABI="{!v.proposerABI}" UserWrapper="{!v.UserWrapper}" filterToRedirect="{!v.filterToRedirect}" myBaseURL="{!v.myBaseURL}" userProfile="{!v.userProfile}"/><!--giovanni spinelli pass attribute to child 27/09/2019-->
+        </aura:if>
+        <aura:if isTrue="{! equals(v.FlowStep,v.summaryStep)}" >
+                <c:OB_Maintenance_Summary FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}" ViewMode="EDIT" modifyServicePointId="{!v.modifyServicePointId}" proposerABI="{!v.proposerABI}" UserWrapper="{!v.UserWrapper}" filterToRedirect="{!v.filterToRedirect}" myBaseURL="{!v.myBaseURL}" userProfile="{!v.userProfile}"/><!--giovanni spinelli pass attribute to child 27/09/2019-->
+        </aura:if>
+        <aura:if isTrue="{! equals(v.FlowStep,v.editAccountStep)}" >
+                <c:OB_Maintenance_EditAccount FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}"  DisabledFields="['NE__Fiscal_code__c', 'NE__VAT__c']"/> <!-- NEXI-97 Marta Stempien <marta.stempien@accenture.com> Remove OB_SAE__c and OB_ATECO__c fields from here -->
+        </aura:if>
+        <aura:if isTrue="{! equals(v.FlowStep,v.editServicePointStep)}" >
+                <c:OB_Maintenance_EditServicePoint FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}" modifyServicePointId="{!v.modifyServicePointId}"   DisabledFields="['OB_MCC_Description__c']" />
+        </aura:if>
+        <!--NEXI-33 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 07/05/2019 Start-->
+        <aura:if isTrue="{! equals(v.FlowStep,v.varCoBaStep)}" >
+            <c:OB_LCP004_Maintenance_VarCoBa FlowStep="{!v.FlowStep}" modifyServicePointId="{!v.modifyServicePointId}" />
+        </aura:if>
+        <!--NEXI-33 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 07/05/2019 Stop-->
+    </div>
+</aura:component>

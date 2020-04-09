@@ -1,0 +1,27 @@
+.THIS .referents{
+	padding-top: 1.6rem;
+	padding-left: 1.6rem;
+}
+
+.THIS .buttons{
+	padding-top: 1.6rem;
+	/*padding-left: 1.6rem;*/
+	padding-bottom: 1.6rem;
+}
+
+.THIS .checkboxAlign{
+	padding-top: 1rem;
+    padding-right: 2rem;
+}
+
+.THIS .description{
+	padding-bottom: 1rem; 
+}
+.THIS .cAutoCompleteComponentPostel .slds-p-around--medium
+{
+	padding: .25rem !important;	
+}
+
+.THIS .error-input-message {
+	color: rgb(194, 57, 52)!important; 
+}

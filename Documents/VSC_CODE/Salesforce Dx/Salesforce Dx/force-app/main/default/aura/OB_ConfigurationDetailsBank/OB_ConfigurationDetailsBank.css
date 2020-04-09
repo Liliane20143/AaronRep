@@ -1,0 +1,641 @@
+.THIS {
+}
+.THIS .cardsContainer{
+	padding-left: 3%;
+    padding-right: 3%;
+	
+}
+
+.THIS .saveBtnBox{
+	
+	text-align: right;
+}
+
+.THIS .selectCatalogItem{
+	padding: 0;
+	padding-right: .75rem;
+}
+
+.THIS .minLabelHeader{
+	/*margin-top: 10%;
+    margin-bottom: 13%;*/
+    
+        margin-top: 7%;
+    margin-bottom: 5%;
+}
+.THIS .voceClass{
+ 	padding-top: 0.5%;
+	
+}
+
+.THIS .disabledBtn{
+	
+	background-color: #dddbda;
+}
+
+
+.THIS .modalStyle{
+	
+	position:absolute;
+	top:50%;
+	left:50%;
+}
+
+.THIS .lockIconBlocked{
+
+	
+}
+
+.THIS .lockIconBlocked > lightning-primitive-icon > svg > use{
+    fill: #cc6600;
+}
+
+
+.THIS .centeredText{
+	
+	text-align:center;
+	
+}
+
+.THIS.detailsCatalogContainer{
+	position: relative;
+    padding: 0;
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(221, 219, 218);
+    border-radius: .25rem;
+    background-clip: padding-box;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.10);
+    padding-bottom: 4%
+
+}
+
+.THIS .productNameClass{
+	/*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1.2em;
+    color: #4F6A92;
+}
+.THIS .descriptionClass{
+	/*font-family: 'Salesforce Sans Regular', 'Salesforce Sans';*/
+	font-weight:500;
+	color:#000000;
+	margin-top: 0.3%;
+}
+
+.THIS .datesClass{
+
+	
+}
+
+.THIS .upCard{
+	
+}
+
+
+
+.THIS .calendarIcon > lightning-primitive-icon > svg > use{
+    fill: #4F6A92;
+}
+.THIS .lockIcon > lightning-primitive-icon > svg > use{
+    fill: #4F6A92;
+}
+
+.THIS .lockIconSpan{
+	
+	cursor: pointer;
+}
+
+.THIS .lockIconClockedSpan{
+	
+	
+}
+
+.THIS .attributesValues > label{
+	 display: none;
+	
+}
+
+.THIS .slds-form-element__label{
+	/*font-family: 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1em;
+    color: #4F6A92;
+	
+}
+
+.THIS .datesClass > slds-button slds-button_icon-bare > lightning-primitive-icon > svg > use{
+	 fill: #4F6A92;
+}
+
+.THIS .blueIcon{
+	color:#0070d2;
+}
+
+.THIS .editingSection{
+	margin-top: 2.2%;
+	/*font-family: 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1em;
+    color: #0070D2;
+ 
+}
+
+.THIS .slds-card__body{
+	padding-right: 2%;
+    padding-left: 2%;
+    padding-bottom: 1.5%;
+	margin:0;
+  
+}
+
+.THIS .slds-card__header{
+	margin: 0;
+}
+
+.THIS .calendarAndEditingSection{
+	/*background-color: #ebf1f5;*/
+	margin-top:1%;
+}
+
+.THIS .editText{
+	color: #0070D2;
+}
+
+.THIS .downCard{
+
+    padding-top: 1%;
+}
+
+.THIS .attributesValues{
+	/*font-family: 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1em;
+    color: #4F6A92;
+}
+
+.THIS .createNewBtn{
+	margin-top: 1.8%;
+}
+.THIS .createNewText{
+    /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #0070D2;
+}
+.THIS .newBtn{
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(82, 158, 224, 1);
+}
+
+.THIS .plusIcon{
+	color: #0070D2;
+	font-size: 2em;
+    float: left;
+    margin-left: -5%;
+    margin-top: -1%;
+}
+
+.THIS .slds-button_icon-bare{
+	
+	color:rgba(27, 82, 151, 1.0); 
+}
+
+.THIS .cardsHeader{
+	 text-transform: uppercase;
+	/*font-family: 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.5em;
+    color: #000000;
+    padding-top: 1%;
+}
+
+.THIS .headerBox{
+    border-bottom-width: 1px;
+   border-bottom-style: solid;
+    border-color: #ebf1f5;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 1%;
+    
+}
+.THIS .createNewElement{
+	/*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #0070D2;
+}
+.THIS .newElementBtn{
+	border-width: 1px;
+    border-style: solid;
+    border-color: rgba(0, 112, 210, 1);
+    border-radius: 6px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.35);
+}
+
+.THIS .newElBtnWrapper{
+	text-align: right;
+	padding-bottom: 2%;
+}
+.THIS .matrixParameterFields{
+    /*font-family: 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1em;
+    color: #999999;
+}
+.THIS .matrixParameterValues{
+    /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #1C1C1C;
+ }
+ .THIS .matrixParameterBox{
+ 	border-width: 1px 0;
+    border-style: solid;
+    border-color: #ebf1f5;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 1%;
+ }
+ 
+ .THIS .title{
+    /*font-family: 'Salesforce Sans Light','Salesforce Sans Regular','Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 2em;
+    color: #000000;
+
+ }
+ .THIS .saveBtnText{
+     /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1.2em;
+    color: #FFFFFF;
+ }
+  .THIS .saveCatalogBtnText{
+     /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #FFFFFF;
+ }
+ 
+ 
+ .THIS .cancelBtn{
+    /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1.2em;
+    color: #0070D2;
+ }
+ 
+ .THIS .saveCancelBtnsBox{
+ 	text-align: right;
+ }
+ 
+ .THIS .priceAndCommissionBox{
+     margin-top: 1%;
+ 	 padding-left: 1%;
+ }
+ 
+ .THIS .goBackBox{
+ 	background-color:rgba(247, 249, 251, 1);
+ 	padding-bottom: 0.5%;
+    padding-top: 0.5%;
+    margin-bottom: 4%;
+    padding-left: 3%;
+   
+ }
+ .THIS .pointerClass{
+ 	cursor:pointer;	
+ }
+.THIS .pointerClass:hover {
+    text-decoration: underline;
+    color: #0070D2;
+}
+ 
+ .THIS .goBackArrow{
+    font-weight: 800;
+    font-style: normal;
+    font-size: 1.2em;
+    color: #0070D2;
+ }
+ 
+ .THIS .goBackText{
+  	/*font-family: 'Salesforce Sans';*/
+    font-weight: 600;
+    font-style: normal;
+    font-size: 1.2em;
+    color: #0070D2;
+ }
+ 
+ .THIS .attrLabel{
+	  display: inline-block;
+	  text-align: left;
+ }
+ .THIS .f217{
+    border-width: 0;
+    background: inherit;
+    box-sizing: border-box;
+    border-width: 1px; 
+    border-style: solid; 
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    box-shadow: none;
+    width: 54%;
+    text-align: right;
+    background-color: rgb(255, 255, 255);
+    padding-bottom: 4%;
+    padding-top: 4%;
+    color: #000000;
+    /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+ }
+  .THIS .inputNumber{
+    background-color: rgb(255, 255, 255);
+    color: #000000;
+    /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+ }
+ 
+   .THIS .inputNumber > div > input{
+    text-align: right;
+ }
+
+   .THIS .inputNumberReadonly > div > input{
+	box-shadow: none;
+    border-radius: 6px;
+    background-color: #f4f4f4;
+    /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #999999;
+    text-align: right;
+	border: 1px solid #f4f4f4;
+ }
+ 
+ .THIS .f217sequence{
+   /*  border-width: 0;
+    background: inherit;
+    box-sizing: border-box;
+    border-width: 1px; 
+    border-style: solid; 
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    box-shadow: none;
+    width: 11%;
+    padding: 0;
+    background-color: rgb(255, 255, 255);*/
+    text-align: right; 
+ }
+  
+ .THIS .sequenceInputAndErrorMsg{
+     width: 20%;
+    float: right;
+ }
+ .THIS .sequenceLabel{
+ 	margin-top: 3.5%;
+ }
+ 
+ .THIS .slds-icon-text-default{
+	
+	fill:rgba(27, 82, 151, 1.0); 
+}
+ 
+ 
+ .THIS .f217readonly{
+	box-shadow: none;
+    border-radius: 6px;
+    background-color: #f4f4f4;
+    width: 54%;
+    /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #999999;
+    text-align: right;
+    padding-bottom: 4%;
+    padding-top: 4%;
+	border: 1px solid #f4f4f4;
+ }
+ 
+ .THIS .selectedCard{
+    outline: 0;
+    border-color: rgb(21, 137, 238);
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 3px #0070d2;
+    
+ }
+ 
+ .THIS .saveBtnDiv{
+ 	margin-top: 1.2%;
+ }
+ 
+ .THIS .sequenceClass{
+ 	 text-align: right;
+ 	/*font-family: 'Salesforce Sans Italic', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1em;
+    color: #4F6A92;
+ }
+ .THIS .sequenceWrapper{
+ text-align: right;
+ }
+ .THIS .labelAndTitles{
+     /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #3C3C3C;
+	text-transform: uppercase;
+ }
+ 
+ .THIS .attributesSectionDiv{
+ 	border-bottom: 1px solid #ebf1f5; 	
+ 	padding-top: 1%;
+    padding-bottom: 1%;
+ }
+ 
+ .THIS .labelsHeader{
+ 	background-color: rgba(235, 242, 246, 1);
+ 
+ }
+ 
+ .THIS .labelHeaderSubDiv{
+ 	border-right:  5px solid white; 
+ 	padding-top: 1.6%;
+ 	padding-bottom:1%;
+ }
+ 
+.THIS .labelHeaderSubDivNoBoder{
+	padding-top: 1.6%;
+ 	padding-bottom:1%;
+}
+ 
+ .THIS .labelHeaderSubDivBorderLeft{
+  	border-left:  5px solid white; 
+ 	padding-top: 1.6%;
+ 	padding-bottom:1%;
+ }
+ .THIS .labelHeader{
+ 	padding-top: 2%;
+ /*	padding-bottom:1%;*/
+ }
+ 
+ .THIS .labelHeaderText{
+ 	text-align: center;
+ }
+ 
+ .THIS .familyName{
+     /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #4F6A92;
+ }
+ 
+ .THIS .editHeaderTable{
+ 	/*font-family: 'Salesforce Sans Italic', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1em;
+}
+
+.THIS .pillSize{
+	width: 100%;
+}
+
+.THIS .headerDescription{
+    /*font-family: 'Salesforce Sans Italic', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1em;
+}
+
+.THIS .activationCheckSection{
+	margin-left:0;
+	margin-top:3%;
+}
+.THIS .inputTwoCol{
+	
+	width: 50%
+}
+
+
+/* For Firefox browser */
+.THIS input[type='number'] {  
+   -moz-appearance:textfield;
+}
+/* For webkit browsers like Chrome and Safari */
+.THIS input[type=number]::-webkit-inner-spin-button,
+.THIS input[type=number]::-webkit-outer-spin-button {
+   -webkit-appearance: none;
+   margin: 0;
+}
+
+.THIS .errMsg{
+	color:rgb(194, 57, 52);
+	text-align: center;
+	font-size: 0.6rem;
+}
+.THIS .MySave > button >lightning-primitive-icon>svg > use{
+    fill: rgb(255, 255, 255);
+}   
+    
+
+.THIS .borderErrorConf > div > input{
+	border: 1px solid rgb(194, 57, 52);
+
+}
+
+.THIS .borderErrorDates > lightning-datepicker > div> div > input {
+    /*border: 1px solid rgb(194, 57, 52);  */
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgb(194, 57, 52) 0px 0px 0px 1px inset;
+    background-clip: padding-box;
+    border-color: rgb(194, 57, 52);  
+
+}
+
+.THIS .dateErrorSpan{
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgb(194, 57, 52) 0px 0px 0px 1px inset;
+    background-clip: padding-box;
+    color: rgb(194, 57, 52);
+    }
+
+.THIS .redIcon{
+	color:#e77a84;
+}
+.THIS .supertitle{
+	
+	font-size: 0.7rem;
+    color: #4F6A92;
+    text-transform:uppercase;
+	
+}
+.THIS .matrixParameterFields{
+    /*font-family: 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1em;
+    color: #999999;
+}
+
+
+.THIS .matrixParameterValues{
+    /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #1C1C1C;
+ }
+ 
+  .THIS .lockIconBlocked{
+
+	
+}
+
+.THIS .lockIconBlocked > lightning-primitive-icon > svg > use{
+    fill: #cc6600;
+}
+.THIS .bottomLine{
+
+    border-bottom: 1px solid black;
+}
+.THIS .matrixProductName{
+    margin-top:3%;
+    font-weight: bold;
+    text-transform: capitalize;
+	font-size: 1.5em;
+
+}
+
+/*Doris D ...29/03/2019.... START*/
+.THIS .tooltipSequenceClass{
+
+    position: absolute; 
+    top:-8rem; 
+    left:1rem; 
+    pointer-events:none;
+    width:10rem 
+}
+
+/*Doris D ...29/03/2019.... END*/

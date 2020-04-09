@@ -1,0 +1,41 @@
+<!-- 
+        *@author antonio.vatrano antonio.vatrano@accenture.com
+        *@date 18/04/2019
+        *@new component shortcut for operation, where link OB_Maintenance_EditServicePoint
+-->
+<aura:component controller = "OB_Maintenance_Shortcut_SP_CC" implements="flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:appHostable,force:hasSObjectName,force:hasRecordId">
+    <aura:attribute name="recordId" type="String" access="global" default="" />
+    <aura:attribute name="retrieveDone" type="Boolean" access="global" default="false" />
+    <aura:attribute name="showModal" type="Boolean" access="global" default="false" />
+    <!-- <aura:attribute name="fromShortCut" type="Boolean" access="global" default="false" /> -->
+    <aura:attribute name="OperationUser" type="Boolean" access="global" default="false" />
+    <aura:attribute name="FlowData" type="string" access="global" default="" />
+    <aura:attribute name="FlowStep" type="string" access="global" default="" />
+
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>   
+
+
+    <aura:if isTrue="{!v.OperationUser}"> 
+        <div style="background: white">
+            <!-- antonio.vatrano 18/04/2019 add label OB_ModifyServicePoint -->
+            <lightning:button class = "slds-align_absolute-center" variant="brand" label="{!$Label.c.OB_ModifyServicePoint}" title="{!$Label.c.OB_ModifyServicePoint}"
+            onclick="{! c.showModalModify}" />
+
+        </div>
+        <!-- antonio.vatrano 18/04/2019 add label OB_ModifyServicePoint -->
+        <aura:if isTrue="{!v.showModal}">
+            <c:strike_modal title="{!$Label.c.OB_ModifyServicePoint}" 
+                            primaryButtonLabel="Ok" secondaryButtonLabel="Cancel"
+                            showHeader="true" showFooter="false" 
+                            showClose="true" 
+                            showModal="{!v.showModal}" 
+                            size="large">
+                <aura:if isTrue="{!v.retrieveDone}">
+                    <c:OB_Maintenance_EditServicePoint FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}" modifyServicePointId="{!v.recordId}" DisabledFields="['OB_MCC_Description__c']" fromShortCutSP="true" /> <!--antonio.vatrano 29/04/2019 change name of attribute-->
+
+                </aura:if>
+            </c:strike_modal>
+        </aura:if>
+    </aura:if>
+
+</aura:component>

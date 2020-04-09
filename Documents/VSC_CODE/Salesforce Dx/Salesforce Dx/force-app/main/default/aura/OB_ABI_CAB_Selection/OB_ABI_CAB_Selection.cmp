@@ -1,0 +1,131 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global"
+                controller="OB_IdentifyCompany_CC">
+                <!--class : OB_ABI_CAB_Selection_CC-->
+    <aura:attribute name="objectDataMap"          type="Object"     default="{}"        access="global"/>
+    <aura:attribute name="disabledCAB"            type="Boolean"    default="false"     access="global"/>
+    <aura:attribute name="disabledABI"            type="Boolean"    default="false"     access="global"/>
+    <aura:attribute name="hideFields"             type="Boolean"    default="true"      access="global"/>
+    <aura:attribute name="isCommunityUser"        type="Boolean"    default="false"     access="global"/>
+    <aura:attribute name="bankId"                 type="String"                         access="global"/>
+    <aura:attribute name="ABIValue"               type="String"                         access="global"/>
+    <aura:attribute name="CABList"                type="String[]"                         access="global"/>
+    <aura:attribute name="CABnature"              type="String"                         access="global"/>
+    <aura:attribute name="showFiscalCodeSection"  type="Boolean"    default="false"     access="global"/>
+    <aura:attribute name="searchABI" 		      type="Boolean"    default="false"/>    
+    <aura:attribute name="fatalError" 		      type="Boolean"     default="false"/>
+    <aura:attribute name="showCAB" 		            type="Boolean"     default="true"/> 
+    <aura:attribute name="correctABI" 			       type="Boolean" default="{!v.objectDataMap.correctABI}"/> 
+	<aura:attribute name="correctCAB"                  type="Boolean" default="{!v.objectDataMap.correctCAB}"/> 
+    
+    <aura:attribute name="showModalFromCabFieldUser" 		      type="Boolean"     default="false"/>
+    <aura:attribute name="showABI" 		        type="Boolean"     default="true"/>
+    <aura:attribute name="cabStringValues"              type="String"                         access="global"/>
+    
+
+    <aura:attribute name="closeModal"             type="Boolean"    default="false"     access="global"/>
+
+
+    <aura:attribute name="data" type="String[]"/>
+    <aura:attribute name="columns" type="List"/>
+    <!-- ANDREA MORITTU START 2019.05.09 - ID_Stream_6_Subentro*/ --> 
+    <aura:attribute name="oldWrapperInformation"  		type="Object" access="global" />
+    <!-- ANDREA MORITTU END 2019.05.09 - ID_Stream_6_Subentro*/ --> 
+
+    <aura:handler   name="change" value="{!v.objectDataMap.cabError}" action="{!c.showError}"/><!--RP_015 Adrian Dlugolecki<adrian.dlugolecki@accenture.com> 03.04.2019 -->
+
+    <aura:handler   name="change" value="{!v.objectDataMap.abiError}" action="{!c.showErrorABI}"/><!--elena.preteni 17/07/2019 show error toast, abi not selected F3 -->
+
+    <aura:registerEvent name="OB_isCommunityAttributeEvent" type="c:OB_isCommunityAttributeEvent" />
+    <!-- AURA HANDLERS START -->
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>    
+    <aura:handler name="showModalEvent" event="c:modalLookupEvent"   action="{!c.handleShowModalEventABICABSelection}"/>
+
+            <aura:if isTrue="{!!v.hideFields}">
+                <div class="slds-size--1-of-1 slds-grid">
+                    <aura:if isTrue="{!v.showABI}">
+                        <div class="slds-size--1-of-2 slds-grid">
+                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                <div class="slds-p-around--medium slds-form-element">
+                                    <label class="slds-form-element__label" for="ABI" >
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                        {!$Label.c.ABI} 
+                                        <aura:if isTrue="{!v.correctABI}">
+                                            <span style="color: green; "> &#10004; </span> 
+                                        </aura:if>
+                                    </label>
+                                    <div class="slds-grid slds-size--1-of-1"> 
+                                        <div class="slds-size--11-of-12 ABICAB-input">
+                                            <!--davide.franzini - WN-212 - 29/07/2019 - onBlur removed and onChange fixed-->
+                                            <lightning:input    label=""
+                                                                aura:id="ABI"
+                                                                id="ABI"
+                                                                name="searchInput"   
+                                                                variant="label-hidden"
+                                                                value="{!v.objectDataMap.bank.OB_ABI__c}" 
+                                                                disabled="{!v.disabledABI}"
+                                                                onblur=""
+                                                                maxlength="5"
+                                                                minlength="5"
+                                                                class="flow_required"
+                                                                onchange="{!c.checkInputValue}"/>
+                                        </div>
+                                        <div class="slds-size--1-of-12"> 
+                                            <lightning:button   variant="neutral" 
+                                                                disabled="{!v.disabledABI}"
+                                                                onclick="{!c.openABIModal}" 
+                                                                iconName="utility:search"
+                                                                class="lens-search-abicab-button"
+                                                                title="Search_Abi"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aura:if>
+                    <aura:if isTrue="{!v.showCAB}">
+                        <div class="slds-size--1-of-2 slds-grid">
+                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                <div class="slds-p-around--medium slds-form-element">
+                                    <label class="slds-form-element__label" for="CAB" >
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                        {!$Label.c.CAB}
+                                        <aura:if isTrue="{!v.correctCAB}">
+                                            <span style="color: green; "> &#10004; </span> 
+                                        </aura:if>
+                                    </label>
+                                    <div class="slds-grid slds-size--1-of-1"> 
+                                        <div class="slds-size--11-of-12 ABICAB-input">
+                                            <!--davide.franzini - WN-212 - 29/07/2019 - onBlur removed-->
+                                            <lightning:input    label=""
+                                                                aura:id="CAB"
+                                                                id="CAB"
+                                                                name="searchInput"   
+                                                                variant="label-hidden" 
+                                                                value="{!v.objectDataMap.user.OB_CAB__c}" 
+                                                                disabled="{!v.disabledCAB}"
+                                                                maxlength="5"
+                                                                minlength="5"
+                                                                onblur=""
+                                                                class="flow_required"
+                                                                required="true"
+                                                                onchange="{!c.checkInputValue}"/>
+                                        </div>
+                                    
+                                        <div class="slds-size--1-of-12"> 
+                                            <lightning:button   variant="neutral"
+                                                                disabled="{!v.disabledCAB}"
+                                                                onclick="{!c.openCABModal}"
+                                                                iconName="utility:search" 
+                                                                class="lens-search-abicab-button" 
+                                                                title="Search_Cab"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aura:if>
+                </div>
+            </aura:if>
+        {!v.body}
+</aura:component>

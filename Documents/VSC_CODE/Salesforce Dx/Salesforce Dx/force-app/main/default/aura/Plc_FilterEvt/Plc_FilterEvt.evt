@@ -1,0 +1,9 @@
+<!--
+ - Created by capasso on 29/01/2019.
+ -->
+
+<aura:event type="APPLICATION" description="Plc_FilterEvt">
+    <aura:attribute name="searchResultsEvt" type="Map" description="Search results"/>
+    <aura:attribute name="actionType" type="String" description="what fired the event"/>
+    <aura:attribute name="inputSearchValue" type="String" description="The string searched on Serial Numbers Text Box"/>
+</aura:event>

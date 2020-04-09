@@ -1,0 +1,92 @@
+<aura:component  implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId,force:hasSObjectName" 
+                controller="OB_ReasonForRefusal_CC"
+                access="global">
+    
+    <aura:handler 	name="init" value	= "{!this}" action = "{!c.doInit}"  access="global"	/>
+    
+    <aura:attribute name="showMessage"      type="boolean" default="false"  access="global"/>
+    <aura:attribute name="hideRejectReason" type="boolean" default="false"  access="global" />    
+
+    <aura:attribute name="recordId"            type="String"  access="global"/>
+    <aura:attribute name="sObjectName"         type="String"  access="global"/>
+    <aura:attribute name="targetObjectId"      type="String"  access="global"/>
+    <aura:attribute name="targetObjectType"    type="String"  access="global"/>
+    <aura:attribute name="status"              type="String"  access="global"/>
+    <aura:attribute name="rejectionReasonList" type="List"    access="global"/>
+    <aura:attribute name="rejectionReason"     type="String"  access="global"/>
+    <aura:attribute name="profileName"         type="String"  access="global"/>
+<!-- START gianluigi.virga 22/03/2019 -->  
+    <aura:attribute name="definitivelyRejected" type="Boolean" access="global" default = "false"/>
+    <aura:handler name="change" value="{!v.targetObjectId}" action="{!c.getLogRejectReason}"/>
+<!-- END gianluigi.virga 22/03/2019 -->  
+    
+    <!-- <b>This is recordID :{!v.recordId} </b><br/>
+    <b>This is SObjectName :{!v.sObjectName} </b><br/>
+    <b>This is status  : {!v.status} </b><br/>
+    <b>This is targetObjectId :  {!v.targetObjectId} </b><br/>
+    <b>This is targetObjectType :  {!v.targetObjectType} </b><br/> 
+    <b>This is profileName :  {!v.profileName} </b><br/><br/> -->
+    
+    <aura:if isTrue="{!(!v.hideRejectReason)}">
+<!-- START gianluigi.virga 22/03/2019 - hide cmp if reject reason is equals to "Rifiuto definito" -->
+        <aura:if isTrue="{!(!v.definitivelyRejected)}">
+<!-- END gianluigi.virga 22/03/2019 -->
+            <aura:if isTrue="{!(!and(v.targetObjectType == 'OB_LogRequest__c', (v.profileName == 'Approvatore Risk Evaluation'),v.status == 'Rejected'))}" >
+                <!-- <aura:if isTrue="{!or(v.targetObjectType == 'NE__Order_Header__c', v.profileName == 'Approvatore AML')}"> --> 
+                <article class="slds-card">  
+                    <div  class="slds-card__body slds-card__body_inner">
+                        <br/>
+                        <br/>
+                        <div class="slds-box slds-theme_shade">
+                            <p><strong> {!$Label.c.OB_SelectTheRejectReason}</strong> </p>
+                        </div>    
+                        <br/>     
+                        <fieldset class="slds-form-element">
+                            <legend class="slds-form-element__legend slds-form-element__label">
+                                <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_RejectReason}</legend>
+                            <div class="slds-form-element__control" >
+                                <aura:iteration items="{!v.rejectionReasonList}" var="item">
+                                    <span class="slds-radio">
+                                        <input type="radio" id="{!item}" name="options" value="{!item}" onclick="{!c.onClick}" />
+                                        <label class="slds-radio__label" for="{!item}"> 
+                                            <span class="slds-radio_faux"></span>
+                                            <span class="slds-form-element__label">{!item}</span>
+                                        </label>
+                                    </span>
+                                </aura:iteration>
+                            </div>
+                        </fieldset>
+                        <br/>
+                        <!--</aura:if> -->  
+                        
+                        <aura:if isTrue="{!(!and(v.targetObjectType == 'OB_LogRequest__c', (v.profileName == 'Approvatore AML')))}">
+                            <p> {!$Label.c.OB_RejectComment}</p>
+                            <div style="max-width: 400px;">
+                                <lightning:input aura:id="commentsId" value=""/>
+                            </div>
+                            <br/>
+                        </aura:if> 
+                        
+                        <lightning:button variant="brand" label="Save" title="Save" onclick="{! c.saveClick }" />
+                        
+                    
+                    </div>
+                </article>
+            </aura:if >
+        </aura:if >
+    </aura:if >
+    
+    <aura:if isTrue="{!v.showMessage}">
+        <article class="slds-card">  
+            <div  class="slds-box slds-theme_shade">                    
+                        <p align= "center" color="blue">
+                            <strong>  {!$Label.c.OB_SaveSuccessMessage}</strong> 
+                        </p>
+                                       
+               
+            </div>
+        </article>
+        
+    </aura:if>
+    
+</aura:component>

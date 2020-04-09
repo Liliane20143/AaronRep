@@ -1,0 +1,59 @@
+.THIS .button 
+{
+	margin-top: 1.5rem;
+}
+.THIS .pageStyle 
+{
+	background:white;
+	border-radius:1%;
+	width:100%;
+}
+
+.THIS .separatorConsistenzaMain  
+{
+	border-bottom: 0.05rem solid #d6cfcf;
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+}
+
+.THIS .buttonAcq
+{
+	margin-left: 2rem!important;
+}
+
+.THIS .bold
+{
+	font-weight: bold;
+}
+.THIS .double{
+	margin-right: 25%!important;
+}
+.THIS .doubleContainer {
+	padding: 1%;
+    padding-left: 2rem;
+}
+/* start andrea.morittu 30/01/2019*/
+.THIS #separator {
+    padding: 1rem;
+}
+.THIS .titles{
+	text-decoration : solid!important;
+	font-size: xx-large;
+}
+.THIS #headerTitle{
+	text-decoration: solid!important;
+	font-size: xx-large;
+}
+.THIS #boldTitle {
+	font-weight: bold;
+}
+.THIS .slds-accordion__summary-action {
+    font-size: 1.35rem;
+    font-weight: 400;
+}
+.THIS #ErrorSection {
+	font-weight: 800;
+	font-size: 1.1rem;
+	text-transform : uppercase!important;
+}
+/* end andrea.morittu 30/01/2019*/

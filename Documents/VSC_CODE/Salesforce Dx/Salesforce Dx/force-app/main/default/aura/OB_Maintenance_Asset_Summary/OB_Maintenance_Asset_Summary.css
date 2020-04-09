@@ -1,0 +1,62 @@
+.THIS.orderItemsContainer{
+	margin-left: 5%;
+	
+}
+/* ANDREA MORITTU MISALIGNMENT DEPLOY MAINTEANNCE START 08-Oct-2019 */
+.THIS .sectionTitle{
+	font-weight: bold!important;
+    text-transform: uppercase!important;
+}
+/* ANDREA MORITTU MISALIGNMENT DEPLOY MAINTEANNCE END 08-Oct-2019 */
+
+.THIS .sectionTitleAsset{
+	font-weight: bold;
+    text-transform: uppercase;
+	margin-top: 2%;
+	margin-right: 34%;
+}
+
+.THIS .assetTitleCol{
+	margin-left: 5%;
+}
+
+.THIS .btnsWrapper{
+	text-align: right;
+	margin-right: 3%;
+}
+
+/* MORITTU ANDREA GRAPHIC CSS BUSINESS*/
+.THIS .CTAStyle {
+	font-size: 1.2em!important;
+	text-transform: uppercase!important;
+	font-weight: 600!important;
+	border-color: rgb(48, 58, 178);
+	border-width: 0,5px;
+	border-width: 1px;
+	color: rgb(48, 58, 178);
+	font-family: arial;
+}
+
+
+.THIS.offerDetailAndBtnsWrapper{
+	margin-top: 1%;
+
+}
+
+.THIS .searchIcon > use{
+    fill: #0070D2;
+
+}
+/*MORITTU ANDREA - ALIGN MAINTENANCE EXECUTE BUTTON*/
+.THIS .executeBtnDiv {
+	align-content: center!important;
+	margin-top: 1.9rem!important;
+}
+
+/*ANDREA MORITTU PRODOB_469 START 27-Sept-2019 */
+.THIS [title|="titleaccordionMenuStyle"] {
+	font-size: 1.2rem!important;
+    text-transform: uppercase!important;
+    font-weight: 600!important;
+}
+/*ANDREA MORITTU PRODOB_469 START 27-Sept-2019 */

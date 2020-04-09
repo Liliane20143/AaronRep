@@ -1,0 +1,488 @@
+.THIS {
+}
+
+.THIS .subtitle{
+	
+	vertical-align: middle;
+    font-size: 0.9rem;
+    font-weight: bold;
+    padding-left:0;
+	
+}
+
+.THIS .containerMargin{
+	
+	margin-bottom:2%;
+	padding-bottom: 0.2%;
+	
+}
+
+.THIS .errorMsg{
+	
+	color:red;
+	font-size: 0.6rem;
+	
+}
+
+.THIS .tecnicalContainer{
+	
+	color: #666666;
+	background-color: rgba(255, 255, 255, 1);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(193, 217, 227, 1);
+    border-radius: 4px;
+    padding: 1%;
+	
+}
+
+
+.THIS .product_row_color{
+  
+    background-color: rgba(243, 245, 248, 1);
+    border-radius: 5px; 
+}
+
+.THIS .productnamestyle{
+	
+	margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 1%;
+    margin-bottom: -1%;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 14px;
+}
+
+.THIS .attributeNameStyle{
+	
+    font-weight: 700;
+    font-style: normal;
+    font-size: 10px;
+    color: #4F6A92;
+    text-transform: uppercase;
+	
+}
+
+.THIS .attributeSubNameStyle{
+	
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    color: #666666;
+	
+}
+
+.THIS .m217bis{
+    border-width: 0;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px; 
+    border-style: solid; 
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    box-shadow: none;
+
+}
+
+.THIS .generaTerminalIdStyle{
+	
+	margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 1%;
+    margin-bottom: 1%;
+    float:right;
+	
+}
+
+.THIS .notEnumerated{
+	
+	padding-top:4%;
+	padding-bottom:4.1%;
+	/*margin-top:11%;*/
+}
+
+.THIS .checkSel label{
+	cursor:pointer;	
+}
+
+.THIS .checkLab{
+	
+	text-transform: uppercase;
+}
+
+.THIS .notFlowPadding{
+	
+	padding-left: 1%;
+	padding-right: 1%;
+}
+
+/* NEWCARTPRICESUMMARY CSS */
+
+.THIS .tableContainer{
+}
+
+.THIS .u116{
+
+    font-weight: 300;
+    font-style: normal;
+    font-size: 28px;
+    line-height: 20px;
+    border-width: 0px;
+}
+
+.THIS .u120{
+
+    font-weight: 410;
+    font-style: normal;
+    font-size: 20px;
+    color: rgb(79, 106, 146);
+    line-height: 28px;
+    border-width: 0px;
+}
+
+.THIS .u122{
+    width: 317px;
+    height: 34px; 
+    font-weight: 300;
+    font-style: normal;
+    font-size: 16px;
+    line-height: 28px;
+    border-width: 1px;
+
+}
+
+.THIS .comm_dettaglio{
+    border-width: 0px;
+    width: 285px;
+    height: 106px;
+    font-weight: 410;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 18px;
+}
+
+.THIS .detailsTextContainer{
+	width:80%;
+	text-align: right;
+	
+}
+.THIS .rowLine{
+	border-bottom: 1px solid;
+    border-color: #d8dde6;
+    margin-top: 1%;
+    margin-left: 0;
+    padding-bottom: 1%;
+}
+.THIS .categoryText{
+	text-align: center;
+    font-size: .7rem;
+}
+
+.THIS .detailsContent{
+	    margin-left: 1%
+}
+.THIS .vasRecordsContainer{
+	padding-bottom: 1%;
+}
+
+.THIS .detailContainer{
+	 padding-top: 1%;
+	 margin-left: 1%;
+}
+
+.THIS .u1052 {
+    border-width: 0;
+    width: 361px; 
+    height: 3px; 
+}
+.THIS .commissioni_info{
+    height: 100%;
+    border-bottom: 3px solid;
+	border-color:#d8dde6; 
+	margin-left: 1%;
+	margin-right: 1%;
+}
+
+
+.THIS .u1049{
+    border-width: 0px;
+    width: 358px;
+    word-wrap: break-word; 
+}
+.THIS .u1051{
+    border-width: 0px;
+    width: 80px;
+    word-wrap: break-word; 
+}
+
+.THIS .u1049a{
+    border-width: 0px;
+    width: 200px;
+    word-wrap: break-word; 
+}
+.THIS .u1051a{
+    border-width: 0px;
+    width: 80px;
+    word-wrap: break-word; 
+}
+.THIS .u1076{
+
+}
+.THIS .u1078{
+
+    font-weight: 700;
+    font-style: normal;
+    font-size: 12px;
+    color: #4F6A92;
+    line-height: 18px;
+}
+.THIS .u1057 {
+    font-weight: 400;
+    font-style: italic;
+    border-width: 0px;
+    font-size:10px;
+    word-wrap: break-word;
+    color: #666666;
+    line-height: 12px;
+    font-size: 10px;
+
+}
+
+.THIS .u1730{
+    font-weight: 700;
+    font-style: normal;
+    font-size: 18px;
+    color: #4F6A92;
+    /*line-height: 16px;*/
+    padding-top: 1%;
+	
+}
+
+.THIS .f216 {
+    border-width: 0px;
+    width: 44px;
+    height: 26px;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+
+}
+/*START CLASSES FOR PAGOBANCOMAT */
+
+.THIS .productName{
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1em;
+    color: #4F6A92;
+    text-transform: uppercase;
+    text-align: left;
+    margin-top: 1%;
+	
+}
+.THIS .attributesWrapper{
+	border-top: 1px solid;
+    border-color: #d8dde6;
+    padding-left: 5%;
+    padding-top: 1%;
+    padding-bottom: 2%;
+	
+}
+
+.THIS .inputToEdit{
+    width: 44px;
+    height: 26px;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    text-align:right;
+}
+.THIS .u187{
+	
+	margin-left:1%;
+}
+
+.THIS .f217{
+    border-width: 0;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+     border-width: 1px; 
+     border-style: solid; 
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    box-shadow: none;
+    text-align: right;
+    width: 40%;
+}
+/*END CLASSES FOR PAGOBANCOMAT */
+
+.THIS .m217{
+    border-width: 0;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+     border-width: 1px; 
+     border-style: solid; 
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    box-shadow: none;
+}
+
+
+.THIS .productNameVAS_ACQ{
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #000000;
+    padding-left: 0;
+
+}
+
+
+.THIS .itemAttributesContainer{
+	
+	
+}
+
+@media screen and (max-width: 1100px) {
+  .THIS .itemAttributesContainer{
+	  display: block !important;
+  }
+}   
+
+.THIS .inputContainer{
+	
+	margin-bottom: 5%;
+}
+
+.THIS .attributeNames{
+	
+	  text-align: center;
+	  margin-bottom:1%;
+}
+
+.THIS .alignInput{
+	
+	text-align: center;
+}
+
+.THIS .inputReadonly{
+	
+	border:none;
+	text-align:center;
+	padding-left:0 !important;
+	
+}
+
+.THIS .inputAttValueFont{
+	
+	font-weight:700;
+	color:#000000;
+	padding-left: .5rem;
+	width: 100%;
+}
+
+.THIS .buttonText{
+	
+	color: #0070D2;
+	float: right;
+	
+}
+
+.THIS .textStyle{
+	
+	font-weight: bold;
+}
+
+.THIS .nextBtnOverride{
+	float:right;
+	/*    position: relative;
+    	left: 90%;*/
+}
+
+.THIS .warningMsg{
+	
+	background-color: #f9f982;
+    border: 1px solid rgb(255, 183, 93);
+    border-radius: 10px;
+    display: inline-block;
+    padding: 0.5%;
+    margin: 0.5%;
+}
+
+/* CSS OPERATIONAL DATA */
+
+.THIS .flow-section-separator
+{
+	height: 1px !important;
+    width: 100% !important;
+    margin-left: -12px !important;
+    padding-right: 0px !important;
+}
+.THIS .flow-section-separator-container
+{
+	margin-left: -12px !important;
+    margin-top: 20px !important;
+}
+
+.THIS .ibanconcatenated
+{
+    font-size: 0.85rem !important;
+}
+.THIS .errorIbanInvalid{
+    color:rgb(194, 57, 52);
+    margin-top: 10px;
+}
+.THIS .iban-has-error
+{
+    border: solid 2px;
+    border-color: rgb(194, 57, 52);
+}
+
+/* START    micol.ferrari 18/10/2018 */
+.THIS .bankprofile-section-inner label
+{
+	/*word-break: inherit !important;
+    height: 50px !important;*/
+    white-space: nowrap!important;
+}
+.THIS .bankprofile-section
+{
+    margin-top: 30px;
+}
+.THIS abbr[title]
+{
+    margin-left: -6px !important;
+}
+
+.THIS .requiredAttr{
+	
+	
+}
+
+.THIS .borderError{
+	border: 1px solid rgb(194, 57, 52);
+}
+.THIS .selectClass >label{
+	display:none;
+}
+
+/* END    micol.ferrari 18/10/2018*/
+
+/* END */

@@ -1,0 +1,5 @@
+<aura:event type="APPLICATION">
+    <aura:attribute name="mapLabelFieldName" type="Map"/>
+    <aura:attribute name="fieldNameList" type="String[]"/>
+    <aura:attribute name="records" type="List"/>
+</aura:event>

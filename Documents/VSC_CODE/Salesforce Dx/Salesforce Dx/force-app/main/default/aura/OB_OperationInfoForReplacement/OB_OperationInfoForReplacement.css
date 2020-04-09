@@ -1,0 +1,8 @@
+.THIS .ob-label-hidden > label {
+    display: none;
+}
+
+.THIS .error-input-message {
+    color: rgb(194, 57, 52)!important;
+    padding-left: 1rem;
+}

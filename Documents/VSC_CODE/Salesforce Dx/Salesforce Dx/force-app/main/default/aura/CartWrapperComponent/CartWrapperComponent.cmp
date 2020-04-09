@@ -1,0 +1,5 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" >
+	<NE:Bit2win_Cart />
+    <NE:Bit2win_Messages />
+    <NE:Bit2win_Catalog />
+</aura:component>

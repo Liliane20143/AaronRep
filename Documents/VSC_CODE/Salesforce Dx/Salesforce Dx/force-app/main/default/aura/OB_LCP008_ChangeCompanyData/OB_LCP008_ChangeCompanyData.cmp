@@ -1,0 +1,37 @@
+<!--@author Adrian Dlugolecki <adrian.dlugolecki@accenture.com>-->
+<!--@date 09/07/2019-->
+<!--@task NEXI-178-->
+<!--@description Component that is Button on flexi page for operators. It show maintenance edit account in modal-->
+
+<aura:component description="OB_LCP008_ChangeCompanyData" controller="OB_LCC008_ChangeCompanyData" implements="flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:appHostable,force:hasSObjectName,force:hasRecordId">
+
+    <aura:attribute name="recordId" type="String" access="global" description="Id of account from page layout"/>
+
+    <aura:attribute name="isInitDone"   type="Boolean"  access="private"    default="false" />
+    <aura:attribute name="flowData"     type="String"   access="private"    description="JSON with all data required for maintenance edit account"/>
+    <aura:attribute name="flowStep"     type="String"   access="private"    default ="{!$Label.c.OB_MAINTENANCE_STEP_EDITACCOUNT}" description="Step of flow it should be set as in maintenance process" />
+    <aura:attribute name="showButton"   type="Boolean"  access="private"    default ="false" description="Control visibility of button" />
+    <aura:attribute name="showModal"    type="Boolean"  access="private"    default ="false" description="Control visibility of modal" />
+
+    <aura:handler name="init" value="{! this }" action="{! c.makeInit }"/>
+
+    <aura:if isTrue="{!v.isInitDone}">
+        <aura:if isTrue="{!v.showButton}">
+            <lightning:button class = "slds-align_absolute-center" variant="brand" label="{!$Label.c.OB_ModifyCompany}" title="{!$Label.c.OB_ModifyCompany}" onclick="{! c.showModalHandler}" />
+        </aura:if>
+        <aura:if isTrue="{!v.showModal}">
+            <c:strike_modal title="{!$Label.c.OB_ModifyCompany}"
+                            primaryButtonLabel="Ok" secondaryButtonLabel="Cancel"
+                            showHeader="true" showFooter="false"
+                            showClose="true"
+                            showModal="{!v.showModal}"
+                            size="large">
+                <c:OB_Maintenance_EditAccount   FlowData="{!v.flowData}"
+                                                FlowStep="{!v.flowStep}"
+                                                DisabledFields="['NE__Fiscal_code__c','NE__VAT__c']"
+                                                isFromOperation="true"
+                                                isCompany = "true" />
+            </c:strike_modal>
+        </aura:if>
+    </aura:if>
+</aura:component>

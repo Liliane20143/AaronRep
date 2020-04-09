@@ -1,0 +1,248 @@
+<!--
+    *   Author      :   Morittu Andrea
+    *   Date        :   07-Nov-2019
+    *   Task        :   BACKLOG_143
+    *   Description :   Component visible only to Admin users (By Audience in Communities) to create promo loyalty offers
+-->
+    <aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes"
+                access="global"
+                controller="OB_Configure_Promo_Amex_Controller" >
+<!-- ATTRIBUTE SECTION -->    
+<aura:attribute name="wrapperOutcome" type="Object"      default="{}"    access="global" />
+<aura:attribute name="currentRow" type="Object"      default=""    access="global" />
+    
+<aura:attribute name="modalOperation" 		type="String" default=""    	access="global" />
+<aura:attribute name="showModal" 		type="Boolean"/>
+<!-- DATA TABLE ATTRIBUTES -->
+<aura:attribute name="parametersData" type="Object"/>
+<aura:attribute name="parametersColumns" type="List"/>
+<!-- / DATA TABLE ATTRIBUTES -->
+<!-- / ATTRIBUTE SECTION -->    
+
+<!-- HANDLER SECTION -->    
+<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+<!-- / HANDLER SECTION-->    
+
+<!-- BODY SECTION -->
+
+        <lightning:spinner class="" aura:id="spinner" alternativeText="Loading" size="medium" variant="brand" />
+	
+    <!-- BUTTON SECTION -->
+    <div class="slds-grid">
+    <!-- ANDREA MORITTU START 2019/11/18 - DELETING UNUSED FILTER INPUT -->
+        <div class="slds-col slds-p-horizontal_medium slds-size--3-of-4" />
+        <div class="slds-col slds-p-horizontal_medium slds-col slds-p-horizontal_medium slds-size--1-of-4 slds-p-around_medium">
+            <lightning:button class="CTAStyle"
+                              label="{!join(' ', '+' , $Label.c.OB_New)}" 
+                              name="{!$Label.c.OB_New}" 
+                              onclick="{! c.modalAction }"/>
+        </div>
+    </div>
+    <!-- /  BUTTON SECTION -->
+    
+
+    <!-- MODAL -->
+    <aura:if isTrue="{!v.showModal}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- MODAL LOCATION DETAILS-->
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon 	iconName="utility:close"
+                                            name="{!$Label.c.OB_Cancel}"
+                                            onclick="{!c.servicePointModalAction}"
+                                            alternativeText="{!$Label.c.Close}"
+                                            variant="bare-inverse"
+                                            class="slds-modal__close"/>
+        
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                        <div class="slds-grid">
+                            <div class="slds-col slds-p-horizontal_small">
+                                <span class="iconSpan">
+                                    <aura:if isTrue="{!v.modalOperation eq $Label.c.OB_Create}">
+                                        <lightning:icon iconName="utility:new" alternativeText="New" size="small" />
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.modalOperation eq $Label.c.OB_Edit}">
+                                        <lightning:icon iconName="utility:edit" alternativeText="Edit" size="small" />
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.modalOperation eq $Label.c.OB_Delete}">
+                                        <lightning:icon iconName="utility:delete" alternativeText="Delete" size="small" />
+                                    </aura:if>
+                                </span>
+                                {!join(' ' , v.modalOperation, $Label.c.OB_PromoOfferLoyalty)}
+                            </div>
+                        </div>
+                    </h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <div class="slds-grid slds-size--1-of-1" >
+                        <div class="slds-size--1-of-2 slds-grid">
+                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                <div class="slds-p-around--medium slds-form-element">
+                                    <label class="slds-form-element__label"> {!$Label.c.OB_Promo_Offer_Name_Label} </label>
+                                    <lightning:input    aura:id="OB_Promo_Offer_Name_Loyalty__c"
+                                                        value=""
+                                                        disabled="false"
+                                                        variant="label-hidden"
+                                                        required="true"
+                                                        messageWhenValueMissing="{!$Label.c.MandatoryField}"
+                                                        />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-size--1-of-2 slds-grid">
+                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                <div class="slds-p-around--medium slds-form-element">
+                                    
+                                   
+                                    <label class="slds-form-element__label"> {!$Label.c.OB_Loyalty_Code_Label} </label>
+                                    
+                                    <lightning:input    aura:id="OB_LoyaltyCode__c"
+                                                        value=""
+                                                        disabled="false"
+                                                        variant="label-hidden"
+                                                        required="true"
+                                                        messageWhenValueMissing="{!$Label.c.MandatoryField}"
+                                                         />
+
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-grid slds-size--1-of-1" >
+                        <div class="slds-size--1-of-2 slds-grid">
+                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                <div class="slds-p-around--medium slds-form-element">
+                                        <label class="slds-form-element__label"> {!$Label.c.OB_Additional_Text_Label} </label>
+                                        <lightning:input    aura:id="OB_Additional_Text__c"
+                                                            value=""
+                                                            disabled="false"
+                                                            variant="label-hidden"
+                                                            required="true"
+                                                            messageWhenValueMissing="{!$Label.c.MandatoryField}"
+                                                            />
+
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-size--1-of-2 slds-grid">
+                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                <div class="slds-p-around--medium slds-form-element">
+                                        <label class="slds-form-element__label"> {!$Label.c.OB_Commission_Label} </label>
+                                        <lightning:input    aura:id="OB_Commission__c"
+                                                            value=""
+                                                            disabled="false"
+                                                            variant="label-hidden"
+                                                            required="true"
+                                                            messageWhenValueMissing="{!$Label.c.MandatoryField}"
+                                                            />
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-grid slds-size--1-of-1" >                            
+                        <div class="slds-size--1-of-2 slds-grid">
+                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                <div class="slds-p-around--medium slds-form-element">
+                                        <label class="slds-form-element__label"> {!$Label.c.OB_MAINTENANCE_VALIDITYSTARTDATE} </label>
+                                        <lightning:input    aura:id="OB_Start_Date__c"
+                                                            type="date"
+                                                            value=""
+                                                            disabled="false"
+                                                            variant="label-hidden"
+                                                            required="true"
+                                                            messageWhenValueMissing="{!$Label.c.MandatoryField}"
+                                                             />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-size--1-of-2 slds-grid">
+                                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                    <div class="slds-p-around--medium slds-form-element">
+                                            
+                                            <label class="slds-form-element__label"> {!$Label.c.OB_Validity_End_Date} </label>
+                                            <lightning:input    type="date"
+                                                                aura:id="OB_End_Date__c"
+                                                                value=""
+                                                                disabled="false"
+                                                                variant="label-hidden"
+                                                                required="true"
+                                                                messageWhenValueMissing="{!$Label.c.MandatoryField}"
+                                                                />
+    
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                    </div>   
+                    <div class="slds-grid slds-size--1-of-1" >
+                        <div class="slds-size--1-of-2 slds-grid">
+                                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                    <div class="slds-p-around--medium slds-form-element slds-align_absolute-center">
+
+                                        <div class="slds-grid slds-grid_vertical">
+                                            <div class="slds-col">
+                                                    <label class="slds-form-element__label"> {!$Label.c.OB_Active} </label>
+                                            </div>
+                                            <div class="slds-col">
+                                                    <lightning:input    aura:id="OB_Active__c"
+                                                                        type="toggle"
+                                                                        name="input1"  
+                                                                        checked="false"
+                                                                        disabled="false"
+                                                                        variant="label-hidden"
+                                                                        messageWhenValueMissing="{!$Label.c.MandatoryField}"
+                                                                        />
+                                            </div>
+                                        </div>                                    
+                                    </div>
+                                </div>
+                            </div>
+                        </div>        
+                             
+                        
+                </div>   
+                <footer class="slds-modal__footer">
+                    <div class="slds-grid slds-size_1-of-1">
+                            <div class="slds-grid slds-size_1-of-4" />
+                           
+                        <div class="slds-grid slds-size_1-of-4" >
+                            <lightning:button 	
+                                class="CTAStyle_BRAND"
+                                name="{!$Label.c.OB_Cancel}"
+                                variant="brand" 
+                                label="{!$Label.c.OB_Cancel}"
+                                title="{!$Label.c.OB_Cancel}"
+                                onclick="{!c.modalAction}"/>
+                        </div>
+                        <div class="slds-grid slds-size_1-of-4" >
+                                <lightning:button 	
+                                    class="CTAStyle"
+                                    name="{!$Label.c.OB_Confirm}"
+                                    variant="neutral" 
+                                    label="{!$Label.c.OB_Confirm}"
+                                    title="{!$Label.c.OB_Confirm}"
+                                    onclick="{!c.modalAction}"/>
+                        </div>
+                        <div class="slds-grid slds-size_1-of-4" />
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+
+    </aura:if>
+    <!-- MODAL -->
+
+    <!-- LIGHTNING DATA TABLE -->
+    <lightning:datatable
+            hideCheckboxColumn="true"
+            columns="{! v.parametersColumns }"
+            data="{! v.wrapperOutcome.conventionCodes }"
+            keyField="id"
+            onrowaction="{! c.modalAction }"/>
+    <!--/ LIGHTNING DATA TABLE -->
+<!-- / BODY SECTION -->    
+</aura:component>

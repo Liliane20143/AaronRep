@@ -1,0 +1,49 @@
+<!-- Component used to show Service Links -->
+<aura:component controller="Plc_ServiceLinkWgtCnt" implements="lightning:isUrlAddressable,flexipage:availableForAllPageTypes">
+    <!-- Declaring attributes -->
+    <aura:attribute access="private" name="translationsMap" type="Map" default="{}" description="Contains translated labels got from server call in the init function" />
+    <aura:attribute access="private" name="propertiesMap" type="Map" default="{}" description="Utils and context data"/>
+    <aura:attribute access="private" name="itemsList" type="List" default="[]" description="Contains the list of showed items"/>
+    <!-- Declaring handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.handleInit}"/>
+    <!-- [START] Component view  -->
+    <div class="slds-card slds-p-horizontal_x-small">
+        <div class="slds-is-relative">
+            <!-- [BEGIN] Spinner -->
+            <div aura:id="main-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+                <lightning:spinner variant="brand" size="large" alternativeText="text"/>
+            </div>
+            <!-- [END] Spinner -->
+            <h2 class="header-title-container slds-p-top_x-small">
+                <span class="slds-card__header-title slds-p-left_xx-small title-card">
+                    {!$Label.c.Plc_AllAllAvailableActions}
+                </span>
+            </h2>
+            <lightning:layout multipleRows="true">
+                <aura:iteration items="{!v.itemsList}" var="link" indexVar="indexLink">
+                    <lightning:layoutItem size="4" smallDeviceSize="6" class="slds-p-horizontal_xx-small">
+                        <div data-record="{!indexLink}" class="slds-app-launcher__tile" style="cursor:pointer;" onclick="{!c.handleOpenUrl}">
+                            <div class="slds-app-launcher__tile-figure">
+                                <lightning:icon iconName="{!link.iconName}" size="small"/>
+                            </div>
+                            <div class="slds-app-launcher__tile-body">
+                                <a class="slds-card__header-link slds-truncate cell-break-line">
+                                    {!link.label}
+                                </a>
+                            </div>
+                        </div>
+                    </lightning:layoutItem>
+                </aura:iteration>
+            </lightning:layout>
+            <aura:if isTrue="{!v.itemsList.length == 0}">
+                <div class="slds-illustration slds-illustration_small" aria-hidden="true">
+                    <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt="image"/>
+                    <div class="empty-state-message slds-p-bottom_small">
+                        {!$Label.c.Plc_LightningComponentServiceLinkWgtNoAvailableActions + '.'}
+                    </div>
+                </div>
+            </aura:if>
+        </div>
+    </div>
+    <!-- [END] Component view  -->
+</aura:component>

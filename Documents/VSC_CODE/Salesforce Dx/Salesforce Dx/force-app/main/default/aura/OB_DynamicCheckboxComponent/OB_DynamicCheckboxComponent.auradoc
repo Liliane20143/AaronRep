@@ -1,0 +1,15 @@
+<aura:documentation>
+	<aura:description> Documentation </aura:description>
+	<aura:example name="howItWorks" ref="c:OB_DynamicCheckboxComponent" label="Example of result">
+
+    </aura:example>
+    
+    <aura:description>
+        <code>c:CircularProgress</code> 
+        This component is created to stamp a single checkbox corresponding to an objectDataMap value (using bit2flow).
+        Make sure you set all the right attributes inside Bi2Flow component:
+        - objectDataMapNode : This is the first node of objectDataMap, for example, objectDataMapNode : 'merchant';
+        - fieldTarget		: This rappresent the field you want to stamp as a checkbox (OB_PEP__c);
+        - labelMessage      : This is the label of the checkbox you want to stamp
+    </aura:description>
+</aura:documentation>

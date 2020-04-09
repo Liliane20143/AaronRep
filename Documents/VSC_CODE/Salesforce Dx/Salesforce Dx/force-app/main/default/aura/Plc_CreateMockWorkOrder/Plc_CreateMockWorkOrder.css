@@ -1,0 +1,23 @@
+.THIS .cell-break-line {
+	white-space: normal !important;
+}
+
+.THIS .break-all {
+	word-break: break-all;
+}
+
+.THIS #line-items-area .slds-form-element__icon {
+	padding-top: 0 !important;; 
+}
+.THIS #line-items-area .slds-button__icon_left {
+	margin-right: 0;
+}
+
+.THIS #serials-modal-area .slds-form-element__icon {
+	padding-top: 0 !important;
+}
+
+.THIS .navigation {
+    min-width: 200px;
+    border-right: 1px solid #e7e7e7;
+}

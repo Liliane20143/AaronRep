@@ -1,0 +1,89 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" 
+                access="global"
+                controller="OB_HomePage_CC">
+
+<aura:attribute name="tableInformationList" type="Object[]"  />
+<aura:attribute name="setup"                type="String"   default="{!$Label.c.OB_Setup_ManagedPractices}"/>
+<aura:attribute name="maintenance"          type="String"   default="{!$Label.c.OB_Maintenance_ManagedPractices}"/>
+<aura:attribute name="myBaseURL"            type="String"   default=""/>
+<aura:attribute name="hideToAdmin"          type="Boolean"  default="false"/>
+<aura:handler name="init"           value="{!this}"              action="{!c.doInit}"/>	
+
+
+
+<!-- <div class="slds-grid slds-gutters">
+    <div class="slds-col slds-size_1-of-2"> -->
+        <aura:if isTrue="{!and(not(empty(v.tableInformationList)) , !v.hideToAdmin)}">
+    
+            <aura:iteration items="{!v.tableInformationList}" var="informations">
+    
+                <header class="slds-card__header slds-grid">
+                    <span class="slds-col slds-media slds-media--center badge badge-pill badge-light">
+                        <div class="slds-grid slds-grid_horizontal col-sm">
+                            <div><lightning:icon iconName="action:new_task" alternativeText="Utility image" size="xx-small" /></div>
+                            <div style="vertical-align: middle;">
+                                <div class="text_name_table ">{!informations.tableName}</div>
+                            </div>
+                        </div>
+                    </span>
+                </header>
+                <!--SETUP-->
+                <aura:if isTrue="{!informations.tableName==v.setup}">
+                    <div class="formSearchStyle ">
+                        <section class="slds-card__body formSearch formSearchStyle">
+                            <table class="slds-table slds-table--bordered slds-max-medium-table--stacked-horizontal">
+                                <thead>
+                                    <tr class="slds-no-hover ">
+                                        <td class="text_style_column " scope="col"></td>
+                                        <td class="text_style_column " scope="col">{!$Label.c.Status}</td>
+                                        <td class="text_style_column center_style" scope="col">{!$Label.c.Quantity}</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{!informations.info}" indexVar="key" var="setupInfos">
+                                        <tr class="slds-hint-parent">
+                                            <td><lightning:helptext content="{!setupInfos.tooltip}"/></td>
+                                            <td class="text_style_row_one slds-size--1-of-2" data-label="{!setupInfos.nameStatus}">{!setupInfos.nameStatus}</td>
+                                            <td class="slds-size--1-of-2 center_style" data-label="{!setupInfos.quantity}">{!setupInfos.quantity}</td>
+                                            <td><lightning:button aura:id="{!setupInfos.nameStatus}" value="{!setupInfos}" label="{!$Label.c.OB_Manage}" title="Neutral action" class="text_style " onclick="{!c.fireAction}"/></td>
+                                        </tr>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                        </section>
+                    </div>
+                </aura:if>
+                <!--MAINTENANCE-->
+                <aura:if isTrue="{!informations.tableName==v.maintenance}">
+                        <div class="formSearchStyle ">
+                    <section class="slds-card__body formSearch formSearchStyle">
+                        <table class="slds-table slds-table--bordered slds-max-medium-table--stacked-horizontal">
+                            <thead>
+                                <tr class="slds-no-hover ">
+                                        <td class="text_style_column " scope="col"></td>
+                                        <td class="text_style_column " scope="col">{!$Label.c.Status}</td>
+                                        <td class="text_style_column center_style" scope="col">{!$Label.c.Quantity}</td>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <aura:iteration items="{!informations.info}" indexVar="key" var="maintenanceInfos">
+                                    <tr class="slds-hint-parent">
+                                        <td><lightning:helptext content="{!maintenanceInfos.tooltip}"/></td>
+                                        <td class="text_style_row_one slds-size--1-of-2" data-label="{!maintenanceInfos.nameStatus}">{!maintenanceInfos.nameStatus}</td>
+                                        <td class="slds-size--1-of-2 center_style" data-label="{!maintenanceInfos.quantity}">{!maintenanceInfos.quantity}</td>
+                                        <td><lightning:button aura:id="{!key}" value="{!maintenanceInfos}" label="{!$Label.c.OB_Manage}" title="Neutral action" class="text_style"  onclick="{!c.fireAction}"/></td>
+    
+                                    </tr>
+                                </aura:iteration>
+                            </tbody>
+                        </table>
+                    </section>
+                    </div>
+                </aura:if>
+    
+            </aura:iteration>
+        </aura:if>
+   <!-- </div>
+   </div>  -->
+</aura:component>

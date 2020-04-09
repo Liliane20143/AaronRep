@@ -1,0 +1,38 @@
+<aura:component access="global" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" controller="commercialProductController">
+	<aura:attribute name="documentsList" type="String[]" />
+	<aura:attribute name="mapRecordId" type="Map" default="{}" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="myMap" type="Map" default="{}" access="global"/>
+	<aura:handler name="change" value="{!v.myMap}" action="{!c.checkAllTrue}"/>
+	<aura:attribute name="response" type="String" default="{}" access="global"/>
+	<aura:attribute name="contact" type="Contact"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+	<!-- Doris D. 13/03/ 2019 ................. START-->				
+	<div class="flow-section-separator-container" style = "margin-top: 3em;"> <!-- gianluigi.virga 02/10/2019- removed style = "margin-left: -12px!important;" -->
+			<form class="slds-size_1-of-1 slds-form">
+				<fieldset class="bit2flowFormSectionCmp" name="servicePointData" style="margin-top: -108px; position:absolute"
+					data-aura-class="bit2flowFormSectionCmp">
+					<legend class="slds-form-element__label adjustPaddingLegend">{!$Label.c.OB_GenerateContractsSection} <lightning:helptext class="adjustPaddingHelptext" content= "{!$Label.c.OB_GenerateContractTooltip}" /> </legend> <!-- gianluigi.virga 02/10/2019- add css adjustPadding classes -->
+				</fieldset>
+			</form>
+	</div>
+	<div class="sectionColsContainer flow-section-separator" /> <!-- gianluigi.virga 02/10/2019- removed style = "margin-left: -12px!important;" -->
+	<!-- Doris D. 13/03/ 2019 ................. END  -->
+
+	<div style="width:100%;">
+		<table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+			<tbody>
+				<aura:if isTrue="{!!empty(v.documentsList)}"> 
+					<aura:iteration items="{!v.documentsList}" indexVar="index" var="doc"> 
+						<!-- LUBRANO 2019-04-09  SETUP-251- changing singleDocument to documentParameters -->
+						<c:singleDocument documentParameters="{!doc}" objectDataMap="{!v.objectDataMap}" myMap="{!v.myMap}" mapRecordId="{!v.mapRecordId}" aura:id="singleDoc"/> 
+					</aura:iteration> 
+				</aura:if> 
+			</tbody>     
+		</table>
+		<div aura:id="messageError1" class="slds-hide messageEmp">
+			{!$Label.c.OB_NoDocToGenerate}
+		</div>
+	</div>
+</aura:component>

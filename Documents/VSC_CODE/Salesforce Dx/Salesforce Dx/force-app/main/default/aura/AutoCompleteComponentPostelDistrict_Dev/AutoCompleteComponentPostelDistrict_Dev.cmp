@@ -1,0 +1,84 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="AutoCompleteComponentController">
+	<ltng:require styles="{! $Resource.jqueryuiCSS}" scripts="{!join(',', $Resource.JQueryResourceCode ,  $Resource.jqueryuiJS) }"/>
+	<aura:registerEvent name="AutocompleteEvent" type="c:OB_AutocompleteEvent"/>
+	<aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:method name="reInit" action="{!c.doInit}" description="Runs the init method again ">
+	</aura:method>
+	<aura:method name="blankValue" action="{!c.blankValue}" description="Reset to blank the value">
+	</aura:method>
+	<aura:attribute name="frazioni" type="List" default="{}" access="global" />
+	<aura:attribute name="provinceList" type="List" default="{}" access="global"/>
+	<aura:attribute name="responseDistr" type="Object" default="{}" access="global"/>
+	<aura:attribute name="response" type="Object"   access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="valueProvince" type="String" default=""/>
+	
+	<aura:attribute name="comune" type="String"  />
+	<aura:attribute name="frazione" type="String" default=""/>
+	<aura:attribute name="caps" type="List"  /> 
+	<aura:attribute name="districtString" type="String"/>
+	<aura:attribute name="districtId" type="String" default="frazione"/>
+	<aura:attribute name="districtEEId" type="String" default="districtEE"/>
+	<aura:attribute name="isEE" type="Boolean" default="false" access="global"/>
+	
+	<!-- START  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+  	<aura:attribute name="identifier" type="String" default="" access="global"/>
+  	<aura:attribute name="field" type="Object" default="{}" access="global"/>
+  	<aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+  	<!-- END  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+
+	<!-- START  marta.stempien 01/04/2019 -->
+	<aura:attribute name="filteredOptions" type="List" access="public" description="Options displayed as predictions"/>
+	<aura:attribute name="inputLabel" type="String" />
+	<!-- STOP  marta.stempien 01/04/2019 -->
+   
+ 	<div class="slds-p-around--medium slds-form-element">
+
+		<div class="slds-form-element__control">
+			<aura:if isTrue="{!v.isEE != true}">
+				<lightning:input aura:id="{!v.districtId}"
+								 id="{!v.districtId}"
+								 value="{!v.districtString}"
+								 onchange="{!c.callDistrict}"
+								 onblur="{!c.district}"
+								 label="{!v.inputLabel}"
+								 disabled="{!v.addressMapping.districtdisabled}"/>
+
+				<div aura:id="districtSuggestion" id="listbox-unique-id" role="listbox" class="slds-hide">
+					<ul class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid " role="presentation">
+						<aura:iteration items="{!v.filteredOptions}" var="option" indexVar="index" >
+							<li aura:id="selectedAddress" role="presentation"
+								class="slds-listbox__item"
+								onclick="{!c.selectOption}"
+								data-value="{!option.value}"
+								data-record="{!index}"
+								data-placeid="{!option.PlaceId}"
+								data-locaval="{!option.locaval}"
+							>
+                            <span id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                <span class="slds-media__body">
+                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity">{!option.label}</span>
+                                </span>
+                            </span>
+							</li>
+						</aura:iteration>
+					</ul>
+				</div>
+			</aura:if>
+
+			<aura:if isTrue="{!v.isEE == true}">
+			  <input id="{!v.districtEEId}"
+					 value="{!v.districtString}"
+					 class="slds-input"
+					 label =""
+					 type="text" 
+					 onchange="{!c.getValueEE}"
+					 disabled="{!v.addressMapping.districtdisabled}" 
+					 name="districtString"
+					 />
+			</aura:if>
+		  </div>
+	  </div>
+
+</aura:component>

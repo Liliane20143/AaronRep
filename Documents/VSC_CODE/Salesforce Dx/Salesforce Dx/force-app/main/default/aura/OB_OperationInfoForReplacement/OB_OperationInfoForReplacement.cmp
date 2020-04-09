@@ -1,0 +1,108 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="OB_OperationInfoForReplacement_CC">
+
+    <aura:attribute name="objectDataMap"            type="Object"   default="{}"    access="global" />
+    <aura:attribute name="isOperationLogged"        type="Boolean"                  access="global" />
+    <aura:attribute name="petitioners"              type="List"     default="[]"    access="global" />
+    <aura:attribute name="unistallationList"        type="List"     default="[]"    access="global" />
+    <aura:attribute name="dateError"				type="Boolean"	default="false" access="global" />
+     <!-- Daniele Gandini <daniele.gandini@accenture.com> - 19/06/2019 - new parameters for removing flow - START -->
+    <aura:attribute name="itemsInRemove"            type="Boolean"                  access="global" />
+    <aura:attribute name="isModificaOfferta"        type="Boolean"                  access="global" />
+    <aura:attribute name="isNoteOK"                 type="Boolean"                  access="global" default="true"/> <!--francesca.ribezzi - WN-349 - adding default true-->
+     <!-- Daniele Gandini <daniele.gandini@accenture.com> - 19/06/2019 - new parameters for removing flow  END -->
+    
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <div class="slds-grid slds-size_1-of-1">
+        <div class="slds-size_1-of-2 ">
+            <div class="slds-p-around_medium slds-form-element" >
+                <label class="slds-form-element__label" for="" value="">
+                    <abbr class="slds-required" title="required">*</abbr>
+                    {!$Label.c.OB_Petitioner}
+                </label>
+                <lightning:select   aura:id = "petitionerValue" 
+                                    name="OB_Petitioner__c"
+                                    variant="label-hidden"
+                                    value="{!v.objectDataMap.Configuration.OB_Petitioner__c}" 
+                                    class="ob-label-hidden"
+                                    label=""
+                                    disabled="{!not(v.isOperationLogged)}">
+                    <aura:iteration items="{!v.petitioners}" 
+                                    var="petitioner">
+                        <option text="{!petitioner.value}" 
+                                value="{!petitioner.key}" />
+                                <!-- selected="{!petitioner.selected}"/> -->
+                    </aura:iteration>
+                </lightning:select>
+            </div>
+        </div> 
+        <div class="slds-size_1-of-2 ">
+            <div class="slds-p-around_medium slds-form-element" >
+                <label class="slds-form-element__label" for="" value="">
+                        <abbr class="slds-required" title="required">*</abbr>
+                        {!$Label.c.OB_Request_Date}
+                </label>
+                <!-- Daniele Gandini <daniele.gandini@accenture.com> - 19/06/2019 - disabled and onblur added - START -->
+                <lightning:input    aura:id = "dateId"
+                                    name="requestDate"
+                                    type="date" 
+                                    variant="label-hidden"
+                                    value="{!v.objectDataMap.Configuration.OB_RequestDate__c}"
+                                    dateStyle="short" 
+                                    displayDatePicker="true"
+                                    onblur="{!c.checkDate}"
+                                    disabled="{!not(v.isOperationLogged)}"/>
+                <!-- Daniele Gandini <daniele.gandini@accenture.com> - 19/06/2019 - disabled and onblur added - END -->
+            </div>
+            <aura:if isTrue="{!v.dateError}">
+                <div class="error-input-message">
+                    {!$Label.c.OB_Request_Date_Error}
+                </div>
+            </aura:if>
+        </div>
+    </div>
+    <div class="slds-grid slds-size_1-of-1">
+        <div class="slds-size_1-of-2 ">
+            <div class="slds-p-around_medium slds-form-element" >
+                <label class="slds-form-element__label" for="" value="">
+                        {!$Label.c.OB_MAINTENANCE_NOTES}
+                </label>
+                <!-- Daniele Gandini <daniele.gandini@accenture.com> - 19/06/2019 - onblur added - START -->
+                <lightning:textarea aura:id ="noteId"
+                                    name="note" 
+                                    variant="label-hidden"
+                                    placeholder="type here..."
+                                    value="{!v.objectDataMap.Configuration.OB_Note__c}"
+                                    onblur="{!c.checkNoteIfOK}"/>
+                <!-- Daniele Gandini <daniele.gandini@accenture.com> - 19/06/2019 - onblur added - START -->
+                                    
+            </div>
+        </div>
+        <!-- <aura:if isTrue="true"> -->
+        <aura:if isTrue="{!not(v.objectDataMap.isReplacement)}">
+            <div class="slds-size_1-of-2 ">
+                <div class="slds-p-around_medium slds-form-element" >
+                    <label class="slds-form-element__label" for="" value="">
+                        <abbr class="slds-required" title="required">*</abbr>
+                        {!$Label.c.OB_Unistallation_Procedure}
+                    </label>
+                    <!-- Daniele Gandini <daniele.gandini@accenture.com> - 19/06/2019 - onchange added - START -->
+                    <lightning:select  	name="OB_Unistallation_Procedure__c" 
+                                        variant="label-hidden"
+                                        value="{!v.objectDataMap.Configuration.OB_Unistallation_Procedure__c}"
+                                        class="ob-label-hidden"
+                                        label=""
+                                        onchange="{!c.checkNoteIfOK}">
+                    <!-- Daniele Gandini <daniele.gandini@accenture.com> - 19/06/2019 - onchange added - START -->
+                        <aura:iteration items="{!v.unistallationList}" var="selectedUnistallation">
+                            <option text="{!selectedUnistallation.value}" 
+                                    value="{!selectedUnistallation.key}" />
+                                    <!-- selected="{!selectedUnistallation.selected}"/> -->
+                        </aura:iteration>
+                    </lightning:select>
+                </div>
+            </div>
+        </aura:if>
+    </div>
+</aura:component>

@@ -1,0 +1,15 @@
+<aura:component implements="force:lightningQuickAction,force:hasRecordId"  controller="OB_AnagraficaServicePointController" >
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="FC" type="String" />
+    <aura:attribute name="VAT" type="String" />
+    <aura:attribute name="responseMerchant"            type="Object"  default="{}" description="save the call service response"/>
+    <aura:handler name="init" action="{!c.handleClick}" value="{!this}" description="Call method to update merchant data from service"/> 
+    <aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+    <div class="slds-spinner_container">
+        <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+        <span class="slds-assistive-text">Loading</span>
+        <div class="slds-spinner__dot-a"></div>
+        <div class="slds-spinner__dot-b"></div>
+        </div>
+    </div>
+</aura:component>

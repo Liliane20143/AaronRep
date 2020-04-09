@@ -1,0 +1,30 @@
+/*ID ANAG-77, Doris Dongmo <doris.tatiana.dongmo@accenture.com>, 09/04/2019 START */
+
+.THIS .slds-table_tree  .slds-tree__item{
+    padding-block-end: 1.215em;
+}
+
+/*Doris Dongmo,  09/04/2019 .....END */
+
+/*.THIS .slds-button_icon-bare{
+    display: none;
+}
+
+.THIS .slds-truncate {
+    text-overflow: inherit;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: normal;
+    min-width: 100px;
+}*/
+/*giovanni spinelli - 11/10/2019*/
+.THIS .cancelStyle{
+    float: left;
+    font-size: 1.2em!important;
+    text-transform: uppercase!important;
+    font-weight: 600!important;
+    border-color: rgb(48, 58, 178);
+    border-width: 0.3125rem;
+    border-width: 0.0625rem; 
+}
+/*giovanni spinelli - 11/10/2019*/

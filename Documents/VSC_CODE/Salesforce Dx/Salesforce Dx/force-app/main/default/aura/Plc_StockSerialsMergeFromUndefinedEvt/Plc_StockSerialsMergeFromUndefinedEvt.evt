@@ -1,0 +1,7 @@
+<!--
+ - Created by dilorenzo on 05/02/2019.
+ -->
+
+<aura:event type="COMPONENT" description="Plc_StockSerialsMergeFromUndefinedEvt">
+    <aura:attribute name="updateField" type="Boolean"/>
+</aura:event>

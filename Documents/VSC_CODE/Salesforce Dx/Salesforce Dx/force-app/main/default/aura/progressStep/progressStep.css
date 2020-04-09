@@ -1,0 +1,8 @@
+.THIS.slds-progress__item {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.THIS.slds-progress__item:not(.slds-is-completed) .slds-button.slds-progress__marker {
+    transform: translate(4px, 4px);
+}

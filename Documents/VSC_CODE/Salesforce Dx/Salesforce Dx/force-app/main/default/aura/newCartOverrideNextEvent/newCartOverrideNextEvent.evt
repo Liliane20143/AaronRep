@@ -1,0 +1,7 @@
+<aura:event type="COMPONENT">
+    
+    <aura:attribute name="step" type="Integer"/>
+
+ 
+ 
+</aura:event>

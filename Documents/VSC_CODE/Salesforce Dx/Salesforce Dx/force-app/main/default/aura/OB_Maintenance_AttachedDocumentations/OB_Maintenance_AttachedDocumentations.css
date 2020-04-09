@@ -1,0 +1,12 @@
+.THIS .maintenance-section-separator
+{
+	height: 1px !important;
+	width: 100% !important;
+	margin-left: -12px !important;
+	padding-right: 0px !important;
+}
+.THIS .maintenance-FormSectionCmp
+{
+	border-top: 1px solid rgb(212,212,212) !important;
+    padding-top: 2em !important;
+}

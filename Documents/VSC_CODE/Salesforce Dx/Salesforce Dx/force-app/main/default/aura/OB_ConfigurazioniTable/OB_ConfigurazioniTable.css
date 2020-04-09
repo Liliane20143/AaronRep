@@ -1,0 +1,361 @@
+.THIS {
+}
+
+.THIS .slds-card__header{
+	/* OVERWRITE ALL CARDS COMPONENT*/
+	padding:0;
+	margin:0;
+	
+}
+
+.THIS .formSearchStyle{
+	
+	background-color: rgba(243, 246, 249, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(217, 231, 238, 1);
+    border-radius: 4px;
+    margin:1%;
+    color: black;
+	padding-left:1%;
+}
+
+.THIS .pageTxt{
+	
+	font-family: 'Salesforce Sans Bold Italic', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 700;
+    font-size: 12px;
+    color: #797979;
+    position:relative;
+    text-align: right; 
+}
+
+.THIS .titleContainer{
+	
+	padding: 1%;
+	padding-bottom: 0;
+}
+
+.THIS .supertitle{
+	
+	font-size: 0.7rem;
+    color: #4F6A92;
+    text-transform:uppercase;
+	
+}
+
+.THIS .title{
+	
+	font-size: 2rem;
+	
+}
+.THIS table{
+	
+	padding: 1%;
+	border-top:none;
+	border-bottom: none;
+}
+
+.THIS .info{
+	font-family: 'Salesforce Sans Italic', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 400;
+    color: #666666;
+    border-bottom: 3px solid;
+	border-color:#d8dde6; 
+	margin-top: 1%;
+	margin-left: 1%;
+	margin-right: 1%;
+}
+
+.THIS .infoBottom{
+	font-family: 'Salesforce Sans Italic', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 400;
+    color: #666666;
+	margin-top: 1%;
+	margin-left: 1%;
+	margin-right: 1%;	
+}
+
+.THIS .boldText{
+	
+	font-weight: bold;
+}
+
+.THIS .blueIcon{
+	color:#0070d2;
+	
+}
+
+.THIS .redIcon{
+	color:#e77a84;
+	
+}
+
+.THIS .right{
+	
+	content: " ";
+    width: 0px;
+    background: transparent;
+    height: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-left: 0.5rem solid #54698d;
+    border-top: 0.5rem solid transparent;
+    border-right: 0.5rem solid transparent;
+    border-bottom: 0.5rem solid transparent;	
+	cursor:pointer;	
+}
+
+.THIS .left{
+	
+	content: " ";
+    width: 0px;
+    background: transparent;
+    height: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-right: 0.5rem solid #54698d;
+    border-top: 0.5rem solid transparent;
+    border-left: 0.5rem solid transparent;
+    border-bottom: 0.5rem solid transparent;
+    cursor:pointer;	
+	
+}
+
+.THIS .noPaddingLeft{
+	
+	padding-left:0;
+}
+
+.THIS .current{
+	
+	font-weight: bold;
+	padding-left:1%;
+	padding-right:1%;
+    color: #797979;
+    font-size: 1rem;	
+}
+
+.THIS .notCurrent{
+	
+	font-weight: normal;
+	padding-left:1%;
+	padding-right:1%;
+	cursor:pointer;
+    font-size: 0.7rem;
+    color: #0070D2;	
+}
+
+.THIS .fontItalic{
+	font-style:italic;
+	
+}
+
+.THIS .greyIconLeft{
+	
+	border-right: 0.5rem solid rgba(220,220,220,80);
+	cursor: default;
+	
+}
+
+.THIS .greyIconRight{
+	
+	border-left: 0.5rem solid rgba(220,220,220,80);
+	cursor: default;
+	
+}
+
+.THIS .slds-table thead th{
+	
+	background-color:white;
+	text-align:center;
+	color: #999999;
+	font-size: 0.7rem;
+}
+
+.THIS .slds-table thead th:first-child{
+	
+	text-align:left;
+}
+.THIS td{
+	
+	text-align:center;
+	
+}
+
+.THIS .centeredText{
+	
+	text-align:center;
+	
+}
+
+.THIS .errorMessageStyle{
+	
+	color:rgb(194, 57, 52);
+	font-size: 0.7rem;
+	
+}
+.THIS .borderError{
+	
+	border: 2px solid rgb(194, 57, 52);
+	
+}
+
+.THIS .borderForFun{
+	
+ 	 margin-left: 1%;
+     margin-top: -1%;
+     margin-right: 1%;
+	 border-bottom: 1px solid rgb(221, 219, 218);
+ 
+}
+
+.THIS .inputAttValueFont{
+	
+	font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+	font-weight:700;color:#000000;
+	padding-left: .5rem;
+    padding-top: .3rem;
+    padding-bottom: .3rem;
+    padding-right: .5rem;
+}
+
+.THIS .formSearch{
+	padding-left:2%;
+    padding-right: 1%;
+    padding-top:1%;
+    padding-bottom:1%;
+}
+
+.THIS .slds-form-element__label{
+	
+	    color: #4f6a92;	
+}
+
+.THIS .attributeNameStyle{
+	
+	 color: #4f6a92;	
+}
+.THIS .marginButtonContainer{
+	
+	margin-top: 1%;
+	
+}
+.THIS .iconPlus{
+	
+	font-size: 2.7rem;
+    float: left;
+    margin-top: -3%;
+    margin-left: -5%;
+	
+}
+
+.THIS .modalStyle{
+	
+	position:absolute;
+	top:50%;
+	left:50%;
+}
+
+.THIS .redIconCircle{
+	
+	background-color:#e77a84;
+	color: white;
+	border-radius:20px;
+}
+
+.THIS .cleanFormContainer{
+	
+	cursor:pointer;
+}
+
+.THIS .cleanFormText {
+
+    padding-left: 5%;
+
+}
+
+.THIS .goBackBox{
+ 	background-color:rgba(247, 249, 251, 1);
+ 	padding-bottom: 0.5%;
+    padding-top: 0.5%;
+    padding-left: 1%;
+ }
+ 
+ .THIS .goBackArrow{
+    font-weight: 800;
+    font-style: normal;
+    font-size: 1.2em;
+    color: #0070D2;
+ }
+ 
+ .THIS .goBackText{
+  	font-family: 'Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.5em;
+    color: #0070D2;
+    cursor:pointer;
+ }
+ 
+  .THIS .goBackText:hover{
+  	
+	text-decoration: underline;
+    
+ }
+ 
+ .THIS .upperCaseText{
+	
+	text-transform: uppercase;
+	
+}
+
+.THIS .pillSize{
+	
+	width:100%;	
+}
+
+.THIS .searchIcon{
+	
+	top: 40%;	
+}
+
+.THIS .arrowIcon{
+	
+	top: 60%;
+    left: 10%;
+}
+
+.THIS .multipickStyle{
+	
+	cursor:default;
+}
+
+.THIS .searchIcon .slds-icon-text-default{
+	
+	fill:rgba(27, 82, 151, 1.0); 
+}
+
+.THIS .checkIcon .slds-icon-text-default{
+	
+	fill:rgba(27, 82, 151, 1.0); 
+}
+
+.THIS .lookupError:focus{
+	
+    border: 2px solid rgb(194, 57, 52);
+}
+.THIS .lookupError{
+	
+    border: 2px solid rgb(194, 57, 52);
+}
+ 
+
+/* calendar icon color */
+.THIS .slds-button_icon-bare{
+	
+	color:rgba(27, 82, 151, 1.0); 
+}

@@ -1,0 +1,73 @@
+<aura:component >
+	
+    <aura:attribute name="record" type="BT_Simulation__c" default="{'sObjectType':'BT_Simulation__c'}"/>
+    <aura:attribute name="type" type="String" default="bar"/>
+    <aura:attribute name="tooltipMode" type="String" default="" />
+    <aura:attribute name="showLegend" type="Boolean" default="false" />
+    <aura:attribute name="title" type="String" default="" />
+
+    <!-- Color -->
+    <aura:attribute name="colorCDP" type="String" default="" />
+    <aura:attribute name="colorCDPExtraUE" type="String" default="" />
+    <aura:attribute name="colorComm" type="String" default="" />
+    <aura:attribute name="colorCommExtraUE" type="String" default="" />
+    <aura:attribute name="colorBancomat" type="String" default="" />
+    <aura:attribute name="colorAsian" type="String" default="" />
+
+    <!-- Values -->
+    <aura:attribute name="valueCDP" type="Decimal" default="0" />
+    <aura:attribute name="valueCDPExtraUE" type="Decimal" default="0" />
+    <aura:attribute name="valueComm" type="Decimal" default="0" />
+    <aura:attribute name="valueCommExtraUE" type="Decimal" default="0" />
+    <aura:attribute name="valueBancomat" type="Decimal" default="0" />
+    <aura:attribute name="valueAsian" type="Decimal" default="0" />
+    <aura:attribute name="valueEEA" type="Decimal" default="0" />
+
+    <aura:attribute name="height" type="String" default="125px" />
+    <aura:attribute name="width" type="String" default="auto" />
+
+    <aura:handler name="change" value="{!v.valueCDP}" action="{!c.updateDataset}" />
+    <aura:handler name="change" value="{!v.valueCDPExtraUE}" action="{!c.updateDataset}" />
+    <aura:handler name="change" value="{!v.valueComm}" action="{!c.updateDataset}" />
+    <aura:handler name="change" value="{!v.valueCommExtraUE}" action="{!c.updateDataset}" />
+    <aura:handler name="change" value="{!v.valueBancomat}" action="{!c.updateDataset}" />
+    <aura:handler name="change" value="{!v.valueAsian}" action="{!c.updateDataset}" />
+
+    <aura:attribute name="dataset" type="Object" access="private" />
+    <aura:attribute name="chart" type="Object" access="private" />
+    <aura:attribute name="total" type="Decimal" default="1"/>
+
+    <ltng:require scripts="{!join(',',$Resource.chartjs+'/Chart.min.js',$Resource.chartjsplugindatalabels+'/chartjs-plugin-datalabels.js')}" afterScriptsLoaded="{!c.drawChart}" />
+
+    <div class="slds-box" style="{!'border-color: rgb(178, 180, 179); width:' + v.width + ';'}">
+        <div class="slds-text-align_center slds-text-heading_small">
+            <aura:if isTrue="{!not(empty(v.title))}">
+                <b>{!v.title}</b>
+                <aura:set attribute="else">
+                    <b>{#$Label.c.BT_Totale}: <ui:outputNumber value="{!v.total}" format="#0.##%" class="{!or(lessthan(v.total, 1), v.total > 1) ? 'red-text' : ''}"/></b>
+                </aura:set>
+            </aura:if>
+        </div>
+        <div class="slds-text-align_center slds-m-bottom_x-small">
+            {#$Label.c.BT_DiCuiExtraEEA}: <ui:outputNumber value="{!v.valueEEA}" format="#0.##%" />
+        </div>
+        <aura:if isTrue="{!v.total > 1}">
+            <div class="slds-text-align_center slds-m-bottom_x-small slds-has-error">
+                <div class="slds-form-element__help">
+                    {#$Label.c.BT_MixTransatoGT100}<br/>{#$Label.c.BT_MixTransatoGT1002}
+                </div>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!lessthan(v.total, 1)}">
+            <div class="slds-text-align_center slds-m-bottom_x-small slds-has-error">
+                <div class="slds-form-element__help">
+                    {#$Label.c.BT_MixTransatoGT100}<br/>{#$Label.c.BT_MixTransatoLT1002}
+                </div>
+            </div>
+        </aura:if>
+        <div aura:id="plotContainer" style="{!'position:relative; height:' + v.height + ';'}" >
+        <canvas id="plot" aura:id="plot"></canvas>
+        </div>
+    </div>
+
+</aura:component>

@@ -1,0 +1,107 @@
+<!--
+ - Created by dilorenzo on 01/02/2019.
+ -->
+
+<aura:component description="Plc_ActivityCompileReport" implements="lightning:isUrlAddressable,force:lightningQuickActionWithoutHeader,force:hasRecordId" access="global" controller="Plc_ActivityCompileReportCnt">
+    <!-- Declaring attributes -->
+    <lightning:overlayLibrary aura:id="overlayLib"/>
+    <aura:attribute access="public" name="recordId" type="Id" default="" description=""/>
+    <aura:attribute access="private" name="propertiesMap" type="Map" default="{}" description="Contains some context and utility data" />
+    <aura:attribute access="private" name="selectedStatus" type="String" default="{}" description="Selected Status" />
+    <aura:attribute access="private" name="selectedTag" type="String" default="{}" description="Selected Tag" />
+    <aura:attribute access="private" name="enableSaveArea" type="Boolean" default="false"/>
+    <aura:attribute access="private" name="enableTagArea" type="Boolean" default="false" description="To show the picklist Tag"/>
+    <aura:attribute access="private" name="isTagSelected" type="Boolean" default="false"/>
+    <aura:attribute access="private" name="showActivityEdit" type="Boolean" default="false"/>
+    <aura:attribute access="private" name="statusSS4Tag" type="String" default="" description="Status Stock serial 2 for Tag Picklist. From CS"/>
+    <aura:attribute access="public" name="activityId" type="Id" description="Id Activity PC created"/>
+    <!--  -->
+    <aura:attribute access="public" name="closeModal" type="Boolean" default="false" description="Used to identifies whether closing the component on cancel or redirect to recordId page"/>
+    <aura:attribute access="public" name="hideComponent" type="Boolean" default="false" description="Id Activity PC created"/>
+    <aura:attribute access="public" name="skipInit" type="Boolean" default="false" description="Used to understand if skipping the init"/>
+    <!--  -->
+    <aura:attribute name="optionsStatusPk" type="List" default="[]"/>
+    <aura:attribute name="optionsTagPk" type="List" default="[]"/>
+    <!-- Declaring handlers, methods, .. -->
+    <lightning:navigation aura:id="navService" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:method access="public" name="initComponent" action="{!c.handleRefreshComponent}" />
+    <aura:handler name="onSaveSuccess" event="force:recordSaveSuccess" action="{!c.handleRecordUpdated}"/>
+    <aura:registerEvent name="Plc_ActivityCompileReportEvt" type="c:Plc_ActivityCompileReportEvt" description="The event fired by this component"/>
+    <!-- Force record data -->
+    <force:recordData aura:id="recordLoader"
+      recordId="{!v.activityId}"
+      targetFields="{!v.propertiesMap.simpleRecord}"
+      targetError="{!v.propertiesMap.recordError}"
+      recordUpdated="{!c.handleRecordUpdated}"
+      />
+    <aura:html tag="style">
+        #modal-fill-report .slds-modal__content{
+            height:unset !important;
+            max-height:unset !important;
+            overflow: initial;
+        }
+    </aura:html>
+    <div class="{!v.hideComponent ? 'slds-hide' : ''}">
+        <section role="dialog" tabindex="-1" class="{!(v.showActivityEdit == false ? 'slds-modal slds-fade-in-open slds-modal_small ' : 'slds-hide')}">
+            <div id="modal-fill-report" class="slds-modal__container">
+                <div class="slds-is-relative">
+                    <div aura:id="main-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+                        <lightning:spinner variant="brand" size="large" alternativeText="text"/>
+                    </div>
+                    <header class="slds-modal__header">
+                        <h2 class="slds-text-heading_medium">
+                            {!$Label.c.Plc_AllAllEdit + ' ' + v.propertiesMap.stockSerial.Name}
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content">
+                        <div class="slds-p-around_small">
+                            <div class="slds-box">
+                                <lightning:layout multipleRows="true">
+                                    <lightning:layoutItem size="12" >
+                                        <lightning:combobox aura:id="picklistStatus" name="picklistStatus" label="{!$Label.c.Plc_LightningComponentPlcActivityCompileReportSelectStatus}" options="{!v.optionsStatusPk}" value="{!v.selectedStatus}" onchange="{!c.handleSelectedStatus}" />
+                                    </lightning:layoutItem>
+                                    <aura:if isTrue="{! v.enableTagArea}">
+                                        <lightning:layoutItem size="12" >
+                                            <lightning:combobox aura:id="picklistTag" name="picklistTag" label="{!$Label.c.Plc_LightningComponentPlcActivityCompileReportTag}" options="{!v.optionsTagPk}" value="{!v.selectedTag}" onchange="{!c.isTagSelected}" />
+                                        </lightning:layoutItem>
+                                    </aura:if>
+                                </lightning:layout>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                            <lightning:button aura:id="cancelButton" onclick="{!c.backSS2Page}" label="{!$Label.c.Plc_LightningComponentPlcStockSerialsMergeFromUndefinedCancel}"/>
+                            <lightning:button aura:id="saveButton" disabled="{!not(v.enableSaveArea)}" onclick="{! c.saveStatus}" label="{!$Label.c.Plc_LightningComponentPlcActivityCompileReportSave}" variant="brand"/>
+                    </footer>
+                </div>
+            </div>
+        </section>
+        <aura:if isTrue="{! v.showActivityEdit == true &amp;&amp; v.activityId != undefined}">
+            <section role="dialog" tabindex="-1" class="{!(v.showActivityEdit == true ? 'slds-modal slds-fade-in-open slds-modal_small' : 'slds-hide')}">
+                <div aura:id="activity-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+                    <lightning:spinner variant="brand" size="large" alternativeText="text"/>
+                </div>
+                <div id="modal-edit-record" class="slds-modal__container slds-is-relative">
+                    <header class="slds-modal__header">
+                        <h2 class="slds-text-heading_medium">
+                            {!$Label.c.Plc_AllAllEdit + ' ' + v.propertiesMap.ActivityName}
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content">
+                        <div class="slds-p-around_small">
+                            <div class="slds-box">
+                                <force:recordEdit aura:id="edit" recordId="{!v.activityId}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button aura:id="cancelButton" onclick="{!c.backSS2Page}" label="{!$Label.c.Plc_LightningComponentPlcStockSerialsMergeFromUndefinedCancel}"/>
+                        <lightning:button label="{!$Label.c.Plc_LightningComponentPlcActivityCompileReportSave}" onclick="{!c.save}" variant="brand"/> 
+                    </footer>
+                </div>
+            </section>
+        </aura:if>
+        <div class="slds-backdrop slds-backdrop--open"></div>
+    </div>
+</aura:component>

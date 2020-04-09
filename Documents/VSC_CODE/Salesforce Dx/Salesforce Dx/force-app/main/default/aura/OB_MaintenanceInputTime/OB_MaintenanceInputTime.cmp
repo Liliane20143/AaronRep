@@ -1,0 +1,154 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes"
+				access="global">
+
+	<aura:attribute name="objectDataMap" 				type="Object" 		default="{}" 		access="global" />
+	
+	<aura:attribute name="openingTimeRequired" 			type="Boolean"  						access="global" />
+	<aura:attribute name="endingTimeRequired" 			type="Boolean" 							access="global" />
+	<aura:attribute name="breakStartTimeRequired" 		type="Boolean" 							access="global" />
+	<aura:attribute name="breakEndtTimeRequired" 		type="Boolean" 							access="global" />
+	<aura:attribute name="inputTimesAreOk" 				type="Boolean" 							access="global" />
+	<aura:attribute name="isFromMaintenance" 			type="Boolean" 		default="false" 	access="global"/>
+	
+	<!-- ATTRIBUTES FOR SETTING ERROR ON OPENING TIME -->
+	<aura:attribute name="openingTimeError" 			type="Boolean"  						access="global" />
+	<aura:attribute name="openingTimeErrorMessage" 		type="String"  							access="global" />
+	
+	<!-- ATTRIBUTES FOR SETTING ERROR ON CLOSING TIME -->
+	<aura:attribute name="closingTimeError" 			type="Boolean"  						access="global" />
+	<aura:attribute name="closingTimeErrorMessage" 		type="String"  							access="global" />
+	
+	<!-- ATTRIBUTES FOR SETTING ERROR ON BREAK START TIME -->
+	<aura:attribute name="breakStartTimeError" 			type="Boolean"  						access="global" />
+	<aura:attribute name="breakStartTimeErrorMessage" 	type="String"  							access="global" />
+	
+	<!-- ATTRIBUTES FOR SETTING ERROR ON BREAK CLOSING TIME -->
+	<aura:attribute name="breakEndTimeError" 			type="Boolean"  						access="global" />
+	<aura:attribute name="breakEndTimeErrorMessage" 	type="String"  							access="global" />
+	<!-- ANDREA 26/12 ATTRIBUTE FOR TAKING NEW TIME VALUE -->
+    <aura:attribute name="openingTimeValue" 			type="Time"  		default=""			access="global"/>
+    <aura:attribute name="closingTimeValue" 			type="Time"  		default=""			access="global"/>
+    <aura:attribute name="breakStartTimeValue" 			type="Time" 		default=""			access="global"/>
+    <aura:attribute name="breakEndTimeValue" 			type="Time" 		default=""			access="global"/>
+    
+    <!-- ANDREA: ATTRIBUTE FOR DISABLING SAVE IF THERE'S AN ERROR IN TIME'S INPUT -->
+    <aura:attribute name="timesHaveError" 			type="boolean" 		default="false"  		access="global"/>  
+	
+	<aura:handler   name="init" value="{!this}" action="{!c.doInit}" />
+	
+	<div class="slds-grid slds-size--1-of-1 slds-m-vertical--xxx-small" id="">
+		<div class="slds-size--1-of-1">
+			<div class="slds-size--1-of-1 slds-grid">
+				<div class="slds-size_1-of-2">
+					<div class="slds-p-around--medium slds-form-element">
+						<label 	class="slds-form-element__label"
+								for="inputNameSample1"
+								value="{!$Label.c.OB_OpeningTimeLabel}" 
+								style="margin-top: -4px; position: absolute;" > 
+						<aura:if isTrue="{!v.openingTimeRequired}"> 
+							<abbr class="slds-required" title="required">*</abbr>
+						</aura:if>
+						{!$Label.c.OB_OpeningTimeLabel}
+						</label>
+						<!-- INPUT OPENING TIME! -->
+						<lightning:input aura:id="openingTime"
+										 class="flow_required" 
+										 type="time" 
+										 name="input4"
+										 placeholder="{!$Label.c.OB_OpeningTimeLabel}"
+										 value="{!v.objectDataMap.pv.OB_Opening_Time__c}"
+										 onblur="{!c.valorizationInputTime}" />
+						<aura:if isTrue="{!v.openingTimeError == true}">
+					        <div class="error-input-message">
+					            {!v.openingTimeErrorMessage}                  
+					        </div>
+						</aura:if>
+										 
+					</div>
+				</div>
+				
+				<div class="slds-size_1-of-2">
+					<div class="slds-p-around--medium slds-form-element">
+						<label 	class="slds-form-element__label"
+								for="inputNameSample1"
+								value="{!$Label.c.OB_ClosingTime}" 
+								style="margin-top: -4px; position: absolute;" > 
+						<aura:if isTrue="{!v.endingTimeRequired==true}">
+							<abbr class="slds-required" title="required">*</abbr>
+						</aura:if>
+												{!$Label.c.OB_ClosingTime}
+						</label>
+						<!-- INPUT CLOSING TIME! -->
+						<lightning:input aura:id="closingTime" 
+										 class="flow_required"
+										 type="time" 
+										 name="input4"
+										 placeholder="{!$Label.c.OB_ClosingTime}"
+										 value="{!v.objectDataMap.pv.OB_Ending_Time__c}"
+										 onblur="{!c.valorizationInputTime}"/>
+						<aura:if isTrue="{!v.closingTimeError == true}">
+					        <div class="error-input-message">
+					            {!v.closingTimeErrorMessage}                  
+					        </div>
+						</aura:if>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- INPUT BREAK TIME! -->
+	<div class="slds-size--1-of-1 slds-grid">
+		<div class="slds-size_1-of-2">
+			<div class="slds-p-around--medium slds-form-element">
+				<label class="slds-form-element__label"
+								for="inputNameSample1"
+								value="{!$Label.c.OB_BreakStartTimeLabel}" 
+								style="margin-top: -4px; position: absolute;" >
+					<aura:if isTrue="{!v.breakStartTimeRequired}">  
+						<abbr class="slds-required" title="required">*</abbr>
+					</aura:if>
+					{!$Label.c.OB_BreakStartTimeLabel}
+				</label>
+				<lightning:input aura:id="breakStartTime"
+								 type="time"
+								 class="flow_required" 
+								 name="input4"
+								 placeholder="{!$Label.c.OB_StartBreak}"
+								 value="{!v.objectDataMap.pv.OB_Break_Start_Time__c}"
+								 onblur="{!c.valorizationInputTime}" />
+				<aura:if isTrue="{!v.breakStartTimeError == true}">
+					<div class="error-input-message">
+					{!v.breakStartTimeErrorMessage}                  
+					</div>
+				</aura:if>
+			</div>
+		</div>
+		<div class="slds-size_1-of-2">
+			<div class="slds-p-around--medium slds-form-element">
+				<label class="slds-form-element__label"
+									for="inputNameSample1"
+									value="{!$Label.c.OB_BreakEndTime}" 
+									style="margin-top: -4px; position: absolute;" > 
+					<aura:if isTrue="{!v.breakEndTimeRequired}"> 
+						<abbr class="slds-required" title="required">*</abbr>
+					</aura:if>
+									{!$Label.c.OB_BreakEndTime}
+				</label>
+				<lightning:input aura:id="breakEndTime" 
+								 type="time" 
+								 class="flow_required"
+								 name="input4"
+								 placeholder="{!$Label.c.OB_EndBreak}"
+								 value="{!v.objectDataMap.pv.OB_Break_End_Time__c}"
+								 onblur="{!c.valorizationInputTime}" />
+				<aura:if isTrue="{!v.breakEndTimeError == true}">
+					<div class="error-input-message">
+						{!v.breakEndTimeErrorMessage}                  
+					</div>
+				</aura:if>
+			</div>
+		</div>
+	</div>
+	
+</aura:component>

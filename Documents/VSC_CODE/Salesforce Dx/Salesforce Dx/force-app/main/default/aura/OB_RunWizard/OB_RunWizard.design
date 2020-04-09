@@ -1,0 +1,7 @@
+<design:component>
+    <design:attribute name="wizardId" label="wizardConfigurationId" />
+	<design:attribute name="wizardName" label="wizardConfigurationName" />
+	<design:attribute name="displayMenu" label="displayMenu" />
+	<design:attribute name="objectType" label="objectType" />
+	<design:attribute name="recordID" label="recordID" />
+</design:component>

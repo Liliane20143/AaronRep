@@ -1,0 +1,8 @@
+<aura:event type="COMPONENT" description="Event template" >
+    <aura:attribute name="province" type="String" default="" />
+    <aura:attribute name="comune" type="String" default="" />
+    <aura:attribute name="frazione" type="String" default=""/>
+    <aura:attribute name="caps" type="List"/>
+    <aura:attribute name="isDisabled" type="Boolean"/>
+    <aura:attribute name="responseProv" type="Object" default="{}" access="global"/>
+</aura:event>

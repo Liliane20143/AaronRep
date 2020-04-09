@@ -1,0 +1,160 @@
+<aura:component >
+	<aura:attribute name="record" type="BT_Simulation__c" required="true"/>
+
+    <aura:attribute name="offer" type="Object" />
+    <aura:attribute name="config" type="Object" />
+
+    <aura:attribute name="mode" type="String" required="true"/>
+
+    <!-- Colors -->
+    <aura:attribute name="sectionCDPColor" type="String" default="" />
+    <aura:attribute name="sectionCDPColorExtraUE" type="String" default="" />
+    <aura:attribute name="sectionCommColor" type="String" default="" />
+    <aura:attribute name="sectionCommColorExtraUE" type="String" default="" />
+    <aura:attribute name="sectionBancomatColor" type="String" default="" />
+    <aura:attribute name="sectionAsianColor" type="String" default="" />
+    <aura:attribute name="tbBackGrey" type="String" default="rgb(224, 225, 221)" />
+
+    <!-- Sum Percent Cards -->
+    <aura:attribute name="sumPercentCDP" type="Decimal" />
+    <aura:attribute name="sumPercentCDPExtraUE" type="Decimal" />
+    <aura:attribute name="sumPercentComm" type="Decimal" />
+    <aura:attribute name="sumPercentCommExtraUE" type="Decimal" />
+    <aura:attribute name="sumPercentBancomat" type="Decimal" />
+    <aura:attribute name="sumPercentAsian" type="Decimal" />
+    <aura:attribute name="sumPercentEEA" type="Decimal" />
+
+    <aura:handler name="change" value="{!v.offer}" action="{!c.onOfferChange}" />
+
+    <aura:if isTrue="{!v.mode == 'packages'}">
+        <c:BT_Section title="{#$Label.c.BT_TipologiaCarteAccettate}">
+            <c:BT_TipologiaCartePlot height="110px" width="100%" title="{#$Label.c.BT_MixDiTransatoEsercente}" record="{!v.record}" showLegend="true" colorCDP="{!v.sectionCDPColor}" colorCDPExtraUE="{!v.sectionCDPColorExtraUE}" colorComm="{!v.sectionCommColor}" colorCommExtraUE="{!v.sectionCommColorExtraUE}" colorBancomat="{!v.sectionBancomatColor}" colorAsian="{!v.sectionAsianColor}" valueCDP="{!v.sumPercentCDP}" valueCDPExtraUE="{!v.sumPercentCDPExtraUE}" valueComm="{!v.sumPercentComm}" valueCommExtraUE="{!v.sumPercentCommExtraUE}" valueBancomat="{!v.sumPercentBancomat}" valueAsian="{!v.sumPercentAsian}" valueEEA="{!v.sumPercentEEA}" type="horizontalBar" tooltipMode="point" />
+        </c:BT_Section>
+        <c:BT_Section title="{#$Label.c.BT_Commissioni}">
+            <c:dataTable border="both" striped="true" hover="false" variant="inline-edit" class="commTable">
+                <aura:set attribute="header">
+                    <c:dataTableRow>
+                        <c:dataTableColumn title="{#$Label.c.BT_TipoProdotto}" rowspan="2">{#$Label.c.BT_TipoProdotto}</c:dataTableColumn>   
+                        <c:dataTableColumn title="{$Label.c.BT_Commissione}" align="center" colspan="2">{#$Label.c.BT_Commissione}</c:dataTableColumn> 
+                    </c:dataTableRow>
+                    <c:dataTableRow>
+                        <c:dataTableColumn title="%" align="center">%</c:dataTableColumn>   
+                        <c:dataTableColumn title="{#$Label.c.BT_Magg + ' ' + $Label.c.BT_AreaNoEuro}" align="center">{#$Label.c.BT_Magg}<br/>{#$Label.c.BT_AreaNoEuro}</c:dataTableColumn> 
+                    </c:dataTableRow>
+                </aura:set>
+                <c:dataTableRow>
+                    <c:dataTableColumn textVariant="caps" title="{#$Label.c.BT_CreditoDebitoPrepagate + ' (' + $Label.c.BT_Visa + ', ' + $Label.c.BT_Mastercard + ')'}">{#$Label.c.BT_CreditoDebitoPrepagate} ({#$Label.c.BT_Visa}, {#$Label.c.BT_Mastercard})</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{!v.offer.BT_Min_cdp__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{!v.offer.deltabenchcdpeea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn textVariant="caps" title="{#$Label.c.BT_Commercial + ' (' + $Label.c.BT_Visa + ', ' + $Label.c.BT_Mastercard + ')'}">{#$Label.c.BT_Commercial} ({#$Label.c.BT_Visa}, {#$Label.c.BT_Mastercard})</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{!v.offer.BT_Min_comm__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{!v.offer.deltabenchcommeea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn textVariant="caps" title="{#$Label.c.BT_PagoBancomat}">{#$Label.c.BT_PagoBancomat}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{!v.offer.BT_Min_pb__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn textVariant="caps" title="{#$Label.c.BT_CircuitiAsiatici}">{#$Label.c.BT_CircuitiAsiatici}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{!v.offer.BT_Min_asian__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+                </c:dataTableRow>
+            </c:dataTable>
+        </c:BT_Section>
+    </aura:if>
+    <div class="offerDescription slds-m-bottom_medium">
+        <aura:if isTrue="{!v.mode == 'packages'}">
+            <c:BT_ExpandableSection title="{#$Label.c.BT_MaggioriDettagli}" open="false">
+                <c:dataTable border="both" hover="false" variant="inline-edit">
+                    <c:dataTableRow>
+                        <c:dataTableColumn>
+                            <b>{#$Label.c.BT_Target}:</b>
+                        </c:dataTableColumn>
+                        <c:dataTableColumn>
+                            <lightning:formattedRichText value="{!v.offer.BT_Target__c}"></lightning:formattedRichText>
+                        </c:dataTableColumn>
+                    </c:dataTableRow>
+                    <c:dataTableRow>
+                        <c:dataTableColumn>
+                            <b>{#$Label.c.BT_DescrizioneOfferta}:</b>
+                        </c:dataTableColumn>
+                        <c:dataTableColumn>
+                            <lightning:formattedRichText value="{!v.offer.BT_DescrizioneOfferta__c}"></lightning:formattedRichText>
+                        </c:dataTableColumn>
+                    </c:dataTableRow>
+                    <c:dataTableRow rendered="{!not(empty(v.offer.BT_Note__c))}">
+                        <c:dataTableColumn>
+                            <b>{#$Label.c.BT_Note}:</b>
+                        </c:dataTableColumn>
+                        <c:dataTableColumn>
+                            <lightning:formattedRichText value="{!v.offer.BT_Note__c}"></lightning:formattedRichText>
+                        </c:dataTableColumn>
+                    </c:dataTableRow>
+                    <c:dataTableRow rendered="{!not(empty(v.offer.BT_Eccezioni__c))}">
+                        <c:dataTableColumn>
+                            <b>{#$Label.c.BT_Eccezioni}:</b>
+                        </c:dataTableColumn>
+                        <c:dataTableColumn>
+                            <lightning:formattedRichText value="{!v.offer.BT_Eccezioni__c}"></lightning:formattedRichText>
+                        </c:dataTableColumn>
+                    </c:dataTableRow>
+                    <c:dataTableRow rendered="{!not(empty(v.offer.BT_PromozioniCommissioni__c))}">
+                        <c:dataTableColumn textVariant="caps">
+                            <b>{#$Label.c.BT_Promozioni}</b>
+                        </c:dataTableColumn>
+                        <c:dataTableColumn>
+                            <lightning:formattedRichText value="{!v.offer.BT_PromozioniCommissioni__c}"></lightning:formattedRichText>
+                        </c:dataTableColumn>
+                    </c:dataTableRow>
+                </c:dataTable>
+            </c:BT_ExpandableSection>
+            <aura:set attribute="else">
+                <c:dataTable border="both" hover="false" variant="inline-edit">
+                    <c:dataTableRow>
+                        <c:dataTableColumn>
+                            <b>{#$Label.c.BT_Target}:</b>
+                        </c:dataTableColumn>
+                        <c:dataTableColumn>
+                            <lightning:formattedRichText value="{!v.offer.BT_Target__c}"></lightning:formattedRichText>
+                        </c:dataTableColumn>
+                    </c:dataTableRow>
+                    <c:dataTableRow>
+                        <c:dataTableColumn>
+                            <b>{#$Label.c.BT_DescrizioneOfferta}:</b>
+                        </c:dataTableColumn>
+                        <c:dataTableColumn>
+                            <lightning:formattedRichText value="{!v.offer.BT_DescrizioneOfferta__c}"></lightning:formattedRichText>
+                        </c:dataTableColumn>
+                    </c:dataTableRow>
+                    <c:dataTableRow rendered="{!not(empty(v.offer.BT_Note__c))}">
+                        <c:dataTableColumn>
+                            <b>{#$Label.c.BT_Note}:</b>
+                        </c:dataTableColumn>
+                        <c:dataTableColumn>
+                            <lightning:formattedRichText value="{!v.offer.BT_Note__c}"></lightning:formattedRichText>
+                        </c:dataTableColumn>
+                    </c:dataTableRow>
+                    <c:dataTableRow rendered="{!not(empty(v.offer.BT_Eccezioni__c))}">
+                        <c:dataTableColumn>
+                            <b>{#$Label.c.BT_Eccezioni}:</b>
+                        </c:dataTableColumn>
+                        <c:dataTableColumn>
+                            <lightning:formattedRichText value="{!v.offer.BT_Eccezioni__c}"></lightning:formattedRichText>
+                        </c:dataTableColumn>
+                    </c:dataTableRow>
+                    <c:dataTableRow rendered="{!not(empty(v.offer.BT_PromozioniCommissioni__c))}">
+                        <c:dataTableColumn textVariant="caps">
+                            <b>{#$Label.c.BT_Promozioni}</b>
+                        </c:dataTableColumn>
+                        <c:dataTableColumn>
+                            <lightning:formattedRichText value="{!v.offer.BT_PromozioniCommissioni__c}"></lightning:formattedRichText>
+                        </c:dataTableColumn>
+                    </c:dataTableRow>
+                </c:dataTable>
+            </aura:set>
+        </aura:if>
+    </div>
+</aura:component>

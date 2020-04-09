@@ -1,0 +1,19 @@
+<aura:component controller="OB_BankOrderDashController" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId" access="global">
+	 <!-- <ltng:require scripts="{!$Resource.Chart_Library}" afterScriptsLoaded=""/> -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="ABI" type="String" default="" access="global" />
+	<aura:attribute name="CAB" type="String" default="" access="global" />
+	<aura:attribute name="userType" type="String" default="" access="global" />
+	<aura:attribute name="reportName" type="String" default="" access="global" />
+	<aura:attribute name="lcBaseURL" type="String" default="" access="global" />
+
+	<aura:attribute name="url" type="String" access="global"/>
+
+	<div class="slds-grid">
+		<div class="slds-size--2-of-12"/>
+		<div class="slds-size--8-of-12">
+			<iframe aura:id= "currentReport" src="{!v.url}" width="110%" height="650px;" frameBorder="0"/>
+		</div>
+		<div class="slds-size--2-of-12"/>
+	</div>
+</aura:component>

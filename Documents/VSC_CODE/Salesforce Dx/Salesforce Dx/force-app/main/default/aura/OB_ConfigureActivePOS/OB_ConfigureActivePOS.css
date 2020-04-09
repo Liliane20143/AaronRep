@@ -1,0 +1,124 @@
+.THIS {
+
+
+}
+
+.THIS .subtitle{
+	
+	font-size: 20px;
+    font-weight: 700;
+}
+
+.THIS .numLen{
+	
+	font-size: 18px;
+    margin-left: 1%;
+}
+
+.THIS .closingLine{
+	margin-top:0.8rem;
+	
+}
+
+.THIS .arrow_text{
+	display: inline-block;
+	padding-left:1%;
+	padding-right:2%;
+	color: #0070d2;
+	font-weight:bold;
+	text-transform:uppercase;
+}
+
+.THIS .terminal_text{
+	display: inline-block;
+	padding-right:2%;
+	color: #0070d2;
+	text-transform:uppercase;
+}
+
+.THIS .terminal_text-bold{
+	font-weight:bold;
+	font-size:1rem;
+}
+
+.THIS .activeItemStyle{
+	
+	cursor:pointer;
+	padding:0.5%;
+	border: 1px solid;
+	border-radius: 5px;
+	border-color: #d8dde6;
+	margin-right:0.5rem;
+	margin-bottom: 0.5rem;
+	
+}
+
+.THIS .activeItemStyle:hover{
+	
+	background-color:rgba(243, 245, 248, 1);
+	
+}
+
+
+.THIS .redIcon{
+	color:#e77a84;
+}
+
+/* <daniele.gandini@accenture.com> - 21/05/2019 - TerminalsReplacement - START */
+.THIS .disabledIcon{
+	color:#e77a84;
+	opacity: 0.2;
+}
+
+.THIS .bluIcon{
+	color:#35689b;
+}
+/* <daniele.gandini@accenture.com> - 21/05/2019 - TerminalsReplacement - END */
+
+.THIS .rightPosition{
+	
+	float:right;
+}
+
+.THIS .arrowDetailsPrice .slds-icon-text-default{
+	fill: #d8dde6;
+}
+
+.THIS .pricesContainerStyle{
+
+    background-color: rgba(243, 245, 248, 1);
+    border: 1px solid;
+	border-radius: 5px;
+	border-color: #d8dde6;
+	margin-top: 5%;
+	border-bottom: none;
+	position:relative;
+}
+
+.THIS .active{
+	
+	cursor:default;
+	background-color: rgba(243, 245, 248, 1);
+	padding-bottom: 0%;
+	
+}
+
+.THIS .arrowHidePrice{
+	
+	cursor:pointer;
+}
+
+.THIS .arrowHidePrice .slds-icon-text-default {
+	
+	fill: #0070d2;
+}
+/** ANDREA MORITTU START 2019.05.07 - Id_Stream_6_Subentro **/
+.THIS .displayNone {
+	display : none!important;
+}
+
+.THIS .customSubtitle{
+	font-weight: 700!important;
+	font-size: x-large!important;
+}
+/** ANDREA MORITTU END 2019.05.07 - Id_Stream_6_Subentro **/

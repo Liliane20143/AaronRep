@@ -1,0 +1,129 @@
+<apex:page showHeader="false" standardStylesheets="false" sidebar="false"  applyHtmlTag="false" applyBodyTag="false" docType="html-5.0"
+    controller="OB_ContinuationController"  >
+    <html>
+            
+    <body >
+        
+        <script>
+            var resultCall;
+            var methodName = '';
+            var hostname = window.location.hostname;
+            var position = hostname.indexOf('--c');
+            var mydomain='';
+            var endUrl = '';
+            var lexBaseURL = '';
+            if(position!=-1){
+                mydomain = hostname.substr(0, position);
+                lexBaseURL = 'https://' + mydomain;
+                endUrl = '.lightning.force.com';
+            } else {
+                //mydomain = hostname;
+                console.log('@@ setting url');
+                mydomain ='{!VFBaseURL}';
+                lexBaseURL =  mydomain;
+            }
+            lexBaseURL += endUrl;
+            //console.log('MYDOMAIN vfp: ' + {!VFBaseURL});
+            
+            var message= [];
+                window.addEventListener("message", function (event) {
+             //   console.log('testVF');
+                   console.log('event'+JSON.stringify(event));
+                   // console.log('event.data.topic' + event.data.topic);
+                   console.log('event.origin '+event.origin + ' - '+ lexBaseURL);
+                   // if (event.origin !== lexBaseURL) {
+                   //     console.log('event.origin !=='+lexBaseURL);
+                        // Not the expected origin: reject message
+                    //    return;
+                   // }
+                    console.log('event.data.topic: ' +event.data.topic);
+                    // Only handle messages we are interested in            
+                    if (event.data.topic === "com.force") {
+                    //    console.log('sono nella chiamata del servizio nella vfp');
+                        methodName = event.data.methodName;
+                        var methodParams = event.data.methodParams;
+                        console.log('methodName: '+methodName);
+                        console.log('methodParams: '+methodParams);
+                        Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.OB_ContinuationController.invoke}', methodName, methodParams, function (result) {
+                            message = {
+                                invocationId: event.data.invocationId,
+                                topic: "com.force",
+                                result: result
+                            };
+                            
+                            console.log('messaggio: '+JSON.stringify(message.result));
+                            parent.postMessage(message, lexBaseURL);
+                            //resultCall = result;
+                            if(methodName=='getBase64DocID'){
+                                if(result['status code']!='KO'){
+                        //          console.log('methodName getBase64DocID'+ methodName);
+                                    var base64PDF;
+                                    for(var k in result){                   
+                                        base64PDF = result[k];
+                                    }
+                                    console.log('base64PDF: '+ base64PDF);
+                                    var raw = atob(base64PDF); 
+                                    var uint8Array = new Uint8Array(new ArrayBuffer(raw.length));
+                                    for (var i = 0; i < raw.length; i++)
+                                    {
+                                        uint8Array[i] = raw.charCodeAt(i);
+                                    }
+                                    var file = new Blob([uint8Array], { type: 'application/pdf' });
+                                    var fileURL = URL.createObjectURL(file);
+                                    console.log('fileURL: '+fileURL);
+                                    window.open("{!VFBaseURL}/apex/OB_PreviewPDF?fu="+fileURL, "_blank","width=600,height=500");
+                                }
+                            }
+                            if(methodName == 'visualizeDocLoad')
+                            {
+                                console.log('***methodName: '+ methodName);
+                                console.log(JSON.stringify(result));
+                                // var base64PDF = result['documentStream'];
+                                    for(var k in result){                   
+                                        base64PDF = result[k];
+                                    }
+                                    console.log('base64PDF: '+ base64PDF);
+                                    var raw = atob(base64PDF); 
+                                    var uint8Array = new Uint8Array(new ArrayBuffer(raw.length));
+                                    for (var i = 0; i < raw.length; i++)
+                                    {
+                                        uint8Array[i] = raw.charCodeAt(i);
+                                    }
+                                    var file = new Blob([uint8Array], { type: 'application/pdf' });
+                                    var fileURL = URL.createObjectURL(file);
+                                    console.log('fileURL: '+fileURL);
+                                    window.open("{!VFBaseURL}/apex/OB_PreviewPDF?fu="+fileURL, "_blank","width=600,height=500");
+                            }
+                            //  START   micol.ferrari 03/12/2018
+                            if(methodName == 'visualizeDocLoadLogRequest')
+                            {
+                                console.log('***methodName: '+ methodName);
+                                console.log(JSON.stringify(result));
+                                // var base64PDF = result['documentStream'];
+                                    for(var k in result){                   
+                                        base64PDF = result[k];
+                                    }
+                                    console.log('base64PDF: '+ base64PDF);
+                                    var raw = atob(base64PDF); 
+                                    var uint8Array = new Uint8Array(new ArrayBuffer(raw.length));
+                                    for (var i = 0; i < raw.length; i++)
+                                    {
+                                        uint8Array[i] = raw.charCodeAt(i);
+                                    }
+                                    var file = new Blob([uint8Array], { type: 'application/pdf' });
+                                    var fileURL = URL.createObjectURL(file);
+                                    console.log('fileURL: '+fileURL);
+                                    window.open("{!VFBaseURL}/apex/OB_PreviewPDF?fu="+fileURL, "_blank","width=600,height=500");
+                            }
+                            //  END   micol.ferrari 03/12/2018
+                        });
+                    }
+                }, false);
+                     
+        </script>
+
+    </body>
+
+    </html>
+
+</apex:page>

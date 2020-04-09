@@ -1,0 +1,143 @@
+<aura:component  controller ="OB_Maintenance_DynamicTable_Controller" >
+	<aura:attribute name ="fieldsToShow" type="List" required ="true" />
+	<aura:attribute name ="ObjectToShow" type="String" Default ="Asset" />
+	<aura:attribute name ="recordparentid" type="String" required ="true" />
+	<aura:attribute name ="queryType" type="String" default="TERMINAL" />
+
+	<aura:handler name="init" value="{! this }" action="{! c.init }"/> 
+	<aura:attribute name ="ObjectLabels" type="String" />
+	<aura:attribute name ="dataToShow" type="Object" />
+	<aura:attribute name ="showTable" type="boolean" default="true" />
+
+	<aura:attribute name ="allData" type="Object" />
+	<aura:attribute name ="tableColumns" type="List" />
+
+	<aura:attribute name ="labelToShow" type="String" />
+
+	<aura:attribute name ="selectedRow" type="String" />
+	  <aura:attribute name="gridExpandedRows" type="List" access="PRIVATE" />
+
+	<aura:attribute name="switchOnload" type="boolean" default="false" />
+	
+
+	<aura:Attribute name ="EnablementsFound"  type="Boolean" default="false" />
+	<aura:Attribute name ="EnablementsData"  type="list"  />
+
+	<aura:attribute name ="ModalTile" type="string" default="{!$Label.c.OB_MAINTENANCE_ENABLEMENTS_MODAL_TITLE}" />
+	
+	<!-- francesca.ribezzi - modal attributes-->
+	<aura:attribute name ="row" type="Asset" />
+	<aura:attribute name ="showModal" type="boolean" default="false" />
+	<aura:attribute name="isFromServicePoint" type="boolean" default="false" />
+	<aura:attribute name ="itemAttributes" type="List" />
+	<aura:attribute name ="itemAttributesColumns" type="List" />
+	
+	<aura:Attribute name ="proposerABI"  type="String"  access="global"/>
+	<aura:attribute name ="currentUser"  type="Object"  />
+	<aura:method name="refresh" action="{! c.init}"></aura:method>
+
+  	<aura:registerEvent name="showLabelEvent" type="c:OB_Maintenance_DynamicTableChildEvent"/>
+  
+<!--Showing component title -->
+
+	<aura:if isTrue="{!v.recordparentid}">
+
+		<!-- <div class="slds-p-around_small"> -->
+			<aura:if isTrue="{!v.showTable}">
+				<div class="slds-align_absolute-center" >	
+					<!-- START 	29/11/2018 micol.ferrari -->
+					<!-- <ui:outputText value="{!v.labelToShow}" /> -->
+					<div class="sdls-grid slds-size_1-of-1 slds-m-top_medium">
+						<form class="slds-size_1-of-1 slds-form">
+							<legend class="slds-form-element__label">{!v.labelToShow}</legend>
+							<fieldset class="maintenance-separator-fieldset" name="companysection" data-aura-class="maintenance-separator-fieldset"/>
+						</form>
+					</div>
+					<div class="maintenance-separator-line"/>
+					<!-- END 	29/11/2018 micol.ferrari -->
+				</div>
+				<aura:set attribute="else">
+					<!-- <div class="slds-align_absolute-center" >	
+						<ui:outputText value="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_NODATA}" /> 
+					</div> -->
+				</aura:set>
+			</aura:if>
+		<!-- </div> -->
+	
+<!--Showing datatable , to be defined the height  -->
+	
+		<div style="margin-bottom: 1%;">
+			<!-- ANDREA MORITTU START - 24-Sept-2019 - EVO_PRODOB_469 -->
+			<lightning:dataTable
+						class="hideArrows"
+            columns="{! v.tableColumns }"
+            data="{! v.dataToShow }"
+            expandedRows="{! v.gridExpandedRows }"
+            keyField="OB_TermId__c"
+            hideCheckboxColumn= "true"
+            onrowaction="{! c.handleRowAction }"
+			/> 
+			<!-- ANDREA MORITTU END - 24-Sept-2019 - EVO_PRODOB_469 -->
+        </div>
+</aura:if>
+<!-- francesca.ribezzi - modal to show attributes -->
+<aura:if isTrue="{!v.showModal}">
+<div style="height: 640px;">
+  <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+    <div class="slds-modal__container">
+      <header class="slds-modal__header">
+        <!-- close btn here -->
+        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Attributi</h2> <!-- changeLabel -->
+      </header>
+      <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+     	
+     <!--   <aura:iteration items="{!v.itemAttributes}" var="att" indexVar="index">
+		<fieldset class="slds-form-element slds-form_compound">
+		  <div class="slds-form-element__control">
+		    <div class="slds-form-element__group">
+		      <div class="slds-form-element__row">
+		        <div class="slds-form-element slds-size_1-of-2">
+		          <label class="slds-form-element__label" for="input-01">Name</label>
+		          <div class="slds-form-element__control">
+		           <input type="text" class="slds-input" value="{!att.Name}" readonly="readonly"/>
+		          </div>
+		        </div>
+		        <div class="slds-form-element slds-size_1-of-2">
+		          <label class="slds-form-element__label" for="input-02">Value</label>
+		          <div class="slds-form-element__control">
+		           <input type="text" name="name" value="{!att.NE__Value__c}" readonly="readonly"/> 
+		          </div>
+		        </div>
+		      </div>
+		    </div>
+		  </div>
+		</fieldset>   	
+	</aura:iteration>-->
+		<aura:if isTrue="{!v.itemAttributes.length > 0}">
+			 <lightning:datatable
+			        columns="{! v.itemAttributesColumns }"
+			        data="{! v.itemAttributes }"
+			        keyField="Id"
+			      	aura:id="attributesTable"
+			       	hideCheckboxColumn="true"/>
+			       	
+		  <aura:set attribute="else">
+		  	<div class="slds-align_absolute-center" >	
+				<ui:outputText value="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_NODATA}" /> 
+			</div> 
+		  </aura:set>     	
+		</aura:if>   
+      </div>
+      <footer class="slds-modal__footer">
+		<!--giovanni spinelli - 11/10/2019 - start - change button style-->
+        <lightning:button class="slds-button slds-button_neutral cancelStyle" variant="brand" onclick="{!c.closeModal}" label="{!$Label.c.OB_Cancel}" />
+	  	<!--giovanni spinelli - 11/10/2019 - start - change button style-->
+	</footer>
+    </div>
+  </section>
+  <div class="slds-backdrop slds-backdrop_open"></div>
+</div>
+</aura:if>
+
+	
+</aura:component>

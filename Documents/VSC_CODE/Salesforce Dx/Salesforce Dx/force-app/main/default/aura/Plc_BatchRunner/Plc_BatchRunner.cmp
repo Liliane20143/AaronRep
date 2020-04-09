@@ -1,0 +1,179 @@
+<aura:component implements="flexipage:availableForAllPageTypes,lightning:isUrlAddressable"
+	controller="Plc_BatchRunnerCnt">
+
+	<aura:attribute name="batchName" type="String" default="" />
+	<aura:attribute name="labelToShow" type="String" default="Batch Runner" />
+	<aura:attribute name="batchStatus" type="String" default="" />
+	<aura:attribute name="batchExecutions" type="List" default="[]" />
+	<aura:attribute name="columns" type="List" default="[]" />
+	<aura:attribute name="isSelectedBatch" type="Boolean" default="false" />
+	<aura:attribute name="showScheduler" type="Boolean" default="false" />
+	<aura:attribute name="availableBatches" type="List" default="[]" />
+	<aura:attribute name="selectedBatch" type="String" default="" />
+	<aura:attribute name="labelMap" type="Map" default="{}" />
+	<aura:attribute name="schedulabilityMap" type="Map" default="{}" />
+	<aura:attribute name="schedulability" type="String" default="" />
+	<aura:attribute name="daysAvailable" type="List" default="[]" />
+	<aura:attribute name="translationMap" type="Map" default="{}" />
+	<aura:attribute name="selectedForCronoTime" type="List" default="[]" />
+	<aura:attribute name="hourAvailable" type="List" default="[]" />
+	<aura:attribute name="selectedHour" type="String" default="-"/>
+	<aura:attribute name="availableDaysNumber" type="List" default=""/>
+	<aura:attribute name="selectedDayForMonthly" type="String" default="-" />
+
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+	<div class="slds-card container">
+		<div class="header header-css">
+			<div class="slds-page-header slds-p-around_medium" role="banner">
+				<div class="slds-grid">
+					<div class="slds-col slds-has-flexi-truncate">
+						<div class="slds-media slds-media--center">
+							<div class="slds-media__figure">
+								<lightning:icon iconName="standard:apex" alternativeText="Batch Runner" />
+							</div>
+							<div class="slds-media__body">
+								<h1 class="slds-page-header__title slds-text-heading--small slds-align-bottom slds-truncate"
+									title="Batch Runner">Batch Runner</h1>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="slds-box">
+				<aura:if isTrue="{!v.isSelectedBatch}">
+					<lightning:layout multipleRows="true" class="slds-size--3-of-3">
+
+						<lightning:layoutItem size="3" padding="around-small" class="slds-text-align--left">
+							<lightning:combobox name="progress2"
+								label="{!v.translationMap.SelecttheBatchthatyouwanttolaunch}"
+								value="{! v.selectedBatch}" placeholder="-" options="{! v.availableBatches }"
+								onchange="{! c.showMenuSelect }" />
+						</lightning:layoutItem>
+						
+						<aura:if isTrue="{!v.showScheduler}">
+							<aura:if isTrue="{!v.schedulability == 'Weekly' }">
+								<lightning:layoutItem size="3" padding="around-small" class="slds-text-align--left">
+								
+									<lightning:checkboxGroup messageWhenValueMissing="Select at least one" required="true"  name="Checkbox Group" label="Select" options="{! v.daysAvailable }" value=""
+										onchange="{! c.getSelectedHandler }" />
+								
+								</lightning:layoutItem>
+								
+								<lightning:layoutItem size="3" padding="around-small" class="slds-text-align--left">
+									<lightning:combobox name="progress3" label="Preferred Start Time:"
+									value="{!v.selectedHour}" placeholder="-" options="{! v.hourAvailable }" onchange="{! c.getSelectedHourHandler }" />
+								</lightning:layoutItem>
+
+								<lightning:layoutItem size="3" padding="around-small" class="slds-text-align--left">
+								
+									<lightning:button label="Modifica" title="Neutral action" onclick="{! c.setJobHandler }" />
+									<lightning:button label="Cancella" title="Neutral action" onclick="{!c.hideSchedulerHandler }" />
+
+								
+								</lightning:layoutItem>
+
+							</aura:if>
+
+							<aura:if isTrue="{!v.schedulability == 'Monthly' }">
+
+								<lightning:layoutItem size="2" padding="around-small" class="slds-text-align--left">
+									On day: <lightning:combobox name="progress3" label="" value="{!v.selectedDayForMonthly}" placeholder="-"
+									options="{! v.availableDaysNumber }" onchange="{! c.getSelectedDayOfTheMonthHandler }" />
+									</lightning:layoutItem> 
+							
+								<lightning:layoutItem size="3" padding="around-small" class="slds-text-align--left">
+									<lightning:combobox name="progress3" label="Preferred Start Time:" value="{!v.selectedHour}" placeholder="-"
+										options="{! v.hourAvailable }" onchange="{! c.getSelectedHourHandler }" />
+								</lightning:layoutItem>
+							
+								<lightning:layoutItem size="3" padding="around-small" class="slds-text-align--left">
+							
+									<lightning:button label="Modifica" title="Neutral action" onclick="{!c.setJobHandler }" />
+									<lightning:button label="Cancella" title="Neutral action" onclick="{!c.hideSchedulerHandler }" />
+									
+								</lightning:layoutItem>
+
+								
+								
+							
+							</aura:if>
+
+							<aura:set attribute="else">
+								<aura:if isTrue="{!not(empty(v.schedulability)) }">
+									<lightning:layoutItem size="3" padding="around-small" class="slds-text-align--left">
+									
+										<lightning:button label="Scheduler" title="Neutral action" onclick="{!c.showSchedulerHandler }" />
+									
+										</lightning:layoutItem>
+								</aura:if>
+
+							</aura:set>
+						</aura:if>
+
+					</lightning:layout>
+
+					<lightning:layout multipleRows="true" class="slds-size--1-of-3">
+
+						<lightning:layoutItem size="3" padding="around-medium" class="slds-text-align--left">
+							{!v.translationMap.Status}:{!v.batchStatus}
+						</lightning:layoutItem>
+
+						<lightning:layoutItem size="2" padding="around-small" class="slds-text-align--left">
+							<lightning:buttonIcon iconName="utility:refresh" variant="border-filled"
+								alternativeText="Refresh" onclick="{!c.refreshStatus}" />
+						</lightning:layoutItem>
+
+						<lightning:layoutItem size="3" padding="around-small" class="slds-text-align--left">
+							<lightning:button iconName="utility:play" label="{!v.translationMap.Runbatch}"
+								title="{!v.translationMap.Runbatch}" onclick="{!c.runBatchHandler}"
+								disabled="{!or(equals(v.batchStatus,''),equals(v.batchStatus,v.translationMap.Running))}" />
+						</lightning:layoutItem>
+
+						<lightning:layoutItem size="4" padding="around-small" class="slds-text-align--left">
+							<lightning:button iconName="utility:stop" label="{!v.translationMap.Stopbatch}"
+								title="{!v.translationMap.Stopbatch}" onclick="{!c.stopBatchHandler}"
+								disabled="{!or(equals(v.batchStatus,''),equals(v.batchStatus,v.translationMap.Idle))}" />
+						</lightning:layoutItem>
+
+					</lightning:layout>
+
+					<lightning:card class="slds-card_boundary slds-m-top--small">
+						<aura:set attribute="title">
+							<div class="slds-m-vertical--x-small">
+								{!v.translationMap.Last10executions}
+								<lightning:buttonIcon iconName="utility:refresh" variant="border-filled"
+									alternativeText="Refresh" onclick="{!c.refreshLastExecutions}" />
+							</div>
+						</aura:set>
+
+						<div class="slds-p-horizontal--small">
+							<aura:if isTrue="{!greaterthan(v.batchExecutions.length,0)}">
+								<lightning:datatable keyField="id" data="{! v.batchExecutions }"
+									columns="{! v.columns }" hideCheckboxColumn="true" />
+
+								<aura:set attribute="else">
+									{!v.translationMap.Nooldexecutionsinfoavailable}
+								</aura:set>
+							</aura:if>
+						</div>
+					</lightning:card>
+
+					<aura:set attribute="else">
+						<lightning:layout multipleRows="true" class="slds-size--1-of-3">
+							<lightning:layoutItem size="12" padding="around-small" class="slds-text-align--left">
+								<lightning:combobox name="progress"
+									label="{!v.translationMap.SelecttheBatchthatyouwanttolaunch}"
+									value="{! v.selectedBatch }" placeholder="-" options="{! v.availableBatches }"
+									onchange="{! c.showMenuSelect }" />
+							</lightning:layoutItem>
+						</lightning:layout>
+					</aura:set>
+				</aura:if>
+			</div>
+		</div>
+	</div>
+
+</aura:component>

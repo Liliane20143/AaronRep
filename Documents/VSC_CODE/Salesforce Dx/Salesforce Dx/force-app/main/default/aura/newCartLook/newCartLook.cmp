@@ -1,0 +1,118 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+    <!--<ltng:require styles="{!$Resource.newCartStyles}" />-->
+    <aura:attribute name="objectDataMap" type="Object"  access="global"/>
+    <aura:attribute name="lightningFromParam"       type="String"       access="global" default="lightningFromVF=false"/>
+    <aura:attribute name="accId" type="String" default="0019E00000foV2xQAE" />
+    <aura:attribute name="opportunity" type="String" default="0069E0000087jluQAA" />
+    <aura:attribute name="checkedCategories" type="Boolean"/>
+    <aura:attribute name="visibleCategories" type="ID[]"/>
+    <aura:attribute name="currentCategoryId" type="ID"/>
+    <aura:attribute name="validItems" type="Object[]"/>
+    <aura:attribute name="validBundles" type="Object[]"/>
+    <aura:attribute name="options" type="List"/>
+    <aura:attribute name="offertaId" type="ID"/>
+    <aura:attribute name="offertaHeader" type="String"/>
+    <aura:attribute name="offertaDescription" type="String"/>
+    <aura:attribute name="offertaImage" type="ID"/>
+    <aura:attribute name="fireNextPageEvent" type="Boolean" default="false"/>
+    <aura:attribute name="Spinner" type="boolean" default="true"/>
+
+        
+        
+    <!--<aura:handler action="{!c.onCategoryChanged}" event="NE:Bit2win_Event_CategoryChanged" />-->
+    <aura:handler action="{!c.onUpdateContext}" event="NE:Bit2win_Event_UpdateContext" />
+    <!--<aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>-->
+
+    <aura:handler name="change" value="{!v.options}" action="{!c.updateNextButton}"/>
+    
+    <aura:registerEvent name="newCartOverrideNextEvent" type="c:newCartOverrideNextEvent"/>
+    
+    
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    
+    <!--<div id="lightning">
+        <NE:B2WGin_Core_Engine aura:id="lightning" oppId="{!v.opportunity}" parameters="{!v.lightningFromParam}" disableRedirect="true"/>
+    </div>-->
+    
+    
+    <!--<div aura:id="offerte" style="margin-top: 40px" class="radioGroup">
+        <aura:if isTrue="{!!empty(v.options)}">
+            <lightning:radioGroup name="offers"
+                                  label="Offerta"
+                                  options="{! v.options }"
+                                  value="{! v.selectedOffer }"
+                                  type="radio"
+                                  onchange="{!c.handleSelected}"/>
+        </aura:if>
+        
+    </div>-->
+    
+    <div class="u4">
+        <span>Seleziona l'offerta</span>
+    </div>
+    <div id="offer_selection" class="slds-grid slds-gutters slds-wrap">
+        <div id="base"  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-small-size_1-of-1">
+            <aura:iteration items="{!v.options}" var="option" indexVar="indx" >
+                
+                <div class="u43" data-label="product box">
+                    <div class="u43_div">
+	                    <div id="{!option.value}" onclick="{!c.offertaSelected}" class="u44" >
+	                        <span>{!option.label}</span>
+                    <!--  <div class="u45_div"></div> -->
+	                    <span data-label="label" id="{!option.value + '_nsc'}" onclick="{!c.hideDettaglio}" class="u45 hidden">
+	                    	Nascondi
+	                    </span>
+	                    <span data-label="label" id="{!option.value + '_shw'}" onclick="{!c.showDettaglio}" class="u45 hidden">
+	                    	Mostra
+	                    </span>
+	                    </div>
+                    <!--  <span id="{!option.value + '_img'}" class="hidden"></span> -->
+                     	
+                </div>
+               
+                </div>
+            </aura:iteration>
+            
+        </div>
+        
+        <div id="dettaglio" class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3 slds-small-size_1-of-1 hidden">
+            <div class="u86" data-label="label">
+                <p><span>{!v.offertaHeader}</span></p>
+            </div>
+            <div class="u88 tablelineSlim">
+            </div>
+            <div id="detailContainer" class="slds-grid slds-gutters slds-wrap" >
+	            <div class="u110 slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-small-size_1-of-2">
+	                <img src="{!'/servlet/servlet.FileDownload?file='+v.offertaImage}" width="100"/>
+	                <!--<img class="u110_img" src="/servlet/servlet.FileDownload?file=00P9E000003dZm8UAE"/>-->
+	            </div>
+	            <div class="u80 slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-small-size_1-of-2">
+	                <aura:unescapedHtml value="{!v.offertaDescription}" /> 
+	                <!--<p><span>{!v.offertaDescription}</span></p>-->
+	            </div>
+	            </div>
+	            <div class="u84">
+	                <div class="u112" data-label="tab">
+	                    <p style="padding-top:30%;"><span class="detailSuggest">Per selezionare </span><span class="detailSuggest_bold">{!v.offertaHeader}, </span><span class="detailSuggest">premi NEXT</span></p>
+	                </div>
+            </div>
+            <!--<div style="float:right;margin-top:40px">
+                <lightning:button variant="brand" label="Next" title="Next" onclick="{! c.nextStep }"/>
+            </div>-->
+            
+        </div>
+        
+    </div>
+    
+    <!--  <p id="selected"></p> -->
+   
+</aura:component>

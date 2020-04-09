@@ -1,0 +1,79 @@
+<apex:page controller="CartWrapperController">
+    <apex:stylesheet value="{!$Resource.OB_Bit2winCartCSS}" />
+
+    <apex:includeLightning />
+    <div id="header">
+        <img src="/resource/1525968781000/nexi_image?isdtp=p1" height="100%"
+            width="8%" />
+    </div>
+    <div id="ConfigurationInfo" />
+    <div id="Catalog"/>
+    <div id="Cart"/>
+    <div id="Configurator" />
+
+    <div id="lightning" style="width:60%"/>
+    
+    <div id="pricing" style="margin-top: 100px; float:right; width:36%; margin-bottom: 30px"/>
+
+    
+
+    <!--<apex:outputText style="font-style:italic" value="OrderId: {!orderIdFromUrl}" />-->
+    
+    <style>
+    #oneTimeFeeCatalog { display: none;}
+    #recurringChargeCatalog { display: none;}
+    .NEBit2win_BundleConfigurator #quantityBulkContainer{display: none}
+    .NEBit2win_Configurator #quantityBulkContainer{display: none}
+    .NEBit2win_Configurator .showAllFamilyItem:hover{min-width:18.5%}
+    </style>
+
+    <script>    
+      console.log('prefisso::'+ '{!pref}');
+      var id = '{!orderIdFromUrl}';
+      
+      //$Lightning.use( "c:Bit2win_LightningCart", function(){
+      $Lightning.use( "c:CartWrapper", function(){  
+          
+          /*
+          
+          $Lightning.createComponent("NE:Bit2win_Cart",{orderId:id} ,"lightning", function(cmp){console.log("Component is created!");}); 
+          $Lightning.createComponent("NE:Bit2win_Messages",{orderId:id} ,"lightning", function(cmp){console.log("Component is created!");}); 
+          $Lightning.createComponent("NE:Bit2win_Catalog",{orderId:id} ,"lightning", function(cmp){console.log("Component is created!");}); 
+          
+          
+          $Lightning.createComponent("NE:B2WGin_Core_Engine",{accId:id,disableRedirect:true}, "lightning", function(cmp){console.log("Component is created!");});
+          $Lightning.createComponent("NE:Bit2win_ConfigurationInfo",{accId:id}, "ConfigurationInfo", function(cmp){console.log("Component is created!");});
+          $Lightning.createComponent("NE:Bit2win_Catalog",{accId:id},"Catalog",function(cmp){console.log("Catalog Component is created!");});
+          $Lightning.createComponent("NE:Bit2win_Configurator",{accId:id}, "Configurator", function(cmp){console.log("Component is created!");});
+          $Lightning.createComponent("NE:Bit2win_Cart",{accId:id}, "Cart", function(cmp){console.log("Component is created!");});
+          $Lightning.createComponent("NE:Bit2win_BundleConfigurator",{accId:id}, "lightning", function(cmp){console.log("Component is created!");});
+          $Lightning.createComponent("NE:Bit2win_ProductDescription",{accId:id}, "lightning", function(cmp){console.log("Component is created!");});      
+          $Lightning.createComponent("c:OB_Pricing",{},"Catalog", function(cmp){console.log("Pricing Component is created!");});*/
+          $Lightning.createComponent("c:newCartLook",{},"Catalog", function(cmp){console.log("Pricing Component is created!");});
+      });
+     document.body.addEventListener('DOMNodeInserted', function( event ) {  
+                var inputs = document.getElementsByClassName('slds-size--7-of-12');
+                for(i=0;i < inputs.length; i++){
+                if(typeof inputs[i].getElementsByTagName('input')[0] != 'undefined'){
+                    inputs[i].getElementsByTagName('input')[0].value=0;
+                    } 
+                }
+                if(chkObject('qtySummaryCategory')){
+                    document.getElementById('qtySummaryCategory').style.display = "none";
+                    var compareText = document.getElementsByClassName('compareText');
+                    var comparebutton = document.getElementById('config').getElementsByClassName('slds-button doCompareButton doCompareButtonInCatalog slds-button_icon-bare')
+                        if(typeof compareText != 'undefined' ) compareText[1].style.marginLeft = "26%";
+                        if(typeof comparebutton != 'undefined' ) comparebutton[0].style.marginLeft = "300%";
+                }     
+            }, false);
+    
+            function chkObject(elemId) {
+                return (document.getElementById(elemId))? true : false;
+            }
+
+  </script>
+
+    <!--<apex:includeScript value="{!$Resource.OB_Bit2winCartjs}" />-->
+   
+
+</apex:page>

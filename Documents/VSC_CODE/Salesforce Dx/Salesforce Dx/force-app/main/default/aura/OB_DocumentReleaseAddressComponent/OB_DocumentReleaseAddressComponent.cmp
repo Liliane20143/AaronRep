@@ -1,0 +1,155 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" controller="OB_DocumentComponentAddressController">
+
+	<aura:attribute name="objectDataMap" type="Object"  access="global"/>
+	<aura:attribute name="identifier" type="String" default="" access="global"/>
+	<aura:attribute name="field" type="Object" default="{}" access="global"/>
+	<aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+	<aura:attribute name="isEE" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="docTypeList" type="List" default="[]" access="global"/>
+	<aura:attribute name="docAuthList" type="List" default="[]" access="global"/>
+	
+	<aura:attribute name="birthDate" type="String" access="global"/>
+	<aura:attribute name="docNumber" type="String" access="global"/>
+	<aura:attribute name="docType" type="String" access="global"/>
+	<aura:attribute name="docAuth" type="String" access="global"/>
+	<aura:attribute name="docRelDate" type="String" access="global"/>
+	<aura:attribute name="docExpDate" type="String" access="global"/>
+	
+	<aura:attribute name="birthDateId" type="String" access="global"/>
+	<aura:attribute name="docNumberId" type="String" access="global"/>
+	<aura:attribute name="docRelDateId" type="String" access="global"/>
+	<aura:attribute name="docExpDateId" type="String" access="global"/>
+	<aura:attribute name="docTypeId" type="String" access="global"/>
+	<aura:attribute name="docAuthId" type="String" access="global"/>
+	<aura:attribute name="validState" type="Boolean" default="true" access="global"/>
+	<aura:attribute name="errMsg" type="String"  default="" access="global"/>
+	<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 START -->
+	<aura:attribute name="disabledFields"				type="Object"	default="{}"	access="global" 	description="Object containing info which fields should disabled"/>
+	<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 STOP -->
+
+	<aura:method name="validate" action="{!c.validate}" access="global"/>
+	
+	<aura:handler   name="change" value="{!v.objectDataMap.setRedBorderCompanyData}" action="{!c.setRedBorderCompanyData}"/>
+
+	<!-- <aura:handler   name="change" value="{!v.objectDataMap.removeErrorMessageFromMaintenance}" action="{!c.removeRedBorder}"/> -->
+	<aura:handler event="c:OB_EventAutoCompleteRedBorder" action="{!c.setRedBorderCompanyData}"/>
+	
+	<aura:method name="setRedBorderDocType" action="{!c.setRedBorderDocType}">
+	</aura:method>
+	
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:handler event="c:OB_EventAutoCompleteReInit" action="{!c.doInit}"/>
+		    
+		<div class="slds-grid slds-size--1-of-1" >
+			<div class="slds-size--1-of-2 slds-grid">
+				<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+					<div class="slds-p-around--medium slds-form-element">
+						<label class="slds-form-element__label" for="" value="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.Birth_Date}
+						</label>
+						<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 added disabled attribute -->
+						<ui:inputDate label="" value="{!v.birthDate}" class="{!v.birthDateId}"  change="{!c.changeValueDate}"
+									  blur="{!c.removeRedBorderDate}" format="dd/MM/yyyy" displayDatePicker="true" disabled="{!v.disabledFields.OB_Birth_Date__c}"/>
+					</div>
+				</div>
+			</div>
+			<div class="slds-size--1-of-2 slds-grid">
+				<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+					<div class="slds-p-around--medium slds-form-element">
+						<label class="slds-form-element__label" for="" value="" style="margin-top: -4px; position: absolute;">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.Document_Type}
+						</label>
+							<lightning:select   
+										variant="label-hidden"
+										name="{!v.docTypeId}" 
+										label="" 
+										value="{!v.docType}" 
+										disabled=""
+										onchange="{!c.changeDocTypes}"
+										onblur="{!c.removeRedBorder}"
+										>
+									<option value="" aura:id="docTypeNull"></option>
+								<aura:iteration items="{!v.docTypeList}" var="item">
+								<option text="{!item.value}" value="{!item.key}" selected="{!item.value == v.docType}"/>
+								</aura:iteration>
+							</lightning:select>
+					</div>
+				</div>
+			</div>
+		</div>
+		 <c:AutoCompleteComponentPostel  objectDataMap="{!v.objectDataMap}"
+                                    addressMapping="{!v.addressMapping}"
+                                    aura:id = "AutoCompleteComponentPostel"
+                                    isEE="{!v.isEE}"
+                                    />
+		<div class="slds-grid slds-size--1-of-1" >
+	    	<div class="slds-size--1-of-2 slds-grid">
+				<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+					<div class="slds-p-around--medium slds-form-element">
+						<label class="slds-form-element__label" for="" value="" style="margin-top: -4px; position: absolute;">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.Document_Release_Authority}
+						</label>
+						<lightning:select  
+										variant="label-hidden"
+										name="{!v.docAuthId}" 
+										label="" 
+										value="{!v.docAuth}" 
+										disabled=""
+										onchange="{!c.changeDocAuth}"
+										onblur="{!c.removeRedBorder}"
+										>
+								<option value="" aura:id="docAuthNull"></option>
+							<aura:iteration items="{!v.docAuthList}" var="item">
+								<option text="{!item.value}" value="{!item.key}" selected="{!item.value == v.docAuth}"/>
+							</aura:iteration>
+						</lightning:select>
+					</div>
+				</div>
+			</div>
+			<div class="slds-size--1-of-2 slds-grid">
+				<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+					<div class="slds-p-around--medium slds-form-element">
+						 <label class="slds-form-element__label" for="" value="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.Document_Number}
+						</label>
+						<lightning:input maxlength="10" label="" variant="label-hidden" value="{!v.docNumber}" id="{!v.docNumberId}"  onchange="{!c.changeValue}" onblur="{!c.validateDocumentNumber}" />
+					</div>
+				</div>
+			</div>
+	 	</div>
+	 
+		<div class="slds-grid slds-size--1-of-1" >
+			<div class="slds-size--1-of-2 slds-grid">
+				<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+					<div class="slds-p-around--medium slds-form-element">
+ 						<label class="slds-form-element__label" for="" value="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.Document_Release_Date}
+						</label>
+						<ui:inputDate label="" value="{!v.docRelDate}" class="{!v.docRelDateId}"  change="{!c.changeValueDate}" blur="{!c.removeRedBorderDate}" format="dd/MM/yyyy" displayDatePicker="true"/> 	
+    				</div>
+				</div>
+			</div>
+	    	<div class="slds-size--1-of-2 slds-grid">
+				<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+					<div class="slds-p-around--medium slds-form-element">
+						<!-- ANDREA MORITTU - START - 17-Sept-2019 - EVO_BACKLOG_10 - -->
+						<aura:if isTrue="{!not(v.objectDataMap.pagoBancomatArePresent)}">
+							<label class="slds-form-element__label" for="" value="">
+								<abbr class="slds-required" title="required">*</abbr>
+								{!$Label.c.Document_Expiration_Date} <!-- g.v. 02/10/2019 moved label into label tag -->
+							</label>
+						</aura:if>
+						<!-- ANDREA MORITTU - END - 17-Sept-2019 - EVO_BACKLOG_10 - -->
+						<ui:inputDate label="" value="{!v.docExpDate}" class="{!v.docExpDateId}"  change="{!c.changeValueDate}" blur="{!c.removeRedBorderDate}" format="dd/MM/yyyy" displayDatePicker="true"/> 
+						<!-- <lightning:input label="" variant="label-hidden" type="date" value="{!v.docExpDate}" id="{!v.docExpDateId}"  onchange="{!c.changeValue}" onblur="{!c.removeRedBorderDate}"/> -->
+					</div>
+				</div>
+			</div>
+		</div>
+	
+</aura:component>

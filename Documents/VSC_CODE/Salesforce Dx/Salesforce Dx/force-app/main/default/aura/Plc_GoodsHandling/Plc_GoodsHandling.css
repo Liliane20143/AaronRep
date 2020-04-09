@@ -1,0 +1,11 @@
+.THIS .slds-modal__header {
+    background-color:rgb(84,105,141);
+}
+.THIS .btn_remove button {
+    max-width: 10px;
+    border-width: 0px;
+}
+
+.THIS .minimal-window-height  {
+    height: 60vh;
+}

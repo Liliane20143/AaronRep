@@ -1,0 +1,76 @@
+<!--
+ - Created by adrian.dlugolecki on 07.05.2019.
+ -->
+
+<aura:component description="OB_LCP004_Maintenance_VarCoBa" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,force:hasRecordId" access="global" controller="OB_LCC004_Maintenance_VarCoBa">
+    <aura:attribute name="FlowStep" type="string"  access="public" description="InOut parameter that indicate step used in OB_Maintenance_Process"/>
+    <aura:attribute name ="modifyServicePointId" type="string" access="public" description="In Parameter that send id of selected service point"/>
+    <aura:attribute name="recordId" type="String" access="global" default="" />
+
+    <aura:attribute name="isSpinner" type="string"  access="private" description="show hide spinner" default="true"/>
+    <aura:attribute name="racSiaCodes" type="List"  access="private" description="RAC SIA codes for provided service point" />
+    <aura:attribute name="selectedRacSia" type="String"  access="private" description="Selected RAC SIA code" />
+    <!--NEXI-157 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 02/07/2019 START changed attribute name to *asset*-->
+    <aura:attribute name="racRelatedAssets" type="List"  access="private" description="List of assets related to provided RAC SIA Code" />
+    <aura:attribute name="rawRacRelatedAssets" type="List"  access="private" description="List of assets related to provided RAC SIA Code not formated used for DB" />
+    <!--NEXI-157 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 02/07/2019 STOP-->
+    <aura:attribute name="tableColumns" type="string"  access="private" description="Definition of columns for data table" />
+    <aura:attribute name="posBillingProfile" type="Object"  access="private" description="Billing profile related to asset ussed for OB_LCP000_Iban" />
+    <aura:attribute name="isSearchDone" type="Boolean"  access="private" description="Flag that show hide table" default="false" />
+    <aura:attribute name="isBackVisible" type="Boolean"  access="private" description="Flag that show hide back button" default="true" />
+    <aura:attribute name="isCercaEnabled" type="Boolean"  access="private" description="Flag that enable Cerca button" default="true" />
+    <!--NEXI-188 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 08/07/2019 START-->
+    <aura:attribute name="isLogRequest" type="Boolean"  access="private" description="Flag that Block Var coba if there is some log request" default="false" />
+    <aura:attribute name="logRequestName" type="String"  access="private" description="Name of active log request" />
+    <!--NEXI-188 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 08/07/2019 STOP-->
+
+    <aura:handler name="init" value="{!this}" action="{!c.init }"/>
+    <aura:handler name="change" value="{!v.rawRacRelatedAssets}" action="{!c.reRenderTable}"/>
+
+    <aura:if isTrue="{!v.isSpinner}">
+        <lightning:spinner variant="brand" size="large" class="slds-show" alternativeText=" " style="position: fixed;"/>
+    </aura:if>
+    <aura:if isTrue="{!v.isBackVisible}">
+        <lightning:button variant="neutral" iconName="utility:back"  onclick="{! c.backToSearch }"  />
+    </aura:if>
+    <aura:if isTrue="{!v.isLogRequest}"> <!--NEXI-188 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 30/05/2019 Add aura if and else if tere is some log request-->
+            <h2>{!$Label.c.OB_MAINTENANCE_LOGALREADYEXIST + ' '+ v.logRequestName}</h2>
+        <aura:set attribute="else">
+            <div class="slds-form-element__row">
+                <div class="page-header-container slds-grid slds-wrap slds-size--1-of-1">
+                    <div class="slds-size--1-of-1 slds-m-bottom_small slds-page-header">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <lightning:icon iconName="custom:custom65" size="medium" variant="slds-icon-inverse"></lightning:icon>
+                            </div>
+                            <div class="slds-media__body slds-m-top_x-small">
+                                <div class="slds-page-header__title slds-text-heading_small">Variazione coordinate bancarie</div>
+                            </div>
+                            <div class="slds-media__figure slds-media__figure_reverse"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <lightning:layout multipleRows="true" verticalAlign="center">
+                <lightning:layoutItem padding="around-small" size="6">
+                    <lightning:select name="selectRacSia" label="Codice Sia" value="{!v.selectedRacSia}">
+                        <aura:iteration items="{!v.racSiaCodes}" var="vRacSia" >
+                            <option text="{!vRacSia}"></option>
+                        </aura:iteration>
+                    </lightning:select>
+                </lightning:layoutItem>
+                <lightning:layoutItem padding="around-small" size="2">
+                    <lightning:button label="Cerca" onclick="{!c.searchRacSia}" class="slds-m-top--large" disabled="{!!v.isCercaEnabled}"/>
+                </lightning:layoutItem>
+                <lightning:layoutItem padding="around-small" size="2"/>
+                <lightning:layoutItem padding="around-small" size="12"/>
+            </lightning:layout>
+            <aura:if isTrue="{!v.isSearchDone}">
+                    <lightning:dataTable columns="{!v.tableColumns}" data="{!v.racRelatedAssets}" keyField="Id" hideCheckboxColumn="true"/>
+                    <!--NEXI-157 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 02/07/2019 START changed attribute from order item to asset-->
+                    <c:OB_LCP000_Iban billingProfilePOS = "{!v.posBillingProfile}" affectedAssets="{!v.rawRacRelatedAssets}"/>
+                    <!--NEXI-157 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 02/07/2019 STOP-->
+            </aura:if>
+        </aura:set>
+    </aura:if>
+</aura:component>

@@ -1,0 +1,6 @@
+<aura:component extends="c:Plc_BaseGoodsManagement" implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId,lightning:isUrlAddressable">
+	
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    
+    <div>Sto estendendo il Base</div>
+</aura:component>

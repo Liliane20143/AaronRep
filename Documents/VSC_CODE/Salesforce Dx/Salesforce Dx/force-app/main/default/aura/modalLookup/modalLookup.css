@@ -1,0 +1,8 @@
+.THIS {
+}
+.THIS.hideModal {
+    display: none;
+}
+.THIS .slds-th__action.slds-th__action_form.slds-cell-fixed {
+    display:none;
+}

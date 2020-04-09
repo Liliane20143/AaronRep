@@ -1,0 +1,98 @@
+<!-- Morittu Andrea 03/09/2018 -->
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global"
+                controller="OB_SearchMobileController">
+	<aura:attribute name="objectDataMap"            type="Object"    default="{}"    access="global"/>
+    <aura:attribute name="showSection" 				type="Boolean"	default="false" description="Used for showing setion with contact details" access="global"/>
+    <aura:attribute name="input" 					type="String" 	default="" access="global"/>
+
+	<aura:attribute name="field" type="Object" default="{}" access="global"/>
+	<aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+
+	<aura:attribute name="disabledButton" 					type="Boolean" 	default="true"  access="global"/>
+ 	<aura:attribute name="ErrorBooleanPhone" 			    type="Boolean" 	default="false" access="global"/>
+ 	<aura:attribute name="ErrorMessagePhone" 		        type="String" 	default=""      access="global"/>
+ 	<aura:attribute name="hasMessage" 			            type="Boolean" 	default="false" access="global"/>
+ 	<aura:attribute name="messagetoshow" 		            type="String" 	default=""      access="global"/>
+ 	
+
+ 	<aura:handler name="init"           value="{!this}"              action="{!c.doInit}"/>
+
+
+	 
+ 	<!--**********************************************BANNER MESSAGE TO ALERT THAT THERE IS THE CONTACT-START*********************************************************--> 
+   	<!--<aura:if isTrue="{!v.hasMessage}">
+		<div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme__warning" role="alert">
+			<span class="slds-assistive-text">error</span>
+
+			
+			
+			
+			<h1>{!v.messagetoshow}</h1> 
+			
+			<lightning:buttonIcon class="slds-button slds-button_icon close-banner-titolari slds-button_icon-inverse" iconName="utility:close" size="large" alternativeText="Close" variant="bare" onclick="{!c.closeBanner}"/>
+		</div>
+
+	</aura:if>-->
+	
+	<!--**********************************************BANNER MESSAGE TO ALERT THAT THERE IS THE CONTACT-END*********************************************************--> 
+
+
+	<!-- DIV VUOTO PER LAYOUT GRID -->
+
+		<div class="slds-size--1-of-1 slds-grid">
+
+			<div class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2" >
+
+				<div class="slds-p-around--medium slds-form-element">
+
+					<!-- START 	micol.ferrari 13/11/2018 -->
+					<aura:if isTrue="{!v.addressMapping.position=='ResponsabilePuntoVendita'}">
+						<label class="slds-form-element__label" for="inputPhone">
+							<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_SearchForAMobilePhoneNumber}
+						</label>
+						<!-- Doris D. ****** 12/03/2019 ***** START-->
+						<lightning:helptext content= "{!$Label.c.OB_SearchForMobilePhoneNumberTooltip}" /> 
+						<!-- Doris D. ****** 12/03/2019 ***** END-->
+
+						<aura:set attribute="else">
+							<label class="slds-form-element__label" for="inputPhone">{!$Label.c.OB_SearchForAMobilePhoneNumber}</label>
+							<!-- Doris D. ****** 12/03/2019 ***** START-->
+							<!-- <lightning:helptext content= "{!$Label.c.OB_SearchForMobilePhoneNumberTooltip}" />  -->
+							<!-- Doris D. ****** 12/03/2019 ***** END-->
+						</aura:set>
+					</aura:if>
+					<!-- END 	micol.ferrari 13/11/2018 -->
+
+					<lightning:input    aura:id="inputPhone" 
+										type="tel" 
+										label="" 
+										variant="label-hidden"
+										name="phone2" 
+										placeholder="" 
+										value="{!v.input}"
+										onblur="{!c.validatePhone}"
+										onchange="{!c.validatePhoneChange}"
+										/>
+					<!--******PHONE ERROR MESSAGE-START****** -->
+					<aura:if isTrue="{!v.ErrorBooleanPhone}">
+						<div class="error-input-message">
+							{!v.ErrorMessagePhone}                      
+						</div>
+					</aura:if>
+					<!--******PHONE ERROR MESSAGE-END   ******-->
+				</div>
+			</div>
+			<div class="slds-form-element slds-small-size--1-of-2 slds-large-size--1-of-2" >
+				<div class="slds-p-around--medium slds-form-element slds-col_bump-right">
+					<button id="searchContact" 
+							class="slds-button slds-button_neutral search-cel-button" 
+							onclick="{!c.filterByContactPhone}"
+							disabled="{!v.disabledButton}"> 
+						{!$Label.c.OB_Search}
+					</button>
+					
+				</div>
+			</div>
+		</div>
+
+</aura:component>

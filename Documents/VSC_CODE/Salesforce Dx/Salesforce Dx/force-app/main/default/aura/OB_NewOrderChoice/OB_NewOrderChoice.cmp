@@ -1,0 +1,79 @@
+<aura:component implements="flexipage:availableForAllPageTypes" 
+				access="global">
+	
+	<aura:registerEvent name="appEvent" type="c:OB_EventNextButton"/>
+	<!--<aura:handler event="c:OB_EventNextButton" action="{!c.doInit}"/> -->
+	<aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="accId" type="String" default="{!v.objectDataMap.merchant.Id}" /> 
+	<aura:attribute name="nextCheckout" type="String" default="{!v.objectDataMap.unbind.nextCheckout}" />
+	<aura:attribute name="objectKey" type="String" default="" access="global"/>
+	<aura:attribute name="identifier" type="String" default="" access="global"/>
+	<aura:attribute name="field" type="Object" default="{}" access="global"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/> 
+	<input id="fieldControlStep5" type="text" value="" class="slds-hide"  ></input>
+	<aura:attribute name="showModal" type="Boolean" default="{!v.objectDataMap.newOrder}"/>
+	<aura:attribute name="Si" type="String" default=""/>
+	<aura:attribute name="No" type="String" default=""/>
+	<aura:attribute name="Close" type="String" default=""/> 
+	
+	<aura:if isTrue="{!v.showModal}">
+		<div aura:id="modal" class="modalContainer" style="height: 800px;">
+			<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+				<div class="slds-modal__container" style = "height: 99%">
+
+					<header class="slds-modal__header">
+						<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+							<span class="slds-assistive-text">{!v.Close}</span>
+						</button>
+						<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!$Label.c.NewServicePoint}</h2>
+					</header>
+
+					<div class="slds-modal__content slds-p-around_large" id="modal-content-id-1">
+						<div class="slds-p-around_small">
+							<p>{!$Label.c.OB_NewOrder}</p>
+						</div>
+						<!-- <div class="slds-p-around_small">
+							<input type="radio" aura:id="selectionId" id="selection" value="Si" name="newcontract" onclick="{!c.getSelection}" />
+							<label >{!v.Si}</label>
+						</div>
+						
+						<div class="slds-p-around_small">
+							<input type="radio" aura:id="selectionId" id="selection" value="No" name="newcontract" onclick="{!c.getSelection}"/>
+							<label >{!v.No}</label>
+						</div> -->
+						<fieldset class="slds-form-element">
+							<div class="slds-p-around_small slds-form-element__control">
+								<span class="slds-radio">
+									<input type="radio" aura:id="selectionIdYes" id="selectionYes" value="Si" name="newcontract" onclick="{!c.getSelection}" />
+									<label class="slds-radio__label" for="selectionYes">
+										<span class="slds-radio_faux"></span>
+										<span class="slds-form-element__label">{!v.Si}</span>
+									</label>
+								</span>
+							</div>
+							<div class="slds-p-around_small slds-form-element__control">
+								<span class="slds-radio">
+									<input type="radio" aura:id="selectionIdNo" id="selectionNo" value="No" name="newcontract" onclick="{!c.getSelection}"/>
+									<label class="slds-radio__label" for="selectionNo">
+										<span class="slds-radio_faux"></span>
+										<span class="slds-form-element__label">{!v.No}</span>
+									</label>
+								</span>
+							</div>
+						</fieldset>
+					</div>
+
+					<div class="slds-size_1-of-12 slds-p-around_small search-cf-button-container"> 
+				
+					</div>
+					
+				</div>
+			</section>
+
+			 <div class="slds-backdrop slds-backdrop_open"></div>
+			
+		</div>
+	</aura:if>
+	
+</aura:component>

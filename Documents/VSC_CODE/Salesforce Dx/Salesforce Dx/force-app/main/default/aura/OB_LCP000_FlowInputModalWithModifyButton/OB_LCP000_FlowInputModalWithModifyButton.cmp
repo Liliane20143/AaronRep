@@ -1,0 +1,69 @@
+<!--
+* @author: Grzegorz Banach <grzegorz.banach@accenture.com>
+* @date: 14/05/2019
+* @description: Wrapper component of OB_FlowInputModal, but with Modify button functionality
+* @Task: NEXI-29
+!-->
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global"
+controller="OB_LCC000_FlowInputModalController">
+
+    <aura:attribute name="wizardWrapper" 				type="Object" 	default="{}" 	access="global"	/>
+    <aura:attribute name="objectDataMap" 				type="Object"  	default="{}" 	access="global"	/>
+    <aura:attribute name="objectKey" 					type="String" 	default="" 		access="global"	/>
+    <aura:attribute name="identifier" 					type="String" 	default="" 		access="global"	/>
+    <aura:attribute name="field" 						type="Object" 	default="{}" 	access="global"	/>
+    <aura:attribute name="type" 						type="String" 					access="global"	/>
+    <!--NEXI-282 Kinga Fornal kinga.fornal@accenture.com, 29/08/2019 START -->
+    <aura:attribute name="isOKVisibleFiscalCodeModal" 	type="Boolean" 	default="false"	access="global"	description="Used to define if the button should be visible in the modal."/>
+    <!--NEXI-282 Kinga Fornal kinga.fornal@accenture.com, 29/08/2019 STOP-->
+    <aura:attribute name="isShowModifyButton"           type="Boolean"  default="true"  access="private" description="Used to define if the modify button should be visible"/>
+    <aura:attribute name="isDocumentInfoModalVisible"   type="Boolean"  default="false" access="private" description="Defines if Document Modal for Bank Data modification should be visible"/>
+
+    <!--NEXI-122 Monika Kocot monika.kocot@accenture.com, 09/07/2019 START Modal for check for legal form and fiscal code-->
+    <aura:attribute name="isRefresh" 					type="boolean" 	default="false"	access="global"	/>
+    <!--NEXI-122 Monika Kocot monika.kocot@accenture.com, 09/07/2019 STOP -->
+    <aura:handler name="modalEvent" event="c:OB_LEV000_ModalEvent" action="{!c.handleDocumentInfoEvent}"/>
+
+    <!--NEXI-122 Monika Kocot monika.kocot@accenture.com, 09/07/2019 START Modal for check for legal form and fiscal code-->
+    <!--NEXI-282 Kinga Fornal kinga.fornal@accenture.com, 29/08/2019 Set isOkVisible = "false" to hide one of the buttons-->
+    <aura:if isTrue="{!v.objectDataMap.isFiscalCodeInCorrect}">
+        <c:OB_LCP000_GenericModal saveOrProceedButtonName="{!$Label.c.OB_MODALCHECKFISCALCODE}"
+                                  cancelButtonName="{!$Label.c.OB_MODALCHANGELEGALFORM}"
+                                  headerContent="{!$Label.c.OB_MODALFISCAL_ERRORMASSAGE}"
+                                  isInvertedButtonOrder="true"
+                                  isOkVisible = "{! v.isOKVisibleFiscalCodeModal }"
+        />
+    </aura:if>
+    <!--NEXI-122 Monika Kocot monika.kocot@accenture.com, 28/06/2019 STOP-->
+
+    <aura:if isTrue="{!v.isDocumentInfoModalVisible}">
+        <c:OB_LCP000_GenericModal headerName="{!$Label.c.OB_Warning}"
+                                  headerContent="{!$Label.c.OB_Company_Registration_Document_Required}"
+                                  saveOrProceedButtonName="{!$Label.c.OB_Continue}"
+                                  cancelButtonName="{!$Label.c.OB_Cancel}"
+                                  isInvertedButtonOrder="true"
+        />
+    </aura:if>
+
+    <div class="slds-grid slds-grid_align-spread slds-small-size_1-of-1 slds-large-size_1-of-2">
+        <lightning:layoutItem size="{! v.isShowModifyButton ? '8' : '12' }">
+            <c:OB_FlowInputModal isDisableModify="{! v.isShowModifyButton }"
+                                 isScalable="true"
+                                 wizardWrapper="{! v.wizardWrapper }"
+                                 objectDataMap="{! v.objectDataMap }"
+                                 objectKey="{! v.objectKey }"
+                                 identifier="{! v.identifier }"
+                                 field="{! v.field }"
+                                 type="{! v.type }"
+            />
+        </lightning:layoutItem>
+        <aura:if isTrue="{!v.isShowModifyButton}">
+            <lightning:layoutItem size="3" class="slds-m-top--medium slds-m-right_medium">
+                <lightning:button label="{!$Label.c.OB_MAINTENANCE_BUTTON_MODIFY}" variant="neutral"
+                                  class="slds-button_stretch slds-m-top--large"
+                                  onclick="{!c.openDocumentInfoModal}"/>
+            </lightning:layoutItem>
+        </aura:if>
+    </div>
+
+</aura:component>

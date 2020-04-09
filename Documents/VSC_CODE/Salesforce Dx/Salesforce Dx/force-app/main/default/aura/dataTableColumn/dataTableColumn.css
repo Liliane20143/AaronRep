@@ -1,0 +1,31 @@
+.THIS.halign-left {
+    text-align: left;
+}
+
+.THIS.halign-left .slds-input {
+    text-align: left;
+}
+
+.THIS.halign-center {
+    text-align: center;
+}
+
+.THIS.halign-center .slds-input {
+    text-align: center;
+}
+
+.THIS.halign-center .slds-grid span {
+    margin: auto;
+}
+
+.THIS.halign-right {
+    text-align: right;
+}
+
+.THIS.halign-right .slds-input {
+    text-align: right;
+}
+
+.THIS .slds-form-element label {
+    display: none;
+}

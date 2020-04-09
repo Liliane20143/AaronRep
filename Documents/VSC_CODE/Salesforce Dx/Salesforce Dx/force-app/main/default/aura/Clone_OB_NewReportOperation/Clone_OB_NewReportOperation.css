@@ -1,0 +1,30 @@
+.THIS .selected{
+    color:orange;
+}
+
+.THIS .slds-button_icon-bare { 
+    display: none;    
+}
+.THIS .myButton{
+    position: absolute;
+    padding-left: 12rem;
+    padding-top: 1.2rem;
+}
+.THIS .myClass{
+    width: 99% !important;
+}
+.THIS .export{
+    position: absolute;
+    padding-left: 21rem;
+    padding-top: 1.2rem;
+}
+
+.THIS .slds-scrollable_x {
+    overflow-y:hide !important;
+    overflow-x:hide !important;
+}
+
+.THIS .slds-scrollable_y {
+    overflow-y:hide !important;
+    overflow-x:hide !important;
+}

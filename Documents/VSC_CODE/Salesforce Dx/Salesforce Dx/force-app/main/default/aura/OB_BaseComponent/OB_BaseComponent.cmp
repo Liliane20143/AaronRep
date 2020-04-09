@@ -1,0 +1,5 @@
+<aura:component access="global"  extensible="true" abstract="true" implements="forceCommunity:availableForAllPageTypes,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,lightning:actionOverride" >
+	 {!v.body}
+	<aura:attribute name="test" type="String"/>
+<!--  a-->
+</aura:component>

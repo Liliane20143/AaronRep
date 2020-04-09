@@ -1,0 +1,7 @@
+<!--
+ - Created by dilorenzo on 22/01/2019.
+ -->
+
+<aura:event type="APPLICATION" description="Called when a record is selected" >
+    <aura:attribute name="recordByEvent" type="sObject"/>
+</aura:event>

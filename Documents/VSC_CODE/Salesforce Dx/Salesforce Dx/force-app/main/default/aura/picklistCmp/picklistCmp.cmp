@@ -1,0 +1,101 @@
+<!--
+ - Created by ripagano on 19/04/2018.
+ -->
+
+<aura:component description="picklistCmp" controller="PicklistCmpCtrl" implements="lightning:isUrlAddressable">
+
+  <!--Attrbutes-->
+  <aura:attribute name="sObjectType"         type="String"  access="public" default="Account"/>
+  <aura:attribute name="fieldName"           type="String"  access="public" default="Type"/>
+  <aura:attribute name="placeholder"         type="String"  access="public" default="Seleziona un valore"/>
+  <aura:attribute name="label"               type="String"  access="public" default="Type"/>
+  <aura:attribute name="selectedValue"       type="String"  access="public"/>
+  <aura:attribute name="recordTypeDevName"   type="String"  access="public"/>
+  <aura:attribute name="controlledBy"        type="String"  access="public"/>
+  <aura:attribute name="controlledByApiName" type="String"  access="public"/>
+  <aura:attribute name="searchValue"         type="String"  access="public"/>
+  <aura:attribute name="multiple"            type="Boolean" access="public" default="false"/>
+  <aura:attribute name="searchBox"           type="Boolean" access="public" default="false"/>
+  <aura:attribute name="searchBoxRightIcon"  type="String"  access="public" default="utility:down"/>
+  <aura:attribute name="disabled"            type="Boolean" access="public" default="false"/>
+  <aura:attribute name="filter"              type="String[]" access="public" default="[]"/>
+  <aura:attribute name="onPicklistChange"            type="Object" access="public"/>
+
+  <aura:attribute name="selectedLabel"       type="String"  access="private"/>
+
+
+  <aura:attribute name="pickOpts" type="List" access="private"/>
+
+  <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+  <aura:handler name="change" value="{!v.controlledBy}" action="{!c.updatePicklistValues}"/>
+
+  <div class="slds-form-element">
+    <aura:if isTrue="{!and(v.label, or(v.multiple, v.searchBox))}">
+      <label class="slds-form-element__label">{!v.label}</label>
+    </aura:if>
+    <div class="slds-form-element__control">
+
+      <aura:if isTrue="{!v.multiple &amp;&amp; !v.searchBox}">
+        <ui:inputSelect multiple="true" value="{!v.selectedValue}">
+          <aura:iteration items="{!v.pickOpts}" var="p">
+            <option value="{!p.value}" text="{!p.label}" selected="{!v.selectedValue == p.value}"/>
+          </aura:iteration>
+        </ui:inputSelect>
+      </aura:if>
+
+      <aura:if isTrue="{! !v.multiple &amp;&amp; !v.searchBox}">
+        <ui:inputSelect class="slds-select" label="{!v.label}" value="{!v.selectedValue}" disabled="{!v.disabled}" change="{!v.onPicklistChange}">
+          <aura:iteration items="{!v.pickOpts}" var="p">
+            <option value="{!p.value}" text="{!p.label}" selected="{!v.selectedValue == p.value}"/>
+          </aura:iteration>
+        </ui:inputSelect>
+      </aura:if>
+
+      <!--Searchbox implementation-->
+      <aura:if isTrue="{!v.searchBox}">
+        <div aura:id="InputElement" class="slds-form-element slds-text-align--left is-required">
+          <div class="slds-form-element__control">
+            <div class="slds-combobox_container">
+              <div class="slds-combobox slds-combobox-picklist slds-dropdown-trigger_click" aura:id="rCombo" aria-haspopup="listbox" role="combobox">
+                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" style="display: inherit !important" role="none">
+                  <aura:if isTrue="{!not(empty(v.selectedValue))}">
+                    <input class="slds-input slds-combobox__input slds-combobox__input-value" autocomplete="off" role="textbox" type="text" readonly="readonly" value="{!v.selectedLabel}"/>
+                    <lightning:buttonIcon onclick="{!c.clearText}" variant="bare" iconName="utility:close" alternativeText="Clear" class="slds-button_icon slds-input__icon slds-input__icon_right" />
+                    <aura:set attribute="else">
+                      <input disabled="{!v.disabled}" type="text" class="slds-input" style="cursor: text" aria-autocomplete="list" aria-controls="listbox-unique-id" autocomplete="off" role="textbox" placeholder="{!v.placeholder}"
+                            value="{!v.selectedLabel}" onblur="{!c.validateInput}" aura:id="Field" onkeyup="{!c.search}" onfocus="{!c.search}"/>
+                      <lightning:icon iconName="{!v.searchBoxRightIcon}" size="xx-small" class="slds-input__icon slds-input__icon_right"  />
+                    </aura:set>
+                  </aura:if>
+                </div>
+                <div role="listbox">
+                  <ul class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown--fluid slds-dropdown--length-10 dropDownUl"
+                      role="presentation" onmousedown="{!c.disableHideOptions}" onmouseleave="{!c.setFiledFocus}">
+                    <li role="presentation" class="slds-listbox__item searchOption" data-label="{!$Label.c.BT_NessunRisultato}" data-value="0">
+                      <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small slds-media_center" role="option">
+                        <span class="slds-media__body">
+                            <span class="slds-truncate" title="{!$Label.c.BT_NessunRisultato}">{!$Label.c.BT_NessunRisultato}</span>
+                        </span>
+                      </div>
+                    </li>
+                    <aura:iteration items="{!v.pickOpts}" var="p">
+                      <li role="presentation" class="slds-listbox__item searchOption" onmousedown="{!c.selectOption}" data-label="{!p.label}" data-value="{!p.value}">
+                        <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small slds-media_center" role="option">
+                          <span class="slds-media__body">
+                              <span class="slds-truncate" title="{!p.label}">{!p.label}</span>
+                          </span>
+                        </div>
+                      </li>
+                    </aura:iteration>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div aura:id="InputError" class="slds-form-element__help slds-hide" role="alert" >Prego seleziona una voce corretta</div>
+        </div>
+      </aura:if>
+    </div>
+  </div>
+
+</aura:component>

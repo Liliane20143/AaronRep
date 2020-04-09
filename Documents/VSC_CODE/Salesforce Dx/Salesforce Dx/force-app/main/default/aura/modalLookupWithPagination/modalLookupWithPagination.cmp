@@ -1,0 +1,137 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="ModalLookupController" access="global"> 
+    <aura:attribute name="objectDataMap" type="Object"/>
+    <aura:attribute name="lovs" type="NE__Lov__c[]"/>  <!-- la mia ListaTot -->
+    <aura:attribute name="type" type="String"/>
+    <aura:attribute name="subType" type="String"/>
+    <aura:attribute name="level"   type="String" default=""/>
+    <aura:attribute name="lookupLov"   type="String" default=""/>
+    <aura:attribute name="objectString" type="String"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    <aura:attribute name="mapOfSourceFieldTargetField" type="Map"/>
+    <aura:attribute name="mapLabelColumns" type="Map"/>
+    <aura:attribute name="showModal" type="Boolean"/>
+    <aura:attribute name="input" type="String"/>
+    <aura:attribute name="selectedRows" type="List" default="[]"/>
+    <aura:attribute name="messageIsEmpty" type="String" default=""/>
+    <aura:attribute name="spinner" type="Boolean" default="false"/>
+    <aura:attribute name="mappa" type="Map"/>
+    <aura:attribute name="pages" type="Integer" default="1"/>
+    <aura:attribute name="currentPage" type="Integer" default="1"/>
+    <aura:attribute name="currentList" type="NE__Lov__c[]"/>
+    <aura:attribute name="recordToDisplay" type="Integer" default="20"/>
+    <aura:attribute name="orderBy" type="String"/> 
+    <!--   <aura:attribute name="labelOptions" type="List" default=""/> -->
+    <!--    <aura:attribute name="ascDescOptions" type="List" default=""/> -->
+    <aura:attribute name="ascDesc" type="String" default="Asc"/>
+    <!--    <aura:attribute name="showOrderBy" type="Boolean"/> -->
+    <aura:attribute name="sortedBy" type="String" default="Name"/> 
+    <aura:attribute name="sortedDirection" type="String" default="asc"/>
+    <aura:attribute name ="inputFieldForLike" type="String"/>
+    <aura:attribute name ="subTypeField" type="String"/>
+    <aura:attribute name="searchLovs" type="Boolean" default="true"/> 
+    <aura:attribute name="cabStringValues" type="String" default=""/> 
+    <aura:attribute name="ABIvalue" type="String" />
+
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>  
+    <aura:registerEvent name="showModalEvent" type="c:modalLookupEvent"/>
+
+
+    <div aura:id="modal" class="modalContainer" style="height: 640px;">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container" style="width: 100%;">
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" iconName="utility:close" size="large" alternativeText="{!$Label.c.Close}" variant="bare" onclick="{!c.closeModal}"/>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                        {!v.modalHeader}
+                    </h2>
+                    <!-- DG - 26/02/2019 - ANAG-116 -->
+                    <div class="slds-grid slds-size_1-of-1">
+                        <label  class="slds-form-element__label" 
+                                for="inputNameSample1" 
+                                value="{!$Label.c.OB_Search}">
+                        {!$Label.c.OB_Search}
+                        </label>
+                    </div>
+                    <div class="slds-grid slds-size_1-of-1">
+                        <div class="slds-size_1-of-2" style="padding-right: 1%;" onkeydown="{!c.formPress}">
+                            <!-- shaghayegh.tofighian  START 21/05/2019 RI-65 add onchange(to display options based on user input), placeholder,type,changed class.  -->
+                            <lightning:input    class="slds-listbox__option-text slds-listbox__option-text_entity"
+                                                type="text"
+                                                label=""
+                                                placeholder = "Search..."
+                                                variant="label-hidden"
+                                                name="searchInput" 
+                                                value="{!v.input}"
+                                                onchange="{!c.searchLovs}"/>
+                            <!-- shaghayegh.tofighian END 21/05/2019 RI-65 add onchange(to display options based on user input), placeholder,type, changed class.  -->
+
+                        </div>
+                        <div class="slds-size_1-of-12" style="padding-left: 0;">
+                            <span><lightning:buttonIcon iconName="utility:search" 
+                                                        size="large" 
+                                                        alternativeText="{!$Label.c.OB_Search}" 
+                                                        onclick="{!c.searchLovs}"/></span>    
+                        </div>
+                      <!--  <div class="slds-col">
+                            <aura:if isTrue="{!v.showOrderBy}">
+                                <span><lightning:combobox aura:id="selectLabelToSort" name="order by" label="Order By"
+                                                          placeholder="Choose a fieldName"
+                                                          value="{!v.orderBy}"
+                                                          onchange="{!c.handleLabelSelected}"
+                                                          options="{!v.labelOptions}"/></span>
+                            </aura:if>
+                        </div>
+                        <div class="slds-col">
+                            <span><lightning:combobox aura:id="selectItem" name="status" label=""
+                                                      placeholder="Asc/Desc"
+                                                      value="{!v.ascDesc}"
+                                                      onchange="{!c.handleAscDescSelected}"
+                                                      options="{!v.ascDescOptions}"/></span>
+                        </div> -->
+                    </div>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium slds-is-relative" style="height: 400px" id="modal-content-id-1">
+                    <aura:if isTrue="{!!empty(v.messageIsEmpty)}">
+                        <div class="slds-align_absolute-center" style="height: 1.5rem;">
+                            <p style="color:rgb(0, 95, 178)">{!v.messageIsEmpty}</p>
+                        </div> 
+                    </aura:if>
+                    <aura:if isTrue="{!!empty(v.lovs)}">   
+                        <lightning:datatable data="{!v.currentList}" 
+                                             columns="{!v.mycolumns}" 
+                                             keyField="id"
+                                             selectedRows="{!v.selectedRows}"
+                                             onrowselection="{!c.getSelectedrow}"
+                                             onsort="{!c.updateColumnSorting}"
+                                             sortedBy="{!v.sortedBy}"  
+                                             sortedDirection="{!v.sortedDirection}"/>
+                    </aura:if>
+                    <aura:if isTrue="{!v.spinner}"> 
+                        <div class="slds-spinner_container" style="height: 400px">
+                            <div class="slds-spinner--brand slds-spinner slds-spinner--small" role="alert">
+                                <span class="slds-assistive-text">Loading...</span>
+                                <div class="slds-spinner__dot-a"></div>
+                                <div class="slds-spinner__dot-b"></div>
+                            </div>
+                        </div>
+             </aura:if>
+                </div>
+                <footer class="slds-modal__footer slds-modal__footer_directional">
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_1-of-3">
+                            <span><lightning:buttonIcon disabled="{!v.currentPage == 1}" iconName="utility:chevronleft" variant="bare" size="large" onclick="{!c.navigate}" alternativeText="previous" /></span>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3">
+                            <span class="slds-align_absolute-center">{!v.total} {!$Label.c.OB_RecordPerPage} {!v.currentPage} / {!v.pages}</span>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3">
+                            <span ><lightning:buttonIcon disabled="{!v.currentPage == v.pages}" class="buttonNext" iconName="utility:chevronright" variant="bare" size="large" onclick="{!c.navigate}" alternativeText="next" /></span>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</aura:component>

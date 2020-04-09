@@ -1,0 +1,58 @@
+.THIS .centered {
+    text-align:center;
+}
+.THIS .borderTable{
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+}
+
+.THIS .rim {
+	width:15px;
+	height:15px;
+    border-radius:7.5px;
+
+
+}
+
+.THIS .border{
+    
+    border-bottom: 1px solid;
+   
+}
+
+.THIS .noborder{
+    border:none !important;
+}
+/*start--- simone.misani@accenture.com RI-34 ccreate for status terminal  03/05/2019*/
+.THIS .green svg{
+    fill: green !important;
+    
+}
+.THIS .yellow svg{
+    fill:yellow !important;
+
+}
+.THIS .red svg{
+    fill: red !important;
+
+}
+
+/*Start Masoud Zaribaf 06/05/2019 modified to show X close*/
+/* .THIS .slds-button_icon-bare{
+    display: none;
+} */
+ /*end Masoud Zaribaf 06/05/2019 modified to show X close*/
+/*end--- simone.misani@accenture.com RI-34 ccreate for status terminal  03/05/2019*/
+/* Start---simone.misani@accenture.com RI-34  add text bold and no border for button 03/05/2019 */
+/*Start Masoud Zaribaf 08/05/2019 modified to remove ^ */
+.THIS .hideArrows .slds-th__action .slds-button__icon {
+    display: none;
+}
+/*End Masoud Zaribaf 08/05/2019 modified to remove ^ */   
+.THIS .textBold {
+    font-weight: bold !important;
+}
+.THIS .noBorderButton button {
+    border: none!important;
+}
+/* End---simone.misani@accenture.com RI-34  add text bold and no border for button 03/05/2019 */

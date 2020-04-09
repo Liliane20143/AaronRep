@@ -1,0 +1,17 @@
+<aura:component >
+    <aura:attribute name="orderItem" type="NE__OrderItem__c"/>
+    <aura:attribute name="orderItems" type="NE__OrderItem__c[]"/> 
+    <aura:attribute name="order" type="String"/>
+
+    <tr>  
+        <td scope="row" data-label="Item Name">
+            <lightning:formattedText value="{!v.orderItem.Name}" style="position: relative; top: 0;font-weight:bold;"/>
+        </td>
+        <td data-label="Item Id">
+            <lightning:formattedText value="{!v.orderItem.Id}" style="position: relative; top: 0;font-weight:bold;"/>
+        </td>
+        <td data-label="Item Id">
+            <lightning:formattedText value="{!v.orderItem.NE__ProdName__c}" style="position: relative; top: 0;font-weight:bold;"/>
+        </td>
+    </tr>    
+</aura:component>

@@ -1,0 +1,88 @@
+<aura:component  implements="flexipage:availableForAllPageTypes" access="global">
+   <!-- <aura:registerEvent name="appEvent" type="c:OB_EventNextButton"/> -->
+    
+    <aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="accId" type="String" default="{!v.objectDataMap.merchant.Id}" /> 
+    <aura:attribute name="nextCheckout" type="String" default="{!v.objectDataMap.unbind.nextCheckout}" />
+    <aura:attribute name="objectKey" type="String" default="" access="global"/>
+    <aura:attribute name="identifier" type="String" default="" access="global"/>
+    <aura:attribute name="field" type="Object" default="{}" access="global"/>
+    <aura:attribute name = "email" type ="String" default ="" access="global"/>
+    <aura:attribute name="name" type="String" default="" access="global"/>
+    <aura:attribute name="fiscalcode" type="String" default="" access="global"/>
+    <aura:attribute name="fielsMap" type="Map" default="{ a: 'label1', b: 'label2' }"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <input id="hiddenField" type="text" value="" class="slds-hide"  onblur="{!c.beforeNext}"></input> 
+    
+    <div class="form" style="width:100% !important;">
+        <div class="slds-medium-size_6-of-12 slds-p-around_small  slds-small-size_12-of-12 " >
+            
+            <div class="slds-form-element ">
+                <label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.Name}">
+                    <abbr class="slds-required" title="required">*</abbr>{!$Label.c.Name}</label>
+            </div>
+            <lightning:input aura:id ="item1"
+                             label="" 
+                             name="name"
+                             variant="label-hidden"
+                             value=""
+                             class="required"
+                             />
+        </div>
+        
+        
+        <!--<div class="slds-grid slds-gutters">-->
+        <div class="slds-medium-size_6-of-12 slds-p-around_small  slds-small-size_12-of-12">
+            
+            <div class="slds-form-element">
+                <label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.FiscalCode}">
+                    <abbr class="slds-required" title="required">*</abbr>{!$Label.c.FiscalCode}</label>
+            </div>
+            
+            
+            <lightning:input aura:id="item2"
+                             label=""                                         
+                             name="FiscalCode"
+                             value=""
+                             variant="label-hidden"
+                             class="required"
+                             />
+        </div>
+        
+        <div class="slds-medium-size_6-of-12 slds-p-around_small  slds-small-size_12-of-12">
+            
+            <div class="slds-form-element">
+                <label class="slds-form-element__label" for="inputNameSample1" value="Email" label="Email">Email
+                </label>
+            </div>
+            
+            <lightning:input aura:id="item3"
+                             label=""                                         
+                             name="Email"
+                             value=""
+                             variant="label-hidden"
+                             />
+        </div>
+        
+        <!--  <div class="slds-medium-size_6-of-12 slds-p-around_small  slds-small-size_12-of-12 " >
+                
+                <div class="slds-form-element ">
+                     <lightning:input aura:id ="hiddenField"
+                                     label="" 
+                                     name="name"
+                                     variant="label-hidden"
+                                     value=""
+                                     class="slds-hide"
+                                     onblur="{!c.setField}"
+                                     />
+                </div>
+        
+            </div> -->
+    </div>
+    
+    
+    
+</aura:component>

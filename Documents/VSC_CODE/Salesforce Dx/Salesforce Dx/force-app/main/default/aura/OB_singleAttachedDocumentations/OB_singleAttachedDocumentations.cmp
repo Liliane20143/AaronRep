@@ -1,0 +1,168 @@
+<aura:component controller="OB_ContinuationController" access="global" implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId">
+	<aura:attribute name="documentsList" 		type="String[]" 					access="global"/>
+	<aura:attribute name="singleDoc" 			type="OB_Product_Document__c"		access="global"/>
+	<aura:attribute name="files" 				type="List"							access="global"/>
+	<aura:attribute name="base64" 				type="String"	default=""			access="global"/><!--giovanni spinelli 27/06/2019 add default-->
+	<aura:attribute name="fileName" 			type="String"						access="global"/>
+	<aura:attribute name="singleDocument" 		type="String"						access="global"/>
+	<aura:attribute name="isMultiple" 			type="String"/>
+	<aura:attribute name="idView" 				type="String"/>
+	<aura:attribute name="documentType" 		type="Object"   					access="global"/>
+	<aura:attribute name="idLoad" 				type="String"/>
+	<aura:attribute name="listFields" 			type="String[]" 					access="global"/>
+	<aura:attribute name="orderHeaderId" 		type="String" 						access="global"/>
+	<aura:attribute name="myMap" 				type="Map" 		default="{}" 		access="global"/>
+	<aura:attribute name="documentId" 			type="String"  	default="" 			access="global"/>
+	<aura:attribute name="index" 				type="Integer"  default="1"  		access="global"/>
+	<aura:attribute name="response" 			type="String"  	default=""  		access="global"/>
+	<aura:attribute name="mapMultiple" 			type="Map" 		default="{}" 		access="global"/>
+	<aura:attribute name="compareMap" 			type="Map" 		default="{}" 		access="global"/> 
+	<!-- <aura:attribute name="mapRecordId" 			type="Map" 		default="{}" 		access="global"/> -->
+	<aura:attribute name="mapDocumentId" 		type="Map" 		default="{}" 		access="global"/>
+	<aura:attribute name="multipleMapId" 		type="Map" 		default="{}" 		access="global"/>
+	<aura:attribute name="responseCall" 		type="Object" 						access="global"/>
+	<aura:attribute name="doneRender" 			type="Boolean" 	default="false"	access="global"/>
+	<aura:attribute name="canUpload" 			type="Boolean" 	default="false"	access="global"/>
+	<aura:attribute name="license" 				type="String" 						access="global"/>
+	<aura:attribute name="retrieveName" 		type="String" 							access="global"/>
+	<aura:attribute name="idFromFilenet" 		type="String" 							access="global"/>
+	<aura:attribute name="isSingle" 			type="Boolean" 	default = 'false'	access="global"/>
+	
+	<!-- antonio.vatrano 15/02/2019 #1386 -->
+	<aura:attribute name="itemsToApprove" 			type="Boolean" 	default = 'false'	access="global"/>
+	<!--giovanni spinelli 02/04/2019-->
+	<aura:attribute name="mapValueDocs" 			type="Map" 		default="{}" access="global"/>
+	<!-- Libreria pe consoleLog -->  
+	 <ltng:require scripts = "{!$Resource.utils}" afterScriptsLoaded =  "{!c.logInit}" />
+
+	<!-- START 	micol.ferrari 04/12/2018 -->
+	<aura:attribute name="isFromLogRequest" 	type="Boolean" 	default="false" 	access="global"/>
+	<aura:attribute name="readonly" 			type="Boolean" 	default="false" 	access="global"/>
+	<!-- END 	micol.ferrari 04/12/2018 -->	
+
+	<!-- AV 19.12.18 -->
+	<aura:attribute name="mapAllLoad" type="Map" default="{}" access="global"/>
+	<!-- AV 19.12.18 -->
+
+	<!-- Start AV 21/02/2019 dont show buttons CARICA and RIMUOVI if ADMIN  [Schema STEFANO MONTORI] -->
+	<aura:attribute name="isAdmin" type="Boolean" default="false" access="global"/> 
+	<aura:attribute name="rejectReasonBool" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="fromItemsApprovalStatus" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="isDraftModal"	type="Boolean" 	access="global" 	default="false"/>
+	<!-- Start AV 21/02/2019 dont show buttons CARICA and RIMUOVI if ADMIN  [Schema STEFANO MONTORI] -->
+	<!--giovanni spinelli 32/05/2019 start-->
+	<aura:attribute name="idDocJS" 				type="String"						access="global"/>
+	<aura:attribute name="fileNameJS"			type="String"						access="global"/>
+	<aura:attribute name="showSpinner" 			type="Boolean"	default="false"		access="global"/><!--giovanni spinelli 27/06/2019 change default value-->
+	<aura:attribute name="fireDynamicComponent" type="Boolean"	default="false"		access="global"/>
+	<aura:handler  name="change" value="{!v.fireDynamicComponent}" action="{!c.newDynamicComponent}"/>
+	<!--giovanni spinelli 32/05/2019 end-->
+	<!-- START AV 07/05/2019  SHORTCUTMAINTENANCE RIF2-82 -->
+	<aura:attribute name="isOperation" type="Boolean" default="false" access="global"/> 
+	<!-- END AV 07/05/2019  SHORTCUTMAINTENANCE RIF2-82 -->
+	<!--NEXI-298 Marta Stempien <marta.stempien@accenture.com 10/09/2019 Start -->
+	<aura:attribute name = "documentsByLogRequestId" type = "Object"	description = "Map: lists of required documents by log requests id" access = "global" />
+	<!--NEXI-298 Marta Stempien <marta.stempien@accenture.com 10/09/2019 Stop -->
+	<aura:handler name="render" value="{!this}" action="{!c.onRender}"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+	
+	<!-- ROW OF TABLE  -->
+	<tr class="trow">
+		<th>
+			<!-- container -->
+			<div class="slds-grid slds-gutters myGrid slds-grid_vertical-align-center myRow">
+				<div class="slds-col slds-size_5-of-10 myWord">
+					{!v.singleDoc}
+				</div>
+				<aura:if isTrue="{!!v.isFromLogRequest}"><!-- START 	micol.ferrari 04/12/2018 -->
+					
+					<aura:if isTrue="{!!v.itemsToApprove}"><!-- antonio.vatrano 15/02/2019 #1386 -->
+					<!--giovanni spinelli add spinner 05/06/2019 start-->
+						<aura:if isTrue="{!v.showSpinner}">
+								<!--giovanni spinelli add spinner-->
+								<div aura:id="spinner" role="status" class="slds-spinner slds-spinner_x-small">
+									<div class="slds-spinner__dot-a"></div>
+									<div class="slds-spinner__dot-b"></div>
+								</div>
+							<aura:set attribute="else">
+								<div class="slds-col slds-size_2-of-10 slds-col_bump-left">
+									<input type="button" id="{!v.idView}" value ="{!$Label.c.OB_Visualize}" onclick="{!c.viewDocsJS}" class="slds-button slds-button--neutral GeneraButton "/><!--giovanni spinelli add viewDocsJS-->
+									<aura:if isTrue="{!or(v.rejectReasonBool,or(v.fromItemsApprovalStatus,and(v.canUpload,!v.readonly)))}">
+										<label  id="{!v.idLoad}" class="slds-button slds-button_brand saveButton">
+											{!$Label.c.OB_Upload}
+											<input aura:id="inputFile"  type="file" style="display:none" onchange="{!c.loadDocFromJS}" /><!--giovanni spinelli remove onclick= "{!c.resetFile}"-->
+										</label>
+									</aura:if>						
+								</div>
+						</aura:set>
+						</aura:if>
+						<!--giovanni spinelli add spinner 05/06/2019 end-->
+						<!--giovanni spinelli add spinner 05/06/2019 start-->
+						<aura:set attribute="else">
+							<aura:if isTrue="{!v.showSpinner}">
+								<!--giovanni spinelli add spinner-->
+								<div aura:id="spinner" role="status" class="mySpinner2 slds-spinner slds-spinner_x-small">
+									<div class="slds-spinner__dot-a"></div>
+									<div class="slds-spinner__dot-b"></div>
+								</div>
+							<aura:set attribute="else">
+								<div class="slds-col slds-size_2-of-10 slds-col_bump-left">
+									<input type="button" id="{!v.idView}" value ="{!$Label.c.OB_Visualize}" onclick="{!c.viewDocsJS}"  class="slds-button slds-button--neutral GeneraButton "/><!--giovanni spinelli add viewDocsJS-->
+								</div>
+							</aura:set>
+							</aura:if>
+							<!--giovanni spinelli add spinner 05/06/2019 end-->
+						</aura:set>
+					</aura:if>
+
+					<!-- START 	micol.ferrari 04/12/2018 -->
+					<aura:set attribute="else">
+						<!--giovanni spinelli add spinner 05/06/2019 start-->
+						<aura:if isTrue="{!v.showSpinner}">
+							<!--giovanni spinelli add spinner-->
+							<div aura:id="spinner" role="status" class="slds-spinner slds-spinner_x-small">
+								<div class="slds-spinner__dot-a"></div>
+								<div class="slds-spinner__dot-b"></div>
+							</div>
+							<aura:set attribute="else">
+								<div class="slds-col slds-size_2-of-10 slds-col_bump-left">
+									<aura:if isTrue="{!or(v.isDraftModal,v.rejectReasonBool)}">
+										<input type="button" id="{!v.idView}" value ="{!$Label.c.OB_Visualize}" onclick="{!c.viewDocsJS}" class="slds-button slds-button--neutral GeneraButton "/><!--giovanni spinelli add viewDocsJS-->
+										<aura:if isTrue="{!or(v.rejectReasonBool,and(v.canUpload,!v.readonly))}">
+											<label  id="{!v.idLoad}" class="slds-button slds-button_brand saveButton">
+												{!$Label.c.OB_Upload}
+												<input aura:id="inputFile"  type="file" style="display:none"  onchange="{!c.loadDocFromJS}"/><!--giovanni spinelli onclick= "{!c.resetFile}"-->
+											</label>
+										</aura:if>
+										<aura:set attribute="else">
+											<input type="button" id="{!v.idView}" value ="{!$Label.c.OB_Visualize}" onclick="{!c.viewDocsJS}" class="slds-button slds-button--neutral GeneraButton "/><!--giovanni spinelli add viewDocsJS-->
+										</aura:set>
+									</aura:if>						
+								</div>
+							</aura:set>
+						</aura:if>
+						<!--giovanni spinelli add spinner 05/06/2019 start-->
+					</aura:set>
+					<!-- END 	micol.ferrari 04/12/2018 -->	
+				</aura:if><!-- END 	micol.ferrari 04/12/2018 -->	
+				
+			</div>
+			<!-- Start antonio.vatrano r1f3-54 13/09/2019 -->
+			<!-- <div  class="myDiv" aura:id ="container" > -->
+				{!v.body}
+				<!-- </div> -->	
+			<!-- End antonio.vatrano r1f3-54 13/09/2019 -->
+
+			<div aura:id="loadErrorMessage" class="errorMessage slds-hide">
+				{!$Label.c.OB_DocumentErrorMessage}
+			</div>
+			<aura:if isTrue="{!v.isSingle}">
+				<div  class="myDivNameFile" >
+					{!v.retrieveName}
+				</div>
+			</aura:if> 
+		</th>	
+	</tr>          <!--   close row -->
+
+</aura:component>

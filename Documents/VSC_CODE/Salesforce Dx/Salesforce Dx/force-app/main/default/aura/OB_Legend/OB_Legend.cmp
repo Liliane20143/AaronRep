@@ -1,0 +1,27 @@
+<aura:component implements="lightning:actionOverride,force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId">
+            
+            <div class="slds-box" style="width:50%">
+                <form>
+                    <fieldset>
+                        <legend><strong>Legenda: Bordo delle voci di pricing</strong></legend>
+                        
+                        <div class="slds-grid slds-size_2-of-2" style = "margin-top: 3px;">
+                            <div class= "gray-checkbox"/>
+                            <div>Valore che non richiede approvazione da parte dell'administratore di filiale</div>
+                        </div>
+
+                        <div class="slds-grid slds-size_2-of-2" style = "margin-top: 3px;">
+                            <div class="yellow-checkbox"/>
+                            <div>Valore soggetto ad approvazione da patrte dell'administratore di filiale</div>
+                        </div>
+
+                        <div class="slds-grid slds-size_2-of-2" style = "margin-top: 3px;">
+                                <div class="red-checkbox"/>
+                                <div>Valore che non permette di proseguire nel flusso</div>
+                        </div>    
+                              
+                    </fieldset>
+                </form>
+            </div>
+        
+</aura:component>

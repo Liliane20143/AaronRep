@@ -1,0 +1,26 @@
+/**
+ * Created by capasso on 15/03/2019.
+ */
+.THIS {
+
+}
+
+.THIS .m-modal{
+    margin-bottom: 250px;
+}
+.THIS .defined-width{
+    width: 250px;
+}
+
+.THIS .defined-width2{
+    width: 120px;
+}
+.THIS .margin-top{
+     margin-top: -50px
+}
+.THIS .margin-bottom{
+     margin-bottom: 50px
+}
+.THIS .margin-top5px{
+     margin-top: 5px
+}

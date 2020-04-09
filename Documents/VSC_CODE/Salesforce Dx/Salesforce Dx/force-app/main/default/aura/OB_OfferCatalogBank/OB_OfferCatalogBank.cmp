@@ -1,0 +1,286 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:searchInterface" controller="OB_ABI_OffersController">
+	
+	<aura:attribute name="bundleOffers" type="List"/>
+	<aura:attribute name="searchText" type="String" default=""/>
+	<aura:attribute name="selectedABI" type="sObject" />
+	<aura:attribute name="selectedRecord" type="NE__Bundle__c" description="Use,for store SELECTED sObject Record"/>
+    <aura:attribute name="listOfSearchRecords" type="List" description="Use,for store the list of search records which returns from apex class"/>
+    <aura:attribute name="SearchKeyWord" type="string"/>
+    <aura:attribute name="objectAPIName" type="string" default=""/>
+    <aura:attribute name="IconName" type="string" default=""/>
+    <aura:attribute name="label" type="string" default=""/>
+    <aura:attribute name="Message" type="String" default=""/>
+    <aura:attribute name="oRecord" type="sObject" />
+	<aura:attribute name="spinner" type="Boolean" default="true"/>
+	<aura:attribute name="showModal" type="Boolean" default="false"/>
+	<aura:attribute name="allOffers" type="NE__Bundle__c[]"/>
+	<aura:attribute name="showActiveBtn" type="Boolean" default="false"/>
+	<aura:attribute name="activeOffersMap" type="Map" default="{}"/>
+	<aura:attribute name="rows" type="NE__Matrix_Parameter_Row__c[]"/>
+	<aura:attribute name="offerMessage" type="String" default=""/>
+	<aura:attribute name="offersToEnable" type="NE__Bundle__c[]"/>
+	
+	<!-- go to next components -->
+	<aura:attribute name="goToConfigurazioniTableNexi" type="Boolean" default="false"/>
+	<aura:attribute name="selectedOffer" type="NE__Bundle__c"/>
+	<aura:attribute name="goBackToABIoffers" type="Boolean" default="false"/>
+	
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+	
+<aura:if isTrue="{!!v.goBackToABIoffers}">		
+	<aura:set attribute="else">	
+		<c:OB_ABI_Offers/>
+	</aura:set>
+<aura:if isTrue="{!!v.goToConfigurazioniTableNexi}">	
+	<aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+   	</aura:if> 
+	<!-- <div class="goBackBox">
+		<p><span class="pointerClass" onclick="{!c.goBackToABIselection}"><lightning:buttonIcon  iconName="utility:back" size="medium" variant="bare" alternativeText="Back" iconClass="blueIcon" /> <span class="goBackText">Go Back to ABI selection</span></span></p>
+	</div>-->
+		<div class="offerCatalogContainer">
+	<div class="cardsContainer">
+		<div class="titleBox">
+		    <span>
+		    	<h1 class="title">{!$Label.c.OB_OffersCatalogNEXI}</h1>
+		    </span>
+		</div>
+	<div class="slds-grid slds-gutters abiSectionGutters guttersAndColOverWrite">
+		<div class="slds-col slds-size_1-of-1  slds-medium-size_2-of-3 slds-small-size_1-of-1  abiSectionBox">
+	    	<span>
+	    		<div class="slds-grid slds-gutters guttersAndColOverWrite">
+					<div class="slds-col slds-size_1-of-2  slds-medium-size_1-of-8 slds-small-size_1-of-2 abiDiv">
+				    	<span>
+			               <div class="abiBox">
+			                   <p class="textABI">{!v.selectedABI.Name}</p>
+			               </div>   
+	    				</span>
+	    			</div>
+	    			<div>
+	    				<span>
+	    					<p class="bankName">{!v.selectedABI.NE__Value1__c}</p>
+	    				</span>
+	    			</div>
+    				<div class="editingSection pointerClass"> 
+					 	<span  onclick="{!c.goBackToABIselection}">	
+							<lightning:buttonIcon name="editBtn" iconName="utility:edit" size="large" variant="bare" alternativeText="Back to ABI section" iconClass="blueIcon" />
+							<span class="editText">{!$Label.c.OB_Edit}</span>
+						</span>	 
+					</div>
+	    		</div>
+	    	</span> 
+	    	<p class="headerDescription">{!$Label.c.OB_OfferCatalogBankDesc}</p>
+		</div>    
+	</div>   	
+	
+	<!-- LOOKUP SEARCH AND ORDER BY SECTION: -->
+	<!-- <div class="slds-grid slds-gutters slds-wrap lookupAndOrderBySectionOffer">
+			<div class="slds-col slds-size_1-of-1  slds-medium-size_1-of-3 slds-small-size_1-of-1  offerInputDiv"> 
+				<span> -->
+	   			   <!-- CUSTOM SEARCH INPUT: -->
+			<!-- 	   <div onmouseleave="{!c.onblur}" aura:id="searchRes" class="slds-form-element slds-lookup slds-is-close lookupSection" data-select="single">
+				        <label class="slds-form-element__label" for="lookup-348">{!v.label}</label>
+				
+				        <div class="slds-form-element__control">
+				            
+				            <div class="slds-input-has-icon slds-input-has-icon-right">
+				             
+				              <lightning:icon aura:id="searchIconId" class="slds-input__icon slds-show searchIcon" iconName="utility:search" size="small" alternativeText="search"/> 
+				    
+				               <div aura:id="lookup-pill" class="slds-pill-container slds-hide">
+				                     <lightning:pill class="pillSize" label="{!v.selectedRecord.Name}" name="{!v.selectedRecord.Name}" onremove="{! c.clear }">
+				                          <aura:set attribute="media">
+				                             <lightning:icon iconName="{!v.IconName}" size="x-small" alternativeText="{!v.IconName}"/>
+				                          </aura:set>
+				                      </lightning:pill>
+				               </div>
+				                
+				                
+				                <div aura:id="lookupField" class="slds-show">
+				                    <ui:inputText click="{!c.onfocus}" updateOn="keyup" keyup="{!c.keyPressController}" class="slds-lookup__search-input slds-input searchInputClass" value="{!v.SearchKeyWord}" placeholder="{!$Label.c.OB_SearchOffers}"/>
+				                </div>   
+				            </div>
+				        </div> -->
+				        <!--This part is for Display typehead lookup result List-->  
+				    <!--     <ul style="min-height:40px;margin-top:0px !important" class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-lookup__menu slds" role="listbox">
+				            <lightning:spinner class="slds-hide" variant="brand" size="small" aura:id="mySpinner"/>
+				            <center> {!v.Message}</center>
+				            <aura:iteration items="{!v.listOfSearchRecords}" var="singleRec" indexVar="ind">
+				
+							    <li role="presentation" class="slds-listbox__item" onclick="{!c.selectRecord}">
+							        <span id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+					
+							              <span class="slds-media__body">  
+							                  <span class="slds-listbox__option-text slds-listbox__option-text_entity"><p id="{!ind}">{!singleRec.Name}</p></span>
+							              </span>
+							        </span>
+							    </li>
+				            </aura:iteration>
+				        </ul> -->
+				    
+					<!-- END CUSTOM SEARCH INPUT 
+                    </div>
+				</span>
+			</div> -->  
+			<!--  ORDER BY SECTION-->  
+		<!-- 	<div class="slds-col slds-size_1-of-1  slds-medium-size_1-of-3 slds-small-size_1-of-1  orderBySection"> 
+				<span>
+					<div class="slds-grid slds-gutters lookupAndOrderBySection">
+						<div class="divOrderBy"> 
+							<span>
+								<p class="pClass">{!$Label.c.OB_OrderBy} &nbsp;</p>
+							</span>
+						</div>
+						<div>
+							<span>
+					            <lightning:select label="" onchange="{!c.onChangePicklistOrderBy}">
+							        <option class="pClass" selected="selected" value="CreatedDate">{!$Label.c.OB_CreatedDate}</option>
+							        <option class="pClass" value="LastModifiedDate">{!$Label.c.OB_LastModified}</option>
+							    </lightning:select>		
+							</span>
+						</div>	
+					</div>
+				</span>
+            </div> -->
+            <!--END ORDER BY
+
+			</div>-->
+			
+
+		
+			<!-- BUNDLE OFFERS: -->
+			<div>
+			
+				<div class="slds-grid slds-gutters slds-wrap cardsWrapperBank guttersAndColOverWrite">
+					<!-- INACTIVE/ACTIVE OFFERS CHOICE SECTION: -->
+					<div class="slds-col slds-size_1-of-1  slds-medium-size_1-of-3 slds-small-size_1-of-1  offerBoxAct scrollableBox " onclick="{!c.openOffersModal}">
+						<lightning:card class="colBehaviourAct">
+							<div class="offerChoiceContentDiv offerChoiceBox">
+								<p class="slds-align_absolute-center subTitleActivationPar"><span class="subTitleActivationBold">{!v.bundleOffers.length}&nbsp; {!$Label.c.OB_ActiveOffers} </span><span class="subTitleActivation">&nbsp;{!$Label.c.OB_on} &nbsp;{!v.allOffers.length} &nbsp; {!$Label.c.OB_AvailableOffers} </span> </p>
+								<p class="activationIconBox">
+									<lightning:icon iconName="action:follow" alternativeText="follow" size="large"/>
+								</p>
+								<h1 class="slds-align_absolute-center activationTitle">{!$Label.c.OB_EnableDisableOffers}</h1>
+								<p class="activationDescription">{!$Label.c.OB_ModalABIdesc}</p>				
+							</div>
+						</lightning:card>
+					</div>	
+					<aura:if isTrue="{!!empty(v.bundleOffers)}">
+						<aura:iteration items="{!v.bundleOffers}" var="offer" indexVar="index">
+							<div class="slds-col slds-size_1-of-1  slds-medium-size_1-of-3 slds-small-size_1-of-1 offerBox">
+	
+								<lightning:card class="colBehaviour">
+									<div class="slds-grid slds-gutters gutterCard guttersAndColOverWrite">
+										<div class="slds-col slds-size_1-of-6 colClass">
+									    	<span><img class="thumbnailimage" src="{!'/servlet/servlet.FileDownload?file='+offer.OB_Image__c}" width="55" height="34"/></span>
+										</div>
+										<div class="slds-col slds-size_5-of-6 colOfferName">
+				    						<span><p class="offerName">{!offer.Name}</p></span>
+										</div>
+									</div>
+									<div class="slds-scrollable_y scrollableBox slds-col slds-size_1-of-1">
+										<div class="slds-text-longform">
+											<p class="offerDescription"> <aura:unescapedHtml value="{!offer.NE__Description__c}"/></p>
+										</div>
+									</div>
+									<div class="slds-align_absolute-center configureButtonDiv">
+										<button id="configureBtn" name="{!index}" class="slds-button slds-button_neutral overwriteConfigureButton" onclick="{!c.callConfigure}">{!$Label.c.OB_OfferLabelConfigure}</button>
+									</div>
+								</lightning:card>
+							</div>
+						</aura:iteration>
+						<aura:set attribute="else">
+						<aura:if isTrue="{!!empty(v.offerMessage)}">
+							<div class="slds-col slds-size_1-of-1  slds-medium-size_1-of-3 slds-small-size_1-of-1  slds-align_absolute-center">
+								<p class="messageText">{!v.offerMessage}</p>
+							</div>
+						</aura:if>
+						</aura:set>	
+					</aura:if>
+				</div>
+			</div>
+			<!-- END BUNDLE OFFERS -->
+		
+		<!-- MODAL: -->
+		<aura:if isTrue="{!v.showModal}">
+			<div class="demo-only" style="height: 640px;">
+			 	<section role="dialog" tabindex="-1" aria-label="Meaningful description of the modal content" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+			    	<div class="slds-modal__container">
+			      		<header class="slds-modal__header slds-modal__header_empty">
+			      		</header>
+					    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+					    	<!-- HEADER GOES HERE: -->
+					    	<div class="slds-grid slds-gutters headerRow guttersAndColOverWrite">
+								<div class="slds-col">
+							    	<span>
+							    		<h1 class="modalTitle">{!$Label.c.OB_SettingOffers}</h1>
+							    	</span>
+							    </div>
+							    <div class="slds-col">
+							    	<span>
+								    	<p class="saveCancelBtnsBox">
+											<button class="slds-button cancelBtn" label="cancel" onclick="{!c.closeModal}">
+								               		<span class="createNewElement" >{!$Label.c.OB_Cancel}</span>
+								          	</button>
+											<button class="slds-button slds-button_neutral slds-button--brand " label="save" onclick="{!c.handleSaveRows}">
+								               		<span class="saveBtnText" >{!$Label.c.OB_Save}</span>
+								          	</button>
+						          		</p>
+						          	</span>
+						  		</div>
+					    	</div>
+					    	<div>
+					    	<h2 class="descriptionModalBox"><span class="headerDescriptionModal">{!$Label.c.OB_SelectOfferNexi} &nbsp;</span><span class="bankNameModal">{!v.selectedABI.NE__Value1__c}</span></h2>
+					    	</div>
+					    	
+					     	<!-- CONTENT HERE -->
+							<div class="slds-grid slds-gutters slds-wrap cardsWrapper guttersAndColOverWrite">
+								<aura:iteration items="{!v.offersToEnable}" var="offer" indexVar="index">
+										<div class="slds-col slds-size_1-of-1  slds-medium-size_1-of-4 slds-small-size_1-of-1 offerBox">
+											<div id="{!index+'_card'}" class="card colBehaviour "> <!-- lightning:card --><!-- activeOfferBox -->
+												<div class="slds-grid slds-gutters gutterCardModal ">
+													<div class="slds-col slds-size_1-of-6 colClass">
+												    	<span><img class="thumbnailimage" src="{!'/servlet/servlet.FileDownload?file='+offer.OB_Image__c}" width="55" height="34"/></span>
+													</div>
+													<div class="slds-col slds-size_5-of-6 colOfferName">
+							    						<span><p class="modalOfferName">{!offer.Name}</p></span>
+													</div>
+												</div>
+												<div class="slds-scrollable_y scrollableModalBox slds-col slds-size_1-of-1">
+													<div class="slds-text-longform">
+														<p class="offerDescriptionModal"> <aura:unescapedHtml value="{!offer.NE__Description__c}"/></p>
+													</div>
+												</div>
+												
+												<div>
+													<p class="alignActiveBtn">
+														 <button id="{!index+'_activationBtn'}" name="{!index}" class="slds-button slds-button_neutral overWriteActiveBtn" onclick="{!c.handleActivationBtn}" value="active">{!$Label.c.OB_Active}</button> <!-- class overWriteInactiveBtn  value="inactive" -->
+													</p>
+												</div>
+											</div>
+										</div>
+									</aura:iteration>
+							<!-- 	</aura:iteration> -->
+							</div>
+					    </div>
+			   		</div>
+			  	</section>
+				<div class="slds-backdrop slds-backdrop_open"></div>
+			</div>
+		</aura:if>
+		<!-- END MODAL -->
+</div>
+</div>
+	<aura:set attribute="else">	
+		<c:OB_ConfigurazioniTableNexi offerta="{!v.selectedOffer}"
+									selectedABI="{!v.selectedABI}"/>
+	</aura:set>		
+</aura:if>	
+</aura:if>
+</aura:component>

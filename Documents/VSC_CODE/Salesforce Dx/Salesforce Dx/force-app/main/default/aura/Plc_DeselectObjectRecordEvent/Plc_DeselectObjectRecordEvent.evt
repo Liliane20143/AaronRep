@@ -1,0 +1,3 @@
+<aura:event type="APPLICATION" description="Fired when a record is deselected from the custom lookup">
+    <aura:attribute name="recordByEvent" type="sObject"/>
+</aura:event>

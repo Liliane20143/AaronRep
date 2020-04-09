@@ -1,0 +1,756 @@
+<!-- Component used to manage work orders and their line items -->
+<aura:component controller="Plc_WorkOrderHandlingCnt" implements="flexipage:availableForRecordHome,force:hasRecordId">
+    <!-- Declaring attributes -->
+    <aura:attribute access="global" name="recordId" type="Id" description="Contains the current work order id"/>
+    <aura:attribute access="private" name="translationMap" type="Map" default="{}" description="Contains tranlated label got from server call in the init function" />
+    <aura:attribute access="private" name="propertiesMap" type="Map" default="{}" description="Utils and context data"/>
+    <aura:attribute access="private" name="itemsList" type="List" default="[]" description="Contains the list of retrieved items"/>
+    <aura:attribute access="private" name="availableStockSerialsList" type="List" default="[]" description="List of available serial stocks"/>
+    <aura:attribute access="private" name="availableProductStocksList" type="List" default="[]" description="List of available product stocks"/>
+    <aura:attribute access="private" name="availableAssetList" type="List" default="[]" description="List of available assets"/>
+    <aura:attribute access="private" name="modelsList" type="List" default="[]" description="List of available models showed in the data table"/>
+    <aura:attribute access="private" name="selectedMaterial" type="Object" default="" description="Contains the current selected object from the data table of materials"/>
+    <aura:attribute access="private" name="selectedAsset" type="Object" default="" description="Contains the current selected object from the data table of assets"/>
+    <aura:attribute access="private" name="isSelectedMaterialValid" type="Boolean" description="Describes whether selected material is valid"/>
+    <aura:attribute access="private" name="selectedMaterialRequestedQty" type="Integer" default="1" description="Describes number of items requested for product stocks"/>
+    <aura:attribute access="private" name="currentSelectedItemIndex" type="List" default="[]" description="Identifies current record on we are working on"/>
+    <aura:attribute access="private" name="currentSelectedMaterialType" type="String" default="Product" description="Identifies whether the list of materials must be filtered as product or accessory"/>
+    <aura:attribute access="private" name="woliToSerialMap" type="Map" default="{}" description="Maps a woli to a removed serial"/>
+    <aura:attribute access="private" name="stockSerialsMap" type="Map" default="{}" description="Contains all shipment line items serials"/>
+    <aura:attribute access="private" name="serialIdToVerify" type="String" default="" description="Contains the serial for which compiling the report"/>
+    <aura:attribute access="private" name="selectedContact" type="Object" default="{}" description="Contains the selected contact for the serial"/>
+    <!-- Declaring datatable attributes -->
+    <aura:attribute access="private" name="columns" type="List" default="[]" description="Data table columns describer"/>
+    <aura:attribute access="private" name="sortedBy" type="String" description="Selected field for sorting"/>
+    <aura:attribute access="private" name="sortedDirection" type="String" description="Sorting direction for selected field"/>
+    <!-- Declaring flags used to identify different cases -->
+    <aura:attribute access="private" name="isSerialStockDataTableFlag" type="Boolean" default="true" description="Used to identify whether user is adding serial stocks items or product stock items" />
+    <aura:attribute access="private" name="isStoreNewProductFlag" type="Boolean" description="Used to identify whether user is adding items to the store"/>
+    <aura:attribute access="private" name="isNewAccessoryFlag" type="Boolean" description="Used to identify whether user is adding accessories to products"/>
+    <aura:attribute access="private" name="isAccessorySubstitutionFlag" type="Boolean" description="Used to identify whether user is substituting accessories"/>
+    <aura:attribute access="private" name="isAssetSubstitutionFlag" type="Boolean" description="Used to identify whether user is substituting store assets"/>
+    <!-- Declaring handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.handleInit}"/>
+    <aura:handler name="change" value="{!v.itemsList}" action="{!c.handleItemsChange}"/>
+    <aura:handler event="c:Plc_ActivityCompileReportEvt" action="{!c.handleInit}" description="Used to refresh the component"/>
+    <!-- Fill report component -->
+    <c:Plc_ActivityCompileReport aura:id="fill-report" recordId="{!v.serialIdToVerify}" skipInit="true" hideComponent="true" closeModal="true"/>
+    <!-- BEGIN Component view -->
+    <div class="slds-card slds-p-top_medium" id="manage-work-order">
+        <div aura:id="main-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+            <lightning:spinner variant="brand" size="small" alternativeText="text"/>
+        </div>
+        <!-- FB 27-09-2019: NEXIPLC-702 [START] -->
+        <aura:if isTrue="{!v.propertiesMap.woStatus != undefined}">
+            <!-- isTrue="{!v.propertiesMap.woStatus == 'Closed'}" -->
+            <aura:set attribute="else">
+                <div class="slds-p-vertical_x-large"></div>
+                <!-- BEGIN Info message -->
+                <lightning:layout>
+                    <lightning:layoutItem class="slds-align_absolute-center" size="1">
+                        <!-- <lightning:icon iconName="utility:info" size="small"/> -->
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="11">
+                        <h2 class="slds-text-heading_small ">
+                        </h2>
+                    </lightning:layoutItem>
+                </lightning:layout>
+                <!-- END Info message -->
+            </aura:set>
+            <!-- FB 27-09-2019: NEXIPLC-702 [END] -->
+            <!-- BEGIN Component header -->
+            <div class="slds-card__header slds-grid">
+                <header class="slds-media slds-media_center slds-has-flexi-truncate slds-p-left_small">
+                    <div class="slds-media__figure">
+                        <lightning:icon iconName="standard:work_order_item" size="small"/>
+                    </div>
+                    <div class="slds-media__body">
+                        <h2 class="slds-page-header__title">
+                            {!v.propertiesMap.workOrder.Plc_Alias__c + ' - ' + v.propertiesMap.workOrder.Plc_ServicePoint__c}
+                        </h2>
+                    </div>
+                    <div class="slds-no-flex">
+                        <lightning:buttonGroup>
+                            <lightning:button label="{!$Label.c.Plc_LightningComponentWorkOrderHandlingAddStoreProduct}" 
+                                              disabled="{!v.propertiesMap.disableNewProductItem == true}" 
+                                              onclick="{!c.handleNewProductItem}"/>
+                            <lightning:button label="{!$Label.c.Plc_LightningComponentWorkOrderHandlingSelectAssetMessage}"
+                                              onclick="{!c.handleSelectProductAsset}" 
+                                              disabled="{!v.propertiesMap.disableNewProductAsset == true}"/>
+                            <lightning:button label="{!$Label.c.Plc_AllAllSave}" variant="brand" 
+                                              disabled="{!v.propertiesMap.disableSave == true}" 
+                                              onclick="{!c.handleOpenSaveModal}"/>
+                        </lightning:buttonGroup>
+                    </div>
+                </header>
+            </div>
+            <!-- END Component header -->
+            <!-- BEGIN No results image -->
+            <div>
+                <aura:if isTrue="{!v.propertiesMap.showNoDataIllustration == true}">
+                    <div class="slds-illustration slds-illustration_small" aria-hidden="true">
+                        <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt=""/>
+                        <div class="slds-text-color_weak">
+                            <h3 class="slds-text-heading_small">
+                                {!$Label.c.Plc_LightningComponentWorkOrderHandlingNoLineItemFoundMessage}
+                            </h3>
+                        </div>
+                    </div>
+                </aura:if>
+            </div>
+            <!-- END No results image -->
+            <!-- BEGIN Body -->
+            <aura:if isTrue="{!v.propertiesMap.showNoDataIllustration == false}">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-card_boundary slds-table_col-bordered" id="wo-console">
+                    <!-- BEGIN Table header -->
+                    <thead class="slds-table_col-bordered">
+                    <tr class="slds-text-title_caps">
+                        <td colspan="6">
+                            <span class="slds-align_absolute-center">
+                                {!$Label.c.Plc_AllAllInformation}
+                            </span>
+                        </td>
+                        <td colspan="4">
+                            <span class="slds-align_absolute-center">
+                                {!$Label.c.Plc_LightningComponentWorkOrderHandlingWoManagement}
+                            </span>
+                            
+                        </td>
+                        <td colspan="4">
+                            <span class="slds-align_absolute-center">
+                                {!$Label.c.Plc_LightningComponentWorkOrderHandlingMaterialsMovManagement}
+                            </span>
+                        </td>
+                    </tr>        
+                        <tr class="slds-text-title_caps"> 
+                            <th scope="col">
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    Woli
+                                </span>
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    {!v.translationMap.Plc_SerialNumber__c}
+                                </span>
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    {!v.translationMap.Plc_Subcategory__c}
+                                </span>
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    {!v.translationMap.Plc_ProductSku__c}
+                                </span>
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    {!v.translationMap.Plc_TermIdCode__c}
+                                </span>
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    {!$Label.c.Plc_AllAllEligibleOperations}
+                                </span>
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    {!v.translationMap.Plc_ReplacedBy__c}
+                                </span>
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    {!v.translationMap.Plc_ReplacedBy__c + ' SKU'}
+                                </span>
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    {!$Label.c.Plc_AllAllAvailableActions}
+                                </span>
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    {!v.translationMap.Bit2Shop__Destination_Warehouse_Id__c}
+                                </span>
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    {!$Label.c.Plc_TakeInCharge}
+                                </span>
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    Report
+                                </span>
+                            </th>
+                            <th scope="col">
+                                <span class="cell-break-line">
+                                    
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <!-- END Table header -->
+                    <!-- BEGIN body header -->
+                    <tbody>
+                        <aura:iteration items="{!v.itemsList}" var="woliProduct" indexVar="indexWoliProduct">
+                            <tr style="{!woliProduct.id == '' &amp;&amp; woliProduct.operationType != 'NoOperation' ? 'background-color: rgb(250, 255, 189)' : ''}">
+                                <!-- Icon according to type -->
+                                <td scope="col" style="padding-left: 0.25rem;">
+                                    <span class="cell-break-line">
+                                        <lightning:buttonIcon name="{!indexWoliProduct + ''}" iconName="{!woliProduct.isExpanded ? 'utility:chevrondown' : 'utility:chevronright'}" onclick="{!c.handleManageSection}" alternativeText="Expand" variant="border-filled"/>
+                                    </span>
+                                </td>
+                                <!-- WOLI -->
+                                <td scope="col">
+                                    <span class="cell-break-line break-all">
+                                        <aura:if isTrue="{!woliProduct.id != ''}">
+                                            <a data-record="{!woliProduct.id}" onclick="{!c.handleOpenRecord}">
+                                                {!woliProduct.label}
+                                            </a>
+                                            <aura:set attribute="else">
+                                                {!woliProduct.label}
+                                            </aura:set>
+                                        </aura:if>
+                                    </span>
+                                </td>
+                                <!-- Serial Number -->
+                                <td scope="col">
+                                    <span class="cell-break-line">
+                                        <aura:if isTrue="{!woliProduct.requiredSerial == true || woliProduct.serialNumber != undefined}">
+                                            <aura:if isTrue="{!not(empty(woliProduct.serialId))}">
+                                                <a data-record="{!woliProduct.serialId}" class="slds-truncate" onclick="{!c.handleOpenRecord}">
+                                                    {!woliProduct.serialNumber}
+                                                </a>
+                                                <aura:set attribute="else">
+                                                    {!woliProduct.serialNumber}
+                                                </aura:set>
+                                            </aura:if>
+                                            <aura:set attribute="else">
+                                                {!woliProduct.requestedQty}
+                                            </aura:set>
+                                        </aura:if>
+                                    </span>
+                                </td>
+                                <!-- Subcategory -->
+                                <td scope="col">
+                                    <span class="cell-break-line">
+                                        {!woliProduct.subCategory}
+                                    </span>
+                                </td>
+                                <!-- Product SKU -->
+                                <td scope="col">
+                                    <span class="cell-break-line break-all">
+                                        <a data-record="{!woliProduct.externalCatalogItemId}" onclick="{!c.handleOpenRecord}">
+                                            {!woliProduct.productSku}
+                                        </a>
+                                    </span>
+                                    <aura:if isTrue="{!woliProduct.productName != ''}">
+                                        <span class="slds-p-left_xx-small">
+                                            <lightning:helptext content="{!woliProduct.productName}"/>
+                                        </span>
+                                    </aura:if>
+                                </td>
+                                <!-- TermId Code -->
+                                <td scope="col">
+                                    <span class="cell-break-line break-all">
+                                        <a data-record="{!woliProduct.termId}" onclick="{!c.handleOpenRecord}">
+                                            {!woliProduct.termIdCode}
+                                        </a>
+                                    </span>
+                                </td>
+                                <!-- Eligible Operations -->
+                                <td scope="col">
+                                    <span>
+                                        <lightning:radioGroup
+                                            name="{!indexWoliProduct + ''}"
+                                            variant="label-hidden"
+                                            type="radio"
+                                            options="{!woliProduct.options}"
+                                            value="{!woliProduct.operationType}"
+                                            onchange="{!c.handleStoreProductStatusChange}"
+                                        />
+                                    </span>
+                                </td>
+                                <td scope="col">
+                                    <span class="cell-break-line">
+                                        <aura:if isTrue="{!woliProduct.operationType == 'ToSubstitute' || woliProduct.operationType == 'ToSubstituteCorr'}">
+                                            <aura:if isTrue="{!not(empty(woliProduct.replacedBySerialId))}">
+                                                <a data-record="{!woliProduct.replacedBySerialId}" class="slds-truncate" onclick="{!c.handleOpenRecord}">
+                                                    {!woliProduct.replacedBySerial}
+                                                </a>
+                                                <aura:set attribute="else">
+                                                    {!woliProduct.replacedBySerial}
+                                                </aura:set>
+                                            </aura:if>
+                                            <!-- <aura:if isTrue="{!not(empty(woliProduct.replacedBySerial))}">
+                                                <span class="slds-p-left_xx-small">
+                                                    <lightning:helptext content="{!woliProduct.replacedByProductName}"/>
+                                                </span>
+                                            </aura:if> -->
+                                        </aura:if>
+                                    </span>
+                                </td>
+                                <td scope="col">
+                                    <span class="cell-break-line break-all">
+                                        <aura:if isTrue="{!woliProduct.operationType == 'ToSubstitute' || woliProduct.operationType == 'ToSubstituteCorr'}">
+                                            <aura:if isTrue="{!not(empty(woliProduct.replacedByExternalCatalogItemId))}">
+                                                <a data-record="{!woliProduct.replacedByExternalCatalogItemId}" onclick="{!c.handleOpenRecord}">
+                                                    {!woliProduct.replacedByProductSku}
+                                                </a>
+                                                <aura:set attribute="else">
+                                                    {!woliProduct.replacedByProductSku}
+                                                </aura:set>
+                                            </aura:if>
+                                            <aura:if isTrue="{!not(empty(woliProduct.replacedByProductName))}">
+                                                <span class="slds-p-left_xx-small">
+                                                    <lightning:helptext content="{!woliProduct.replacedByProductName}"/>
+                                                </span>
+                                            </aura:if>
+                                        </aura:if>
+                                    </span>
+                                </td>
+                                <!-- Available Actions -->
+                                <td scope="col">
+                                    <lightning:buttonGroup>
+                                        <aura:if isTrue="{!woliProduct.enableRemove}">
+                                            <lightning:button name="{!indexWoliProduct + ''}" iconName="utility:delete" title="{!$Label.c.Plc_AllAllRemove}" variant="destructive" onclick="{!c.handleRemoveProductItem}"/>
+                                        </aura:if>
+                                        <aura:if isTrue="{!woliProduct.enableSubstitute}">
+                                            <lightning:button title="{!$Label.c.Plc_LightningComponentWorkOrderHandlingSelectSubstitute}"
+                                                              iconName="utility:change_record_type"
+                                                              name="{!indexWoliProduct + ',' + indexWoliAccessory}"
+                                                              disabled="{!woliProduct.operationType != 'ToSubstitute' &amp;&amp; woliProduct.operationType != 'ToSubstituteCorr'}"
+                                                              onclick="{!c.handleNewAssetSubstitute}"/>
+                                        </aura:if>
+                                        <lightning:buttonMenu class="{!woliProduct.enableRemove == true ? 'slds-button_last' : ''}" menuAlignment="right" title="Show menu" onselect="{!c.handleNewAccessoryItem}" variant="border-filled" >
+                                            <lightning:menuItem value="{!indexWoliProduct + ''}" 
+                                                                label="{!$Label.c.Plc_LightningComponentWorkOrderHandlingAddAccessory}" 
+                                                                disabled="{!woliProduct.disableAddAccessory}"/>
+                                        </lightning:buttonMenu>
+                                    </lightning:buttonGroup>
+                                </td>
+                                <!-- Destination Warehouse -->
+                                <td scope="col">
+                                    <span class="cell-break-line break-all">
+                                        <a data-record="{!woliProduct.destinationWarehouseId}" onclick="{!c.handleOpenRecord}">
+                                            {!woliProduct.destinationWarehouse}
+                                        </a>
+                                    </span>
+                                </td>
+                                <!-- TIC -->
+                                <td scope="col">
+                                    <aura:if isTrue="{!woliProduct.id != ''}">
+                                        <lightning:buttonIconStateful name="{!indexWoliProduct + ''}" iconName="utility:check" onclick="{!c.handleAcceptMaterial}" 
+                                                                      class="slds-p-right_x-small" alternativeText="Accept" selected="{!woliProduct.isAccepted}" 
+                                                                      disabled="{!woliProduct.disableSliButtons || woliProduct.isRefused}" variant="border-filled"/>
+                                        <lightning:buttonIconStateful name="{!indexWoliProduct + ''}" iconName="utility:close" onclick="{!c.handleRefuseMaterial}" alternativeText="Refuse" selected="{!woliProduct.isRefused}" 
+                                                                      disabled="{!woliProduct.disableSliButtons || woliProduct.isAccepted}" variant="border-filled"/>
+                                    </aura:if>
+                                </td>
+                                <!-- Report -->
+                                <td scope="col">
+                                    <aura:if isTrue="{!woliProduct.id != ''}">
+                                        <lightning:buttonIconStateful name="{!indexWoliProduct + ''}" iconName="utility:note" 
+                                                                      onclick="{!c.handleOpenActivityReport}" alternativeText="Fill Report" selected="{!woliProduct.isReportFilled}" 
+                                                                      disabled="{!woliProduct.disableFillReportButton}" variant="border-filled"/>
+                                    </aura:if>
+                                </td>
+                                <!-- Withdraw Serial -->
+                                <td scope="col">
+                                    <aura:if isTrue="{!woliProduct.id != ''}">
+                                        <lightning:buttonIconStateful name="{!indexWoliProduct + ''}" iconName="utility:user" class="slds-p-right_x-small" 
+                                                                      onclick="{!c.handleOpenSelectContactModal}" alternativeText="Select Contact for withdrawal" 
+                                                                      selected="{!woliProduct.isSerialWithdrawn}" disabled="{!not(woliProduct.isAccepted &amp;&amp; woliProduct.isReportFilled &amp;&amp; woliProduct.isSerialAvailable) &amp;&amp; not(woliProduct.isSerialWithdrawn)}" variant="border-filled" />
+                                    </aura:if>
+                                </td>
+                            </tr>
+                            <!-- Accessories -->
+                             <aura:iteration items="{!woliProduct.childWorkOrderLineItems}" var="woliAccessory" indexVar="indexWoliAccessory">
+                                <tr class="{!woliProduct.isExpanded ? '' : 'slds-hide'}" style="{!woliAccessory.id == '' &amp;&amp; woliAccessory.operationType != 'NoOperation' ? 'background-color: rgb(250, 255, 189)' : ''}">
+                                <!-- Icon according to type -->
+                                <td scope="col">
+                                    <span class="cell-break-line">
+                                    </span>
+                                </td>
+                                <!-- WOLI -->
+                                <td scope="col">
+                                    <span class="cell-break-line break-all">
+                                        <aura:if isTrue="{!woliAccessory.id != ''}">
+                                            <a data-record="{!woliAccessory.id}" onclick="{!c.handleOpenRecord}">
+                                                {!woliAccessory.label}
+                                            </a>
+                                            <aura:set attribute="else">
+                                                {!woliAccessory.label}
+                                            </aura:set>
+                                        </aura:if>
+                                    </span>
+                                </td>
+                                <!-- Serial Number -->
+                                <td scope="col">
+                                    <span class="cell-break-line">
+                                        <aura:if isTrue="{!woliAccessory.requiredSerial || woliAccessory.serialId != undefined || woliAccessory.serialId != ''}">
+                                            <aura:if isTrue="{!not(empty(woliAccessory.serialId))}">
+                                                <a data-record="{!woliAccessory.serialId}" class="slds-truncate" onclick="{!c.handleOpenRecord}">
+                                                    {!woliAccessory.serialNumber}
+                                                </a>
+                                                <aura:set attribute="else">
+                                                    {!woliAccessory.serialNumber}
+                                                </aura:set>
+                                            </aura:if>
+                                            <aura:set attribute="else">
+                                                {!woliAccessory.requestedQty}
+                                            </aura:set>
+                                        </aura:if>
+                                    </span>
+                                </td>
+                                <!-- Subcategory -->
+                                <td scope="col">
+                                    <span class="cell-break-line">
+                                        {!woliAccessory.subCategory}
+                                    </span>
+                                </td>
+                                <!-- Product SKU -->
+                                <td scope="col">
+                                    <span class="cell-break-line break-all">
+                                        <a data-record="{!woliAccessory.externalCatalogItemId}" onclick="{!c.handleOpenRecord}">
+                                            {!woliAccessory.productSku}
+                                        </a>
+                                    </span>
+                                    <aura:if isTrue="{!woliAccessory.productName != ''}">
+                                        <span class="slds-p-left_xx-small">
+                                            <lightning:helptext content="{!woliAccessory.productName}" />
+                                        </span>
+                                    </aura:if>
+                                </td>
+                                <!-- TermId Code -->
+                                <td scope="col">
+                                    <span class="cell-break-line break-all">
+                                        <a data-record="{!woliAccessory.termId}" onclick="{!c.handleOpenRecord}">
+                                            {!woliAccessory.termIdCode}
+                                        </a>
+                                    </span>
+                                </td>
+                                <!-- Eligible Operations -->
+                                <td scope="col">
+                                    <span>
+                                        <lightning:radioGroup 
+                                            name="{!indexWoliProduct + ',' + indexWoliAccessory}"
+                                            variant="label-hidden"
+                                            options="{!woliAccessory.options}"
+                                            value="{!woliAccessory.operationType}"
+                                            onchange="{!c.handleAccessoryStatusChange}"
+                                            type="radio"
+                                        />
+                                    </span>
+                                </td>
+                                <td scope="col">
+                                    <span class="cell-break-line">
+                                        <aura:if isTrue="{!woliAccessory.operationType == 'ToSubstitute' || woliAccessory.operationType == 'ToSubstituteCorr'}">
+                                            <aura:if isTrue="{!not(empty(woliAccessory.replacedBySerialId))}">
+                                                <a data-record="{!woliAccessory.replacedBySerialId}" class="slds-truncate" onclick="{!c.handleOpenRecord}">
+                                                    {!woliAccessory.replacedBySerial}
+                                                </a>
+                                                <aura:set attribute="else">
+                                                    {!woliAccessory.replacedBySerial}
+                                                </aura:set>
+                                            </aura:if>
+                                            <!-- <aura:if isTrue="{!not(empty(woliAccessory.replacedBySerial))}">
+                                                <span class="slds-p-left_xx-small">
+                                                    <lightning:helptext content="{!woliAccessory.replacedByProductName}"/>
+                                                </span>
+                                            </aura:if> -->
+                                        </aura:if>
+                                    </span>
+                                </td>
+                                <td scope="col">
+                                    <span class="cell-break-line break-all">
+                                        <aura:if isTrue="{!woliAccessory.operationType == 'ToSubstitute' || woliAccessory.operationType == 'ToSubstituteCorr'}">
+                                            <aura:if isTrue="{!not(empty(woliAccessory.replacedByExternalCatalogItemId))}">
+                                                <a data-record="{!woliAccessory.replacedByExternalCatalogItemId}" onclick="{!c.handleOpenRecord}">
+                                                    {!woliAccessory.replacedByProductSku}
+                                                </a>
+                                                <aura:set attribute="else">
+                                                    {!woliAccessory.replacedByProductSku}
+                                                </aura:set>
+                                            </aura:if>
+                                            <aura:if isTrue="{!not(empty(woliAccessory.replacedByProductName))}">
+                                                <span class="slds-p-left_xx-small">
+                                                    <lightning:helptext content="{!woliAccessory.replacedByProductName}"/>
+                                                </span>
+                                            </aura:if>
+                                        </aura:if>
+                                    </span>
+                                </td>
+                                <!-- Available Actions -->
+                                <td scope="col">
+                                    <aura:if isTrue="{!woliAccessory.enableRemove}">
+                                        <lightning:button name="{!indexWoliProduct + ',' + indexWoliAccessory}" title="{!$Label.c.Plc_AllAllRemove}"
+                                                          variant="destructive" onclick="{!c.handleRemoveAccessoryItem}" iconName="utility:delete"/>
+                                    </aura:if>
+                                    <aura:if isTrue="{!woliAccessory.enableSubstitute}">
+                                        <lightning:button title="{!$Label.c.Plc_LightningComponentWorkOrderHandlingSelectSubstitute}" 
+                                                          name="{!indexWoliProduct + ',' + indexWoliAccessory}"
+                                                          iconName="utility:change_record_type"
+                                                          disabled="{!woliAccessory.operationType != 'ToSubstitute' &amp;&amp; woliAccessory.operationType != 'ToSubstituteCorr'}"
+                                                          onclick="{!c.handleNewAccessorySubstitute}"/>
+                                    </aura:if>
+                                </td>
+                                <!-- Destination Warehouse -->
+                                <td scope="col">
+                                    <span class="cell-break-line break-all">
+                                        <a data-record="{!woliAccessory.destinationWarehouseId}" onclick="{!c.handleOpenRecord}">
+                                            {!woliAccessory.destinationWarehouse}
+                                        </a>
+                                    </span>
+                                </td>
+                                <!-- TIC -->
+                                <td scope="col">
+                                    <aura:if isTrue="{!woliAccessory.id != ''}">
+                                        <lightning:buttonIconStateful name="{!indexWoliProduct + ',' + indexWoliAccessory}" iconName="utility:check" 
+                                                                      class="slds-p-right_x-small" onclick="{!c.handleAcceptMaterial}" alternativeText="Accept" 
+                                                                      selected="{!woliAccessory.isAccepted}" disabled="{!woliAccessory.disableSliButtons || woliAccessory.isRefused}" variant="border-filled"/>
+                                        <lightning:buttonIconStateful name="{!indexWoliProduct + ',' + indexWoliAccessory}" iconName="utility:close"
+                                                                      onclick="{!c.handleRefuseMaterial}" alternativeText="Refuse" 
+                                                                      selected="{!woliAccessory.isRefused}" disabled="{!woliAccessory.disableSliButtons || woliAccessory.isAccepted}" variant="border-filled"/>
+                                    </aura:if>
+                                </td>
+                                <!-- Report -->
+                                <td scope="col">
+                                    <aura:if isTrue="{!woliAccessory.id != ''}">
+                                        <lightning:buttonIconStateful name="{!indexWoliProduct + ',' + indexWoliAccessory}" iconName="utility:note" 
+                                                                      onclick="{!c.handleOpenActivityReport}" alternativeText="Fill Report" selected="{!woliAccessory.isReportFilled}" 
+                                                                      disabled="{!woliAccessory.disableFillReportButton}" variant="border-filled"/>
+                                    </aura:if>
+                                </td>
+                                <!-- Withdraw Serial -->
+                                <td scope="col">
+                                    <aura:if isTrue="{!woliAccessory.id != ''}">
+                                        <lightning:buttonIconStateful name="{!indexWoliProduct + ',' + indexWoliAccessory}" iconName="utility:user"
+                                                                      onclick="{!c.handleOpenSelectContactModal}" alternativeText="Select Contact" selected="{!woliAccessory.isSerialWithdrawn}" 
+                                                                      disabled="{!not(woliAccessory.isAccepted &amp;&amp; woliAccessory.isReportFilled &amp;&amp; woliAccessory.isSerialAvailable) &amp;&amp; not(woliAccessory.isSerialWithdrawn)}" variant="border-filled"/>
+                                    </aura:if>
+                                </td>
+                            </tr>
+                            </aura:iteration>
+                                <!-- <td colspan="12">
+                                </td> -->
+                                <!-- <div class="slds-p-top_small"></div> -->
+                        </aura:iteration>
+                    </tbody>
+                    <!-- END body header -->
+                </table>
+            </aura:if>
+        </aura:if>
+    </div>
+    <!-- END Body -->
+    <!-- BEGIN Modal of items -->
+    <section aura:id="modal-add-item" role="dialog" tabindex="-1" class="slds-modal slds-modal_large">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.handleCloseItemsModal}">
+                    <lightning:icon iconName="utility:close" size="medium" alternativeText="alternative"/>
+                </button>
+                <h2 class="slds-text-heading_medium">
+                    {!v.propertiesMap.modalTitle}
+                </h2>
+            </header>
+            <div class="slds-modal__content">
+                <lightning:layout>
+                    <lightning:layoutItem class="navigation">
+                            <lightning:verticalNavigation selectedItem="{!v.propertiesMap.navigationSelectedItem}">
+                                <lightning:verticalNavigationSection label="{!$Label.c.Plc_LightningComponentWorkOrderHandlingMaterialType}">
+                                    <lightning:verticalNavigationItemBadge label="{!v.translationMap.Bit2Shop__Stock_Serials2__c}" name="gestioneMatricola" onclick="{!c.handleShowSerialStockMaterials}" 
+                                                                           badgeCount="{!v.availableStockSerialsList.length}"/>
+                                    <aura:if isTrue="{!v.isAccessorySubstitutionFlag != true &amp;&amp; v.isAssetSubstitutionFlag != true}">
+                                        <lightning:verticalNavigationItemBadge label="{!v.translationMap.Bit2Shop__Product_Stock__c}" name="gestioneQuantita" onclick="{!c.handleShowProductStockMaterials}" 
+                                                                               badgeCount="{!v.availableProductStocksList.length}"/>
+                                    </aura:if>
+                                </lightning:verticalNavigationSection>
+                            </lightning:verticalNavigation>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem class="layoutContent minimal-window-height slds-scrollable--y">
+                        <lightning:layout multipleRows="true">
+                            <lightning:layoutItem padding="around-small" size="3">
+                                <aura:if isTrue="{!not(empty(v.selectedMaterial)) &amp;&amp; v.isSerialStockDataTableFlag == false}">
+                                    <lightning:input type="number" required="true" validity="{!v.isSelectedMaterialValid}" label="{!$Label.c.Plc_AllAllRequestedQty}"
+                                                     min="{!(v.selectedMaterial.Bit2Shop__External_Catalog_Item_Id__r.Plc_MinimumStock__c == undefined ? 1 : v.selectedMaterial.Bit2Shop__External_Catalog_Item_Id__r.Plc_MinimumStock__c)}" max="{!v.selectedMaterial.Plc_AvailableQty__c - v.selectedMaterial.requestedQty}" value="{!v.selectedMaterialRequestedQty}"/>
+                                </aura:if>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem padding="around-small" size="3">
+                            </lightning:layoutItem>
+                            <lightning:layoutItem padding="around-small" size="6">
+                                    <div class="slds-grid_align-end slds-float_right">
+                                    <lightning:input name="search-text" type="search" value="{!v.propertiesMap.searchKey}"
+                                                     label="{!$Label.c.Plc_AllAllSearchLabel}" onchange="{!c.handleMaterialsFilter}"/>
+                                    </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem padding="around-small" size="12">
+                                <!-- Data table container -->
+                                <div class="slds-is-relative">
+                                    <div aura:id="table-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+                                        <lightning:spinner variant="brand" size="medium" alternativeText="text"/>
+                                    </div>
+                                    <lightning:datatable
+                                        aura:id="models-table"
+                                        keyField="Id"
+                                        columns="{!v.columns}"
+                                        data="{!v.modelsList}"
+                                        sortedBy="{!v.sortedBy}"
+                                        sortedDirection="{!v.sortedDirection}"
+                                        onsort="{!c.handleUpdateModelColumnSorting}"
+                                        onrowselection="{!c.handleUpdateSelectedRows}"
+                                        showRowNumberColumn="true"
+                                        maxRowSelection="1"
+                                        />
+                                    <div class="{!v.propertiesMap.showNoMaterialIllustration == true ? 'slds-p-top_medium' : 'slds-hide'}">
+                                        <div class="slds-illustration slds-illustration_small" aria-hidden="true">
+                                            <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt="image"/>
+                                            <div class="slds-text-color_weak">
+                                                <h3 class="slds-text-heading_small">
+                                                    {!$Label.c.Plc_LightningComponentWorkOrderHandlingNoMaterialFoundMessage}
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </div>
+            <footer class="slds-modal__footer">
+                <lightning:button label="{!$Label.c.Plc_AllAllCancel}" onclick="{!c.handleCloseItemsModal}" />
+                <lightning:button variant="brand" label="{!$Label.c.Plc_AllAllSelect}" disabled="{!empty(v.selectedMaterial)}"
+                                  onclick="{!c.handleAddItem}" />
+            </footer>
+        </div>
+    </section>
+    <!-- END Modal of items -->
+    <!-- BEGIN Modal of selecting product assets  -->
+    <section aura:id="modal-product-assets" role="dialog" tabindex="-1" class="slds-modal slds-modal_large">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.handleCloseProductAssetsModal}">
+                    <lightning:icon iconName="utility:close" size="medium" alternativeText="alternative"/>
+                </button>
+                <h2 class="slds-text-heading_medium">
+                    {!$Label.c.Plc_AllAllSelect + ' ' + v.translationMap.Asset}
+                </h2>
+            </header>
+            <div class="slds-modal__content">
+                <lightning:layout>
+                    <lightning:layoutItem class="navigation">
+                            <lightning:verticalNavigation selectedItem="gestioneAsset">
+                                <lightning:verticalNavigationSection label="{!v.translationMap.Asset}">
+                                    <lightning:verticalNavigationItemBadge label="{!v.translationMap.Asset}" name="gestioneAsset" badgeCount="{!v.availableAssetList.length}"/>
+                                </lightning:verticalNavigationSection>
+                            </lightning:verticalNavigation>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem class="layoutContent minimal-window-height slds-scrollable--y">
+                        <lightning:layout multipleRows="true">
+                            <lightning:layoutItem padding="around-small" size="12">
+                                    <div class="slds-grid_align-end slds-float_right">
+                                    <lightning:input name="search-text" type="search" value="{!v.propertiesMap.searchKey}"
+                                                     label="{!$Label.c.Plc_AllAllSearchLabel}" onchange="{!c.handleAssetFilter}"/>
+                                    </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem padding="around-small" size="12">
+                                <!-- Data table container -->
+                                <div class="slds-is-relative">
+                                    <div aura:id="assets-table-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+                                        <lightning:spinner variant="brand" size="medium" alternativeText="text"/>
+                                    </div>
+                                    <lightning:datatable
+                                        aura:id="assets-table"
+                                        keyField="Id"
+                                        columns="{!v.columns}"
+                                        data="{!v.availableAssetList}"
+                                        sortedBy="{!v.sortedBy}"
+                                        sortedDirection="{!v.sortedDirection}"
+                                        onsort="{!c.handleUpdateAssetColumnSorting}"
+                                        onrowselection="{!c.handleUpdateAssetSelectedRows}"
+                                        showRowNumberColumn="true"
+                                        maxRowSelection="1"
+                                        />
+                                    <div class="{!v.propertiesMap.showNoAssetIllustration == true ? 'slds-p-top_medium' : 'slds-hide'}">
+                                        <div class="slds-illustration slds-illustration_small" aria-hidden="true">
+                                            <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt="image"/>
+                                            <div class="slds-text-color_weak">
+                                                <h3 class="slds-text-heading_small">
+                                                    {!$Label.c.Plc_LightningComponentWorkOrderHandlingNoMaterialFoundMessage}
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </div>
+            <footer class="slds-modal__footer">
+                <lightning:button label="{!$Label.c.Plc_AllAllCancel}" onclick="{!c.handleCloseProductAssetsModal}" />
+                <lightning:button variant="brand" label="{!$Label.c.Plc_AllAllSelect}" disabled="{!empty(v.selectedAsset)}"
+                                  onclick="{!c.handleAddProductAsset}" />
+            </footer>
+        </div>
+    </section>
+    <!-- END Modal of selecting product assets -->
+    <!-- BEGIN Modal of save confirmation -->
+    <section aura:id="modal-save" role="dialog" tabindex="-1" class="slds-modal slds-modal_prompt">
+         <div class="slds-modal__container">
+            <header class="slds-modal__header slds-theme_info slds-theme_alert-texture">
+                <h2 class="slds-text-heading_medium">
+                    {!$Label.c.Plc_AllAllConfirmSave}
+                </h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium">
+                <ul class="slds-list_dotted">
+                    <li>
+                        {!$Label.c.Plc_LightningComponentWorkOrderHandlingConfirmSaveFirstLine}
+                    </li>
+                    <li>
+                        {!$Label.c.Plc_LightningComponentWorkOrderHandlingConfirmSaveSecondLine}
+                    </li>
+                </ul>
+            </div>
+            <footer class="slds-modal__footer slds-theme_default">
+                <lightning:button label="{!$Label.c.Plc_AllAllCancel}" onclick="{!c.handleCloseSaveModal}"/>
+                <lightning:button variant="brand" label="{!$Label.c.Plc_AllAllSave}" iconName="utility:save"
+                                  onclick="{!c.handleSaveItems}"/>
+          </footer>
+        </div>
+    </section>
+    <!-- END Modal of save confirmation -->
+    <!-- BEGIN Modal for selecting the contact -->
+    <section aura:id="modal-select-contact" role="dialog" tabindex="-1" class="slds-modal slds-modal_small">
+        <div id="modal-select-contact" class="slds-modal__container">
+            <header class="slds-modal__header">
+                <h2 class="slds-text-heading_medium">
+                    {!$Label.c.Plc_LightningComponentWorkOrderHandlingSelectContactWithdrawal}
+                </h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_small">
+                <div class="slds-box">
+                     <lightning:layout multipleRows="true">
+                        <lightning:layoutItem size="12">
+                            <c:Plc_CustomLookup aura:id="contact-form" label="{!$Label.c.Plc_AllAllSearchLabel + ' ' + v.translationMap.ContactName}" 
+                                                selectedRecord="{!v.selectedContact}" objectAPIName="Contact" iconName="standard:contact" whereCondition="{! 'Name LIKE :searchKey AND Plc_Dealer__c = \'' + v.propertiesMap.serialForWithdrawing.Bit2Shop__Warehouse_Id__r.Bit2Shop__Dealer_Id__c + '\''}"/>
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                </div>
+            </div>
+            <footer class="slds-modal__footer">
+                <lightning:button label="{!$Label.c.Plc_AllAllCancel}" onclick="{!c.handleCloseSelectContactModal}"/>
+                <lightning:button variant="brand" label="{!$Label.c.Plc_AllAllSelect}"
+                                  onclick="{!c.handleSelectContact}" disabled="{!not(v.selectedContact.Id)}"/>
+          </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop" aura:id="Modalbackdrop"/>
+    <!-- END Modal for selecting the contact -->
+    <!-- END Component view -->
+</aura:component>

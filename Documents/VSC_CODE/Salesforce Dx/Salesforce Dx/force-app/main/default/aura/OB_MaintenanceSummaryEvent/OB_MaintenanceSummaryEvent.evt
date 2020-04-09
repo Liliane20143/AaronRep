@@ -1,0 +1,5 @@
+<aura:event type="COMPONENT">
+	<aura:attribute name="showPriceSummary" type="boolean" default="false"/>	
+	<aura:attribute name="goToFlowCart" type="boolean" default="false"/>	
+	<aura:attribute name="ordIdParam" type="String"/>	
+</aura:event>

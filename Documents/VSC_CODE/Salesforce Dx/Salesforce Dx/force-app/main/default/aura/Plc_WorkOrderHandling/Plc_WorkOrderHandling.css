@@ -1,0 +1,67 @@
+.THIS .minimal-window-height {
+    height: 60vh;
+}
+
+.THIS .navigation {
+    min-width: 200px;
+    border-right: 1px solid #e7e7e7;
+}
+
+.THIS .item-first-line {
+	margin-top:0; 
+	padding-top:0; 
+	padding-bottom:0;
+}
+
+.THIS .item-second-line {
+	padding-top: 0;
+}
+
+.THIS .item-substitute-line {
+	margin-top:0; 
+	padding-top:0; 
+}
+/* Workaround in order to hide table header buttons */
+/*.THIS .slds-button_icon-bare{
+    display: none;
+}*/
+
+.THIS .footer-product {
+	margin-top: 1rem;
+	background-color: #fafafa;
+}
+
+.THIS .green-background {
+	background-color: #008000;
+}
+
+.THIS .red-background {
+	background-color: #c23934;
+}
+
+.THIS #modal-select-contact .slds-dropdown-trigger .slds-dropdown {
+    max-height: 200px;
+    overflow: auto;
+}
+
+.THIS #modal-select-contact .slds-modal__content {
+	overflow: unset !important;
+}
+/*.THIS .slds-radio_button-group{
+    display: inline-grid !important;
+}*/
+
+.THIS .cell-break-line {
+	white-space: normal !important;
+}
+
+.THIS .break-all {
+	word-break: break-all;
+}
+
+.THIS #wo-console .slds-form-element__icon {
+	padding-top: 0 !important;; 
+}
+.THIS #wo-console .slds-button__icon_left {
+	margin-right: 0;
+}

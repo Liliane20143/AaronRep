@@ -1,0 +1,139 @@
+<aura:component>
+    <aura:attribute name="matrixParameterList" type="List"  default="[]" access="global" />
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="selectedRows" type="List" access="global" />
+    <aura:attribute name="recordType" type="String" access="global" default=""/>
+    <aura:attribute name="setAllCheckbox" type="Boolean" default="false" access="public"/> <!-- francesca.ribezzi 03/07/19 -F2WAVW2-16 - access changed to public-->
+
+    <aura:attribute name="currentPageNumber" type="Integer" default="1"/>
+    <aura:attribute name="pageSize" type="Integer" default="10"/>
+    <aura:attribute name="totalPages" type="Integer" default="0"/>
+    <aura:attribute name="pageList" type="List"/>
+    <aura:attribute name="dataForTable" type="Object"/>
+    <aura:attribute name="ABIwithMatrixMap" type="Map" description="this map comes from OB:SingleMatrixParameter cmp"/>
+    <aura:attribute name="ABIwithMatrixCompletedMap" type="Map" default="{}"/>
+    <aura:attribute name="allABIlist" type="List" default="[]"/>
+
+    <aura:attribute name="availableABIList" type="List" default="[]"/>
+    <aura:attribute name="activeABIList" type="List" default="[]"/>
+
+    <aura:attribute name="data" type="List" default="[]" access="global"/>
+    <aura:attribute name="abicolumns" type="List" default="[]"/>
+    <!--START Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+    <aura:attribute name="isPricingForBank" type="Boolean" access="global" default="false"/>
+    <!--STOP Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+    <!--START francesca.ribezzi 13/06/2019 Catalog ON-OFF -->
+    <aura:attribute name="showABIlist" type="Boolean" access="global" />
+    <aura:attribute name="selectedBankList" type="sObject[]" default="{}" access="global"/>
+    <!--END francesca.ribezzi 13/06/2019 Catalog ON-OFF -->
+    <!--francesca.ribezzi 03/07/2019 adding setAllCheckboxMatrixTable - F2WAVW2-16 -->
+    <aura:attribute name="setAllCheckboxMatrixTable" type="Boolean"  default="false" access="public" /> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/> 
+    <aura:handler name="change" value="{!v.ABIwithMatrixMap}" action="{!c.updateABImatrixMap}"/>
+     <!--francesca.ribezzi 03/07/2019 adding change handler on setAllCheckboxMatrixTable - F2WAVW2-16 -->
+    <aura:handler name="change" value="{!v.setAllCheckboxMatrixTable}" action="{!c.updateAllCheckbox}"/>
+<!-- checkbox and title-->
+  <div class="slds-grid slds-gutters" style="width:100%;">
+    <div class="slds-size_1-of-2">
+      <span>
+        <div class="slds-col slds-size_1-of-1 slds-p-top_xx-large">
+                <div class="slds-form-element">
+                    <td class="slds-text-align_right" role="gridcell">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="options" id="{!v.recordType}" value="{!v.setAllCheckbox}" checked="{!v.setAllCheckbox}" tabindex="-1" aria-labelledby="check-button-label-03 column-group-header" onchange="{!c.handleSetCheckBoxToAll}"/>
+                            <label class="slds-checkbox__label" for="{!v.recordType}">
+                            <span class="slds-checkbox_faux"></span>
+                            <span class="slds-form-element__label text_class recordTypeTitle">{!v.recordType}</span>
+                            </label>
+                        </div>
+                    </td>
+                </div>
+            </div>
+        </span>
+      </div>
+
+  </div>
+    <table aria-multiselectable="true" class="slds-table slds-truncate slds-table_bordered slds-table_resizable-cols" role="grid"><!--davide.franzini - WN-232 - 01/08/2019 table-fixed class removed and slds-truncate added with css override-->
+        <thead>
+          <tr class="slds-line-height_reset">
+            <th class="slds-text-align_right" scope="col" style="width:3.25rem">
+              <div class="slds-th__action slds-th__action_form">
+              </div>
+            </th>
+            <th aria-label="Name" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col">
+                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                  <span class="slds-truncate" title="Name">{!$Label.c.OB_Name}</span>
+                </div>
+              <div class="slds-resizable">
+                <input type="range" aria-label="Name column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-533" max="1000" min="20" tabindex="0" />
+                <span class="slds-resizable__handle">
+                  <span class="slds-resizable__divider"></span>
+                </span>
+              </div>
+            </th>
+            <!--davide.franzini - WN-124 - 18/07/2019 - START-->
+            <th aria-label="Name" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col">
+              <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                <span class="slds-truncate" title="Name">{!$Label.c.OB_PricingSchemes}</span>
+              </div>
+              <div class="slds-resizable">
+                <input type="range" aria-label="Name column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-533" max="1000" min="20" tabindex="0" />
+                <span class="slds-resizable__handle">
+                  <span class="slds-resizable__divider"></span>
+                </span>
+              </div>
+            </th>
+            <!--davide.franzini - WN-124 - 18/07/2019 - END-->
+            <aura:if isTrue="{!not(v.isPricingForBank)}"><!--Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+              <th aria-label="Name" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col">
+                  <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                      <span class="slds-truncate" title="Name">{!$Label.c.OB_DisplayEditABI} </span>
+                  </div>
+                  <div class="slds-resizable">
+                  <input type="range" aria-label="Name column width" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-533" max="1000" min="20" tabindex="0" />
+                  <span class="slds-resizable__handle">
+                      <span class="slds-resizable__divider"></span>
+                  </span>
+                  </div>
+              </th>
+            </aura:if><!--Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+            </tr>
+        </thead>
+        <tbody>
+           <!-- francesca.ribezzi 13/06/2019 adding aura:if -->
+          <aura:if isTrue="{!or(!empty(v.data), v.isPricingForBank)}">
+              <aura:iteration items="{!v.matrixParameterList}" var="matrix" indexVar="index"> <!--dataForTable-->
+                <aura:if isTrue="{!or(not(v.isPricingForBank),and(v.isPricingForBank, matrix.NE__Active__c == true))}"><!--davide.franzini - F2WAVE2-116 - 12/07/2019-->
+                  <aura:if isTrue="{!matrix.OB_Componente__c != null}"><!--davide.franzini 05/07/2019 -->
+                      <c:OB_SingleMatrixParameter
+                                                  index="{!index}"
+                                                  matrixParameter="{!matrix}" 
+                                                  setAllCheckbox="{!v.setAllCheckbox}" 
+                                                  matrixParameterList="{!v.matrixParameterList}"
+                                                  ABIwithMatrixMap="{!v.ABIwithMatrixMap}"
+                                                  abiListForSingleMatrix="{!v.allABIlist}"
+                                                  availableABIList="{!v.availableABIList}"
+                                                  activeABIList="{!v.activeABIList}" 
+                                                  showABIlist="{!false}"
+                                                  isPricingForBank="{!v.isPricingForBank}"
+                                                  data="{!v.data}"
+                                                  columns="{!v.abicolumns}"
+                                                  selectedBankList="{!v.selectedBankList}"
+                
+                                                  /><!--Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+                                                  <!-- francesca.ribezzi 13/06/19 adding selectedBankList attribute-->
+                
+                  </aura:if>
+                </aura:if>
+              </aura:iteration>
+          </aura:if>
+        </tbody>
+    </table>
+   <!-- <lightning:datatable
+        data="{!v.matrixParameterList}"
+        columns="{!v.columns}"
+        onrowselection="{!c.getSelectedMatrix}"
+        selectedRows="{!v.selectedRows}"
+        keyField="id"
+    />-->
+</aura:component>

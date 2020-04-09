@@ -1,0 +1,73 @@
+<aura:component >
+
+    <aura:registerEvent name="sliderValueChange" type="c:BT_SliderChange" />
+    
+    <aura:attribute name="name" type="String" /> 
+    <aura:attribute name="orientation" type="String" default="horizontal" />
+    <aura:attribute name="label" type="String" required="true" />
+    <aura:attribute name="min" type="Decimal" default="0" />
+    <aura:attribute name="max" type="Decimal" default="100" />
+    <aura:attribute name="showRange" type="Boolean" default="true" />
+    <aura:attribute name="benchmarkMin" type="Decimal" default="0" />
+    <aura:attribute name="benchmarkMax" type="Decimal" default="100" />
+    <aura:attribute name="benchmarkPosition" type="Decimal" access="private" />
+    <aura:attribute name="width" type="Decimal" default="200"/>
+    <aura:attribute name="value" type="Decimal" default="50"/> 
+    <aura:attribute name="step" type="Decimal" default="1" />
+    <aura:attribute name="format" type="String" default="#" />
+    <aura:attribute name="textVariant" type="String" default="base" />
+    <aura:attribute name="yellowThreshold" type="Decimal" default="33" access="private"/>
+    <aura:attribute name="greenThreshold" type="Decimal" access="private"/>
+    <aura:attribute name="benchmarkHelptext" type="String" default="" />
+    <aura:attribute name="subTitle" type="Aura.component[]" default="" />
+    <aura:attribute name="directInput" type="Boolean" default="false" />
+    <aura:attribute name="hasDirectInputError" type="Boolean" default="false" />
+
+    <aura:attribute name="trackColor" type="String" />
+
+    <aura:attribute name="maximumFractionDigits" type="Integer" default="0" />
+    <aura:attribute name="yellowThresholdPercentage" type="Decimal" default="0.33" />
+
+    <aura:attribute name="onchange" type="Object" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.value}" action="{!c.onValueChange}" />
+    
+    <div class="slds-form-element">
+        <label class="slds-form-element__label">
+            <span class="slds-slider-label">
+                <span class="{!'slds-slider-label__label ' + (v.textVariant == 'caps' ? 'slds-text-title_caps' : '')}">
+                    {!v.label}
+                </span>
+                <aura:if isTrue="{!v.showRange}">
+                    <span class="slds-slider-label__range">
+                        <ui:outputNumber value="{!v.min}" format="{!v.format}"/>-<ui:outputNumber value="{!v.max}" format="{!v.format}"/>
+                    </span>
+                </aura:if>
+                <aura:if isTrue="{!not(empty(v.subTitle))}">
+                    <span class="slds-slider-label__range">
+                        {!v.subTitle}
+                    </span>
+                </aura:if>
+            </span>
+        </label>
+        <div class="slds-form-element__control">
+            <div aura:id="slider_div" class="{!'slds-slider ' + (v.orientation == 'vertical' ? 'slds-slider_vertical ' : '') + v.trackColor}">
+                <div class="benchmark" style="{!'bottom: ' + (v.width * (v.benchmarkMin - v.min) / (v.max - v.min) - 20 * (v.benchmarkMin - v.min) / (v.max - v.min) + 10 + 4 * (v.benchmarkMin - v.min) / (v.max - v.min)) + 'px;'}" />
+                <div class="benchmark" style="{!'bottom: ' + (v.width * (v.benchmarkMax - v.min) / (v.max - v.min) - 20 * (v.benchmarkMax - v.min) / (v.max - v.min) + 10 + 4 * (v.benchmarkMax - v.min) / (v.max - v.min)) + 'px;'}" />
+                <aura:if isTrue="{!not(empty(v.benchmarkHelptext))}">
+                    <lightning:helptext content="{!v.benchmarkHelptext}" style="{!'left:20%; position:absolute; bottom: ' + (6 + v.width * (v.benchmarkMax - v.min) / (v.max - v.min) - 20 * (v.benchmarkMax - v.min) / (v.max - v.min) + 10 + 4 * (v.benchmarkMax - v.min) / (v.max - v.min)) + 'px;'}" iconName="utility:info"/>
+                </aura:if>             
+                <input class="slds-slider__range" style="{!'width: ' + v.width + 'px;'}" type="range" value="{!v.value}" min="{!v.min}" max="{!v.max}" step="{!v.step}" oninput="{!c.onInput}" onchange="{!c.onSliderChange}" />
+                <span class="{!'slds-slider__value ' + (v.directInput ? 'direct ' : '') + (v.hasDirectInputError ? 'slds-has-error' : '')}">
+                    <aura:if isTrue="{!v.directInput}">
+                        <ui:inputNumber class="slds-input" value="{!v.value}" format="{!v.format}" change="{!c.onInputNumberChange}" updateOn="keyUp" />
+                        <aura:set attribute="else">
+                            <ui:outputNumber value="{!v.value}" format="{!v.format}" />
+                        </aura:set>
+                    </aura:if>
+                </span>
+            </div>
+        </div>
+    </div>
+</aura:component>

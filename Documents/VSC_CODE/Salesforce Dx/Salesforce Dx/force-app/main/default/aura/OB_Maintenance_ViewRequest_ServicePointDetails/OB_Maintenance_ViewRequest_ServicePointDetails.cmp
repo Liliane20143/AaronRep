@@ -1,0 +1,20 @@
+<aura:component controller ="OB_Maintenance_ServicePointDetails_CC" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global" >
+	<aura:attribute name="recordId" type="String" />
+	<aura:attribute name="currentLogReq" type="OB_LogRequest__c" access="global"/>
+	<aura:attribute name="showServicePointSection" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="showServicePointResponsible" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="showServicePointAdminResponsible" type="Boolean" default="false" access="global"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:if isTrue="{!v.showServicePointSection}">
+		<div class="slds-form slds-form_compound slds-m-bottom_large">
+			<div class="slds-form-element__row">
+				<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+					<lightning:input label="Service Point Name" value="{!v.currentLogReq.OB_ServicePointId__r.Name}" disabled="true"/>
+				</div>
+				<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+					<lightning:input label="Service Point Address" value="{!v.currentLogReq.OB_ServicePointId__r.OB_AddressFormula__c}" disabled="true"/>
+				</div>
+			</div>
+		</div>
+	</aura:if>
+</aura:component>

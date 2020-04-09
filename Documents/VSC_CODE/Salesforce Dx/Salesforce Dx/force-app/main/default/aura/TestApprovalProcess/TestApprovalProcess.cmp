@@ -1,0 +1,9 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes" access="global" controller="TestApprovalProcess">
+
+	<span class="slds-badge..slds-badge_lightest">Test button</span>
+	<br/>
+	<lightning:button variant="destructive" label="Test" title="Test action" onclick="{!c.startProcessInstance}">
+		PUSH
+	</lightning:button>
+	
+</aura:component>

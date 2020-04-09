@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="Plc_OverallStockPercentageWgt">
+    <apiVersion>45.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+    </targets>
+    <!-- Configuring the design attributes --><targetConfigs>
+        <targetConfig targets="lightning__HomePage,lightning__RecordPage">
+            <property name="backgroundColor" type="String" datasource="Light,Dark" label="Choose background color"/>
+            <property name="textColor" type="String" datasource="Red,Green" label="Choose main text color"/>
+            <property name="developerName" type="String" default="" label="Report to open API name"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

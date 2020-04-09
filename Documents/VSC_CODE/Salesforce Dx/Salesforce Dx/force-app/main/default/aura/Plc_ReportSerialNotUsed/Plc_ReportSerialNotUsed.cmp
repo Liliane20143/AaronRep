@@ -1,0 +1,215 @@
+<aura:component description="Plc_ReportSerialNotUsed" controller="Plc_ReportSerialNotUsedCnt" implements="lightning:isUrlAddressable">
+
+    <!-- HANDLERS -->
+    <aura:handler name="init" value="{!this}" action="{!c.handleInitialize}"/>
+    <aura:handler name="change" value="{!v.dealerParentSelected}" action="{!c.handleChangeDealerParent}"/>
+    <aura:handler name="change" value="{!v.dealerChildSelected}" action="{!c.handleChangeDealerChild}"/>
+    <aura:handler name="change" value="{!v.warehouseSelected}" action="{!c.handleChangeWarehouse}"/>
+    <aura:handler name="change" value="{!v.startDate}" action="{!c.handleChangeStartDate}"/>
+    <aura:handler name="change" value="{!v.endDate}" action="{!c.handleChangeEndDate}"/>
+    <aura:handler event="c:Plc_CloseModalEvt" action="{!c.handleCloseModalInfoLimit}"/>
+
+    <!-- ATTRIBUTES for manage data -->
+    <aura:attribute name="tableColumns" type="List" access="private" description="values of table's comuns"/>
+    <aura:attribute name="stockSerialWrapperList" type="List" access="private" description="stock serial list returned by filter"/>
+    <aura:attribute name="statusPicklistValues" type="List" access="private" description="stock serial status picklist values"/>
+    <aura:attribute name="warehouseSelected" type="Bit2Shop__Warehouse__c" access="private" description="warehouse selected from warehouseLookup"/>
+    <aura:attribute name="dealerParentSelected" type="Bit2Shop__Dealer__c" access="private" description="dealer parent selected from dealerParentLookup"/>
+    <aura:attribute name="dealerChildSelected" type="Bit2Shop__Dealer__c" access="private" description="dealer child selected from dealerChildLookup"/>
+    <aura:attribute name="warehouseSelectedId" type="String" access="private" description="warehouse Id selected from warehouseLookup"/>
+    <aura:attribute name="dealerParentSelectedId" type="String" access="private" description="dealer parent Id selected from dealerParentLookup"/>
+    <aura:attribute name="dealerChildSelectedId" type="String" access="private" description="dealer child Id selected from dealerChildLookup"/>
+    <aura:attribute name="dealerChildRecordTypeId" type="String" access="private" description="recordtype Id for dealer child"/>
+    <aura:attribute name="dealerParentRecordTypeId" type="String" access="private" description="recordtype Id for dealer parent"/>
+    <aura:attribute name="startDate" type="Date" access="private" description="start date insert in inputStartDate"/>
+    <aura:attribute name="endDate" type="Date" access="private" description="end date insert in inputEndDate"/>
+    <aura:attribute name="statusSelected" type="String" access="private" description="status selected from statusPicklist" default="New"/>
+    <aura:attribute name="whereConditionWarehouse" type="String" access="private" description="where condition of warehouseLookup" default=" Name LIKE :searchKey "/>
+
+    <!-- ATTRIBUTES for manage modal component -->
+    <aura:attribute name="showModal" type="Boolean" access="private" description="if true enable visibility of modal component" default="false"/>
+    <aura:attribute name="fireEvent" type="Boolean" access="private" description="if true fire event for handle the button OK" default="false"/>
+    <aura:attribute name="typeMessage" type="String" access="private" description="type of message" default="info"/>
+    <aura:attribute name="modalMessage" type="String" access="private" description="message to be displayed in modal component"/>
+
+    <!-- ATTRIBUTES for manage CSV creation -->
+    <aura:attribute name="showModalExportCSV" type="Boolean" access="private" description="if true display modal for export CSV" default="false"/>
+    <aura:attribute name="optionsSeparatorsCSV" type="List" access="private" description="contains options of separators CSV selection"/>
+    <aura:attribute name="separatorCSV" type="String" access="private" description="separator for export CSV" default="semicolon"/>
+    <aura:attribute name="customSeparatorValue" type="String" access="private" description="contains the custom separator value"/>
+
+    <!-- ATTRIBUTE for spinner -->
+    <aura:attribute name="showSpinner" type="Boolean" access="private" description="if true enable spinner" default="false"/>
+
+    <!--SPINNER-->
+    <lightning:spinner aura:id="bwspinner" variant="brand" size="large" class="{!v.showSpinner ? 'spinnerlayer slds-is-fixed' : 'spinnerlayer slds-is-fixed slds-hide'}"/>
+
+    <div class="slds-is-relative slds-card">
+
+        <!-- MODAL EXPORT CSV -->
+        <div role="alertdialog" tabindex="-1" class="{!v.showModalExportCSV ? 'slds-modal slds-fade-in-open slds-modal_prompt' : 'slds-hide'}">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header slds-theme_info slds-theme_alert-texture">
+                    <h2 class="slds-text-heading_medium"> {!$Label.c.Plc_ExportCSV} </h2>
+                </div>
+                <div class="slds-modal__content slds-p-around_medium">
+
+                    <!-- EXPORT CSV RADIOGROUP SELECTOR -->
+                    <lightning:radioGroup name="exportCsvSeparator"
+                                          label="Select the separator for CSV formatting"
+                                          options="{!v.optionsSeparatorsCSV}"
+                                          value="{!v.separatorCSV}"
+                                          type="radio"
+                                          onchange="{!c.handleChangeExportCsvSeparator}"/>
+
+                    <lightning:input class="slds-size_1-of-5" type="text" label="" value="{!v.customSeparatorValue}"
+                                     disabled="{!not(v.separatorCSV == 'custom')}"/>
+
+                </div>
+                <div class="slds-modal__footer slds-theme_default">
+                    <button class="slds-button slds-button_neutral" onclick="{!c.handleCloseModalExportCSV}">{!$Label.c.Plc_Cancel}
+                    </button>
+                    <button class="slds-button slds-button_brand" onclick="{!c.handleExportCSV}">{!$Label.c.Plc_ExportCSV}</button>
+                </div>
+            </div>
+        </div>
+        <div class="{!v.showModalExportCSV ? 'slds-backdrop slds-backdrop_open' : 'slds-hide'}"></div>
+
+        <!--MODAL COMPONENT-->
+        <c:Plc_ModalComponent showModal="{!v.showModal}" type="{!v.typeMessage}" message="{!v.modalMessage}"
+                              fireEvent="{!v.fireEvent}"/>
+
+        <!-- PAGE HEADER -->
+        <div id="headerContainer" tabindex="0" role="heading" class="slds-page-header titleArea">
+            <div class="slds-grid">
+                <div class="slds-col slds-has-flexi-truncate">
+                    <div class="slds-media slds-no-space slds-grow">
+                        <div class="slds-media__figure">
+                            <lightning:icon iconName="standard:report" size="large"/>
+                        </div>
+                        <div class="slds-media__body">
+                            <p class="slds-text-title_caps slds-line-height_reset"> {!$Label.c.Plc_Report} </p>
+                            <h1 role="heading" class="slds-text-heading_large slds-m-right_small slds-align-middle slds-truncate"> {!$Label.c.Plc_SerialsNotUsed} </h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-col_padded slds-no-flex slds-align-bottom">
+                    <span>
+                        <div class="slds-grid">
+                            <div class="slds-col slds-m-right_medium">
+                                <lightning:button class="slds-button_neutral" label="{!$Label.c.Plc_Cancel}" name="cancelButton"
+                                                  type="button" iconName="action:close"
+                                                  onclick="{!c.handleCancelButton}"/>
+                            </div>
+                            <div class="slds-col">
+                                <lightning:button class="slds-button_brand" label="{!$Label.c.Plc_ExportCSV}" name="exportCsvButton"
+                                                  disabled="{!v.stockSerialWrapperList == null || v.stockSerialWrapperList.length == 0}"
+                                                  type="button" iconName="action:download"
+                                                  onclick="{!c.handleShowModalExportCSV}"/>
+                            </div>
+                        </div>
+                    </span>
+                </div>
+            </div>
+            <div class="slds-grid slds-gutters slds-m-top_medium">
+                <div class="slds-col slds-size_3-of-12">
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_12-of-12">
+                            <div class="slds-grid slds-gutters">
+                                <div class="slds-col">
+                                    <lightning:input type="date" name="inputStartDate" label="{!$Label.c.Plc_StartDate}"
+                                                     required="true" value="{!v.startDate}"/>
+                                </div>
+                                <div class="slds-col">
+                                    <lightning:input type="date" name="inputEndDate" label="{!$Label.c.Plc_EndDate}" required="true"
+                                                     value="{!v.endDate}"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_12-of-12">
+                            <lightning:select aura:id='statusPicklist' label="{!$Label.c.Plc_Status}" required="true"
+                                              onchange="{!c.handleChangeStatusPicklistValue}">
+                                <aura:iteration items="{!v.statusPicklistValues}" var="status">
+                                    <option value="{!status.value}">{!status.label}</option>
+                                </aura:iteration>
+                            </lightning:select>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_3-of-12">
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_12-of-12">
+                            <div class="slds-grid slds-gutters">
+                                <div class="slds-col slds-size_6-of-12">
+                                    <c:Plc_CustomLookup aura:id="dealerParentLookup" required="false"
+                                                        disabled="{!and(v.dealerChildSelectedId != null, v.dealerChildSelectedId != '')}"
+                                                        selectedRecord="{!v.dealerParentSelected}"
+                                                        objectAPIName="Bit2Shop__Dealer__c"
+                                                        iconName="custom:custom33" label="{!$Label.c.Plc_ParentDealer}"
+                                                        sObjectFieldToDisplayList="Name"
+                                                        whereCondition="{!' Name LIKE :searchKey AND RecordTypeId = ' + v.dealerParentRecordTypeId}"/>
+                                </div>
+                                <div class="slds-col slds-size_6-of-12">
+                                    <c:Plc_CustomLookup aura:id="dealerChildLookup" required="false"
+                                                        disabled="{!v.dealerParentSelectedId == null || v.dealerParentSelectedId == ''}"
+                                                        selectedRecord="{!v.dealerChildSelected}"
+                                                        objectAPIName="Bit2Shop__Dealer__c"
+                                                        iconName="custom:custom33" label="{!$Label.c.Plc_ChildDealer}"
+                                                        sObjectFieldToDisplayList="Name"
+                                                        whereCondition="{!' Name LIKE :searchKey AND Bit2Shop__Parent_Dealer__c = ' + v.dealerParentSelectedId + ' AND RecordTypeId = ' + v.dealerChildRecordTypeId}"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_12-of-12">
+                            <c:Plc_CustomLookup aura:id="warehouseLookup" required="false"
+                                                selectedRecord="{!v.warehouseSelected}"
+                                                objectAPIName="Bit2Shop__Warehouse__c"
+                                                iconName="custom:custom52" label="{!$Label.c.Plc_warehouse}"
+                                                sObjectFieldToDisplayList="Name"
+                                                whereCondition="{!v.whereConditionWarehouse}"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_3-of-12">
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_12-of-12 slds-m-top_large">
+                            <lightning:button class="slds-button_neutral slds-size_4-of-12 buttonClass" label="{!$Label.c.Plc_Remove}"
+                                              name="removeFilterButton"
+                                              type="button" iconName="action:close" onclick="{!c.handleRemoveFilter}"/>
+                        </div>
+                        <div class="slds-col slds-size_12-of-12 slds-m-top_large">
+                            <lightning:button class="slds-button_brand slds-size_4-of-12 buttonClass" label="{!$Label.c.Plc_Filter}"
+                                              name="applyFilterButton"
+                                              type="button" iconName="action:filter" onclick="{!c.handleApplyFilter}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END PAGE HEADER -->
+
+        <!-- PAGE BODY -->
+        <div class="slds-card slds-p-left_medium slds-p-right_medium slds-p-bottom_small">
+            <div class="slds-grid slds-wrap">
+
+                <!-- TITLE STOCK SERIAL TABLE -->
+                <div class="slds-col slds-size_12-of-12 slds-m-top_large">
+                    <p class="slds-text-title_caps slds-line-height_reset slds-text-title_bold"> {!$Label.c.Plc_NumberOfSerialsNotUsed}: {!if(v.stockSerialWrapperList != null, v.stockSerialWrapperList.length, '0')}</p>
+                </div>
+
+                <!-- STOCK SERIAL TABLE -->
+                <div class="slds-col slds-m-top_medium slds-m-bottom_medium slds-scrollable slds-box_border"
+                     style="height:400px;">
+                    <lightning:datatable keyField="Id" aura:id="stockSerialTable"
+                                         data="{!v.stockSerialWrapperList}"
+                                         columns="{!v.tableColumns}"
+                                         hideCheckboxColumn="true"
+                                         onrowaction="{!c.handleRedirectToSerialLink}"/>
+                </div>
+            </div>
+        </div>
+        <!-- END PAGE BODY -->
+
+    </div>
+
+</aura:component>

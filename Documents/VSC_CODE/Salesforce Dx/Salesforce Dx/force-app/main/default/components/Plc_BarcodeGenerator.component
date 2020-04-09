@@ -1,0 +1,18 @@
+<apex:component controller="Plc_BarcodeGeneratorCnt" access="global">
+
+    <apex:attribute assignTo="{!shouldCheckDigit}" type="boolean" name="checkDigit" default="false" description="True if should append additional check character." />
+
+    <!-- codeValue for the barcode -->
+    <apex:attribute assignTo="{!sourceCodeValue}" type="string" name="codeValue" description="The string to encode." />
+
+    <!-- CSS per creazione barcode -->
+    <apex:stylesheet value="{!URLFOR($Resource.Plc_BarcodeGenerator)}"/>
+
+
+
+    <div>
+        <apex:repeat value="{!barCodeBars}" var="bar">
+            <apex:outputText value="" styleClass="{!if(bar='1','blackbar','whitebar')}" /> <!--{!sourceCodeValue}-->
+        </apex:repeat>
+    </div>
+</apex:component>

@@ -1,0 +1,134 @@
+<aura:component controller="OB_ConfigOfferProductsSellingCC" access="global">
+
+    <aura:attribute name="ABIlist" type="Object[]" default="[]"/>
+    <!--TEMP: adding default id TO TEST DEVF2 -->
+    <aura:attribute name="bundle" type="NE__Bundle__c"  default="{}"/>
+    <aura:attribute name="matrixParameterList" type="List"  default="[]" access="global"/>
+    <aura:attribute name="completedMap" type="Map" default="{}"/>
+    <aura:attribute name="activeABIObj" type="Object[]" default="[]"/>
+    <!--START Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+    <aura:attribute name="goToSaleabilityForBank" type="Boolean" access="global" default="false"/>
+    <aura:attribute name="goToOffers" type="Boolean" access="global" default="false"/>
+    <aura:attribute name="offer" type="NE__Bundle__c" access="global"/>
+    <aura:attribute name="spinner" type="Boolean" default="false"/>
+    <!--STOP Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+    
+    <!--10/06/19 francesca.ribezzi adding ABI attribute-->
+    <aura:attribute name="bankABI" type="String" access="global" default=''/>
+    <!--03/07/19 francesca.ribezzi adding setAllCheckbox attribute to pass to OB_MatrixParameterTable cmp -  F2WAVE2-16 -->
+    <aura:attribute name="setAllCheckboxMatrixTable" type="Boolean"  default="false" access="public" /> <!--access="global"-->
+    <!--11/06/19 francesca.ribezzi test-->
+ <!--   <aura:attribute name="availableABIList" type="List"/>
+    <aura:attribute name="activeABIList" type="List"/>
+    <aura:registerEvent name="sendingABIlists" type="c:OB_ConfigureABIforProductsEvent"/> -->
+     <!--12/06/19 francesca.ribezzi end test-->
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <div class="backgroundDiv"> 
+        <!--START Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+        <div class="goBackBox">
+            <p><span onclick="{!c.goBackToOffertaTable}"><lightning:buttonIcon  iconName="utility:back" size="large" variant="bare" alternativeText="Back" iconClass="blueIcon" /><span class="goBackText"> {!$Label.c.OB_OffersCatalogNEXI}</span></span></p>
+        </div>
+        <!--STOP Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+        <aura:if isTrue="{!not(v.goToSaleabilityForBank)}"><!--Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+            <div class="slds-page-header">        
+                <h1>
+                    <span class="slds-page-header__title slds-truncate" title="Config prod">{!$Label.c.OB_ConfigureOfferComponents}</span>
+                    <hr style="margin-top: 10px; margin-bottom: 10px;"/>
+                </h1>
+                <p>{!$Label.c.OB_OfferConfigDescription}</p>                 
+            </div>
+            <div class="slds-grid slds-wrap slds-gutters">
+                <div class="slds-col slds-size_1-of-1">
+                    <button class="slds-button slds-button_neutral" onclick="{!c.cloneMatrixParameterJS}">
+                        <lightning:icon class="clone" iconName="standard:drafts" size="small" alternativeText="clone!"/> 
+                        &nbsp;{!$Label.c.OB_CopyConfiguration} 
+                    </button>
+                </div>
+
+                <!--START francesca.ribezzi 03/07/19 - F2WAVE2-16 -->
+                <div class="slds-col slds-size_1-of-1 slds-p-top_x-large">
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control">
+                            <div class="slds-checkbox">
+                                <input type="checkbox" id="allOptionsCheckBox" name="all options" value="{!v.setAllCheckboxMatrixTable}" checked="{!v.setAllCheckboxMatrixTable}" onchange="{!c.handleSetCheckBoxToAllComponents}"/>
+                                <label class="slds-checkbox__label" for="allOptionsCheckBox">
+                                    <span class="slds-checkbox_faux"></span>
+                                    <span class="slds-form-element__label text_class">{!$Label.c.OB_SelectAllComponents}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--END francesca.ribezzi 03/07/19 - F2WAVE2-16 -->
+                <aura:iteration items="{!v.matrixParameterList}" var="matrix">
+                    <aura:if isTrue="{!matrix.recordType != 'Offer'}"><!--davide.franzini - WN-124 - 18/07/2019 -->
+                        <c:OB_MatrixParameterTable ABIwithMatrixCompletedMap="{!v.completedMap}" 
+                                                    matrixParameterList="{!matrix.matrixParameters}" 
+                                                    recordType="{!matrix.recordType}"
+                                                    allABIlist="{!v.ABIlist}"
+                                                    setAllCheckboxMatrixTable="{!v.setAllCheckboxMatrixTable}"/> <!--francesca.ribezzi 03/07/19 adding setAllCheckboxMatrixTable - F2WAVE2-16 -->
+                    </aura:if>
+                </aura:iteration>
+            </div>
+            <!--START Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+            <aura:set attribute="else">
+                <!--START Andrea Saracini 28/05/2019 Catalog ON-OFF -->
+                <aura:if isTrue="{!v.spinner}">
+                    <div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+                        <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                            <span class="slds-assistive-text">Loading...</span>
+                            <div class="slds-spinner__dot-a"></div>
+                            <div class="slds-spinner__dot-b"></div>
+                        </div>
+                    </div>
+                </aura:if> 
+                <!--STOP Andrea Saracini 28/05/2019 Catalog ON-OFF -->
+                <!--div class="slds-card__body">    
+                    <div class="goBackBox">
+                        <p><span onclick="{!c.goBackToOffertaTable}"><lightning:buttonIcon  iconName="utility:back" size="large" variant="bare" alternativeText="Back" iconClass="blueIcon" /><span class="goBackText"> {!$Label.c.OB_OffersCatalogNEXI}</span></span></p>
+                    </div-->
+                    <div class="slds-page-header">        
+                        <h1>
+                            <span class="slds-page-header__title slds-truncate" title="Config prod">{!$Label.c.OB_SaleabilityVerifyConf}  </span>
+                            <hr style="margin-top: 10px; margin-bottom: 10px;"/>
+                        </h1>
+                        <span><p class="offerName">{!v.offer.Name}</p></span>                                    
+                    </div>
+                <!--/div-->
+                <div class="slds-grid slds-wrap slds-gutters">
+                    <div class="slds-col slds-size_1-of-3 marginTop">
+                        <div>
+                            <lightning:button name="activeConf" class="slds-button slds-button_brand buttonActiveStyle" onclick="{!c.cloneMatrixParameterRowsJS}">
+                                <lightning:buttonIcon class="removeBorder" iconClass="greenIcon" iconName="utility:check" size="large" alternativeText="Active Offer!"/> 
+                                {!$Label.c.OB_ConfirmConfiguration} 
+                            </lightning:button>
+                        </div>
+                        <p><i>{!$Label.c.OB_ApproveConfigDesc}</i></p>
+                        <!--START francesca.ribezzi 18/06/19-->
+                        <aura:if isTrue="{!v.goToSaleabilityForBank}">
+                            <div>
+                                <lightning:button name="rejectConf" class="slds-button slds-button_neutral buttonRejectStyle" onclick="{!c.rejectConfiguration}"><!--davide.franzini - 11/07/19 - F2WAVE2-117 - added onClick method-->
+                                    <lightning:buttonIcon class="removeBorder" iconClass="redIcon" iconName="utility:close" size="large" alternativeText="Reject Offer!"/> 
+                                    {!$Label.c.OB_RejectConfiguration}  
+                                </lightning:button>
+                            </div>
+                        </aura:if>
+                        <!--END francesca.ribezzi 18/06/19-->
+                    </div>  
+                    <div class="slds-col slds-size_2-of-3">
+                        <aura:iteration items="{!v.matrixParameterList}" var="matrix">
+                            <c:OB_MatrixParameterTable ABIwithMatrixCompletedMap="{!v.completedMap}" 
+                                                        matrixParameterList="{!matrix.matrixParameters}" 
+                                                        recordType="{!matrix.recordType}"
+                                                        allABIlist="{!v.ABIlist}"
+                                                        isPricingForBank="{!v.goToSaleabilityForBank}"/>
+                        </aura:iteration>
+                    </div> 
+                </div>
+            </aura:set>
+            <!--STOP Andrea Saracini 20/05/2019 Catalog ON-OFF -->
+        </aura:if><!--Andrea Saracini 20/05/2019 Catalog ON-OFF -->    
+    </div>     
+</aura:component>

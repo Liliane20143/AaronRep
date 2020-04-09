@@ -1,0 +1,143 @@
+.THIS .form {
+    height: 200px;
+    width: 100%;
+}
+
+.THIS .tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.THIS.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.THIS .tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+.THIS .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+.THIS .search-cf-button
+{        
+    margin-top: 21px;
+    margin-left: 15%
+}
+
+.THIS .search-cf-button-container
+{
+    text-align: -webkit-center;
+}
+
+.THIS .error-input-message
+{
+    position: absolute;
+    z-index: 1;
+}
+
+.THIS .slds-spinner_container
+{
+    position: absolute;
+    z-index: 1;
+}
+
+.THIS .lens-search-button
+{
+    margin-top: 20.5px !important;
+    margin-left: 3px !important;
+}
+
+.THIS .lens-search-button button 
+{
+    width: 35px;
+    margin-left: -6px;
+}
+
+.THIS .lens-search-button button svg
+{
+    margin-left: -6px;
+}
+
+.THIS .slds-has-error
+{
+    border-color: rgb(194, 57, 52)!important;
+    box-shadow: rgb(194, 57, 52) 0 0 0 1px inset!important;
+
+    background-color: rgb(255, 255, 255);
+    width: 100%;
+    line-height: 1.875rem;
+    min-height: calc(1.875rem + 2px);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(212, 212, 212);
+    border-image: initial;
+    border-radius: 0.25rem;
+    transition: border 0.1s linear 0s, background-color 0.1s linear 0s;
+    padding: 0px 1rem 0px 0.75rem;
+}
+
+.THIS .slds-has-error:disabled
+{
+    cursor: not-allowed!important;
+    border-color: rgb(194, 57, 52)!important;
+    box-shadow: rgb(194, 57, 52) 0 0 0 1px inset!important;
+
+    background-color: #E9EAEC!important;
+    width: 100%;
+    line-height: 1.875rem;
+    min-height: calc(1.875rem + 2px);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(212, 212, 212);
+    border-image: initial;
+    border-radius: 0.25rem;
+    transition: border 0.1s linear 0s, background-color 0.1s linear 0s;
+    padding: 0px 1rem 0px 0.75rem;
+}
+
+.THIS .countryinputsearch input
+
+{
+
+               border-top-right-radius: 0!important;
+
+    border-bottom-right-radius: 0!important;
+
+}
+
+.THIS .lens-search-country-button
+
+{
+
+               width: 51px!important;
+
+    height: 32px!important;
+
+    border-top-left-radius: 0!important;
+
+    border-bottom-left-radius: 0!important;
+
+}

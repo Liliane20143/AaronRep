@@ -1,0 +1,10 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="AutoCompleteComponentController">
+
+    <aura:method name="getResponse" description="{! getResponse}" >
+        <aura:attribute name="method" type="String" default="GET" />
+        <aura:attribute name="url" type="String" />
+        <aura:attribute name="async" type="Boolean" default="true" />
+        <aura:attribute name="response" type="Object" default="{}" access="global" />
+    </aura:method>
+	
+</aura:component>

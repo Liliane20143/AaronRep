@@ -1,0 +1,11 @@
+<!--
+ - Created by Joanna Mielczarek <joanna.mielczarek@accenture.com> on 07.05.2019.
+ -->
+
+<aura:component description="OB_OperationalDataStep" access="global" controller="OB_LCC005_OperationalData"
+                implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable,force:hasRecordId" >
+
+    <aura:attribute name="objectDataMap" type="Object" description="Map of Order data" access="global" />
+    <aura:handler name="init" action="{! c.doInit }" value="{! this }" />
+
+</aura:component>

@@ -1,0 +1,92 @@
+<!--
+ - Created by joanna.mielczarek on 27.05.2019.
+ -->
+
+<aura:component description="OB_LCP006_MCCSearch" >
+
+    <aura:attribute type="Boolean" name="isMCCDisabled" access="global" description="Controls selecting MCC" />
+    <aura:attribute type="Boolean" name="isMCCModalOpen" access="global" description="Controls opening modal with MCC" />
+    <aura:attribute type="Boolean" name="isChecked" access="global" description="Controls checkbox value" />
+
+    <aura:attribute type="String" name="MCCL2input" access="global" description="Input value of MCC L2 code"/>
+    <aura:attribute type="String" name="MCCL3input" access="global" description="Input value of MCC L3 code"/>
+    <aura:attribute type="String" name="level" access="global" description="Level of Lov" />
+
+    <lightning:layout verticalAlign="center">
+
+        <lightning:layoutItem size="1">
+            <lightning:input aura:id="MCCCheck" type="checkbox" name="MCCCheck" label=""
+                             class="slds-p-vertical_small"
+                             checked="{! v.isChecked }" onchange="{! c.writableMCC }"
+            />
+        </lightning:layoutItem>
+
+        <lightning:layoutItem size="11" >
+
+            <lightning:layout>
+
+                <lightning:layoutItem size="6" padding="horizontal-medium">
+                    <lightning:layout multipleRows="true" >
+                        <lightning:layoutItem size="12">
+                            <label for="inputNameSample1 " class="slds-form-element__label">
+                                <abbr class="slds-required" title="required">*</abbr>
+                                    {! $Label.c.OB_MCC_DescriptionL2 }
+                            </label>
+                        </lightning:layoutItem>
+                        <lightning:buttonGroup >
+                            <lightning:layoutItem>
+                                <lightning:input aura:id="mccDescription2"
+                                                 id="mccDescription2"
+                                                 variant="label-hidden"
+                                                 name="searchInput"
+                                                 value="{! v.MCCL2input }"
+                                                 disabled="true"
+                                />
+                            </lightning:layoutItem>
+                            <lightning:layoutItem>
+                                <lightning:button variant="neutral"
+                                                  onclick="{! c.openModalMCCL2 }"
+                                                  iconName="utility:search"
+                                                  disabled="{! v.isMCCDisabled }"
+                                />
+                            </lightning:layoutItem>
+                        </lightning:buttonGroup>
+                    </lightning:layout>
+                </lightning:layoutItem>
+
+                <lightning:layoutItem size="6">
+                    <lightning:layout multipleRows="true" >
+                        <lightning:layoutItem size="12">
+                            <label for="inputNameSample1 " class="slds-form-element__label" value="{!$Label.c.OB_MCC_Description}">
+                                <abbr class="slds-required" title="required">*</abbr>
+                                    {! $Label.c.OB_MCC_DescriptionL3 }
+                            </label>
+                        </lightning:layoutItem>
+                        <lightning:buttonGroup >
+                            <lightning:layoutItem>
+                                <lightning:input aura:id="mccDescription3"
+                                                 id="mccDescription3"
+                                                 variant="label-hidden"
+                                                 name="searchInput"
+                                                 value="{! v.MCCL3input }"
+                                                 disabled="true"
+                                />
+                            </lightning:layoutItem>
+                            <lightning:layoutItem>
+                                <lightning:button variant="neutral"
+                                                  onclick="{! c.openModalMCCL3 }"
+                                                  iconName="utility:search"
+                                                  disabled="{! v.isMCCDisabled }"
+                                />
+                            </lightning:layoutItem>
+                        </lightning:buttonGroup>
+                    </lightning:layout>
+                </lightning:layoutItem>
+
+            </lightning:layout>
+
+        </lightning:layoutItem>
+
+    </lightning:layout>
+
+</aura:component>

@@ -1,0 +1,338 @@
+<!--
+/**
+ * *************************************************
+ *     * @Author marco.lebellini@/webresults.it
+ *     * @date  31/01/2019 17:32
+ *     * @description Component to manage the receiving/releasing of goods
+ *     * @Modified by
+ *   ***********************************************
+ **/
+ -->
+<aura:component description="Plc_GoodsReceiving" controller="Plc_GoodsReceivingCnt" extends="c:Plc_BaseGoodsManagement">
+
+    <!-- Default Stock Order for test a1w1j0000008mO0AAI -->
+    <!-- Default Shipment for test a1s1j0000004UEsAAM -->
+    <aura:attribute name="sourceStockOrderId" type="String" access="public"
+                    description="Parent Stock Order (multi Shipment scenario)"/>
+    <aura:attribute name="sourceShipmentId" type="String" access="public"
+                    description="Parent Shipment (single shipment scenario)"/>
+
+    <aura:attribute name="inputSearch"
+                    type="String"
+                    access="public"
+                    description="Contains the string to search"
+                    default=""/>           
+
+
+    <!-- START Private attributes -->
+    <aura:attribute name="availableGoods" type="List" access="private"
+                    description="Total inbound goods from Shipment line items from single shipment or List of Shipment in Stock Order related list"/>
+    <aura:attribute name="acceptedGoods" type="List" access="private"
+                    description="Accepted goods from inbound goods list"/>
+    <aura:attribute name="rejectedGoods" type="List" access="private"
+                    description="Rejected goods from inbound goods list"/>
+
+    <aura:attribute name="dataLoaded" type="Boolean" access="private" default="false"
+                    description="Initial attribute for load all values necessary for the process"/>
+
+    <aura:attribute name="availableGoodsGridColumns" type="List" access="private"
+                    description="JSON containing inbound Goods Data Table Columns Structure"/>
+
+    <aura:attribute name="manageGoodsGridColumns" type="List" access="private"
+                    description="JSON containing Accepted/Rejected Data Table Columns Structures"/>
+
+    <aura:attribute name="acceptedGoodsGridColumns" type="List" access="private"
+                    description="JSON containing Accepted/Rejected Data Table Columns Structures"/>
+
+    <aura:attribute name="rejectedGoodsGridColumns" type="List" access="private"
+                    description="JSON containing Accepted/Rejected Data Table Columns Structures"/>
+
+    <aura:attribute name="wizardIsOpenedFromSingleShipment" type="Boolean" access="private"
+                    description="Check if wizard opens from Work Order or from Single Shipment"/>
+
+    <aura:attribute name="sourceWH" type="String" access="private" description="Shipment Source Warehouse"/>
+    <aura:attribute name="sourceShipment" type="String" access="private"
+                    description="Parent Shipment for single selection only Source Warehouse"/>
+    <aura:attribute name="transferDetail" type="String" access="private" description="Stock Order Transfer Type"/>
+    <aura:attribute name="sourceDealer" type="String" access="private" description="Source Dealer"/>
+    <aura:attribute name="queryFilterForStockSerials" type="String" access="private"
+                    description="Added to configuration Map Key SLI_StockSerials"/>
+    <aura:attribute name="queryFilterForProductStocks" type="String" access="private"
+                    description="Added to configuration Map Key SLI_ProductStocks"/>
+
+    <aura:attribute name="stockOrderStatus" type="String" access="private"
+                    description="stock Oder Status"/>
+    <!-- FB 05-11-2019 : NEXIPLC-742 [START] -->
+    <aura:attribute name="rowsToAcceptSize" type="Integer" access="private" default="50"
+                    description="Number of rows to be accepted by dedicated button"/>
+    <!-- FB 05-11-2019 : NEXIPLC-742 [END] -->
+    <!-- END Private attributes -->
+    <!-- START Visibility attributes -->
+    <aura:attribute name="showPopup" type="Boolean" access="private" description="Boolean to drive Popup visibility"/>
+    <aura:attribute name="showQuantityPopup" type="Boolean" access="private"
+                    description="Boolean to drive quantity election Popup visibility"/>
+    <aura:attribute name="showPopupAnnullButton" type="Boolean" access="private"
+                    description="Hide or Show popup Annull Button"/>
+    <aura:attribute name="selectedQuantityVal" type="Integer" access="private" default="0"
+                    description="Selected Quantity on popup"/>
+    <aura:attribute name="selectedRow" type="Object" access="private" description="Table Selected Row"/>
+    <aura:attribute name="searchInputValue" type="String" access="private"
+                    description="String searched on Serials search input box"/>
+    <aura:attribute name="actionTypeOnAvailableGood" type="Object" access="private"
+                    description="Type of action made on available goods table"/>
+    <aura:attribute name="popupMessage" type="String" access="private" description="Message showed by Popup"/>
+    <aura:attribute name="savingErrorMessage" type="String" access="private" default=""
+                    description="Saving Error Message"/>
+
+    <aura:attribute name="errorsOnWizard" type="Boolean" default="false" access="private"
+                    description="Indicates if there are errors on wizard"/>
+    <aura:attribute name="wizardDataAreChanged" type="Boolean" default="false" access="private"
+                    description="Indicates something is modified on wizard"/>
+    <aura:attribute name="availableGoodsInitialRowsTotal" type="Boolean" access="private"
+                    description="Indicates if there are errors on wizard"/>
+    <aura:attribute name="acceptedGoodsInitialRowsTotal" type="Boolean" access="private"
+                    description="Indicates if there are errors on wizard"/>
+    <aura:attribute name="rejectedGoodsInitialRowsTotal" type="Boolean" access="private"
+                    description="Indicates if there are errors on wizard"/>
+    <!-- FB 22-08-2019 : NEXIPLC-673 [START] -->
+    <aura:attribute name="showAcceptAllButton" type="Boolean" access="private"
+                    description="Indicates if accept all button can be showed"/>
+    <aura:attribute name="availableSelectedRows" type="List" default="[]" access="private"
+                    description="Selected rows in the datatable of available materials"/>                
+    <!-- FB 22-08-2019 : NEXIPLC-673 [END] -->
+    <!-- FB 20191203 NEXIPLC-742 [START] -->
+    <aura:attribute name="showTableSpinner" type="Boolean" access="private" default="false"
+                    description="Indicates if the table spinners are shown"/>
+    <!-- FB 20191203 NEXIPLC-742 [END] -->
+    <!-- END Visibility attributes -->
+
+    <!-- STARTFIX - Andrea Liverani - [20190306AL] - 06/03/2019 -->
+    <aura:handler name="change" value="{!v.availableGoods}" action="{!c.handleChangeAvailableGoods}"/>
+    <aura:handler name="change" value="{!v.acceptedGoods}" action="{!c.handleChangeAcceptedGoods}"/>
+    <aura:handler name="change" value="{!v.rejectedGoods}" action="{!c.handleChangeRejectedGoods}"/>
+
+    <aura:attribute name="availableGoodsQuantity" type="Decimal" access="private" description="Sum of available qt of availableGoods list"/>
+    <aura:attribute name="acceptedGoodsQuantity" type="Decimal" access="private" description="Sum of received qt of acceptedGoods list"/>
+    <aura:attribute name="rejectedGoodsQuantity" type="Decimal" access="private" description="Sum of rejected qt of rejectedGoods list"/>
+    <aura:attribute name="skipCheck" type="Boolean" access="public" description="Boolean to check to skip" default="false"/>
+    <!-- END - Andrea Liverani - [20190306AL] - 06/03/2019 -->
+
+    <!-- START Base Wizard attributes set up -->
+    <aura:set attribute="title" value="{!$Label.c.Plc_GoodsReceiving}"/>
+    <aura:set attribute="isNextVisible" value="false"/>
+    <aura:set attribute="isBackVisible" value="false"/>
+    <aura:set attribute="wizardDataAreChanged" value="false"/>
+    <aura:set attribute="isSaveEnabled" value="{!and(v.wizardDataAreChanged,not(v.errorsOnWizard))}"/>
+    <aura:set attribute="uploadCsvIsVisible" value="false"/>
+    <aura:set attribute="serialStatusFilterIsVisible" value="false"/>
+    <aura:set attribute="manufacturerFilterIsVisible" value="false"/>
+    <aura:set attribute="rangeSerialA_DA_AreVisible" value="false"/>
+    <aura:set attribute="searchOnLoad" value="false"/>
+    <aura:set attribute="showButtonsUpOrDown" value="up"/>
+    <aura:set attribute="selectedQuantityVal" value="0"/>
+    <aura:set attribute="isFilterVisible" value="false"/>
+    <!-- END Base Wizard attributes set up -->
+
+    <aura:handler name="init" value="{!this}" action="{!c.handleInit}"/>
+    <aura:handler event="c:Plc_FilterEvt" action="{!c.handleFilterComponent}"/>
+
+    <!-- START Info/error Message Popup -->
+    <div role="alertdialog" tabindex="-1"
+         class="{!or(v.showPopup, v.showQuantityPopup) ? 'slds-modal slds-fade-in-open slds-modal--prompt' : 'slds-hide'}"
+         aria-labelledby="header43">
+        <div class="slds-modal__container">
+            <div class="slds-modal__header slds-theme--info slds-theme--alert-texture">
+                <h2 id="header43" class="slds-text-heading--medium">{!$Label.c.Plc_GoodsReceiving}</h2>
+            </div>
+            <div class="slds-modal__content slds-p-around--medium slds-text-align--center">
+                <div class="slds-text-align--center">
+                    <ui:outputRichText value="{!v.popupMessage}"/>
+                    <aura:if isTrue="{!v.showQuantityPopup}">
+                        <div class="slds-size--1-of-4" style="margin-left: 38%">
+                            <ui:inputText aura:id="qtSelectionInput" class="slds-m-right--small"
+                                          label="{!$Label.c.Plc_QuantitySelection}"
+                                          value="{!v.selectedQuantityVal}"
+                                          change="{!c.checkQuantitySelection}"/>
+                        </div>
+                    </aura:if>
+                </div>
+            </div>
+            <div class="slds-modal__footer slds-theme--default">
+                <button class="{!v.showPopupAnnullButton ? 'slds-button slds-button--neutral' : 'slds-hide'}"
+                        onclick="{!c.handleClosePopupByCancel}">{!$Label.c.Plc_Cancel}
+                </button>
+                <button class="slds-button slds-button--neutral"
+                        onclick="{!c.handleClosePopUpByOk}">{!$Label.c.Plc_OK}</button>
+            </div>
+        </div>
+    </div>
+    <div class="{!v.viewPopUp ? 'slds-backdrop slds-backdrop--open' : 'slds-hide'}"></div>
+    <!-- END Info/error Message Popup -->
+
+    <!-- HEADER GRID-->
+    <lightning:layout class="slds-wrap" multipleRows="true">
+        <lightning:layoutItem size="3">
+            <lightning:input aura:id="sourceDealerInput" class=""
+                             label="{!$Label.c.Plc_SourceDealer}"
+                             type="text"
+                             variant="standard"
+                             disabled="true"
+                             value="{!v.sourceDealer}"/>
+        </lightning:layoutItem>
+
+        <lightning:layoutItem size="3">
+            <lightning:input aura:id="sourceWHInput" class="slds-m-left_large"
+                             label="{!$Label.c.Plc_SourceWarehouse}"
+                             type="text"
+                             variant="standard"
+                             disabled="true"
+                             value="{!v.sourceWH}"/>
+        </lightning:layoutItem>
+
+        <lightning:layoutItem size="3">
+            <lightning:input aura:id="transferDetailInput" class="slds-m-left_large"
+                             label="{!$Label.c.Plc_TransferDetail}"
+                             type="text"
+                             variant="standard"
+                             disabled="true"
+                             value="{!v.transferDetail}"/>
+        </lightning:layoutItem>
+    </lightning:layout>
+    <!--END HEADER GRID-->
+
+    <!--START FILTER COMPONENT -->
+    <lightning:layout class="slds-m-top--medium" multipleRows="true">
+        <div class="slds-col">
+            <c:Plc_FilterCmp aura:id="filter-cmp"
+                             configuationMap="{!v.searchConfigurationMap}"
+                             inputSearchIsVisible="{!v.inputSearchIsVisible}"
+                             inputSearch="{!v.inputSearch}"
+                             rangeSerialA_DA_AreVisible="false"
+                             manufacturerFilterIsVisible="false"
+                             serialStatusFilterIsVisible="false"
+                             uploadCsvIsVisible="false"
+                             showButtonsUpOrDown="up"
+                             disableRemoveFilterButton="false"
+                             disableApplyFilterButton="false"
+                             searchOnLoad="{!v.searchOnLoad}"
+                             warehouseId="{!v.warehouseId}"
+                             stockSerialStatus="{!v.stockSerialStatus}"/>
+        </div>
+    </lightning:layout>
+    <!--END FILTER COMPONENT -->
+
+    <!--GOODS LIST GRID (AVAILABLE, ACCEPTED AND REJECTED -->
+    <div class="slds-grid slds-wrap">
+
+        <div class="slds-col slds-size--12-of-12 slds-m-top--x-large">
+            <!-- FB 22-08-2019 : NEXIPLC-673 [START] -->
+            <!-- STARTFIX - Andrea Liverani - [20190306AL] - 06/03/2019 - added label total and availableGoodsQuantity -->
+            <span class="slds-text-title_caps slds-line-height_reset slds-text-title_bold">{!$Label.c.Plc_AvailableGoods} - {!$Label.c.Plc_Total} : {!v.availableGoodsQuantity} </span>
+            <!-- ENDFIX - Andrea Liverani - [20190306AL] - 06/03/2019 -->
+            <aura:if isTrue="{!v.showAcceptAllButton}">
+                <lightning:buttonGroup>
+                    <lightning:button iconName="action:check"
+                                    label="{!$Label.c.Plc_AcceptSelected + ' ' + (v.availableSelectedRows.length == 0 ? '' : '(' + v.availableSelectedRows.length + ')')}"
+                                    class="slds-m-left_medium"
+                                    onclick="{!c.handleAcceptSelected}"
+                                    disabled="{!v.availableSelectedRows.length == 0 || v.showTableSpinner}"/>
+                    <!-- FB 05-11-2019 : NEXIPLC-742 [START] -->
+                    <lightning:button iconName="utility:multi_select_checkbox"
+                                    label="{!$Label.c.Plc_Accept + ' (' + v.rowsToAcceptSize + ')'}"
+                                    class="slds-m-left_x-small"
+                                    onclick="{!c.handleAcceptAll}"
+                                    disabled="{!v.availableGoods.length == 0 || v.showTableSpinner}"/>
+                    <!-- FB 05-11-2019 : NEXIPLC-742 [END] -->
+                </lightning:buttonGroup>
+            </aura:if>
+            <!-- FB 22-08-2019 : NEXIPLC-673 [END] -->
+        </div>
+        <div class="slds-box_border slds-col slds-m-top--medium slds-m-bottom--medium slds-scrollable slds-is-relative"
+             style="height:200px;">
+
+             <!-- FB 20191203 NEXIPLC-742 [START] -->
+            <div class="{!v.showTableSpinner ? '' : 'slds-hide'}">
+                <lightning:spinner variant="brand" size="small" alternativeText="text"/>
+            </div>
+            <!-- FB 20191203 NEXIPLC-742 [END] -->
+
+             <!-- TODO VISIBILITA SELEZIONE RIGHE -->
+            <lightning:datatable aura:id="availableGoodsTable"
+                                 keyField="sliId"
+                                 data="{!v.availableGoods}"
+                                 hideCheckboxColumn="{!not(v.showAcceptAllButton)}"
+                                 showRowNumberColumn="false"
+                                 columns="{!v.availableGoodsGridColumns}"
+                                 onrowaction="{!c.handleAvailableGoodsRowAction}"
+                                 onsave="{!c.handleOnSaveAvailableGoodsTable}"
+                                 oncellchange="{!c.handleOnCellChange}"
+                                 onrowselection="{!c.handleAvailableRowSelection}"/>
+        </div>
+
+        <div class="slds-col slds-size--12-of-12 slds-m-top--x-large">
+            <!-- FB 22-08-2019 : NEXIPLC-673 [START] -->
+            <!-- STARTFIX - Andrea Liverani - [20190306AL] - 06/03/2019 - added label total and acceptedGoodsQuantity -->
+            <span class="slds-text-title--caps slds-line-height--reset slds-text-title_bold">{!$Label.c.Plc_AcceptedGoods} - {!$Label.c.Plc_Total} : {!v.acceptedGoodsQuantity}</span>
+            <!-- ENDFIX - Andrea Liverani - [20190306AL] - 06/03/2019 -->
+            <aura:if isTrue="{!v.showAcceptAllButton}">
+                <lightning:button iconName="action:lead_convert"
+                                  label="{!$Label.c.Plc_UndoAll}"
+                                  class="slds-m-left_medium"
+                                  onclick="{!c.handleDeselectAllAccepted}"
+                                  disabled="{!v.acceptedGoods.length == 0 || v.showTableSpinner}"/>
+            </aura:if>
+            <!-- FB 22-08-2019 : NEXIPLC-673 [END] -->
+        </div>
+
+        <div class="slds-box_border slds-col slds-m-top--medium slds-m-bottom--medium slds-scrollable slds-is-relative"
+             style="height:200px;">
+
+            <!-- FB 20191203 NEXIPLC-742 [START] -->
+            <div class="{!v.showTableSpinner ? '' : 'slds-hide'}">
+                <lightning:spinner variant="brand" size="small" alternativeText="text"/>
+            </div>
+            <!-- FB 20191203 NEXIPLC-742 [END] -->
+            <lightning:datatable aura:id="acceptedGoodsTable"
+                                 keyField="sliId"
+                                 data="{!v.acceptedGoods}"
+                                 hideCheckboxColumn="true"
+                                 showRowNumberColumn="false"
+                                 columns="{!v.acceptedGoodsGridColumns}"
+                                 onrowaction="{!c.handleAcceptedGoodsRowAction}"
+            />
+        </div>
+
+        <div class="slds-col slds-size--12-of-12 slds-m-top--x-large">
+            <!-- STARTFIX - Andrea Liverani - [20190306AL] - 06/03/2019 - added label total and rejectedGoodsQuantity -->
+            <!-- FB 22-08-2019 : NEXIPLC-673 [START] -->
+            <span class="slds-text-title--caps slds-line-height--reset slds-text-title_bold">{!$Label.c.Plc_RejectedGoods} - {!$Label.c.Plc_Total} : {!v.rejectedGoodsQuantity}</span>
+            <!-- ENDFIX - Andrea Liverani - [20190306AL] - 06/03/2019 -->
+            <aura:if isTrue="{!v.showAcceptAllButton}">
+                <lightning:button iconName="action:lead_convert"
+                                  label="{!$Label.c.Plc_UndoAll}"
+                                  class="slds-m-left_medium"
+                                  onclick="{!c.handleDeselectAllRejected}"
+                                  disabled="{!v.rejectedGoods.length == 0 || v.showTableSpinner}"/>
+            </aura:if>
+            <!-- FB 22-08-2019 : NEXIPLC-673 [END] -->
+        </div>
+
+        <div class="slds-box_border slds-col slds-m-top--medium slds-m-bottom--medium slds-scrollable slds-is-relative"
+             style="height:200px;">
+             <!-- FB 20191203 NEXIPLC-742 [START] -->
+            <div class="{!v.showTableSpinner ? '' : 'slds-hide'}">
+                <lightning:spinner variant="brand" size="small" alternativeText="text"/>
+            </div>
+            <!-- FB 20191203 NEXIPLC-742 [END] -->
+            <lightning:datatable aura:id="rejectedGoodsTable"
+                                 keyField="sliId"
+                                 data="{!v.rejectedGoods}"
+                                 hideCheckboxColumn="true"
+                                 showRowNumberColumn="false"
+                                 columns="{!v.rejectedGoodsGridColumns}"
+                                 onrowaction="{!c.handleRejectedGoodsRowAction}"/>
+        </div>
+    </div>
+    <!--END GOODS LIST GRID (INBOUND, ACCEPTED AND REJECTED -->
+
+</aura:component>

@@ -1,0 +1,144 @@
+<!-- Component used to consolidate Product Stock -->
+<aura:component controller="Plc_ProductStockConsolidationCnt" implements="lightning:isUrlAddressable">
+    <!-- Declaring attributes -->
+    <aura:attribute access="private" name="translationMap" type="Map" default="{}" description="Contains tranlated label got from server call in the init function" />
+    <aura:attribute access="private" name="propertiesMap" type="Map" default="{}" description="Contains some context and utility data" />
+    <aura:attribute access="private" name="selectedWarehouse" type="Object" default="{}" description="Selected Bit2Shop__Warehouse__c item" />
+    <aura:attribute access="private" name="searchKey" type="Object" default="" description="Search key used to filter the product stocks table" />
+    <aura:attribute access="private" name="productStocksList" type="List" default="[]" description="Contains the list of Product Stock retrieved from server" />
+    <aura:attribute access="private" name="snapshotToCreateSize" type="Integer" default="0" description="Number of Product Stock Snapshot that will be created" />
+    <!-- Declaring datatable attributes -->
+    <aura:attribute access="private" name="columns" type="List" default="[]" description="Data table columns describer" />
+    <aura:attribute access="private" name="sortedBy" type="String" description="Selected field for sorting" />
+    <aura:attribute access="private" name="sortedDirection" type="String" description="Sorting direction for selected field" />
+    <!-- Declaring handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.handleInit}"/>
+    <aura:handler name="change" value="{!v.selectedWarehouse}" action="{!c.handleSelectedWarehouseChange}"/>
+    <!-- BEGIN Component body -->
+    <div class ="slds-card">
+        <!-- BEGIN Spinner -->
+        <div aura:id="main-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+            <lightning:spinner variant="brand" size="large" alternativeText="text"/>
+        </div>
+        <!-- END Spinner -->
+        <!-- BEGIN Component header -->
+        <div class="slds-page-header slds-p-around_medium"> 
+            <div class="slds-media">
+                <div class="slds-media__figure slds-icon">
+                    <lightning:icon iconName="custom:custom38" size="medium" alternativeText="ALTERNATIVE"/>
+                </div>
+                <div class="slds-media__body">
+                    <div class="slds-grid">
+                        <div class="slds-col slds-container_left">
+                            <p class="slds-text-heading_label">
+                                {!v.translationMap.PluralPlc_ProductStockSnapshot__c}
+                            </p>
+                            <div class="slds-page-header__title">
+                                {!$Label.c.Plc_QuantityConsolidation}
+                            </div>
+                        </div>
+                        <div class="slds-p-top_x-small slds-grid_align-end slds-float_right">
+                            <lightning:button label="{!$Label.c.Plc_AllAllCancel}"
+                                              onclick="{!c.handleBack}"/>
+                            <lightning:button variant="brand" label="{!$Label.c.Plc_AllAllConsolidate}"
+                                              onclick="{!c.handleShowSaveModal}" disabled="{!v.snapshotToCreateSize == 0}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END Component header -->
+        <!-- BEGIN Component main area -->
+        <div class="slds-p-around_medium">
+            <div class="">
+                 <lightning:layout verticalAlign="stretch" multipleRows="true">
+                    <lightning:layoutItem flexibility="auto" size="4">
+                        <c:Plc_CustomLookup aura:id="warehouse-form" label="{!$Label.c.Plc_AllAllSelect + ' ' + v.translationMap.Bit2Shop__Warehouse__c}" 
+                                            selectedRecord="{!v.selectedWarehouse}"
+                                            objectAPIName="Bit2Shop__Warehouse__c" iconName="custom:custom52"
+                                            additionalFieldsToQuery="Bit2Shop__Dealer_Id__r.Name,Plc_Tipology__c,Bit2Shop__City__c" 
+                                            sObjectFieldToDisplayList="Name,Bit2Shop__Dealer_Id__r.Name,Plc_Tipology__c,Bit2Shop__City__c"/>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem flexibility="auto" size="8">
+                    </lightning:layoutItem>
+                </lightning:layout>
+                <!-- BEGIN Table -->
+                <aura:if isTrue="{!not(empty(v.selectedWarehouse.Id))}">
+                    <hr style="margin-top:1rem; margin-bottom:1rem;" />
+                    <div>
+                        <lightning:icon class="slds-m-right_x-small" iconName="standard:related_list" size="small" alternativeText="alt"/>
+                        <span class="slds-text-heading_small">
+                            {!v.translationMap.PluralPlc_ProductStockSnapshot__c + ' ' + $Label.c.Plc_AllAllToCreate + ': ' + v.snapshotToCreateSize}
+                        </span>
+                    </div>
+                    <aura:if isTrue="{!v.snapshotToCreateSize > 0}">
+                        <lightning:layout class="slds-p-bottom_small">
+                            <lightning:layoutItem size="9" class="slds-align-bottom">
+                                <div class="slds-text-body--small">
+                                    {!$Label.c.Plc_AllAllResults + ': ' + v.productStocksList.length}
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="3">
+                                <lightning:input variant="label-hidden" type="search" 
+                                                 placeholder="{!$Label.c.Plc_AllAllFilter + ' ' + v.translationMap.Bit2Shop__Product_Stock__c + '...'}" 
+                                                 onchange="{!c.handleProductStockFilter}"
+                                                 value="{!v.searchKey}"/>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                        <!-- BEGIN Table header -->
+                        <div class="slds-card_boundary">
+                            <lightning:datatable
+                                aura:id="product-stocks-table"
+                                keyField="Id"
+                                columns="{!v.columns}"
+                                data="{!v.productStocksList}"
+                                sortedBy="{!v.sortedBy}"
+                                sortedDirection="{!v.sortedDirection}"
+                                onsort="{!c.handleUpdateProductStockColumnSorting}"
+                                showRowNumberColumn="true"
+                                hideCheckboxColumn="true"
+                                onrowaction="{!c.handleRedirectToProducStock}"
+                            />
+                        </div>
+                    </aura:if>
+                    <div class="{!v.propertiesMap.showNoWarehouseIllustration == true ? 'slds-p-top_medium' : 'slds-hide'}">
+                        <div class="slds-illustration slds-illustration_small" aria-hidden="true">
+                            <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt=""/>
+                            <div class="slds-text-color_weak">
+                                <h3 class="slds-text-heading_small">
+                                    {!v.propertiesMap.illustrationMessage}
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                </aura:if>
+            </div>
+        </div>
+        <!-- END Table -->
+    </div>
+    <!-- BEGIN Modal of save confirmation -->
+    <section aura:id="modal-save" role="dialog" tabindex="-1" class="slds-modal slds-modal_prompt">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header slds-theme_info slds-theme_alert-texture">
+                <h2 class="slds-text-heading_medium">
+                    {!$Label.c.Plc_AllAllConfirmSave}
+                </h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium">
+                <ul class="slds-list_dotted">
+                    <li>
+                        {!format($Label.c.Plc_AllAllConfirmationGenericMessage, v.productStocksList.length, v.translationMap.Plc_ProductStockSnapshot__c)}
+                    </li>
+                </ul>
+            </div>
+            <footer class="slds-modal__footer slds-theme_default">
+                <lightning:button label="{!$Label.c.Plc_AllAllCancel}" onclick="{!c.handleCloseSaveModal}"/>
+                <lightning:button variant="brand" label="{!$Label.c.Plc_AllAllCreate + ' ' + v.translationMap.PluralPlc_ProductStockSnapshot__c}"
+                                  onclick="{!c.handleSave}"/>
+          </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop" aura:id="Modalbackdrop"/>
+    <!-- END Modal of save confirmation -->
+    <!-- END Component body -->
+</aura:component>

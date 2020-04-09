@@ -1,0 +1,10 @@
+<apex:component >
+    <!-- Attribute Definitions -->
+    <apex:attribute name="label" description="Label of POS" type="String" required="false" />
+    <apex:attribute name="q" description="Quantity of POS" type="Integer" required="true" />
+    <apex:attribute name="price" description="Price of POS" type="Decimal" required="true" />
+
+    <apex:outputPanel rendered="{! AND(NOT(ISBLANK(q)), q > 0) }">
+        <li>{!$Label.BT_CanoneMensile} {!label} pari a € {!price*q}</li>
+    </apex:outputPanel>
+</apex:component>

@@ -1,0 +1,37 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" 
+                controller="PrintContractController">
+    <aura:attribute name="options" type="List" />
+    <aura:attribute name="selectedValue" type="String" default="Red"/>
+    <aura:handler name="init" value="{!this}" action="{!c.loadOptions}" />
+    
+    
+        <lightning:layout>
+            
+            <lightning:layoutItem class="slds-m-left_small">
+                <p class="slds-text-title_caps slds-line-height_reset">Contracts</p>
+                <h1 class="slds-page-header__title slds-p-right_x-small">Print Contracts Page</h1>
+            </lightning:layoutItem>
+        </lightning:layout>
+
+    
+    
+    <lightning:layout>
+        <lightning:layoutItem padding="horizontal-medium" >
+            
+            <lightning:select name="mySelect" label="Select a contract:" aura:id="mySelect"
+                              value="{!v.selectedValue}">
+                <option value="">-- Select a Contract Type --</option>
+                <aura:iteration items="{!v.options}" var="item">
+                    
+
+                    <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                </aura:iteration>
+                
+            </lightning:select>
+        </lightning:layoutItem>
+    </lightning:layout>
+    
+    
+    
+</aura:component>

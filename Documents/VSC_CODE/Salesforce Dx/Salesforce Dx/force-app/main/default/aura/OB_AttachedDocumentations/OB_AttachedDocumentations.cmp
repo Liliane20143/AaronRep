@@ -1,0 +1,173 @@
+<aura:component access="global" controller="OB_AttachedDocumentationsController" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable,force:hasRecordId" >
+
+	<aura:attribute name="recordId" type="String" access="global"/>
+
+	<aura:attribute name="response" 			type="Map" 								access="global"/> 
+	<aura:attribute name="commercialProducts" 	type="NE__Product__c[]"		 			access="global"/>
+	<aura:attribute name="objectDataMap" 		type="Object"   						access="global"/>
+	<aura:attribute name="orderHeaderId" 		type="String" 							access="global"/>
+	<aura:attribute name="accountId" 			type="String"   						access="global"/>
+	<aura:attribute name="orderHeaderName" 		type="String" 							access="global"/>
+	<aura:attribute name="license" 			type="String" 							access="global"/>
+	<aura:attribute name="myMap" 				type="Map" 			default="{}" 		access="global"/>
+	<aura:attribute name="documentsList" 		type="String[]" 	default="[]" 		access="global"/> 
+	<aura:attribute name="mapFileNet" 			type="Map" 			default="{}" 		access="global"/>
+	<aura:attribute name="compareMap" 			type="Map" 			default="{}" 		access="global"/>
+	<aura:attribute name="listFields" 			type="String[]" 	default="[]" 		access="global"/>
+	<aura:attribute name="resubmit" 			type="Boolean" 		default="false" 	access="global"/>
+	<aura:attribute name="disableSpinner" 		type="Boolean" 		default="true" 		access="global"/>
+	<aura:attribute name="removedSpinner" 		type="Boolean" 		default="true" 		access="global"/>
+	<aura:attribute name="resubmitDisabled"		type="Boolean"		default="false"		access="global"/>
+	
+	<!-- antonio.vatrano 15/02/2019 #1386 -->
+	<aura:attribute name="itemsToApprove" 		type="Boolean" 		default="false" 		access="global"/>
+	
+	<!--  ANDREA START adding attribute from the child -->
+	<aura:handler name="setAttribute" event="c:OB_retrieveDocumName" action="{!c.setDocumName}"/>
+	<aura:attribute name="documName" type="String[]"/>
+	<!--  ANDREA END adding attribute from the child --> 
+	
+	<!-- Start AV 20/02/2019 1388 can resubmit if all docs was loaded  -->
+	<aura:attribute name="mapAllLoad" type="Map" default="{}" access="global"/>
+	<aura:handler name="change" value="{!v.mapAllLoad}" action="{!c.checkAllTrue}"/>
+	<aura:attribute name="canResubmit"	type="String" 	access="global"/>
+	<!-- End AV 20/02/2019 1388 can resubmit if all docs was loaded  -->
+	
+	<!-- Start AV 21/02/2019 dont show buttons CARICA and RIMUOVI if ADMIN  [Schema STEFANO MONTORI] -->
+	<aura:attribute name="isAdmin" type="Boolean" default="false" access="global"/> 
+	<aura:attribute name="rejectReasonBool" type="Boolean" default="false" access="global"/> 
+	<aura:attribute name="fromItemsApprovalStatus" type="Boolean" default="false" access="global"/> 
+	<!-- Start AV 21/02/2019 dont show buttons CARICA and RIMUOVI if ADMIN  [Schema STEFANO MONTORI] -->
+	
+	<aura:attribute name="contractList" 		type="String[]" 	default="[]" 		access="global"/> 
+	
+	<!-- START	AV 13/12/2018 -->
+	
+	
+	<aura:attribute name="showSprinner" 			type="Boolean" 		default="true" 	access="global"/>
+	<!-- end	AV 13/12/2018 -->
+	
+	<!-- START	micol.ferrari 18/11/2018 -->
+	<aura:attribute name="showResubmitIfPartner" type="Boolean" 		default="false" 	access="global"/>
+	<!-- END 	micol.ferrari 18/11/2018 -->
+	
+	<!-- <aura:attribute name="mapRecordId" 			type="Map" 			default="{}" 		access="global"/> -->
+	<aura:attribute name="configurationIds" 	type="String[]" access="global"/> 
+	
+	<!--giovanni spinelli 02/04/2019-->
+	<aura:attribute name="mapValueDocs" 			type="Map" 		default="{}" access="global"/>
+	<aura:attribute name="mapValueContracts" 			type="Map" 		default="{}" access="global"/>
+	<!-- <aura:handler name="change" value="{!v.myMap}" action="{!c.checkAllTrue}"/> -->
+	<c:OB_BannerMessages objectDataMap="{!v.objectDataMap}"/>
+	<aura:handler name="init" 		value="{!this}"			 	action="{!c.doInit}"/>
+	<aura:handler name="change" 	value="{!v.mapFileNet}" 	action="{!c.compareDocFilenetSalesForce}"/>
+	<aura:handler name="change" 	value="{!v.listFields}" 	action="{!c.fieldsForResubmit}"/>
+	<!-- //Start antonio.vatrano 24/09/2019 R1F3-97  -->
+	<aura:attribute name="listRiskEvaluation" 	type="String[]" access="global"/>
+	<aura:attribute name="idDocRisk" 	type="String" default ="" access="global"/>
+	<aura:attribute name="nameDocRisk" 	type="String" default ="" access="global"/> <!--antonio.vatrano 28/09/2019 r1f3-97-->
+	<!-- //End antonio.vatrano 24/09/2019 R1F3-97  -->
+	<!--START - elena.preteni 22/07/2019 F3 hide button setup from operation-->
+	<aura:attribute name = "isOperationSetup" type = "Boolean" default="false" access = "global"/>
+	<!--END - elena.preteni 22/07/2019 F3 hide button setup from operation-->
+	<div class="slds-hide">
+		<lightning:spinner alternativeText="Loading" size="large" variant="brand" id="mySpinner4"/>
+    </div>
+	<div style="width:100%;">
+			<!-- //Start antonio.vatrano 28/09/2019 R1F3-97  -->
+			<aura:if isTrue="{!v.idDocRisk != ''}"> <!-- // antonio.vatrano 26/09/2019 R1F3-97  -->
+				<div class="slds-m-top--xx-large flow-section-separator-container">
+					<form class="slds-size_1-of-1 slds-form">
+						<legend class="slds-form-element__label">Risk Evaluation</legend>
+						<fieldset class="bit2flowFormSectionCmp" name="attacheddocumentationsection" data-aura-class="bit2flowFormSectionCmp"/>
+					</form>
+				</div>
+	
+				<table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+					<tbody>
+						<tr class="trow">
+							<th>
+								<div class="slds-grid slds-gutters myGrid slds-grid_vertical-align-center myRow">
+									<div class="slds-col slds-size_5-of-10 myWord">
+										Scheda di valutazione
+									</div>
+									<div class="slds-col slds-size_2-of-10 slds-col_bump-left ">
+										<input type="button" value ="{!$Label.c.OB_Visualize}" onclick="{!c.openDocRisk}" class="slds-button slds-button--neutral GeneraButton"/>
+									</div>
+								</div>
+								<div  class="myDivNameFile" >
+									{!v.nameDocRisk	}
+								</div>
+							</th>  
+						</tr>
+					</tbody>		 
+				</table>
+			</aura:if>
+			<!-- //End antonio.vatrano 28/09/2019 R1F3-97  -->
+		
+		<aura:if isTrue="{!!empty(v.documentsList)}">
+			<div class="slds-m-top--xx-large flow-section-separator-container">
+				<form class="slds-size_1-of-1 slds-form">
+					<legend class="slds-form-element__label">{!$Label.c.OB_Documentation}</legend>
+					<fieldset class="bit2flowFormSectionCmp" name="attacheddocumentationsection" data-aura-class="bit2flowFormSectionCmp"/>
+				</form>
+			</div>
+
+			<table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+				<tbody>
+					<aura:if isTrue="{!!empty(v.documentsList)}">
+						<aura:iteration items="{!v.documentsList}" indexVar="index" var="doc">
+							<c:OB_singleAttachedDocumentations  myMap="{!v.myMap}" documentsList="{!v.documentsList}" singleDoc="{!doc}" documentType="{!v.response}" compareMap="{!v.compareMap}" listFields="{!v.listFields}" orderHeaderId="{!v.orderHeaderId}"  itemsToApprove="{!v.itemsToApprove}" license="{!v.license}" mapAllLoad="{!v.mapAllLoad}" isAdmin = "{!v.isAdmin}" rejectReasonBool = "{!v.rejectReasonBool}"  fromItemsApprovalStatus = "{!v.fromItemsApprovalStatus}" />		 			
+						</aura:iteration>
+						<!--giovanni spinelli add button download 02/04/2019 start-->
+						<aura:if isTrue="{!!empty(v.mapValueDocs)}">
+							<lightning:button aura:id="downDocs" label="{!$Label.c.OB_DownloadAllDocs}" iconName="utility:download" iconPosition="left"  variant="brand" onclick="{!c.downloadAllDocs}" class="button_download"/>
+						</aura:if>
+						<!--giovanni spinelli add button download 02/04/2019 end-->
+					</aura:if> 
+				</tbody>
+				<!--giovanni spinelli 05/06/2019 start - add help message-->
+				<aura:if isTrue="{!!empty(v.mapValueDocs)}">
+					<div class="helperClass">
+						<i>{!$Label.c.OB_DownloadAllDocsHelp}</i>
+					</div>
+				</aura:if>	
+				<!--giovanni spinelli 05/06/2019 start - add help message-->			 
+			</table>
+			<div aura:id="messageError" class="slds-hide messageEmp1">
+				{!$Label.c.OB_NoDocToLoad}
+			</div>
+
+		</aura:if>
+
+		<aura:if isTrue="{!!empty(v.contractList)}">
+			<div class="slds-m-top--xx-large flow-section-separator-container">
+				<form class="slds-size_1-of-1 slds-form">
+					<legend class="slds-form-element__label">{!$Label.c.OB_Contract}</legend>
+					<fieldset class="bit2flowFormSectionCmp" name="attacheddocumentationsection" data-aura-class="bit2flowFormSectionCmp"/>
+				</form>
+			</div>
+
+			<table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+				<tbody>
+					<aura:if isTrue="{!!empty(v.contractList)}">
+						<aura:iteration items="{!v.contractList}" indexVar="index" var="contract">
+							<c:OB_singleContract item="{!contract}" listFields="{!v.listFields}" />		 			 
+						</aura:iteration>
+						<!--giovanni spinelli add button download 02/04/2019 start-->
+						<aura:if isTrue="{!!empty(v.mapValueContracts)}">
+							<lightning:button aura:id="downDocs" label="{!$Label.c.OB_DownloadAllContracts}" iconName="utility:download" iconPosition="left"  variant="brand" onclick="{!c.downloadAllContracts}" class="button_download"/>
+						</aura:if>
+						<!--giovanni spinelli add button download 02/04/2019 end-->
+					</aura:if> 
+				</tbody>		 
+			</table>
+
+		</aura:if>
+
+		<aura:if isTrue="{!and(and(v.resubmit,v.showResubmitIfPartner),not(v.isOperationSetup))}">
+			<input type="button" aura:id="submit" id="submit" value ="{!$Label.c.OB_Resubmit}" onclick="{!c.approvalProcess}" class="slds-button slds-button_brand submit" disabled="{!v.resubmitDisabled}"/>
+		</aura:if>
+	</div> 
+	
+</aura:component>

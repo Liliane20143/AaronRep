@@ -1,0 +1,184 @@
+<!--
+ - Created by adrian.dlugolecki on 08.05.2019.
+ -->
+
+ <aura:component description="OB_LCP000_Iban" controller="OB_LCC000_Iban">
+
+    <aura:attribute name="disabledCountryCode" type="boolean" default="true" access="global" />
+    <aura:attribute name="disabledAbi" type="boolean" default="true" access="global" />
+    <aura:attribute name="billingProfilePOS" type="Object" access="global" description="Billing profile that willbe created (CoBa)"/>
+     <!--NEXI-157 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 02/07/2019 START changed attribute from order item to asset-->
+    <aura:attribute name="affectedAssets" type="List" access="global" description="Assets that will be updated with new billing profile"/>
+     <!--NEXI-157 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 02/07/2019 STOP-->
+
+    <aura:attribute name="isEuroControlCodeError" type="Boolean" default="false" access="private" />
+    <aura:attribute name="isCinError" type="Boolean" default="false" access="private" />
+    <aura:attribute name="isBankNumberError" type="Boolean" default="false" access="private" />
+    <aura:attribute name="isIbanInValid" type="Boolean" default="false" access="private" />
+    <aura:attribute name="euroControlCodeError" type="String" access="private" />
+    <aura:attribute name="cinError" type="String" access="private" />
+    <aura:attribute name="bankNumberError" type="String" access="private" />
+    <aura:attribute name="isSaveDisabled" type="Boolean" access="private" default="true"/>
+    <aura:attribute name="disabledCab" type="boolean" default="true" access="private" />
+    <aura:attribute name="isSpinner" type="string"  access="private" description="show hide spinner" default="true"/>
+
+    <ltng:require  	scripts="{!$Resource.FiscalCodeControl2}"	afterScriptsLoaded="{!c.doInit}"/>
+
+    <aura:if isTrue="{!v.isSpinner}">
+        <lightning:spinner variant="brand" size="large" class="slds-show" alternativeText=" " style="position: fixed;"/>
+    </aura:if>
+    <lightning:layout multipleRows="true"  >
+        <lightning:layoutItem padding="around-medium" size="12"/>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <label class="slds-form-element__label">
+                <abbr class="slds-required" title="required">*</abbr>
+                    {!$Label.c.Country_Code}
+            </label>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <label class="slds-form-element__label" for="" value="">
+                <abbr class="slds-required" title="required">*</abbr>
+                    {!$Label.c.Euro_Control_Code}
+            </label>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <label class="slds-form-element__label" for="" value="">
+                <abbr class="slds-required" title="required">*</abbr>
+                    {!$Label.c.CIN}
+            </label>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <label class="slds-form-element__label" for="" value="{!$Label.c.ABI}">
+                <abbr class="slds-required" title="required">*</abbr>
+                    {!$Label.c.ABI}
+            </label>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <label class="slds-form-element__label" for="" value="{!$Label.c.CAB}">
+                <abbr class="slds-required" title="required">*</abbr>
+                    {!$Label.c.CAB}
+            </label>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <label class="slds-form-element__label" for="">
+                <abbr class="slds-required" title="required">*</abbr>
+                    {!$Label.c.Bank_Account_Number}
+            </label>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <lightning:input label=""
+                             id="countryCode"
+                             aura:id="countryCode"
+                             name=""
+                             variant="label-hidden"
+                             value="{!v.billingProfilePOS.OB_CountryCode__c}"
+                             disabled="{!v.disabledCountryCode}"
+                             onchange="{!c.fieldCheck}"
+                             maxlength="2"
+                             minlength="2"
+                             onblur="{!c.completeIban}"/>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <lightning:input label=""
+                             class ="{!v.isEuroControlCodeError?'slds-has-error':''}"
+                             id="euroControlCode"
+                             aura:id="euroControlCode"
+                             name=""
+                             variant="label-hidden"
+                             value="{!v.billingProfilePOS.OB_EuroControlCode__c}"
+                             onblur="{!c.completeIban}"
+                             maxlength="2"
+                             onchange="{!c.fieldCheck}"/>
+            <aura:if isTrue="{!v.isEuroControlCodeError}">
+                <div style="color:rgb(194, 57, 52);">
+                        {!v.euroControlCodeError}
+                </div>
+            </aura:if>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <lightning:input label=""
+                             class ="{!v.isCinError?'slds-has-error':''}"
+                             id="cin"
+                             aura:id="cin"
+                             name=""
+                             variant="label-hidden"
+                             value="{!v.billingProfilePOS.OB_CINCode__c}"
+                             onblur="{!c.completeIban}"
+                             maxlength="1"
+                             onchange="{!c.fieldCheck}"/>
+            <aura:if isTrue="{!v.isCinError}">
+                <div style="color:rgb(194, 57, 52);">
+                        {!v.cinError}
+                </div>
+            </aura:if>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <lightning:input id="abi"
+                             aura:id="abi"
+                             name=""
+                             variant="label-hidden"
+                             label=""
+                             value="{!v.billingProfilePOS.OB_ABICode__c}"
+                             disabled="{!v.disabledAbi}"
+                             onblur="{!c.completeIban}"
+                             maxlength="5"
+                             onchange="{!c.fieldCheck}"/>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <lightning:input id="cab"
+                             aura:id="cab"
+                             name=""
+                             label=""
+                             variant="label-hidden"
+                             value="{!v.billingProfilePOS.OB_CABCode__c}"
+                             disabled="{!v.disabledCab}"
+                             onblur="{!c.completeIban}"
+                             maxlength="5"
+                             onchange="{!c.fieldCheck}"/>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <lightning:input label=""
+                             id="bankAccountNumber"
+                             class ="{!v.isBankNumberError?'slds-has-error':''}"
+                             aura:id="bankAccountNumber"
+                             name=""
+                             variant="label-hidden"
+                             value="{!v.billingProfilePOS.OB_Bank_Account_Number__c}"
+                             onblur="{!c.completeIban}"
+                             maxlength="12"
+                             onchange="{!c.fieldCheck}"/>
+            <aura:if isTrue="{!v.isBankNumberError}">
+                <div style="color:rgb(194, 57, 52);">
+                        {!v.bankNumberError}
+                </div>
+            </aura:if>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small" size="2">
+            <label class="slds-form-element__label" for="">
+                    {!$Label.c.IBAN}
+            </label>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="12"/>
+        <lightning:layoutItem padding="horizontal-small" size="10">
+            <span class="slds-badge ibanconcatenated" aura:id="iban" id="iban">
+                {!v.billingProfilePOS.OB_CountryCode__c}
+                {!v.billingProfilePOS.OB_EuroControlCode__c}
+                {!v.billingProfilePOS.OB_CINCode__c}
+                {!v.billingProfilePOS.OB_ABICode__c}
+                {!v.billingProfilePOS.OB_CABCode__c}
+                {!v.billingProfilePOS.OB_Bank_Account_Number__c}
+            </span>
+            <aura:if isTrue="{!v.isIbanInValid}">
+                <div style="color:rgb(194, 57, 52);">
+                        {!$Label.c.IbanNotValid}
+                </div>
+            </aura:if>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="12"/>
+    </lightning:layout>
+    <lightning:layout>
+        <lightning:layoutItem padding="around-small" size="12">
+            <lightning:button type="button" label="Save" onclick="{!c.saveCoBa}" disabled="{!v.isSaveDisabled}"/>
+        </lightning:layoutItem>
+    </lightning:layout>
+</aura:component>

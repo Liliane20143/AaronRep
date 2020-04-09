@@ -1,0 +1,12 @@
+<apex:page standardController="NE__Order_Header__c" > 
+    <apex:includeScript value="/soap/ajax/38.0/connection.js"/>  
+    <apex:includeScript value="/soap/ajax/38.0/apex.js"/> 
+
+    <script>
+        sforce.connection.sessionId='{!GETSESSIONID()}';
+        var url = "/apex/ne__DocumentComponentPDF?PDF=true&id=a0V9E000002kzvKUAQ&mapName=ShippingDataMap&ParentId={!NE__Order_Header__c.NE__Configurations__r[0].Id}&dateFormat=dd-MM-yyyy";
+        sforce.one.navigateToURL(url);   
+             
+    </script> 
+         
+</apex:page>

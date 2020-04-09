@@ -1,0 +1,15 @@
+.THIS .button{
+	 width: 10%;
+     height: 10%;
+    
+}
+
+.THIS .test{
+    width: 5%;
+    margin : 0%;
+    padding : 0%;
+}
+
+.THIS .child{
+    margin-left: 10%;
+}

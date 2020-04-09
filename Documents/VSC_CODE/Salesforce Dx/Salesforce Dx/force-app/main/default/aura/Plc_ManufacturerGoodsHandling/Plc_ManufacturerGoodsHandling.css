@@ -1,0 +1,25 @@
+.THIS .btn_selectQuantity button {
+    max-width: 10px;
+    border-width: 0px;
+}
+
+.THIS .btn_remove button {
+    max-width: 10px;
+    border-width: 0px;
+}
+
+.THIS [title] .slds-icon-action-approval {
+    background-color: white;
+}
+
+.THIS [title="approvalIcon"] .slds-icon {
+    fill: rgb(4, 132, 75);
+}
+
+.THIS [title="successCloseIcon"] .slds-icon {
+    fill: white;
+}
+
+.THIS .slds-button_icon-bare{
+    display: none;
+}

@@ -1,0 +1,42 @@
+<aura:component >
+
+    <aura:attribute name="showHeader" type="Boolean" default="true" />
+    <aura:attribute name="border" type="String" default="row" />
+    <aura:attribute name="striped" type="Boolean" default="false" />
+    <aura:attribute name="hover" type="Boolean" default="true" />
+    <aura:attribute name="variant" type="String" default="base" />
+    <aura:attribute name="class" type="String" />
+    <aura:attribute name="rendered" type="Boolean" default="true" />
+
+    <aura:attribute name="header" type="Aura.Component[]" />
+
+    <aura:if isTrue="{!v.rendered}">
+        <aura:if isTrue="{!v.variant == 'inline-edit'}">
+            <div class="{!v.class + ' slds-table_edit_container slds-is-relative'}">
+                <table class="{!'slds-table ' + (v.border == 'row' ? 'slds-table_bordered ' : v.border == 'col' ? 'slds-table_col-bordered ' : v.border == 'both' ? 'slds-table_bordered slds-table_col-bordered ' : '') + (v.striped ? 'slds-table_striped ' : '') + (!v.hover ? 'slds-no-row-hover' : '')}" role="grid">
+                    <aura:if isTrue="{!and(v.showHeader, not(empty(v.header)))}">
+                        <thead>
+                            {!v.header}
+                        </thead>
+                    </aura:if>
+                    <tbody>
+                        {!v.body}
+                    </tbody>
+                </table>
+            </div>
+            <aura:set attribute="else">
+                <table class="{!v.class + ' slds-table ' + (v.border == 'row' ? 'slds-table_bordered ' : v.border == 'col' ? 'slds-table_col-bordered ' : v.border == 'both' ? 'slds-table_bordered slds-table_col-bordered ' : '') + (v.striped ? 'slds-table_striped' : '') + (!v.hover ? 'slds-no-row-hover' : '')}" role="grid">
+                    <aura:if isTrue="{!and(v.showHeader, not(empty(v.header)))}">
+                        <thead>
+                            {!v.header}
+                        </thead>
+                    </aura:if>
+                    <tbody>
+                        {!v.body}
+                    </tbody>
+                </table>
+            </aura:set>
+        </aura:if>
+    </aura:if>
+
+</aura:component>

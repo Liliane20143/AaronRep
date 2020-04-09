@@ -1,0 +1,124 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="AutoCompleteComponentController">
+
+	<ltng:require styles="{!$Resource.jqueryuiCSS}" scripts="{!join(',', $Resource.JQueryResourceCode, $Resource.jqueryuiJS)}"/>
+
+	<aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+	<aura:registerEvent name="AutocompleteEvent" type="c:OB_AutocompleteEvent"/>
+
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:method name="reInit" action="{!c.doInit}" description="Runs the init method again ">
+    </aura:method>
+    <aura:method name="blankValue" action="{!c.blankValue}" description="Reset to blank the value">
+    </aura:method>
+	
+	<aura:attribute name="streets" type="List" default="{}" access="global"/>
+	<aura:attribute name="responseStreets" type="Object" default="{}" access="global"/>
+	<aura:attribute name="response" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"   access="global"/>
+	<aura:attribute name="comune"   type="String" />
+	<aura:attribute name="frazione" type="String" />
+	<aura:attribute name="caps" type="List" default="[]"/>
+	<aura:attribute name="disabled" type="Boolean" default="true" />
+	<aura:attribute name="disabledInput_sp" type="Boolean"/>
+	<aura:attribute name="disabledInput" type="Boolean" default="true"/>
+	<aura:attribute name="streetString" type="String"/>
+	<aura:attribute name="streetNumberString" type="String"/>
+	<aura:attribute name="stradaId" type="String" default="strada"/>
+	<aura:attribute name="civicoId" type="String" default="civico"/>
+	<aura:attribute name="stradaEEId" type="String" default="streetEE"/>
+	<aura:attribute name="civicoEEId" type="String" default="civicoEE"/>
+	<!-- START  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+	<aura:attribute name="identifier" type="String" default="" access="global"/>
+  	<aura:attribute name="addressMapping" type="Object" access="global"/>
+  	<aura:attribute name="isEE" type="Boolean" default="false" access="global"/>
+  	<!-- END  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+
+    <!-- joanna.mielczarek@accenture.com 28/03/2019 START -->
+    <aura:attribute name="filteredOptions" type="List" access="public" description="Options displayed as predictions"/>
+    <aura:attribute name="listaComuni" type="List" access="public" />
+	<aura:attribute name="inputLabel" type="String" access="private" />
+    <!-- joanna.mielczarek@accenture.com 28/03/2019 STOP -->
+	
+	<div class="slds-grid">
+		<div class="slds-form-element slds-small-size--2-of-3 slds-large-size--2-of-3 slds-p-around--medium">
+			<div class="slds-form-element__control">
+				<aura:if isTrue="{!v.isEE != true}">
+					<!-- joanna.mielczarek@accenture.com 28/03/2019 START -->
+					<lightning:input aura:id="{! v.stradaId }"
+									 id="{! v.stradaId }"
+									 value="{! v.streetString }"
+									 onchange="{! c.callStreet }"
+									 onblur="{! c.street }"
+									 label="{! v.inputLabel }"
+									 disabled="{!v.addressMapping.streetdisabled}"/>
+					<div aura:id="addressSuggestion" id="listbox-unique-id" role="listbox" class="slds-hide">
+						<ul class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid " role="presentation">
+							<aura:iteration items="{! v.filteredOptions }" var="option" indexVar="index" >
+								<li aura:id="selectedAddress" role="presentation"
+									class="slds-listbox__item"
+									onclick="{! c.selectOption }"
+									data-value="{! option.value }"
+									data-record="{! index }"
+									data-placeid="{! option.PlaceId }"
+									data-locaval="{! option.locaval }"
+								>
+                            <span id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                <span class="slds-media__body">
+                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity">{!option.label}</span>
+                                </span>
+                            </span>
+								</li>
+							</aura:iteration>
+						</ul>
+					</div>
+					<!-- joanna.mielczarek@accenture.com 28/03/2019 STOP -->
+
+				</aura:if>
+				<aura:if isTrue="{!v.isEE == true}">
+					<input id="{!v.stradaEEId}"
+						   class="flow_required slds-input"
+						   value="{!v.streetString}"
+						   type="text"
+						   onchange="{!c.getValueEE}"
+						   disabled="{!v.addressMapping.streetdisabled}"
+						   name="street"
+						   />
+				</aura:if>
+			</div>
+		</div>
+
+		<div class="slds-form-element slds-small-size--1-of-3 slds-large-size--1-of-3 slds-p-around--medium">  
+			<label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.Street_Number}">
+					<abbr class="slds-required" title="required">*</abbr>
+				{!$Label.c.Street_Number}
+			</label>
+			<div class="slds-form-element__control">
+				<aura:if isTrue="{!v.isEE != true}">
+					<input id="{!v.civicoId}"  
+						   class="flow_required slds-input"  
+						   type="text"
+						   value="{!v.streetNumberString}" 
+						   disabled="{!v.addressMapping.streetnumberdisabled}"
+						   onchange="{!c.getValueStreetNumber}"	
+						   onblur="{! c.removeRedBorderCivico}"
+						   maxlength="6"
+						   name="civico"
+						   /> 
+				</aura:if>
+				<aura:if isTrue="{!v.isEE == true}">
+					<input id="{!v.civicoEEId}"  
+							   class="flow_required slds-input"  
+							   type="text"
+							   value="{!v.streetNumberString}" 
+							   onchange="{!c.getValueStreetNumberEE}"
+							   disabled="{!v.addressMapping.streetnumberdisabled}"
+							   maxlength="6"
+							   name="civico"
+							   /> 
+				</aura:if>
+			</div>
+		</div>
+		
+	</div>	
+	
+</aura:component>

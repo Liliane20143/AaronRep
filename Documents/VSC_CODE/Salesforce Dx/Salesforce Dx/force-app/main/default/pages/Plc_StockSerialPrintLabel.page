@@ -1,0 +1,95 @@
+<!--
+ - Created by dilorenzo on 31/12/2018.
+ -->
+
+<apex:page id="Plc_StockSerialPrintLabel" standardController="Bit2Shop__Stock_Serials2__c" extensions="Plc_StockSerialPrintLabelCnt"
+    sidebar="false" applyBodyTag="false" applyHtmlTag="false"
+    showHeader="false" standardStylesheets="false" renderAs="pdf" > <!-- -->
+    <apex:stylesheet value="{!URLFOR($Resource.Plc_BarcodeGenerator)}"/>
+
+    <head>
+        <style type="text/css" media="print" >
+         @page {
+           size: 62mm 25mm;
+           margin-bottom: 0.2%;
+           margin-right: 0.1%;
+           margin-left: 0.1%;
+           margin-top:  0.2%;
+        }
+
+        body {
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+
+         span{
+            font-weight: bold;
+            font-family: Arial Unicode MS;
+        }
+        h1
+        {
+            font-size: 11px;
+            visibility: hidden;
+            color: green;
+            text-decoration: none;
+        }
+        </style>
+    </head>
+
+    <apex:variable var="cnt" value="{!-1}"/>
+    <apex:repeat value="{!stockSerWO}" var="StockSerialWO">
+        <div style="{!if(cnt >= 0, 'page-break-before:always;','page-break-before:avoid;')}; font-size: 9px;">
+            <apex:variable var="cnt" value="{!cnt+1}"/>
+            <table width= "100%">
+                <tr style="vertical-align:middle; text-align:left; ">
+                    <td style="{!if(cnt >= 0, 'padding-top: 9px;','')};  text-align:left; ">
+                        <i>Prod.:</i> {!StockSerialWO.Bit2Shop__Product_Stock_Id__r.Plc_ProductSku__c}
+                    </td>
+                </tr>
+            </table>
+
+            <table width= "100%">
+
+                <tr style="vertical-align:middle; text-align:left; ">
+                    <td style="text-align:left">
+                            {!StockSerialWO.Bit2Shop__Product_Stock_Id__r.Bit2Shop__Product_Description__c}
+                    </td>
+                </tr>
+
+                <tr style="vertical-align:middle; text-align:left; font-size: 1px;">
+                    <td style="text-align:left">
+                        <br/> <!-- Empty line -->
+                    </td>
+                </tr>
+
+                <tr style="vertical-align:middle; text-align:center">
+                    <td style="text-align:center">
+                        <!-- <apex:image value="{!imageUrl}"/> CON servizion tramite URL-->
+
+                       <!-- <c:Plc_BarcodeGenerator />-->
+                       
+                    <div >
+                        <apex:repeat value="{!barcodesList[cnt]}" var="bar">
+                            <apex:outputText value="" styleClass="{!if(bar='1','blackbar','whitebar')}" />
+                        </apex:repeat>
+                    </div>
+                    <!--{!cnt}-->
+
+                        <!-- solo con VF
+                        <svg id="barcode"></svg>
+                        <script type ="text/javascript">
+                            JsBarcode("#barcode", "{!StockSerialWO.Plc_EncodedSerialNumber__c}");
+                        </script>
+                        -->
+                    </td>
+                </tr>
+                <tr style="vertical-align:middle; text-align:center;">
+                    <td style="text-align:center">
+                        {!StockSerialWO.Plc_EncodedSerialNumber__c}
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+    </apex:repeat>
+</apex:page>

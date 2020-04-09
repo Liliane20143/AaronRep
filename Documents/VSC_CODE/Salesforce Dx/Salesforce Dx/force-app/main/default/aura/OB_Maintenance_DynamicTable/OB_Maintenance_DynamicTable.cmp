@@ -1,0 +1,232 @@
+<aura:component  controller ="OB_Maintenance_DynamicTable_Controller" >
+	<aura:attribute name ="fieldsToShow" type="List" required ="true" />
+	<aura:attribute name ="ObjectToShow" type="String" required ="true" />
+	<aura:attribute name ="recordparentid" type="String" required ="true" />
+	<aura:attribute name ="queryType" type="String" />
+	<aura:attribute name ="hideCheckboxColumn" type="Boolean" default ="false" />
+	<aura:attribute name ="ObjectLabels" type="String" />
+	<aura:attribute name ="dataToShow" type="Object" />
+	<aura:attribute name ="showTable" type="boolean" default="true" />
+	<aura:attribute name ="allData" type="Object" />
+	<aura:attribute name ="tableColumns" type="List" /> 
+	<aura:attribute name ="labelToShow" type="String" />
+	<aura:attribute name ="selectedRow" type="String" />
+	<aura:attribute name ="MaxRowSelection" type="Integer" Default ="1" />
+	<aura:attribute name="switchOnload" type="boolean" default="false" />
+	<aura:attribute name ="TerminalEnablementsViewActivate" type="Boolean" default="false" />
+	<aura:Attribute name ="showEnablementsModal"  type="Boolean" default="false" />
+	<aura:Attribute name ="EnablementsFound"  type="Boolean" default="false" />
+	<aura:Attribute name ="EnablementsData"  type="list"  />
+	<aura:Attribute name ="currentUser"  type="Object"  access="global"/>
+
+	<aura:Attribute name ="proposerABI"  type="String"  access="global"/>
+	<aura:attribute name ="ModalTile" type="string" default="{!$Label.c.OB_MAINTENANCE_ENABLEMENTS_MODAL_TITLE}" />
+	
+	<!-- used to display pricing and edit offer buttons: -->
+	<aura:attribute name="isFromServicePoint" type="boolean" default="false"/>
+
+	<!-- maintenance asset attributes: -->
+	<aura:attribute name ="itemAttributes" type="List" />
+	<aura:attribute name ="itemAttributesColumns" type="List" />
+	<aura:attribute name ="showModal" type="boolean" default="false" />
+
+	<!-- ANDREA MORITTU START 26-Sept-2019 - PRODOB_469 --> 
+	<aura:attribute name ="mccLOVSList" type="List" access="global"/>
+	<aura:attribute name ="mccClicked" type="Boolean" access="global"/>
+	<aura:attribute name ="MCCobj" type="Object" access="global"/>
+	<aura:attribute name="countDown" type="String"	access="global" />
+	<aura:attribute name ="VASresult" type="List" access="global"/>
+	<aura:attribute name ="ACQUIRINGresult" type="List" access="global"/>
+	
+	<!-- ANDREA MORITTU END 26-Sept-2019 - PRODOB_469 -->
+
+	<aura:method name="refresh" action="{! c.init}"></aura:method>
+	<aura:handler name="init" value="{! this }" action="{! c.init }"/> 
+	<aura:registerEvent name="showLabelEvent" type="c:OB_Maintenance_DynamicTableChildEvent"/>
+	<!--Showing component title -->
+	<!-- START elena preteni 07/05/19-->
+	<aura:attribute name="bundleConfiguration" type="string"  />
+	<!-- END elena preteni 07/05/19-->
+
+	<aura:if isTrue="{!v.recordparentid}">
+		<!-- <div class="slds-p-around_small"> -->
+		<aura:if isTrue="{!v.showTable}">
+			<div class="slds-align_absolute-center" >	
+				<!-- START 	29/11/2018 micol.ferrari -->
+				<!-- <ui:outputText value="{!v.labelToShow}" /> -->
+				<div class="sdls-grid slds-size_1-of-1 slds-m-top_medium">
+					<form class="slds-size_1-of-1 slds-form">
+						<legend class="slds-form-element__label">{!v.labelToShow}</legend>
+						<fieldset class="maintenance-separator-fieldset" name="companysection" data-aura-class="maintenance-separator-fieldset"/>
+					</form>
+				</div>
+				<div class="maintenance-separator-line"/>
+				<!-- END 	29/11/2018 micol.ferrari -->
+			</div>
+			<aura:set attribute="else">
+				<aura:if isTrue="{!v.queryType == 'OFFER'}">
+					<div class="slds-align_absolute-center">	
+						<ui:outputText value="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_NODATA}" /> 
+					</div>
+				</aura:if>
+				<!-- ANDREA MORITTU START 27-Sept-2019 - PRODOB_469  -->
+				<aura:if isTrue="{!and(v.queryType == 'ACQUIRING', empty(v.ACQUIRINGresult))}">
+					<div class="slds-align_absolute-center">	
+						<ui:outputText value="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_NODATA}" /> 
+					</div>
+				</aura:if>
+				<!-- ANDREA MORITTU END 27-Sept-2019 - PRODOB_469  -->
+			</aura:set>
+		</aura:if>
+	</aura:if>
+	<!-- ANDREA MORITTU START 27-Sept-2019 - PRODOB_469  -->
+	<aura:if isTrue="{!and(v.queryType == 'VAS', empty(v.VASresult))}">
+		<div class="slds-align_absolute-center">	
+			<ui:outputText value="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_NODATA}" /> 
+		</div>
+	</aura:if>
+	<!-- ANDREA MORITTU END 27-Sept-2019 - PRODOB_469  -->
+
+	<!--Showing datatable , to be defined the height  -->
+	<aura:if isTrue="{!v.dataToShow.length >0}">
+	  	<div><!--class="slds-p-around_medium" style="height: 300px"-->
+			 <lightning:datatable
+			 			class="hideArrows"
+		        columns="{! v.tableColumns }"
+		        data="{! v.dataToShow }"
+		        keyField="Id"
+		      	aura:id="table"
+		       	onrowselection="{! c.updateSelectedRow }"
+		        onrowaction="{! c.handleRowAction }"
+		       	hideCheckboxColumn="{!v.hideCheckboxColumn}"
+						 maxRowSelection="{!v.MaxRowSelection}" /> 
+				
+		
+		</div> 
+	</aura:if>
+	<aura:if isTrue="{!v.TerminalEnablementsViewActivate}">
+		<c:strike_modal
+		    title="{!v.ModalTile}"
+		    primaryButtonLabel="Ok"
+		    secondaryButtonLabel="Cancel"
+		    showHeader="true"
+		    showFooter="false"
+		    showClose="true"
+		    showModal="{!v.showEnablementsModal}">
+<!--
+		 </div>     
+				<div style="float:left;margin-left:5px;;margin-top:10px;" >
+        	  <lightning:tile label="Salesforce UX" href="#">
+
+        		<aura:set attribute="media">
+            		<lightning:icon iconName="standard:groups"/>
+        			</aura:set>
+        	
+        	</lightning:tile> -->
+
+    	<aura:if isTrue="{!v.EnablementsFound}">
+			<aura:iteration items="{!v.EnablementsData}" var="item">
+				<div style="float:left;margin-left:10px;margin-top:10px;" >
+					<c:strike_tile
+					variant="icon"
+					title="{!item.name}"
+		
+					iconName="{!item.icon}" />
+				</div>
+			</aura:iteration>    
+			<aura:set attribute="else"> 
+				<div class="slds-align_absolute-center" >
+    					<ui:outputText value="{!$Label.c.OB_MAINTENANCE_NO_ENABLEMENTS_FOUND}" />
+    			</div>
+    		</aura:set>
+    	</aura:if>
+<!--
+		<c:strike_tile
+	    variant="icon"
+	    title="Tile Title"
+	    subtitle="Tile Subtitle"
+	    iconName="standard:account" />  -->
+  
+</c:strike_modal>
+		
+	</aura:if>
+	<!-- francesca.ribezzi - modal to show attributes -->
+	<aura:if isTrue="{!v.showModal}">
+		<div style="height: 640px;">
+			<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+				<div class="slds-modal__container">
+					<header class="slds-modal__header">
+						<!-- close btn here -->
+						<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Attributi</h2> <!-- changeLabel -->
+					</header>
+					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+						<aura:if isTrue="{!v.itemAttributes.length > 0}">
+							<lightning:datatable
+									columns="{! v.itemAttributesColumns }"
+									data="{! v.itemAttributes }"
+									keyField="Id"
+									aura:id="attributesTable"
+									hideCheckboxColumn="true"/>
+									
+						<aura:set attribute="else">
+							<div class="slds-align_absolute-center" >	
+								<ui:outputText value="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_NODATA}" /> 
+							</div> 
+						</aura:set>     	
+						</aura:if>   
+					</div>
+					<footer class="slds-modal__footer">
+						<button class="slds-button slds-button_neutral" onclick="{!c.closeModal}">{!$Label.c.OB_Cancel}</button>
+					</footer>
+				</div>
+			</section>
+		<div class="slds-backdrop slds-backdrop_open"></div>
+		</div>
+	</aura:if>
+
+	<!-- ANDREA MORITTU START 27-Sept-2019 - PRODOB_469 - NEW MODAL FOR MCC DESCRIPTION (AUTOMATICALLY COLLAPSE)-->
+	<aura:if isTrue="{!v.mccClicked}">
+		<section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_xx-small" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+			<div class="slds-modal__container">
+				<header class="slds-modal__header">
+					<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+						<span class="slds-assistive-text">Close</span>
+					</button>
+					<h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate tytleStyle">{!$Label.c.OB_MCC_DescriptionL3}</h2>				
+				</header>
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+					<div class="slds-grid titles slds-p-around_medium">
+						<div class="slds-col slds-p-horizontal_medium">
+							{!$Label.c.OB_Description} &nbsp;{!$Label.c.OB_MCC_DescriptionL3}
+						</div>
+						<div class="slds-col slds-p-horizontal_medium">
+							{!$Label.c.OB_Code} &nbsp;{!$Label.c.OB_MCC_DescriptionL3}
+						</div>
+					</div>
+					<div class="slds-grid mccValues slds-p-around_medium">
+						<div class="slds-col slds-p-horizontal_medium">
+							{!v.MCCobj.description}
+						</div>
+						<div class="slds-col slds-p-horizontal_medium">
+							{!v.MCCobj.code} 
+						</div>
+					</div>
+				</div>
+				<footer class="slds-modal__footer">
+					<div class="slds-grid">
+						<div class="slds-size_1-of-2 slds-p-around_medium">
+							<div class="slds-size_1-of-3">
+									<lightning:button class="CTAStyle_BRAND buttonRight" variant="brand" label="{!$Label.c.OB_Cancel}" onclick="{! c.closeMCCmodal }" />
+							</div>
+						</div>
+					</div>
+				</footer>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open">
+		</div>
+	</aura:if> 
+	<!-- ANDREA MORITTU START 27-Sept-2019 - PRODOB_469 - NEW MODAL FOR MCC DESCRIPTION (AUTOMATICALLY COLLAPSE)-->
+
+
+</aura:component>

@@ -1,0 +1,79 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:searchInterface" access="global">
+    
+    <!--event handlers--> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.values}" action="{!c.doInit}" />
+    <aura:handler event="c:OB_MatrixSelAppEvt" action="{!c.handleDataChangeAppEvent}"/>
+    
+    <!--event registration--> 
+    <aura:registerEvent name="multiColumnSelectChange" type="c:OB_MatrixSelCompEvt" />
+    <aura:registerEvent name="generalCommunication" type="c:OB_MatrixSelAppEvt"/>
+    
+    <!--public methods-->  
+    <aura:method name="removeItem" action="{!c.deleteFromList}" description="Delete an item based on a unique key">
+        <aura:attribute name="itemId" type="String" access="public"  />
+    </aura:method>
+    
+    <aura:method name="moveItems" action="{!c.moveItems}" description="move items from this list to another">
+    </aura:method>
+    
+    <!--public attributes-->
+    <aura:attribute name="fieldName" type="String" access="public"  />
+    <aura:attribute name="values" type="Object[]" description="all available values for this field" access="public"  />
+    <aura:attribute name="showUpDown" type="Boolean" description="Display up/down arrows" access="public" default="false"  />
+    <aura:attribute name="position" type="String" description="left or right" access="public"  />
+
+    <!--private attributes-->
+    <aura:attribute name="uuId" type="String" access="private"  />
+    <aura:attribute name="highlightedItem" type="Object" description="an item ready to be transferred to the selectedValues array" access="private" />
+    <aura:attribute name="highlightedItems" type="Object[]" description="a set of items ready to be transferred to the selectedValues array" access="private" />
+    <aura:attribute name="storedTimer" type="Object" description="storing a timer allows it to be cancelled" access="private" />
+    <aura:attribute name="changeEventScheduled" type="Boolean" description="set when we are scheduled to send an event" access="private" />
+    <!-- <aura:attribute name="items" type="Object[]" description="items in this list" access="private"  /> -->
+
+    <!--davide.franzini - START-->
+    <aura:attribute name="searchText" type="String" default=""/>
+    <aura:attribute name="matchedItems" type="Object[]"/>
+    <aura:attribute name="selectedABI" type="Object[]" description="selected ABI in the right list" access="global"/>
+    <aura:attribute name="items" type="Object[]" description="items in this list" access="global"  />
+    <aura:handler name="change" value="{!v.items}" action="{!c.sendSelectedABI}"/>
+    <!--davide.franzini - END-->
+       
+        <!-- <div class="slds-picklist^^draggable slds-grid"> -->
+        <div class="slds-dueling-list__column">
+            
+            <!-- <div class="slds-form-element"> -->
+                <span class="slds-form-element__label" >{!v.fieldName}</span>
+
+                <lightning:input value="{!v.searchText}" placeholder="Search" onchange="{!c.handleSearch}"/>
+
+                <div class="slds-dueling-list__options" aura:id="items"  role="application">
+                    <ul aria-describedby="option-drag-label" aria-multiselectable="true" class="slds-listbox slds-listbox_vertical" 
+                        role="listbox" tabindex="0">
+                        
+                        <aura:iteration items="{!v.items}" var="item">
+                            
+                            <li class="{! ' slds-listbox__item ' + item.style}"  
+                                id="{!item.id}" role="option" 
+                                tabindex="{!item.sort}" onclick="{!c.handleListClick}">
+
+
+                                <div class="slds-listbox__option slds-listbox__option_plain slds-media slds-media_small slds-media_inline" 
+                                  role="option" aria-selected="{!item.selected}">
+                                  <!--davide.franzini - START-->
+                                  <span class="slds-media__body">
+                                    <span id="{!item.id}" class="slds-truncate">{!item.value}</span><br/>
+                                    <span id="{!item.id}" class="slds-truncate" style="font-weight: bold;">{!item.label}</span>
+                                  </span>
+                                  <!--davide.franzini - END-->
+                                </div>
+                            </li>
+                            
+                        </aura:iteration>
+                    </ul>
+                <!-- </div> -->
+            </div>
+
+        </div>
+    
+</aura:component>

@@ -1,0 +1,113 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="TitolareEffettivoSectionController">
+
+	<aura:handler event="c:OB_DeleteContact" action="{!c.handleDelete}"/>
+	<aura:registerEvent name="OB_EventAutoCompleteReInit" type="c:OB_EventAutoCompleteReInit"/>
+	<aura:registerEvent name="OB_EventAutoCompleteRedBorder" type="c:OB_EventAutoCompleteRedBorder"/>
+
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+	<aura:attribute name= "sections" type="Object[]"/> 
+	<aura:attribute name= "ListInactive" type="String[]"/> 
+	<aura:attribute name="hasMessage" type="Boolean" default="false"/>
+	<aura:attribute name="lastContact" type="String"/>
+	<aura:attribute name="isValid" type="String" default =""/>
+	<aura:attribute name="addOwner" type="String" default=""/>
+	<aura:attribute name="changeOwner" type="String" default=""/>
+	<aura:attribute name="validationMap" type="Object"/>
+	<aura:attribute name="isInitialized" type="Boolean" default="false" description="defines if initialization has been completed"/>	<!-- NEXI-323 Grzegorz Banach <grzegorz.banach@accenture.com> 11/09/2019 !-->
+
+
+	<aura:handler name="change" value="{!v.addOwner}" action="{!c.addOwnerMethod1}"/>
+	<aura:handler name="change" value="{!v.changeOwner}" action="{!c.changeOwnerMethod1}"/>
+	<!-- <aura:handler name="change" value="{!v.doneDoInit}" action="{!c.doInitDone1}"/> -->
+	<ltng:require  scripts="{!$Resource.FiscalCodeControl2}"/> 
+	<!-- <aura:handler event="aura:doneRendering" action="{!c.reloadForm}"/> -->
+	<!-- <aura:handler event="aura:doneRendering" action="{!c.checkTaxFirstSixLetters}"/>  -->
+
+	<aura:attribute name="doneRender" type="Boolean" default="false"/>
+	<aura:handler name="render" value="{!this}" action="{!c.onRender}"/>
+	
+
+	<aura:if isTrue="{!v.hasMessage}">
+		<div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+			<span class="slds-assistive-text">error</span>
+			<!-- ERROR -->
+			<h1>{!$Label.c.CompleteMandatoryFields}</h1>
+		<!-- 	<button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close" onclick="{!c.closeBanner}">
+				CHIUDI<span class="slds-assistive-text">Close</span>
+			</button> -->
+			<lightning:buttonIcon class="slds-button slds-button_icon close-banner-titolari slds-button_icon-inverse" iconName="utility:close" size="large" alternativeText="Close" variant="bare" onclick="{!c.closeBanner}"/>
+		</div>
+	</aura:if>
+
+
+
+
+	<div style="width: 100%;" class="slds-form-element slds-p-around--medium slds-small-size--1-of-1 slds-large-size- -1-of-2">
+		<input id="hiddenField" type="text" value="" class="slds-hide"  ></input>
+
+		<div style="float-left;">
+			<div style="float:left;padding-right:45px">{!$Label.c.Insertable_Contacts}</div>
+			<div class="bottone" id = "buttonDiv1">
+				<lightning:button aura:id="button1" label="1" onclick="{!c.explodeTitolare1}" variant="brand" disabled="false" class= ""/>			
+			</div>
+			<div  class="bottone" id = "buttonDiv2">
+				<lightning:button aura:id="button2" label="2" onclick="{!c.explodeTitolare2}" variant="brand" disabled="true" class= ""/>
+			</div>
+			<div  class="bottone" id = "buttonDiv3">
+				<lightning:button aura:id="button3" label="3" onclick="{!c.explodeTitolare3}" variant="brand" disabled="true" class= ""/>
+			</div>
+			<div  class="bottone" id = "buttonDiv4">
+				<lightning:button aura:id="button4" label="4" onclick="{!c.explodeTitolare4}" variant="brand" disabled="true" class= ""/>
+			</div>
+			<div  class="bottone" id = "buttonDiv5">
+				<lightning:button aura:id="button5" label="5" onclick="{!c.explodeTitolare5}" variant="brand" disabled="true" class= ""/>
+			</div>
+			<div  class="bottone" id = "buttonDiv6">
+				<lightning:button aura:id="button6" label="6" onclick="{!c.explodeTitolare6}" variant="brand" disabled="true" class= ""/>
+			</div>
+			<div>
+				<lightning:button aura:id="AddOwnerBtn" disabled="false" label="{!$Label.c.OB_AddOwner}" onclick="{!c.aggiungiTitolare}" variant="brand" />
+			</div>
+		<!-- Start antonio.vatrano 27/03/2019 dont check the checkbox onclick on the label -->
+			<!-- <div aura:id="legRapp" class="slds-form-element" style="float:right;">
+				<div class="slds-form-element__control">
+					<span class="slds-checkbox">
+						<input type="checkbox" name="options" id="checkbox-19" value="checkbox-19" onclick="{!c.updateFieldLegaleRapp}"/>
+						<label class="slds-checkbox__label" for="checkbox-19">
+							<span class="slds-checkbox_faux"></span>
+							<span class="slds-form-element__label" style="float:left;padding-right:10px">{!$Label.c.Import_Legal_Representant}</span>
+						</label>
+					</span>
+				</div>
+			</div> -->
+
+			<div aura:id="legRapp" class="slds-form-element" style="float:right;">
+				<table>
+					<tbody>
+						<tr>
+							<td>
+								<span class="" style="float:left;padding-right:10px">
+									{!$Label.c.Import_Legal_Representant}
+								</span>
+							</td>
+							<td>
+								<span class="slds-checkbox">
+									<input type="checkbox" name="options" id="checkbox-19" value="checkbox-19" onclick="{!c.updateFieldLegaleRapp}" />
+			
+									<label class="slds-checkbox__label" for="checkbox-19">
+										<span class="slds-checkbox_faux"></span>
+									</label>
+			
+								</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		<!-- End antonio.vatrano 27/03/2019 dont check the checkbox onclick on the label -->
+		</div>
+	</div>
+
+</aura:component>

@@ -1,0 +1,118 @@
+<!--
+ - Created by adrian.dlugolecki on 24.05.2019. Modified by Joanna Mielczarek <joanna.mielczarek@accenture.com>, 14/06/2019 NEXI-60
+ -->
+
+<aura:component description="OB_LCP006_ContactDataTableActionColumn" >
+
+    <aura:attribute name="tableRow"             type="Object"  access="global"  description="Row data" />
+    <aura:attribute name="logRequestNoExists"   type="Boolean" access="global"  default="true" description="Control showing buttons" />
+    <aura:attribute name="isTEDeletePossible"   type="Boolean" access="global"  description = "Set to true if there is 2 or more TE contact that can be deleted"/>
+
+    <aura:attribute name="isRemoving"           type="Boolean" access="private" default="false" description="Control showing modal before removing" />
+    <aura:attribute name="isModifying"          type="Boolean" access="private" default="false" description="Control showing modal with modification form" />
+    <aura:attribute name="createdDate"          type="String"  access="private" description="Splitted create date" />
+    <!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 START -->
+    <aura:attribute name="disabledFields"	    type="Object"  access="global" 	default="{}"	description="Object containing info which fields should disabled"/>
+    <!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 STOP -->
+
+    <aura:registerEvent name="rowTableActionEvent" type="c:OB_LEV006_ContactDataTableEvent" />
+    <aura:handler name="modalEvent" event="c:OB_LEV000_ModalEvent" action="{! c.modalEventHandler }" />
+    <aura:handler name="teContactEvent" event="c:OB_LEV006_TEContactEvent" action="{! c.modifyingEventHandler }" />
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }" />
+
+    <tr class="slds-hint-parent">
+        <td data-label="{! $Label.c.OBFiscalCodeContact }" scope="row">
+            <div class="slds-truncate" title="{! v.tableRow.newContact.OB_Fiscal_Code__c }">{! v.tableRow.newContact.OB_Fiscal_Code__c }</div>
+        </td>
+        <td data-label="Last Name">
+            <div class="slds-truncate" title="{! v.tableRow.newContact.LastName }">{! v.tableRow.newContact.LastName }</div>
+        </td>
+        <td data-label="First Name">
+            <div class="slds-truncate" title="{! v.tableRow.newContact.FirstName }">{! v.tableRow.newContact.FirstName }</div>
+        </td>
+        <td data-label="Create Date">
+            <div class="slds-truncate" title="{! v.createdDate }">{! v.createdDate }</div>
+        </td>
+        <td data-label="End Date">
+            <div class="slds-truncate" title="{! v.tableRow.newContact.OB_EndDate__c }">{! v.tableRow.newContact.OB_EndDate__c }</div>
+        </td>
+        <td data-label="Actions">
+            <div class="slds-truncate" title="Actions">
+                <div class="slds-truncate" title="Actions">
+                    <lightning:layout >
+                        <!--NEXI-127 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 26.06.2019 START hide buttons if contact is removed-->
+                        <aura:if isTrue="{! and( v.logRequestNoExists, empty( v.tableRow.newContact.OB_EndDate__c ) ) }">
+                        <!--NEXI-127 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 26.06.2019 STOP-->
+                            <aura:if isTrue="{! v.tableRow.actionType == 'none' }">
+                                <lightning:layoutItem padding="horizontal-small">
+                                    <lightning:button label="{! $Label.c.OB_Edit }" onclick="{! c.modifyRow }" variant="brand"/>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem>
+                                    <lightning:button label="{! $Label.c.OB_Delete }" onclick="{! c.deleteRow }" variant="brand"/>
+                                </lightning:layoutItem>
+
+                                <aura:set attribute="else">
+                                    <lightning:layoutItem padding="horizontal-small">
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem >
+                                            {! v.tableRow.actionType }
+                                    </lightning:layoutItem>
+                                </aura:set>
+                            </aura:if>
+
+                            <aura:set attribute="else">
+                                <lightning:layoutItem >
+
+                                </lightning:layoutItem>
+                            </aura:set>
+                        </aura:if>
+                    </lightning:layout>
+                </div>
+            </div>
+        </td>
+    </tr>
+
+    <aura:if isTrue="{! v.isModifying }">
+        <c:OB_LCP006_NewOrModifyContactModal accountId="{! v.tableRow.accountId }"
+                                             oldContact="{! v.tableRow.oldContact }"
+                                             newContact="{! v.tableRow.newContact }"
+                                             disabledFields="{! v.disabledFields }"
+        />
+        <!--NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019-->
+    </aura:if>
+
+    <aura:if isTrue="{! v.isRemoving }">
+        <aura:if isTrue="{!v.isTEDeletePossible}">
+            <c:OB_LCP000_GenericModal headerName="{! $Label.c.OB_Warning }"
+                                      saveOrProceedButtonName = "{! $Label.c.OB_Yes }"
+                                      cancelButtonName = "No"
+                                      isFooterVisible = "true"
+                                      isInvertedButtonOrder = "true"
+                                      modalStyle ="margin: auto; width: 50%;"
+            >
+                <lightning:layout horizontalAlign="center" verticalAlign="center">
+                    {! $Label.c.OB_ActualOwnerRemoval }
+                </lightning:layout>
+            </c:OB_LCP000_GenericModal>
+            <aura:set attribute="else">
+                <c:OB_LCP000_GenericModal headerName="{! $Label.c.OB_Warning }"
+                                          saveOrProceedButtonName = "{! $Label.c.OB_Yes }"
+                                          cancelButtonName = "{! $Label.c.OB_MAINTENANCE_BUTTON_CLOSEBUTTON }"
+                                          isFooterVisible = "true"
+                                          isInvertedButtonOrder = "true"
+                                          modalStyle ="margin: auto; width: 50%;"
+                                          isOkVisible="false"
+                >
+                    <lightning:layout horizontalAlign="center" verticalAlign="center">
+                           <!--NEXI-169 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 05/07/2019 START added <p>-->
+                           <p class="slds-text-align_center">
+                               {!$Label.c.OB_LastActualOwnerRemoval}
+                           </p>
+                           <!--NEXI-169 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 05/07/2019 STOP-->
+                    </lightning:layout>
+                </c:OB_LCP000_GenericModal>
+            </aura:set>
+        </aura:if>
+    </aura:if>
+
+</aura:component>

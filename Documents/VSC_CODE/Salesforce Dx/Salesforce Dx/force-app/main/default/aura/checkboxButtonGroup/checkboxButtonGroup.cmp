@@ -1,0 +1,22 @@
+<aura:component >
+
+    <aura:attribute name="label" type="String" required="true" />
+    <aura:attribute name="options" type="List" required="true" />
+    <aura:attribute name="value" type="List" />
+
+    <fieldset class="slds-form-element">
+        <legend class="slds-form-element__legend slds-form-element__label">{!v.label}</legend>
+        <div class="slds-form-element__control">
+            <div class="slds-checkbox_button-group">
+                <aura:iteration items="{!v.options}" var="option" indexVar="idx">
+                    <span class="slds-button slds-checkbox_button">
+                        <input id="{!option.value}" aura:id="{!option.value}" name="checkbox" type="checkbox" value="{!option.value}" onchange="{!c.onCheckboxChange}" aria-idx="{!idx}"/>
+                        <label class="slds-checkbox_button__label" for="{!option.value}" >
+                            <span class="slds-checkbox_faux">{!option.label}</span>
+                        </label>
+                    </span>
+                </aura:iteration>
+            </div>
+        </div>
+    </fieldset>
+</aura:component>

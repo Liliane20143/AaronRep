@@ -1,0 +1,13 @@
+.blackbar, .whitebar {
+    display: inline-block;
+    overflow: hidden;
+    padding: 0;
+    width: 0.8px;
+    height: 5mm;
+}
+.blackbar {
+    background-color: black;
+}
+.whitebar {
+    background-color: white;
+}

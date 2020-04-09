@@ -1,0 +1,8 @@
+.THIS.slds-section .slds-section__title-action svg.slds-button__icon {
+    transform: rotate(-90deg);
+}
+
+.THIS.slds-section.slds-is-open .slds-section__title-action svg.slds-button__icon {
+    transform: rotate(0deg);
+    transform-origin: 45%;
+}

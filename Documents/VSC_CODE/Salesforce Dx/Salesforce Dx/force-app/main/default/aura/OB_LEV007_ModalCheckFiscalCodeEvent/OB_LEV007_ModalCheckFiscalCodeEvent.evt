@@ -1,0 +1,7 @@
+<!--
+ - Created by m.lukomska-rogala on 03.07.2019.
+ -->
+
+<aura:event type="COMPONENT" description="OB_LEV007_ModalCheckFiscalCodeEvent">
+    <aura:attribute name="openModal" type="Boolean"/>
+</aura:event>

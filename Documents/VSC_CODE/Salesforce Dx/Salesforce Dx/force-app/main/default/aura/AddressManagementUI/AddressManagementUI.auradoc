@@ -1,0 +1,29 @@
+<aura:documentation>
+    <aura:description>
+		<p><b>Version</b></p>
+		<p>18.07.09</p>
+		<p>&nbsp;</p>
+		<p><b>Description </b></p>
+		<p>The Address component show all Account's Addresses, and allows you to insert a new one or select an existing one. The component extends BaseSR which, using the generateNewGuid method, provides an ExternalCode required for creating an interaction. Address must have one of four types: Residence, Domicile, Billing and Supply. If you want to embed the address component into another one, just be sure to pass the attribute isEmbedded=true. </p>
+		<p>&nbsp;</p>
+		<p><b>Configuration</b></p>
+		<p>A required attribute of type map, named cmpParams, must have the following fields:</p>
+		<ul>
+			<li><b>AccountEC__c:</b> is the Account External Code (required).</li>
+			<li><b>AddressEC:</b> the Address External Code (default is NULL).</li>
+			<li><b>AddressId:</b> the id of an Address that you want to view or edit (default is NULL).</li>
+			<li><b>normalizer:</b> a string representing the normalizer type ('OFF' for disable, 'INTERNAL' or 'EXTERNAL').</li>
+		</ul>
+		<p>&nbsp;</p>
+		<p><b>Objects</b></p>
+		<p>Address__c</p>
+		<p>&nbsp;</p>
+		<p><b>Field &amp; Validation details</b></p>
+		<p>By clicking verify button, the address will be normalized. If the attribute normalizer is 'INTERNAL' and city isn't empty, the normalization will take care of compiling Province, Region and Zone automatically take data from CityRegistry__c table. </p>
+		<p>&nbsp;</p>
+		<p><b>Dependencies </b></p>
+		<p>AddressManagementUI is one of the "core" component and it will be embedded into other ones, but still has some dependency: CityRegistry__c must be poopulated with Cities required for normalization.</p>
+	
+	</aura:description>
+    
+</aura:documentation>

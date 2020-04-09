@@ -1,0 +1,74 @@
+.THIS.slds-has-error .flow_required{
+    background-color: rgb(255, 255, 255)!important;
+    border: 1px solid rgb(221, 219, 218)!important;
+    border-color: rgb(194, 57, 52)!important;
+    box-shadow: rgb(194, 57, 52) 0 0 0 1px inset!important;
+    background-clip: padding-box!important;
+}
+
+.THIS.search-cf-button
+{        
+    margin-top: 21px!important;
+    margin-left: 15%!important;
+}
+.THIS.search-cf-button-container
+{
+    text-align: -webkit-center!important;
+}    
+.THIS.error-input-message
+{
+    position: absolute!important;
+    z-index: 1!important;
+}
+.THIS.slds-spinner_container
+{
+    position: absolute!important;
+    z-index: 1!important;
+}
+
+.THIS.lens-search-button
+{
+    margin-top: 20.5px !important;
+    margin-left: 3px !important;
+}
+.THIS.lens-search-button  
+{
+    width: 35px!important;
+    margin-left: -15px!important;
+}
+.THIS.lens-search-button 
+{
+    margin-left: -6px!important;
+} 
+/* CLASSI CSS PER MODELLARE BACKGROUND STEP (Saesforce 2019 sovrascrive)*/
+.THIS .bit2flowDynWizard .slds-tabs_path .slds-is-current {
+    background-color: rgb(48, 58, 178);
+}
+.THIS .bit2flowDynWizard .slds-tabs_path .slds-is-current:hover{
+    background-color: rgb(48, 58, 178);
+}
+.THIS .bit2flowDynWizard .slds-tabs_path.slds-is-current + .slds-is-incomplete:before {
+    background-color: rgb(48, 58, 178);
+}
+.THIS .bit2flowDynWizard .slds-tabs_path.slds-is-current + .slds-is-incomplete:before:hover {
+    background-color: rgb(48, 58, 178);
+}
+.THIS .error-input-message{
+    
+    color:rgb(194, 57, 52);
+    
+}
+.THIS input[type='number'] {  
+   -moz-appearance:textfield;
+}
+/* For webkit browsers like Chrome and Safari */
+.THIS input[type=number]::-webkit-inner-spin-button,
+.THIS input[type=number]::-webkit-outer-spin-button {
+   -webkit-appearance: none;
+   margin: 0;
+}
+.THIS.red-border {
+    color:rgb(194, 57, 52);
+    position: absolute;
+    z-index: 1;
+}

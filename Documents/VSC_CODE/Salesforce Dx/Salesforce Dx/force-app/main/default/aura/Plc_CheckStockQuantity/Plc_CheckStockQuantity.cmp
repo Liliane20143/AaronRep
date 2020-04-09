@@ -1,0 +1,458 @@
+<!--
+/**
+ * *************************************************
+ *     * @Author nunzio.capasso@/webresults.it
+ *     * @date  13/03/2019 17:17
+ *     * @param
+ *     * @description
+ *     * @Modified by
+ *   ***********************************************
+ **/
+ -->
+
+ <aura:component description="Plc_CheckStockQuantity" controller="Plc_CheckStockQuantityCnt"
+ implements="lightning:isUrlAddressable">
+
+<!--PRIVATE ATTRIBUTES-->
+<aura:attribute name="columnsData" type="List" default="" description="Table columns names"/>
+<aura:attribute name="dataToshow" type="List" default="" description="Data to show in table"/>
+<aura:attribute name="inputDateTime" type="Datetime" default="" description="Datetime vulue from user input"/>
+<aura:attribute name="productStockId" type="String" default="" description="Bit2Shop__Product_Stock__c id"/>
+<aura:attribute name="isCalculatePerformed" type="Boolean" default="false"
+     description="true if calcola button is pressed"/>
+<aura:attribute name="placeHolderCombobox" type="String" default=""/>
+     
+
+<aura:attribute name="quantityObject" type="Object" default=""
+     description="contains the aggregate quantity for the diffent serial statuses"/>
+<!-- [START MOD 2019-08-22] @Author:Luca Belometti @Description: Added attribute to delimiter CSV -->
+<aura:attribute access="private" name="selectedColumnDelimiter" type="String" default="," description="Contains the selected column delimiter"/>
+<!-- [END MOD 2019-08-22] @Author:Luca Belometti @Description: Added attribute to delimiter CSV -->
+
+<!-- [START MOD 2019-09-10] @Author:Luca Belometti @Description:Pagination Attribute -->
+<aura:attribute name="allData" type="List"/>
+<aura:attribute name="data" type="Object"/>
+<aura:attribute name="currentPageNumber" type="Integer" default="1"/>
+<aura:attribute name="pageSize" type="Integer" default="10"/>
+<aura:attribute name="totalPages" type="Integer" default="0"/>
+<aura:attribute name="pageList" type="List"/>
+<aura:attribute name="sumOrderedQty" type="Integer" default="0"/>
+<aura:attribute name="sumUsabledQty" type="Integer" default="0"/>
+<aura:attribute name="sumWithdrawnQty" type="Integer" default="0"/>
+<aura:attribute name="sumStockQty" type="Integer" default="0"/>
+<aura:attribute name="sumOtherQty" type="Integer" default="0"/>
+<aura:attribute name="sumAvailableQty" type="Integer" default="0"/>
+<aura:attribute name="sumReservedQty" type="Integer" default="0"/>
+<aura:attribute name="orderedQty" type="String" default="0" description="ordered quantity"/>
+<!-- [END MOD 2019-09-10] @Author:Luca Belometti @Description: pagination Attribute -->
+
+<!--CUSTOM LOOKUP PRIVATE ATTRIBUTES-->
+<aura:attribute name="selectedModel" type="string" default=""/>
+<aura:attribute name="selectedWarehouse" type="string" default=""/>
+<aura:attribute name="selectedSolution" type="string" default=""/>
+<aura:attribute name="selectedLogisticDivision" type="string" default=""/>
+<aura:attribute name="IsModelLookupDisabled" type="Boolean" default="true"/>
+<aura:attribute name="IsWarehouseLookupDisabled" type="Boolean" default="false"/>
+<aura:attribute name="externalCatItem" type="String"
+     description="Available extCatItem (as String) for given warehouseId"/>
+<aura:attribute name="resetModelPicklist" type="Boolean" default="true" description="resetModelPicklist"/>
+
+<!--UI ELEMENTS PRIVATE ATTRIBUTES-->
+<aura:attribute name="showSpinner" type="Boolean" default="false" description="Show\hide spinner"/>
+<aura:attribute name="modalMessage" type="String" default="" description="Modal message"/>
+<aura:attribute name="showModal" type="Boolean" default="false" description="Show\hide modal"/>
+<aura:attribute name="showStep1" type="Boolean" default="false" description="show\hide step 1"/>
+<aura:attribute name="showStep2" type="Boolean" default="false" description="show\hide step 2"/>
+
+<aura:attribute name="modelToShow" type="String" default="" description="modelToShow"/>
+<aura:attribute name="warehouseToShow" type="String" default="" description="warehouseToShow"/>
+<aura:attribute name="logisticDivisionToShow" type="String" default="" description="logisticDivisionToShow"/>
+<aura:attribute name="solutionToShow" type="String" default="" description="solutionToShow"/>
+
+<aura:attribute name="toggleCalculate" type="Boolean" default="true" description="toggleCalculate"/>
+<aura:attribute name="toggleDownloadCsv" type="Boolean" default="true" description="toggle download Csv File"/>
+
+<aura:attribute name="stockSerialsTotalQty" type="String" default="0" description="stock serials total quantity"/>
+<aura:attribute name="options" type="List" default="[
+{'label': '-', 'value': ''},
+{'label': 'Nexi', 'value': 'Nexi'},
+{'label': 'Aspiag', 'value': 'Aspiag'},
+{'label': 'Neutral', 'value': 'Neutral'},
+]"/>
+
+<aura:attribute name="optionsPagination" type="List" default="[
+{'label': '10', 'value': '10'},
+{'label': '25', 'value': '25'},
+{'label': '50', 'value': '50'},
+]"/>
+
+
+<!--INIT HANDLER-->
+<aura:handler name="init" value="{!this}" action="{!c.initComponent}"/>
+<aura:handler name="change" value="{!v.selectedWarehouse}" action="{!c.handleModelCustomPicklistValue}"/>
+
+<!--SPINNER-->
+<lightning:spinner aura:id="bwspinner" variant="brand" size="large"
+        class="{!v.showSpinner ? 'spinnerlayer slds-is-fixed' : 'spinnerlayer slds-is-fixed slds-hide'}"/>
+
+<!--MODAL COMPONENT-->
+<c:Plc_ModalComponent showModal="{!v.showModal}" type="info" message="{!v.modalMessage}"/>
+
+
+<div class="slds-page-header slds-page-header_record-home">
+<div class="slds-page-header__row">
+<div class="slds-page-header__col-title">
+ <div class="slds-media">
+     <div class="slds-media__figure">
+         <span class="slds-icon_container slds-icon-standard-opportunity">
+             <lightning:icon iconName="standard:report" size="large"/>
+         </span>
+     </div>
+     <div class="slds-media__body">
+         <div class="slds-page-header__name">
+             <div class="slds-page-header__name-title">
+                 <h1>
+                     <span>Custom Report</span>
+                     <span class="slds-page-header__title slds-truncate"
+                           title="Check Stock Quantit">{!$Label.c.Plc_checkStockQuantity}</span>
+                 </h1>
+             </div>
+         </div>
+     </div>
+ </div>
+</div>
+<div class="slds-page-header__col-actions">
+ <div class="slds-page-header__controls">
+
+     <div class="slds-page-header__control">
+         <ul class="slds-button-group-list">
+             <li>
+                 <lightning:button aura:id="backStep1" class="slds-theme_neutral slds-size_1-of-1"
+                                   iconPosition="left"
+                                   variant="neutral"
+                                   onclick="{!c.handleBackButton}"
+                                   label="{!$Label.c.Plc_AllAllBack}"
+                                   iconName="utility:back"/>
+             </li>
+         </ul>
+     </div>
+ </div>
+</div>
+</div>
+<div class="slds-page-header__row slds-page-header__row_gutters slds-page-header__detail-row">
+<div class="slds-page-header__col-details ">
+
+ <!-- IF DATA ARE NOT PRESENT-->
+ <aura:if isTrue="{!v.showStep1}">
+
+     <!-- CUSTOM PICKLIST GRID-->
+     <lightning:layout class="slds-grid_align-center slds-m-bottom--large">
+         <lightning:layoutItem size="6" class="slds-m-right--xxx-small">
+             <c:Plc_CustomLookup aura:id="chooseWarehouse" required="false"
+                                 disabled="{!v.IsWarehouseLookupDisabled}"
+                                 selectedRecord="{!v.selectedWarehouse}"
+                                 objectAPIName="Bit2Shop__Warehouse__c"
+                                 iconName="custom:custom52"
+                                 label="{!$Label.c.Plc_SelectedWarehouse}"
+                                 additionalFieldsToQuery=""
+                                 sObjectFieldToDisplayList="Name"
+                                 whereCondition="{!' Name LIKE :searchKey '}"/>
+         </lightning:layoutItem>
+     </lightning:layout>
+     <lightning:layout class="slds-grid_align-center slds-m-bottom--large">
+         <lightning:layoutItem size="6">
+             <aura:if isTrue="{!v.resetModelPicklist}">
+                 <c:Plc_CustomLookup aura:id="choosemodel" required="false"
+                                     disabled="{!v.IsModelLookupDisabled}"
+                                     selectedRecord="{!v.selectedModel}"
+                                     objectAPIName="B2WExtCat__External_Catalog_Item__c"
+                                     iconName="custom:custom34"
+                                     label="{!$Label.c.Plc_SelectedModel}"
+                                     additionalFieldsToQuery="B2WExtCat__External_Catalog_Item_Name__c"
+                                     sObjectFieldToDisplayList="B2WExtCat__External_Catalog_Item_Name__c"
+                                     whereCondition="{!empty(v.externalCatItem)
+                         ? ' B2WExtCat__External_Catalog_Item_Name__c LIKE :searchKey'
+                         : ' B2WExtCat__External_Catalog_Item_Name__c LIKE :searchKey AND Id IN  '+v.externalCatItem }"/>
+             </aura:if>
+
+         </lightning:layoutItem>
+     </lightning:layout>
+
+     <!-- [START MOD 2019-08-21] @Author:Luca Belometti @Description: Added 2 Custom Lookup( Solution and Logistic Division) -->
+
+     <lightning:layout class="slds-grid_align-center slds-m-bottom--large">
+         <lightning:layoutItem size="6">
+             <aura:if isTrue="{!v.resetModelPicklist}">
+                 <c:Plc_CustomLookup aura:id="choosemodel" required="false"
+                                     disabled="{!v.IsModelLookupDisabled}"
+                                     selectedRecord="{!v.selectedLogisticDivision}"
+                                     objectAPIName="Bit2Shop__Warehouse__c"
+                                     iconName="custom:custom52"
+                                     label="{!$Label.c.Plc_SelectedLogisticDivision}"
+                                     additionalFieldsToQuery="Plc_LogisticDivision__c"
+                                     sObjectFieldToDisplayList="Plc_LogisticDivision__c"
+                                     whereCondition="{!'Plc_LogisticDivision__c LIKE :searchKey'}"/>
+             </aura:if>
+
+         </lightning:layoutItem>
+     </lightning:layout>
+
+
+     <lightning:layout class="slds-grid_align-center slds-m-bottom--large">
+         <lightning:layoutItem size="6">
+             <aura:if isTrue="{!v.resetModelPicklist}">
+                 <c:Plc_CustomLookup aura:id="choosemodel" required="false"
+                                     disabled="{!v.IsModelLookupDisabled}"
+                                     selectedRecord="{!v.selectedSolution}"
+                                     objectAPIName="Plc_Solution__c"
+                                     iconName="custom:custom11"
+                                     label="{!$Label.c.Plc_SelectedModel}"
+                                     additionalFieldsToQuery=""
+                                     sObjectFieldToDisplayList="Name"
+                                     whereCondition="{!'Name LIKE :searchKey'}"/>
+             </aura:if>
+
+         </lightning:layoutItem>
+     </lightning:layout>
+
+     <!-- [END MOD 2019-08-21] @Author:Luca Belometti @Description: Added 2 Custom Lookup( Solution and Logistic Division) -->
+
+     <lightning:layout class="slds-grid_align-center">
+         <lightning:button
+                 aura:id="confirm-button"
+                 class="slds-theme_brand"
+                 variant="brand"
+                 label="{!$Label.c.Plc_AllAllNextLabel}"
+                 onclick="{!c.handleConferma}"
+                 disabled="{!empty(v.electedWarehouse) &amp;&amp; empty( v.selectedModel)}"/>
+     </lightning:layout>
+
+ </aura:if>
+
+
+ <!-- ACTUAL COMPONENT-->
+ <!-- IF DATA ARE ALREADY PRESENT-->
+ <aura:if isTrue="{!v.showStep2}">
+
+     <!--RECAP GRID SELECTED WAREHOUSE AND MODEL-->
+      <lightning:layout class="slds-m-right_small slds-m-bottom_small slds-m-left_small">
+         <lightning:layoutItem size="2">
+     <!-- [START MOD 2019-08-29] @Author:Luca Belometti @Description:
+                 <c:Plc_CustomLookup aura:id="choosemodel" required="false"
+                 disabled="false"
+                 selectedRecord="{!v.selectedLogisticDivision}"
+                 objectAPIName="Bit2Shop__Warehouse__c"
+                 iconName="custom:custom52"
+                 label="Selected Logistic Division"
+                 additionalFieldsToQuery="Plc_LogisticDivision__c"
+                 sObjectFieldToDisplayList="Plc_LogisticDivision__c"
+                 whereCondition="{!'Plc_LogisticDivision__c LIKE :searchKey'}"/>   -->
+
+         
+<lightning:combobox name="progress" label="{!$Label.c.Plc_SelectedLogisticDivision}" icons="custom:custom52" value="{!v.placeHolderCombobox}" placeholder="{!$Label.c.Plc_AllAllSearchLabel}"
+options="{! v.options }" onchange="{! c.handleChange }"/>
+
+         </lightning:layoutItem>
+         <lightning:layoutItem size="2" class="slds-m-left--large">
+                 <c:Plc_CustomLookup aura:id="chooseWarehouse" required="false"
+                 disabled="false"
+                 selectedRecord="{!v.selectedWarehouse}"
+                 objectAPIName="Bit2Shop__Warehouse__c"
+                 iconName="custom:custom52"
+                 label="{!$Label.c.Plc_SelectedWarehouse}"
+                 additionalFieldsToQuery=""
+                 sObjectFieldToDisplayList="Name"
+                 whereCondition="{!' Name LIKE :searchKey '}"/>
+         </lightning:layoutItem>
+         
+         <!-- [START MOD 2019-08-21] @Author:Luca Belometti @Description: Added the 2 elements to show (Logistic and Solution) -->
+
+         <lightning:layoutItem size="2" class="slds-m-left--large">
+                 <c:Plc_CustomLookup aura:id="choosemodel" required="false"
+                 disabled="false"
+                 selectedRecord="{!v.selectedSolution}"
+                 objectAPIName="Plc_Solution__c"
+                 iconName="custom:custom11"
+                 label="{!$Label.c.Plc_SelectedSolution}"
+                 additionalFieldsToQuery=""
+                 sObjectFieldToDisplayList="Name"
+                 whereCondition="{!'Name LIKE :searchKey'}"/>                              
+         </lightning:layoutItem>
+
+         <lightning:layoutItem size="2" class="slds-m-left--large">
+                 <c:Plc_CustomLookup aura:id="choosemodel" required="false"
+                 disabled="false"
+                 selectedRecord="{!v.selectedModel}"
+                 objectAPIName="B2WExtCat__External_Catalog_Item__c"
+                 iconName="custom:custom34"
+                 label="{!$Label.c.Plc_SelectedModel}"
+                 additionalFieldsToQuery="B2WExtCat__External_Catalog_Item_Name__c"
+                 sObjectFieldToDisplayList="B2WExtCat__External_Catalog_Item_Name__c"
+                 whereCondition="{!empty(v.externalCatItem)
+                 ? ' B2WExtCat__External_Catalog_Item_Name__c LIKE :searchKey'
+                 : ' B2WExtCat__External_Catalog_Item_Name__c LIKE :searchKey AND Id IN  '+v.externalCatItem }"/>
+         </lightning:layoutItem>
+
+
+         <!-- [END MOD 2019-08-21] @Author:Luca Belometti @Description: Added the 2 elements to show (Logistic and Solution) -->
+       <!--  <lightning:layoutItem size="4"/> -->
+
+     </lightning:layout>
+
+
+     <lightning:layout class="slds-m-left_small">
+         <!-- DATETIME INPUT BUTTON-->
+         <lightning:layoutItem>
+             <lightning:input
+                     aura:id="inputdatetime"
+                     class="slds-p-right_small"
+                     placeholder="{!$Label.c.Plc_InsetDateTime}"
+                     type="datetime-local"
+                     onchange="{!c.handleToggleCalculate}"
+                     value="{!v.inputDateTime}"
+                     variant="standard"/>
+         </lightning:layoutItem>
+
+         <!-- CALCULATE BUTTON-->
+         <lightning:layoutItem>
+             <lightning:button class="slds-m-top_large slds-theme_brand"
+                               variant="brand"
+                               type="button"
+                               disabled="{!v.toggleCalculate}"
+                               onclick="{!c.handleCalculate}"
+                               label="{!$Label.c.Plc_Calculate}"/>
+         </lightning:layoutItem>
+
+         <!-- [START MOD 2019-08-21] @Author:Luca Belometti @Description: -->
+
+         <!-- DOWNLOAD CSV BUTTON -->
+         <lightning:layoutItem >
+             <lightning:button class="slds-m-top_large slds-theme_brand slds-m-left_small"
+                               variant="brand"
+                               type="button"
+                               disabled="{!v.toggleDownloadCsv}"
+                               onclick="{!c.handleDownloadCSV}"
+                               label="Download CSV"
+                               iconName="doctype:csv"/>
+         </lightning:layoutItem>
+         <!-- PAGINATION SETUP -->
+         <lightning:layoutItem>
+            <lightning:combobox class="slds-p-left_small"  disabled="{!v.toggleDownloadCsv}" 
+                                name="general" label="Pagination" placeholder="Select pagination size" 
+                                options="{! v.optionsPagination }" onchange="{! c.handleChangePagination }"/>
+        </lightning:layoutItem>
+         <!-- [END MOD 2019-08-21] @Author:Luca Belometti @Description: -->
+
+     </lightning:layout>
+
+     <aura:if isTrue="{!v.isCalculatePerformed}">
+         <lightning:layout class="slds-card__footer slds-m-top--medium" >
+             <lightning:layoutItem size="12">
+                 <div class="slds-box_border">
+                     <lightning:datatable
+                             columns="{!v.columnsData}"
+                             keyField="serialStatus"
+                             resizeColumnDisabled="true"
+                             hideCheckboxColumn="true"
+                             data="{!v.data}"/>
+                 </div>
+             </lightning:layoutItem>
+             
+             
+         </lightning:layout>
+         <table style="width:102%; margin-left: 11px; text-align:center;">
+                <tr>
+                  <th style="text-align:center;">Total</th>
+                  <th style="text-align:center;">Stock Quantity: {!v.sumStockQty}</th>
+                  <th style="text-align:center;">Available Quantity: {!v.sumAvailableQty}</th>
+                  <th style="text-align:center;">Usable Quantity: {!v.sumUsabledQty}</th>
+                  <th style="text-align:center;">Withdrawn Quantity: {!v.sumWithdrawnQty}</th>
+                  <th style="text-align:center;">Reserved Quantity: {!v.sumReservedQty}</th>
+                  <th style="text-align:center;">Ordered Quantity: {!v.sumOrderedQty}</th>
+                  <th style="text-align:center;">Other Quantity: {!v.sumOtherQty}</th>
+                </tr>
+        </table>
+         <lightning:layout>
+
+         
+         </lightning:layout>
+
+        <lightning:layout>
+                <lightning:layoutItem padding="around-small" flexibility="auto">
+                        <lightning:button label="First" iconName="utility:left" iconPosition="left"
+                                          onclick="{!c.onFirst}" disabled="{! v.currentPageNumber == 1}"/>
+                        <lightning:button iconName="utility:chevronleft" iconPosition="left"
+                                          onclick="{!c.onPrev}" disabled="{! v.currentPageNumber == 1}"/>
+                        <span class="slds-p-horizontal_x-small">
+                            <a onclick="{!c.processMe}" name="1" 
+                               class="{! (v.currentPageNumber == 1) ? 'selected' : ''}">1</a>
+                        </span>
+                        <span class="slds-p-horizontal_xxx-small">
+                            <a>...</a>
+                        </span>
+                        
+                        <aura:iteration items="{!v.pageList}" var="item">
+                            <span class="slds-p-horizontal_x-small">
+                                <a onclick="{!c.processMe}" name="{!item}"
+                                   class="{! (v.currentPageNumber == item) ? 'selected' : ''}">{!item}</a>
+                            </span>
+                        </aura:iteration>
+                        
+                        <span class="slds-p-horizontal_xxx-small">
+                            <a>...</a>
+                        </span>
+                        <span class="slds-p-horizontal_x-small">
+                            <a onclick="{!c.processMe}" name="{!v.totalPages}"
+                               class="{! (v.currentPageNumber == v.totalPages) ? 'selected' : ''}">{!v.totalPages}</a>
+                        </span>
+                        <lightning:button iconName="utility:chevronright" iconPosition="right" 
+                                          disabled="{! v.currentPageNumber == v.totalPages}" onclick="{!c.onNext}"/>
+                        <lightning:button label="Last" iconName="utility:right" iconPosition="right" 
+                                          disabled="{! v.currentPageNumber == v.totalPages}" onclick="{!c.onLast}"/>
+                    </lightning:layoutItem>
+
+        </lightning:layout>
+
+         <!-- [START MOD 2019-09-03] @Author:Luca Belometti @Description: -->
+         <!-- 
+         <lightning:layout class="slds-m-left_small">
+         <lightning:layoutItem size="4" class="slds-m-left_xx-large defined-width">
+
+            <ui:inputText label="{!$Label.c.Plc_stockQuantityColumnLabel}"
+                          class="slds-text-align__center"
+                          disabled="true"
+                          value="{!v.stockSerialsTotalQty}"/>
+            <div style="margin-bottom: 10px;"></div>
+
+            <ui:inputText label="{!$Label.c.Plc_ReservedQuantity}"
+                          class="slds-text-align__center"
+                          disabled="true"
+                          value="{!v.reservedQty}"/>
+            <div style="margin-bottom: 10px;"></div>
+
+            <ui:inputText label="{!$Label.c.Plc_OrderedQuantity}"
+                          class="slds-text-align__center"
+                          disabled="true"
+                          value="{!v.orderedQty}"/>
+        </lightning:layoutItem>
+        </lightning:layout> -->
+
+
+         <!-- [END MOD 2019-09-03] @Author:Luca Belometti @Description: -->
+
+
+
+
+
+     </aura:if>
+ </aura:if>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+</aura:component>

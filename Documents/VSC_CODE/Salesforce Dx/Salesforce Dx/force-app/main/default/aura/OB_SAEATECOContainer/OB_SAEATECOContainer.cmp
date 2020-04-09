@@ -1,0 +1,51 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global">
+
+	<aura:attribute name="field" 				type="Object" 	default="{}" 						access="global"	/> 
+	<aura:attribute name="addressMapping" 		type="Object" 	default="{!v.field.addressMapping}" access="global"	/>
+	<aura:attribute name="objectDataMap" 		type="Object"  	default="{}"  						access="global"	/>
+	<aura:attribute name="addressMappingSAE" 	type="Object" 	default="{}" 						access="global"	/>
+	<aura:attribute name="addressMappingATECO" 	type="Object" 	default="{}" 						access="global"	/>
+	<aura:attribute name="doneRenderParent" 	type="Boolean" 	default="false" 					access="global"	/>
+	<aura:attribute name="showATECO" 			type="Boolean" 	default="false" 					access="global"	/>
+	<aura:attribute name="backupFATECO"			type="String" 	default="" 							access="global"	/>
+	<!-- NEXI-93 Marta Stempien <marta.stempien@accenture.com> 27/05/2019 Start -->
+	<aura:attribute name="fromMaintenance"      type="Boolean"  default = "false"	access="global"  	description="The value is set 'true' when the component was accessed from Maintenance Flow" />
+	<aura:attribute name="isDisabled"			type="Boolean"	default	= "true"	access="global" 	description="The value controls the editability of the OB_FlowInputModal components" />
+	<!-- NEXI-93 Marta Stempien <marta.stempien@accenture.com> 27/05/2019 End -->
+	<aura:handler 	name="init" 				value="{!this}" 									action="{!c.doInit}" 					/>
+	<aura:handler 	name="change" 				value="{!v.objectDataMap.merchant.OB_FATECO__c}" 	action="{!c.hideATECOcomponent}"		/>
+	<!-- NEXI-231 Marta Stempien <marta.stempien@accenture.com> 19/07/2019 Start -->
+	<aura:method 	name = "setRedBorderOnSaeAteco" action="{!c.setRedBorderOnSaeAteco}" description = "Method sets red borders if needed">
+		<aura:attribute name = "isMissingSae" 	type = "Boolean" default = "false" />
+		<aura:attribute name = "isMissingAteco" type = "Boolean" default = "false" />
+	</aura:method>
+	<!--NEXI-231 Marta Stempien <marta.stempien@accenture.com> 19/07/2019 Stop -->
+	<!--NEXI-351 Marta Stempien <marta.stempien@accenture.com> 19/07/2019 Start -->
+	<aura:attribute name = "previousAteco" 		type="String" 	default = ""  						access = "private"	description = "contains previous value of ATECO"/>
+	<!--NEXI-351 Marta Stempien <marta.stempien@accenture.com> 19/07/2019 Stop -->
+
+	<div class="slds-size--1-of-1 slds-grid">
+		<aura:if isTrue="{!v.doneRenderParent}">
+			<!-- SAE -->
+			<c:OB_FlowInputModal 	aura:id="saecomponent"
+							   		objectDataMap="{!v.objectDataMap}"
+							   		addressMapping="{!v.addressMappingSAE}"
+									isDisableModify="{!v.isDisabled}"
+									previousAteco = "{!v.previousAteco}" /><!--NEXI-351 Marta Stempien <marta.stempien@accenture.com> 19/07/2019 previousAteco parameter added -->
+			<!-- NEXI-93 Marta Stempien <marta.stempien@accenture.com> 27/05/2019  Parameter changed into "isDisabled -->
+
+
+			<!-- ATECO -->
+			<aura:if isTrue="{!v.showATECO}">
+				<c:OB_FlowInputModal 	aura:id="atecocomponent"
+								   		objectDataMap="{!v.objectDataMap}"
+								   		addressMapping="{!v.addressMappingATECO}"
+										isDisableModify="{!v.isDisabled}"
+										previousAteco = "{!v.previousAteco}" />  <!--NEXI-351 Marta Stempien <marta.stempien@accenture.com> 19/07/2019 previousAteco parameter added -->
+				<!-- NEXI-93 Marta Stempien <marta.stempien@accenture.com> 27/05/2019  Parameter changed into "isDisabled  -->
+
+			</aura:if>
+		</aura:if>
+	</div>
+
+</aura:component>

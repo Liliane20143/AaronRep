@@ -1,0 +1,34 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes" controller="BT_BankToolSimulatorCnt">
+    <aura:attribute name="isReferral" type="Boolean" default="false" />
+    <aura:attribute name="showSpinner" type="Boolean" default="true" />
+    <aura:attribute name="showLoadSpinner" type="Boolean" default="false" />
+    <aura:attribute name="showSaveSpinner" type="Boolean" default="false" />
+    <aura:attribute name="config" type="Object" />
+    <aura:attribute name="currentOffer" type="Object" />
+    <aura:attribute name="mode" type="String" default="" />
+    <aura:attribute name="record" type="BT_Simulation__c" default="{'sObjectType':'BT_Simulation__c'}"/>
+    <aura:attribute name="canPrint" type="Boolean" />
+    <aura:attribute name="alreadySentEmail" type="Boolean" default="false"/>
+    <aura:attribute name="simulationId" type="String" />
+    <aura:attribute name="simulationOK" type="Boolean" default="false" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="simulationStartedEvent" event="c:BT_SimulationStarted" action="{!c.handleStartSimulation}" />
+    <aura:handler name="simulationSaveEvent" event="c:BT_SimulationSave" action="{!c.doSimulation}" />
+
+    <aura:if isTrue="{!v.showSpinner}">
+        <lightning:spinner variant="brand" size="large" alternativeText="please wait" />
+        <aura:set attribute="else">
+            <aura:if isTrue="{!or(v.showLoadSpinner, v.showSaveSpinner)}">
+                <lightning:spinner variant="brand" size="large" alternativeText="please wait" />
+            </aura:if>
+            <aura:if isTrue="{!v.isReferral}">
+                <c:BT_ReferralSimulator currentOffer="{!v.currentOffer}" mode="{!v.mode}" config="{!v.config}" record="{!v.record}" simulationOK="{!v.simulationOK}" simulationId="{!v.simulationId}"  showSpinner="{!v.showLoadSpinner}" />
+                <aura:set attribute="else">
+                    <c:BT_LicensingSimulator mode="{!v.mode}" config="{!v.config}" record="{!v.record}" simulationOK="{!v.simulationOK}" canPrint="{!v.canPrint}" simulationId="{!v.simulationId}" />
+                </aura:set>
+            </aura:if>
+        </aura:set>
+    </aura:if>
+        
+</aura:component>

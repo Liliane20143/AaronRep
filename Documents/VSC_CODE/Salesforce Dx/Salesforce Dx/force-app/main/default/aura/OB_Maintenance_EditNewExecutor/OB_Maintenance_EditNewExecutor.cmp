@@ -1,0 +1,387 @@
+<aura:component extends="c:OB_BaseComponent"  controller="OB_Maintenance_EditAccount_Controller"  access="global" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes">
+	<aura:attribute name="FlowData" type="string"  />
+    <aura:attribute name="FlowStep" type="string"  />
+    
+    <!-- <ltng:require  scripts="{!$Resource.FiscalCodeControl2}" afterScriptsLoaded="{!c.removeErrorMessage}"/> -->
+ 	<aura:attribute name="disabled"                  	type="boolean" 	default="true"  />
+ 	<aura:attribute name="isLoaded"                  	type="boolean" 	default="false" />
+	<aura:attribute name="status"                    	type="string"  	default="VIEW"  />
+	<aura:attribute name="showModal"                 	type="boolean" 	default="false" />
+	<aura:attribute name="newExecutor"               	type="boolean" 	default="false" />
+	<aura:Attribute name ="switchOnload"             	type="boolean" 	default="false" />
+	<aura:Attribute name ="showModalDocuments"       	type="boolean" 	default="false" />
+	<aura:Attribute name ="logrequestid"             	type="String" 	default="" 		access = "global"/>
+	<aura:attribute name ="showAccordionEditExecutor" 	type="String" 	default="" 		/>
+	<!-- NEXI-94 Marta Stempien <marta.stempien@accenture.com> 18/06/2019 - Start -->
+	<aura:attribute name = "isTrueShowExecutorInputs"	type="Boolean" 	default="false" access = "global"/>
+	<!-- NEXI-94 Marta Stempien <marta.stempien@accenture.com> 18/06/2019 - Stop -->
+	<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 START -->
+	<aura:attribute name="disabledFields"					type="Object"	default="{}"	access="global" 	description="Object containing info which fields should disabled"/>
+	<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 STOP -->
+
+	<aura:registerEvent name="OB_ContinuationRequest" 					type="c:OB_ContinuationRequest" 								/>
+	<aura:attribute 	name="postelcomponentparamsbirthAddress" 		type="Object" 					default="{}" 	access="global" />
+	<aura:attribute 	name="postelcomponentparamsdocreleaseAddress" 	type="Object" 					default="{}" 	access="global" />
+	<aura:attribute 	name="postelcomponentparamscontactAddress" 		type="Object" 					default="{}" 	access="global" />
+	<aura:attribute 	name="postelcomponentparamsCitizenship" 		type="Object" 					default="{}" 	access="global" />
+	<aura:attribute 	name="postelcomponentparamsFiscalCode" 			type="Object" 					default="{}" 	access="global" />
+	<aura:attribute 	name="objectDataMap" 							type="Object" 									access="global" />
+
+
+	<!-- list of label to display--> 
+	<aura:attribute 	name="ContactFieldsLabel" 		type="Object" 									/>
+	<aura:attribute 	name="companyLinkTypesList" 	type="List" 	default="[]" 	access="global"	/>
+	<aura:attribute 	name="genderList" 				type="List" 	default="[]" 	access="global"	/>
+	<aura:attribute 	name="errorMessage" 			type="string"									/>
+	<aura:Attribute     name="showMerchantDetails"      type="boolean"  />
+
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+ 	<aura:handler name="change" value="{!this}" action="{!c.errorMessages}"/>
+
+ 	<div class="slds-form slds-form_compound" aura:id="MainDiv">
+ 		<div class="slds-form slds-form_compound" aura:id="secondDiv">
+			<div class="flow-section-separator-container">
+				<form class="slds-size_1-of-1 slds-form">
+				<fieldset class="bit2flowFormSectionCmp" name="" data-aura-class="bit2flowFormSectionCmp">
+					<legend class="slds-form-element__label"></legend>
+				</fieldset>
+				</form>
+			</div>
+            <div class="sectionColsContainer flow-section-separator" />
+
+			<lightning:accordion aura:id="accordion" activeSectionName="{!v.showAccordionEditExecutor}" allowMultipleSectionsOpen="true" > 
+				<!-- fist data section -->
+				<lightning:accordionSection name="Section1" label="{!$Label.c.OB_MAINTENANCE_EXECUTOREDIT_SECTION1}">
+					<!-- NEXI-94 Marta Stempien <marta.stempien@accenture.com> 18/06/2019 - Start -->
+					<aura:if isTrue="{!(!v.isTrueShowExecutorInputs)}">
+						{!$Label.c.OB_MaintenanceExecutorNotExist}
+					</aura:if>
+					<aura:if isTrue="{!v.isTrueShowExecutorInputs}">
+					<!-- NEXI-94 Marta Stempien <marta.stempien@accenture.com> 18/06/2019 - Stop -->
+						<div class="slds-form-element__row slds-grid slds-wrap">
+							<div class="slds-form-element slds-size_5-of-6">
+								<div class="slds-form-element__row">
+									<aura:if isTrue="{!v.status == 'VIEW'}">
+										<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+											<label class="slds-form-element__label" for="" value="" style="position: absolute;" >
+											<abbr class="slds-required" title="required">*</abbr>
+											{!$Label.c.LastName}
+											</label>
+											<lightning:input value="{!v.objectDataMap.executor.LastName}" label ="" aura:id="LastName" id="LastName" />
+										</div>
+										<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+											<label class="slds-form-element__label" for="" value="" style="position: absolute;" >
+											<abbr class="slds-required" title="required">*</abbr>
+											{!$Label.c.FirstName}
+											</label>
+											<lightning:input value="{!v.objectDataMap.executor.FirstName}" label ="" aura:id="FirstName" id="FirstName"/>
+										</div>
+									</aura:if>
+									<aura:if isTrue="{!v.status == 'EDIT'}">
+										<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+											<label class="slds-form-element__label" for="" value="" style="position: absolute;" >
+											<abbr class="slds-required" title="required">*</abbr>
+											{!$Label.c.LastName}
+											</label>
+											<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 added disabled attribute-->
+											<lightning:input value="{!v.objectDataMap.executor.LastName}" label ="" aura:id="LastNameModal" id="LastNameModal" onblur="{!c.removeErrorMessage}" disabled="{!v.disabledFields.LastName}"/>
+										</div>
+										<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+											<label class="slds-form-element__label" for="" value="" style="position: absolute;" >
+												<abbr class="slds-required" title="required">*</abbr>
+												{!$Label.c.FirstName}
+											</label>
+											<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 added disabled attribute-->
+											<lightning:input value="{!v.objectDataMap.executor.FirstName}" label ="" aura:id="FirstNameModal" id="FirstNameModal" onblur="{!c.removeErrorMessage}" disabled="{!v.disabledFields.FirstName}"/>
+										</div>
+									</aura:if>
+							</div>
+							<div class="slds-form-element__row">
+								<aura:if isTrue="{!v.status == 'VIEW'}">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input type="checkbox" name="PEP" aura:id="OB_PEP__c" checked="{!v.objectDataMap.executor.OB_PEP__c}"
+											label="{!v.ContactFieldsLabel.OB_PEP__c}" value = "{!v.objectDataMap.executor.OB_PEP__c}"/>
+									</div>
+								</aura:if>
+								<aura:if isTrue="{!v.status == 'EDIT'}">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input type="checkbox" name="PEP" aura:id="OB_PEP__c" checked="{!v.objectDataMap.executor.OB_PEP__c}"
+											label="{!v.ContactFieldsLabel.OB_PEP__c}" value = "{!v.objectDataMap.executor.OB_PEP__c}"/>
+									</div>
+								</aura:if>
+							</div>
+							<div class="slds-form-element__row">
+								<aura:if isTrue="{!v.status == 'VIEW'}">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+											<lightning:input value="{!v.objectDataMap.executor.OB_Fiscal_Code__c}" label ="{!v.ContactFieldsLabel.OB_Fiscal_Code__c}" aura:id="OB_Fiscal_Code__c" />
+									</div>
+								</aura:if>
+								<aura:if isTrue="{!v.status == 'EDIT'}">
+									<aura:if isTrue="{!v.isLoaded == true}">
+										<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 added disabledFields attribute-->
+										<c:OB_FlowInputText  objectDataMap="{!v.objectDataMap}"
+																addressMapping="{!v.postelcomponentparamsFiscalCode}"
+															    disabledFields="{!v.disabledFields}"
+																aura:id="FlowInputText"/>
+									</aura:if>
+								</aura:if>
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small executor-gender-div">
+									<aura:if isTrue="{!v.status == 'VIEW'}">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Sex__c}" label ="{!v.ContactFieldsLabel.OB_Sex__c}" aura:id="OB_Sex__c" />
+									</aura:if>
+									<aura:if isTrue="{!v.status == 'EDIT'}">
+										<label class="slds-form-element__label" for="" value="" style="position: absolute;"><!--margin-top: -4px; -->
+											<abbr class="slds-required" title="required">*</abbr>
+											{!v.ContactFieldsLabel.OB_Sex__c}
+										</label>
+										<!--NEXI-302 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 05/09/2019 START disabling field during modification mode-->
+										<lightning:select
+													variant="label-hidden"
+													label=""
+													value="{!v.objectDataMap.executor.OB_Sex__c}"
+													disabled="{!v.disabledFields.OB_Sex__c}"
+													name="OB_Sex__c"
+													>
+											<option value="" aura:id=""></option>
+											<aura:iteration items="{!v.genderList}" var="item">
+												<option text="{!item.value}" value="{!item.key}" selected="{!item.value == v.objectDataMap.executor.OB_Sex__c}"/>
+											</aura:iteration>
+										</lightning:select>
+										<!--NEXI-302 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 05/09/2019 STOP-->
+									</aura:if>
+								</div>
+
+							</div>
+							<!-- START AV 22/03/2019 ANAG136 -->
+							<div class="slds-form-element__row">
+								<aura:if isTrue="{!v.status == 'VIEW'}">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input type="checkbox" name="CADASTRIALCODE" aura:id="OB_SkipCadastralCodeCheck__c" checked="{!v.objectDataMap.executor.OB_SkipCadastralCodeCheck__c}"
+											label="{!v.ContactFieldsLabel.OB_SkipCadastralCodeCheck__c}" value = "{!v.objectDataMap.executor.OB_SkipCadastralCodeCheck__c}"/>
+									</div>
+								</aura:if>
+								<aura:if isTrue="{!v.status == 'EDIT'}">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input type="checkbox" name="CADASTRIALCODE" aura:id="OB_SkipCadastralCodeCheck__c" checked="{!v.objectDataMap.executor.OB_SkipCadastralCodeCheck__c}"
+											label="{!v.ContactFieldsLabel.OB_SkipCadastralCodeCheck__c}" value = "{!v.objectDataMap.executor.OB_SkipCadastralCodeCheck__c}"/>
+									</div>
+								</aura:if>
+							</div>
+						<!-- END AV 22/03/2019 ANAG136 -->
+							<aura:if isTrue="{!v.status == 'VIEW'}">
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Citizenship__c}" label ="{!v.ContactFieldsLabel.OB_Citizenship__c}" aura:id="OB_Citizenship__c" />
+									</div>
+								</div>
+							</aura:if>
+							<aura:if isTrue="{!v.status == 'EDIT'}">
+								<aura:if isTrue="{!v.isLoaded == true}">
+									<c:OB_FlowInputModal  objectDataMap="{!v.objectDataMap}"
+															addressMapping="{!v.postelcomponentparamsCitizenship}"
+															aura:id="FlowInputModal"/>
+								</aura:if>
+							</aura:if>
+							<aura:if isTrue="{!v.status == 'VIEW'}">
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Country_Birth__c}" label ="{!v.ContactFieldsLabel.OB_Country_Birth__c}" aura:id="OB_Country_Birth__c" />
+									</div>
+								</div>
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Birth_State__c}" label ="{!v.ContactFieldsLabel.OB_Birth_State__c}" aura:id="OB_Birth_State__c" />
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Birth_City__c}" label ="{!v.ContactFieldsLabel.OB_Birth_City__c}" aura:id="OB_Birth_City__c" />
+									</div>
+								</div>
+							</aura:if>
+							<aura:if isTrue="{!v.status == 'EDIT'}">
+								<aura:if isTrue="{!v.isLoaded == true}">
+									<!--NEXI-245 Marta Stempien <marta.stempien@accenture.com> 01/07/2019 Added parameter isTrueDisableFields = "{!!v.newExecutor}" -->
+									<c:AutoCompleteComponentPostel  objectDataMap="{!v.objectDataMap}"
+															        addressMapping="{!v.postelcomponentparamsbirthAddress}"
+                                                                    isTrueDisableFields = "{!!v.newExecutor}"
+															        aura:id="AutoCompleteComponentPostelBirth"/>
+
+								</aura:if>
+							</aura:if>
+
+							<aura:if isTrue="{!v.status == 'VIEW'}">
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<!-- ANDREA MORITTU START 30-Sept-2019 PRODOB_475 -->
+										<label class="slds-form-element__label slds-no-flex">{!v.ContactFieldsLabel.OB_Birth_Date__c}</label>
+										<ui:inputDate aura:id="OB_Birth_Date__c" value="{!v.objectDataMap.executor.OB_Birth_Date__c}" format="DD-MM-YYYY" displayDatePicker="false" disabled="true" />
+										<!-- ANDREA MORITTU END 30-Sept-2019 PRODOB_475 -->
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Document_Number__c}" label ="{!v.ContactFieldsLabel.OB_Document_Number__c}" aura:id="OB_Document_Number__c" />
+									</div>
+								</div>
+									<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Document_Type__c}" label ="{!v.ContactFieldsLabel.OB_Document_Type__c}" aura:id="OB_Document_Type__c" />
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Document_Release_Authority__c}" label ="{!v.ContactFieldsLabel.OB_Document_Release_Authority__c}" aura:id="OB_Document_Release_Authority__c" />
+									</div>
+								</div>
+
+									<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<!-- ANDREA MORITTU START 30-Sept-2019 PRODOB_475 -->
+										<label class="slds-form-element__label slds-no-flex">{!v.ContactFieldsLabel.OB_Document_Release_Date__c}</label>
+										<ui:inputDate aura:id="OB_Document_Release_Date__c" value="{!v.objectDataMap.executor.OB_Document_Release_Date__c}" format="DD-MM-YYYY" displayDatePicker="false" disabled="true" />
+										<!-- ANDREA MORITTU END 30-Sept-2019 PRODOB_475 -->
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<!-- ANDREA MORITTU START 30-Sept-2019 PRODOB_475 -->
+										<label class="slds-form-element__label slds-no-flex">{!v.ContactFieldsLabel.OB_Document_Expiration_Date__c}</label>
+										<ui:inputDate  aura:id="OB_Document_Expiration_Date__c"  value="{!v.objectDataMap.executor.OB_Document_Expiration_Date__c}" format="DD-MM-YYYY" displayDatePicker="false" disabled="true" />
+										<!-- ANDREA MORITTU END 30-Sept-2019 PRODOB_475 -->
+									</div>
+
+								</div>
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Document_Release_State__c}" label ="{!v.ContactFieldsLabel.OB_Document_Release_State__c}" aura:id="OB_Document_Release_State__c" />
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Document_Release_City__c}" label ="{!v.ContactFieldsLabel.OB_Document_Release_City__c}" aura:id="OB_Document_Release_City__c" />
+									</div>
+
+								</div>
+							</aura:if>
+							<aura:if isTrue="{!v.status == 'EDIT'}">
+								<aura:if isTrue="{!v.isLoaded == true}">
+									<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 23/07/2019 added disabledFields attribute-->
+									<c:OB_DocumentReleaseAddressComponent  objectDataMap="{!v.objectDataMap}"
+															addressMapping="{!v.postelcomponentparamsdocreleaseAddress}"
+														    disabledFields="{!v.disabledFields}"
+															aura:id="OB_DocumentReleaseAddressComponent"/>
+								</aura:if>
+							</aura:if>
+							<!---->
+							<div class="slds-form-element__row">
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<aura:if isTrue="{!v.status == 'VIEW'}">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Company_Link_Type__c}" label ="{!v.ContactFieldsLabel.OB_Company_Link_Type__c}" aura:id="OB_Company_Link_Type__c" />
+									</aura:if>
+									<aura:if isTrue="{!v.status == 'EDIT'}">
+										<label class="slds-form-element__label" for="" value="" style="margin-top: -4px; position: absolute;">
+											<abbr class="slds-required" title="required">*</abbr>
+											{!v.ContactFieldsLabel.OB_Company_Link_Type__c}
+										</label>
+										<lightning:select
+													variant="label-hidden"
+													label="{!v.ContactFieldsLabel.OB_Company_Link_Type__c}"
+													value="{!v.objectDataMap.executor.OB_Company_Link_Type__c}"
+													disabled=""
+													name="OB_Company_Link_Type__c"
+													>
+											<option value="" aura:id="docTypeNull"></option>
+											<aura:iteration items="{!v.companyLinkTypesList}" var="item">
+												<option text="{!item.value}" value="{!item.key}" selected="{!item.value == v.objectDataMap.executor.OB_Company_Link_Type__c}"/>
+											</aura:iteration>
+										</lightning:select>
+									</aura:if>
+								</div>
+							</div>
+
+							<!-- third data section -->
+							<!--   <lightning:accordionSection name="Section3" label="{!$Label.c.OB_MAINTENANCE_EXECUTOR_SECTION3}"> -->
+							<div class="slds-form-element__row">
+								<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+									<ui:outputText value="{!$Label.c.OB_MAINTENANCE_EXECUTOR_SECTION3}" />
+								</div>
+							</div>
+							<aura:if isTrue="{!v.status == 'VIEW'}">
+
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Address_Country__c}" label ="{!v.ContactFieldsLabel.OB_Address_Country__c}" aura:id="OB_Address_Country__c" />
+									</div>
+								</div>
+									<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Address_State__c}" label ="{!v.ContactFieldsLabel.OB_Address_State__c}" aura:id="OB_Address_State__c" />
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Address_City__c}" label ="{!v.ContactFieldsLabel.OB_Address_City__c}" aura:id="OB_Address_City__c" />
+									</div>
+								</div>
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executorOB_Address_Hamlet__c}" label ="{!v.ContactFieldsLabel.OB_Address_Hamlet__c}" aura:id="OB_Address_Hamlet__c" />
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Address_Street__c}" label ="{!v.ContactFieldsLabel.OB_Address_Street__c}" aura:id="OB_Address_Street__c" />
+									</div>
+								</div>
+								<div class="slds-form-element__row">
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Address_Street_Number__c}" label ="{!v.ContactFieldsLabel.OB_Address_Street_Number__c}" aura:id="OB_Address_Street_Number__c" />
+									</div>
+									<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+										<lightning:input value="{!v.objectDataMap.executor.OB_Address_PostalCode__c}" label ="{!v.ContactFieldsLabel.OB_Address_PostalCode__c}" aura:id="OB_Address_PostalCode__c" />
+									</div>
+								</div>
+							</aura:if>
+							<aura:if isTrue="{!v.status == 'EDIT'}">
+								<aura:if isTrue="{!v.isLoaded == true}">
+									<!-- START gianluigi.virga 09/09/2019 - UX-55 -->
+									<!-- <c:AutoCompleteComponentPostel  objectDataMap="{!v.objectDataMap}"
+															addressMapping="{!v.postelcomponentparamscontactAddress}"
+															aura:id="AutoCompleteComponentPostelContactAddress"/> -->
+									<c:OB_FreeInputAddress  objectDataMap="{!v.objectDataMap}"
+															addressMapping="{!v.postelcomponentparamscontactAddress}"
+															aura:id="AutoCompleteComponentPostelContactAddress"
+															changeLayout="true"/>
+									<!-- END gianluigi.virga 09/09/2019 - UX-55 -->
+								</aura:if>
+							</aura:if>
+
+							<!-- </lightning:accordionSection> -->
+							<aura:if isTrue="{! equals(v.status,'EDIT')}">
+								<div class="slds-form-element__row">
+									<div  class="slds-align_absolute-center slds-m-top_medium">
+									<lightning:button variant="brand" aura:id="SaveButton"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON}" onclick="{! c.savecustom }" />
+									</div>
+								</div>
+							</aura:if>
+						</div>
+
+					</div>
+					</aura:if>
+				</lightning:accordionSection>
+			</lightning:accordion>
+			<div class="flow-section-separator-container">
+				<form class="slds-size_1-of-1 slds-form">
+				<fieldset class="bit2flowFormSectionCmp" name="" data-aura-class="bit2flowFormSectionCmp">
+					<legend class="slds-form-element__label"></legend>
+				</fieldset>
+				</form>
+			</div>
+			<div class="sectionColsContainer flow-section-separator" />
+			<div class="slds-align_absolute-center">
+									<aura:if isTrue="{! equals(v.status,'VIEW')}">
+							<!-- START 	micol.ferrari 11/12/2018 -->
+							<div class="slds-align_absolute-center" >
+								<div class="slds-p-around_xx-small">
+									<lightning:button variant="brand" aura:id="ModifyButton"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_MODIFY}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_MODIFY}" onclick="{! c.modify }" disabled="{!!v.objectDataMap.executor.Id}"/> 
+								</div>
+								<div class="slds-p-around_xx-small">
+									<lightning:button variant="brand" aura:id="ModifyNewExecutorButton"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_NEWEXECUTOR}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_MODIFY}" onclick="{! c.modifyNewExecutor }" /> 
+								</div>
+							</div>
+							<!-- END 	micol.ferrari 11/12/2018 -->
+						</aura:if>
+				</div>
+		</div>
+                    
+	 </div>
+ 	
+ 	   
+</aura:component>

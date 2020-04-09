@@ -1,0 +1,15 @@
+<aura:component access="global" controller="OB_AttachedDocumentationsController" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable,force:hasRecordId">
+    <aura:attribute name="recordId" type="String" access="global"/>
+    <aura:attribute name="showComponentDocuments" type="Boolean" access="global"/>
+    <aura:attribute name="rejectReasonBool" type="Boolean" default="false" access="global"/> <!--antonio.vatrano r1f3-54 13/09/2019-->
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+    <!-- Start AV 21/02/2019 Show Component Documents [Stefano Montori] -->
+    <aura:if isTrue="{!v.showComponentDocuments}">
+        <c:OB_AttachedDocumentations recordId = "{!v.recordId}" rejectReasonBool = "{!v.rejectReasonBool}"/><!--antonio.vatrano r1f3-54 13/09/2019-->
+        <c:OB_ContinuationBrokerComponent/>
+    </aura:if>
+    <!-- End AV 21/02/2019 Show Component Documents [Stefano Montori] -->
+
+</aura:component>

@@ -1,0 +1,74 @@
+@isTest
+public class OB_CustomRetrieveServicePoint_Test
+{
+
+    @isTest
+    public static void executeMethodTest( )
+    {
+        String step = '';
+        Map<String, Object> data = new Map<String, Object>( );
+        String targetObjectKey = '';
+        String method = '';
+        List<bit2flow.DynamicWizardWrapper.StepDefinitions> stepsDefinition = new List<bit2flow.DynamicWizardWrapper.StepDefinitions>( );
+        bit2flow.DynamicWizardWrapper dynamicWizardWrapper = new bit2flow.DynamicWizardWrapper( );
+        Test.startTest( );
+        CustomRetrieveServicePoint crsp = new CustomRetrieveServicePoint( );
+        crsp.executeMethod( step, data, targetObjectKey, method, stepsDefinition, dynamicWizardWrapper );
+        Test.stopTest( );
+    }
+
+    @isTest
+    public static void initTest( )
+    {
+        //CC Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 05/04/2019 Start
+        Account acc = OB_TestDataFactory.getAccount( );
+        acc.Name = 'acc';
+        //CC Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 05/04/2019 Stop
+        acc.NE__Fiscal_code__c = 'MLDGDY86R67Z306W';
+        acc.OB_BypassValidation__c = true;
+        insert acc;
+        NE__Service_Point__c sp = new NE__Service_Point__c( NE__Account__c = acc.id );
+        insert sp;
+        String step = '';
+        Id titolareEffettivoRecordTypeId = Schema.SObjectType.Contact.getRecordTypeInfosByDeveloperName( ).get( 'Titolare_Effettivo' ).getRecordTypeId( );
+        String jsonString = '{"BillingProfile2":{"sobjectType":"ne__billing_profile__c","RecordTypeId":"","OB_ABI__c":"","OB_Bank_Account_Number__c":"","OB_Bank_Account_Owner__c":"","OB_Bank_Account_Type__c":"Debit"},"BillingProfile1":{"sobjectType":"ne__billing_profile__c","RecordTypeId":"' + titolareEffettivoRecordTypeId + '","OB_ABI__c":"","OB_Bank_Account_Number__c":"","OB_Bank_Account_Owner__c":"","OB_Bank_Account_Type__c":"Credit"},"contact6":{"sobjectType":"contact","RecordTypeId":"' + titolareEffettivoRecordTypeId + '","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","AccountId":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Release_City__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_Authority__c":""},"titolare_effettivo":{"sobjectType":"contact","RecordTypeId":"' + titolareEffettivoRecordTypeId + '","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","AccountId":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Release_City__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_Authority__c":""},"contact4":{"sobjectType":"contact","RecordTypeId":"","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","AccountId":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Release_City__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_Authority__c":""},"contact3":{"sobjectType":"contact","RecordTypeId":"' + titolareEffettivoRecordTypeId + '","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","AccountId":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Release_City__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_Authority__c":""},"contact2":{"sobjectType":"contact","RecordTypeId":"' + titolareEffettivoRecordTypeId + '","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","AccountId":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Release_City__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_Authority__c":""},"contact1":{"sobjectType":"contact","RecordTypeId":"' + titolareEffettivoRecordTypeId + '","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","AccountId":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Release_City__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_Authority__c":""},"legale_rappresentante":{"sobjectType":"contact","RecordTypeId":"","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_City__c":"","OB_Document_Release_Authority__c":""},"orderId":{"sobjectType":"UNBIND","RecordTypeId":""},"puntoVendita":{"sobjectType":"ne__service_point__c","RecordTypeId":"","NE__Account__c":"","Name":"","NE__Street__c":"","NE__Zip_Code__c":"","NE__City__c":"","NE__Province__c":"","NE__Country__c":"","Id":"","OB_MCC__c":"","OB_Email__c":"","OB_PEC__c":"","OB_Opening_Monday_Morning__c":"true","OB_Opening_Monday_Afternoon__c":"true","OB_Opening_Thursday_Morning__c":"true","OB_Opening_Thursday_Afternoon__c":"true","OB_Opening_Tuesday_Morning__c":"true","OB_Opening_Tuesday_Afternoon__c":"true","OB_Opening_Wednesday_Morning__c":"true","OB_Opening_Wednesday_Afternoon__c":"true","OB_Opening_Friday_Morning__c":"true","OB_Opening_Friday_Afternoon__c":"true","OB_Opening_Saturday_Morning__c":"true","OB_Opening_Saturday_Afternoon__c":"true","OB_Opening_Sunday_Morning__c":"true","OB_Opening_Sunday_Afternoon__c":"true"},"unbind":{"sobjectType":"UNBIND","RecordTypeId":"","nextCheckout":"","nextCheck":"","orderId":"","UNBIND7":"ACQUIRING","UNBIND5":"","UNBIND6":""},"merchant":{"sobjectType":"account","RecordTypeId":"","Id":"' + acc.id + '","Name":"","NE__Fiscal_code__c":"yuiou8956tyu895t","NE__VAT__c":"","OB_Services_Choice__c":"","OB_Legal_Address_Street__c":"","OB_Legal_Address_City__c":"","OB_Legal_Address_State__c":"","OB_Legal_Address_ZIP__c":"","OB_Legal_Address_Country__c":"","OB_Administrative_Office_City__c":"","OB_Administrative_Office_Street__c":"","OB_Administrative_Office_State__c":"","OB_Administrative_Office_ZIP__c":"","OB_Administrative_Office_Name__c":""}}';
+        Map<String, Object> data = new Map<String, Object>( );
+        data = ( Map<String, Object> ) JSON.deserializeUntyped( jsonString );
+        List<bit2flow.DynamicWizardWrapper.StepDefinitions> stepsDefinition = new List<bit2flow.DynamicWizardWrapper.StepDefinitions>( );
+        bit2flow.DynamicWizardWrapper dynamicWizardWrapper = new bit2flow.DynamicWizardWrapper( );
+        Test.startTest( );
+        CustomRetrieveServicePoint crsp = new CustomRetrieveServicePoint( );
+        crsp.init( step, data, stepsDefinition, dynamicWizardWrapper );
+        Test.stopTest( );
+    }
+
+    @isTest
+    public static void validateTest( )
+    {
+        String step = '';
+        Map<String, Object> data = new Map<String, Object>( );
+        List<bit2flow.DynamicWizardWrapper.StepDefinitions> stepsDefinition = new List<bit2flow.DynamicWizardWrapper.StepDefinitions>( );
+        bit2flow.DynamicWizardWrapper dynamicWizardWrapper = new bit2flow.DynamicWizardWrapper( );
+        Test.startTest( );
+        CustomRetrieveServicePoint crsp = new CustomRetrieveServicePoint( );
+        crsp.validate( step, data, stepsDefinition, dynamicWizardWrapper );
+        Test.stopTest( );
+    }
+
+    @isTest
+    public static void saveTest( )
+    {
+        String step = '';
+        Id titolareEffettivoRecordTypeId = Schema.SObjectType.Contact.getRecordTypeInfosByDeveloperName( ).get( 'Titolare_Effettivo' ).getRecordTypeId( );
+        String jsonString = '{"BillingProfile2":{"sobjectType":"ne__billing_profile__c","RecordTypeId":"","OB_ABI__c":"","OB_Bank_Account_Number__c":"","OB_Bank_Account_Owner__c":"","OB_Bank_Account_Type__c":"Debit"},"BillingProfile1":{"sobjectType":"ne__billing_profile__c","RecordTypeId":"","OB_ABI__c":"","OB_Bank_Account_Number__c":"","OB_Bank_Account_Owner__c":"","OB_Bank_Account_Type__c":"Credit"},"contact6":{"sobjectType":"contact","RecordTypeId":"' + titolareEffettivoRecordTypeId + '","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","AccountId":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Release_City__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_Authority__c":""},"contact5":{"sobjectType":"contact","RecordTypeId":"' + titolareEffettivoRecordTypeId + '","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","AccountId":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Release_City__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_Authority__c":""},"contact4":{"sobjectType":"contact","RecordTypeId":"' + titolareEffettivoRecordTypeId + '","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","AccountId":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Release_City__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_Authority__c":""},"contact3":{"sobjectType":"contact","RecordTypeId":"' + titolareEffettivoRecordTypeId + '","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","AccountId":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Release_City__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_Authority__c":""},"contact2":{"sobjectType":"contact","RecordTypeId":"' + titolareEffettivoRecordTypeId + '","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","AccountId":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Release_City__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_Authority__c":""},"contact1":{"sobjectType":"contact","RecordTypeId":"' + titolareEffettivoRecordTypeId + '","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","AccountId":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Release_City__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_Authority__c":""},"legale_rappresentante":{"sobjectType":"contact","RecordTypeId":"","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_City__c":"","OB_Document_Release_Authority__c":""}, "legale_rappresentante":{"sobjectType":"contact","RecordTypeId":"","FirstName":"","LastName":"","OB_Fiscal_Code__c":"","OB_Sex__c":"","Role__c":"","OB_Birth_Date__c":"","OB_Birth_State__c":"","OB_Birth_City__c":"","OB_Document_Type__c":"","OB_Document_Number__c":"","OB_Document_Release_Date__c":"","OB_Document_Release_City__c":"","OB_Document_Release_Authority__c":""},"orderId":{"sobjectType":"UNBIND","RecordTypeId":""},"pv":{"sobjectType":"ne__service_point__c","RecordTypeId":"","NE__Account__c":"","Name":"","NE__Street__c":"","NE__Zip_Code__c":"","NE__City__c":"","NE__Province__c":"","NE__Country__c":"","Id":"","OB_MCC__c":"","OB_Email__c":"","OB_PEC__c":"","OB_Opening_Monday_Morning__c":"true","OB_Opening_Monday_Afternoon__c":"true","OB_Opening_Thursday_Morning__c":"true","OB_Opening_Thursday_Afternoon__c":"true","OB_Opening_Tuesday_Morning__c":"true","OB_Opening_Tuesday_Afternoon__c":"true","OB_Opening_Wednesday_Morning__c":"true","OB_Opening_Wednesday_Afternoon__c":"true","OB_Opening_Friday_Morning__c":"true","OB_Opening_Friday_Afternoon__c":"true","OB_Opening_Saturday_Morning__c":"true","OB_Opening_Saturday_Afternoon__c":"true","OB_Opening_Sunday_Morning__c":"true","OB_Opening_Sunday_Afternoon__c":"true"},"unbind":{"sobjectType":"UNBIND","RecordTypeId":"","nextCheckout":"","nextCheck":"","orderId":"","UNBIND7":"ACQUIRING","UNBIND5":"","UNBIND6":""},"merchant":{"sobjectType":"account","RecordTypeId":"","Id":"0019E00000foRz3","Name":"","NE__Fiscal_code__c":"yuiou8956tyu895t","NE__VAT__c":"","OB_Services_Choice__c":"","OB_Legal_Address_Street__c":"","OB_Legal_Address_City__c":"","OB_Legal_Address_State__c":"","OB_Legal_Address_ZIP__c":"","OB_Legal_Address_Country__c":"","OB_Administrative_Office_City__c":"","OB_Administrative_Office_Street__c":"","OB_Administrative_Office_State__c":"","OB_Administrative_Office_ZIP__c":"","OB_Administrative_Office_Name__c":""}}';
+        Map<String, Object> data = new Map<String, Object>( );
+        data = ( Map<String, Object> ) JSON.deserializeUntyped( jsonString );
+        String targetObjectKey = '';
+        List<bit2flow.DynamicWizardWrapper.StepDefinitions> stepsDefinition = new List<bit2flow.DynamicWizardWrapper.StepDefinitions>( );
+        bit2flow.DynamicWizardWrapper dynamicWizardWrapper = new bit2flow.DynamicWizardWrapper( );
+        Test.startTest( );
+        CustomRetrieveServicePoint crsp = new CustomRetrieveServicePoint( );
+        crsp.save( step, data, targetObjectKey, stepsDefinition, dynamicWizardWrapper );
+        Test.stopTest( );
+    }
+}

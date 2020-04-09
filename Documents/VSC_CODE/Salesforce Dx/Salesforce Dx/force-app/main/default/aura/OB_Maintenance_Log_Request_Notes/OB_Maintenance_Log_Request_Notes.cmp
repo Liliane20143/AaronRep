@@ -1,0 +1,59 @@
+<aura:component access="global" implements="flexipage:availableForRecordHome,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable,force:hasRecordId"
+                controller="OB_Maintenance_Log_Request_Note_CC">
+
+<aura:attribute name = "recordId" type="String" access="global"/>
+<aura:attribute name = "contextLogRequest" type="Object" access="global"/>
+<aura:attribute name = "profile" type="String" access="global"/>
+<aura:attribute name = "notes" type="String" access ="global" />
+<aura:attribute name = "oldNotes" type="String" access ="global" />
+<aura:attribute name = "status" type="Boolean" access="global" />
+<aura:attribute name = "showModal"  type="Boolean" access="global" default="false" />
+<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+<aura:if isTrue="{!and((or(v.profile == 'enabled', v.profile == 'readOnly')),(v.status == true))}"> 
+<div class="row">
+    <div class="slds-form-element__control"> <!-- g.v. 02/10/2019- add div element -->
+        <div class="slds-form-element__static">
+            <lightning:textarea name="note" readonly="true" value="{!v.notes}" label="&nbsp;Note" />
+        </div>
+    </div>
+    <aura:if isTrue="{!v.profile == 'enabled'}">
+        <div class="slds-form-element__control"> <!-- g.v. 02/10/2019- add div element -->
+            <div class="slds-form-element__static"> 
+                <p><span><lightning:button label="{!$Label.c.OB_MAINTENANCE_BUTTON_INSERTBUTTON}" onclick="{!c.insert}"/></span></p>
+            </div>
+        </div>
+        <aura:if isTrue="{!v.showModal}" >
+            <c:strike_modal
+                    title="Note"
+                    primaryButtonLabel="{!$Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON}"
+                    secondaryButtonLabel="{!$Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON}"
+                    showHeader="true"
+                    showFooter="false"
+                    showClose="false"
+                    showModal="{!v.showModal}"
+                    size="large">
+            <div class="slds-form-element__control"> <!-- g.v. 02/10/2019- add div element -->
+                <div class="slds-form-element__static"> 
+                    <lightning:textarea name="note" value="{!v.notes}" label="Note"/>
+                </div>
+            </div>
+            <div class="slds-form-element__control"> <!-- g.v. 02/10/2019- add div element -->
+                <div class="slds-form-element__static">
+                    <lightning:buttonGroup class="slds-align_absolute-center" >
+                        <div>
+                            <lightning:button class ="save" variant="brand" aura:id="save"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON}" onclick="{!c.save}" />
+                        </div>
+                        <div>
+                            <lightning:button class="cancel" variant="neutral" aura:id="cancel"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON}" onclick="{!c.hideModal}" /> 
+                        </div>
+                </lightning:buttonGroup>
+                </div>
+             </div>
+            </c:strike_modal>
+        </aura:if>   
+    </aura:if>
+</div>
+
+</aura:if>
+</aura:component>

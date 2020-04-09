@@ -1,0 +1,32 @@
+<!--
+    @author francesca.ribezzi
+    @date   14/06/19
+    @stream Catalog on off
+-->
+
+<aura:component>
+    <aura:attribute name="matrixParameter" type="NE__Matrix_Parameter__c" access="global" />
+    <aura:attribute name="bank" type="Object" access="global"/> 
+    <aura:attribute name="index" type="Integer" default="0"/> 
+
+    <!--START francesca.ribezzi 14/06/19 adding tr-->
+    <tr aria-selected="true" class="slds-hint-parent">
+        <td class="slds-text-align_right" role="gridcell">
+            <div class="slds-checkbox">
+                <input type="checkbox" id="{!v.index}" onchange="{!c.getSelectedAbi}" checked="{!true}"/>
+                <label class="slds-checkbox__label" for="{!v.index}" id="check-button-label-01">
+                    <span class="slds-checkbox_faux"></span>
+                </label>
+            </div>
+        </td>
+        <th scope="row">
+            <div class="slds-truncate" title="Acme - 1,200 Widgets">
+                    {!v.bank.Name}
+            </div>
+        </th>
+        <td role="gridcell">
+            <div class="slds-truncate" title="Acme">{!v.bank.OB_ABI__c}</div>
+        </td>
+    </tr>
+     <!--END francesca.ribezzi 14/06/19 -->
+</aura:component>

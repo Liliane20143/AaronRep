@@ -1,0 +1,991 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="OB_OperationalData_CC">
+
+	<aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+
+	<aura:attribute name="orderId" type="String"/>	
+	<aura:attribute name="validItems" type="Object[]"/>
+	<aura:attribute name="validBundles" type="Object[]"/>
+	<aura:attribute name="step" type="Integer" default="0"/>
+	<aura:attribute name="productCategories" type="Object"/>
+	<aura:attribute name="Spinner" type="boolean" default="true"/>
+	<aura:attribute name="posListAdd" type="List"/> <!--antonio.vatrano RI-88 30/05/2019-->
+	<aura:attribute name="posList" type="List"/>
+    <aura:attribute name="vasList" type="List"/>
+    <aura:attribute name="acquiringList" type="List"/>
+    <aura:attribute name="bancomatList" type="List"/> 
+    <aura:attribute name="terminaIdItemsList" type="List"/>
+    <aura:attribute name="cartList" type="Object"/>
+    
+    <aura:attribute name="mapItemIdSuccessTerminalCall" type="Map" default="{}"/> 
+	 	 
+	<aura:attribute name="itemToUpdate" type="Object"/>	<aura:attribute name="itemChildToUpdate" type="Object"/>
+	<aura:attribute name="needConfig" type="Boolean" default="false"/>
+	<aura:attribute name="isEnd" type="Boolean" default="false"/>
+	<aura:attribute name="itemChildCheck" type="String"/>
+	<aura:attribute name="configurePicklist" type="Boolean" default="false"/>	 
+	<aura:attribute name="requestCheckout" type="Boolean" default="false"/>
+	
+	<aura:attribute name="warningPosUnAttended" type="String" default="{!$Label.c.OB_WarningPOSUnatt}"/>
+	 
+	<aura:attribute name="contextOutput" type="Object"/>
+	
+	<!--  Attributes to manage maintenance of orders -->
+	<aura:attribute name="isFlow" type="boolean" default="true"/>
+    <aura:attribute name="isReadOnly" type="boolean" default="false" />
+    <aura:attribute name="orderParameter" type="String"/>
+    <aura:attribute name="isMaintenance" type="Boolean" default="false"/>
+    <aura:attribute name="bankABI" type="String" />
+	
+	
+	<!-- OB_OperationalData -->
+	<aura:attribute name="orderHeader" 					type="NE__Order_Header__c" 					access="global" />
+	<aura:attribute name="ibanComplete" 				type="String"								access="global" />
+	<aura:attribute name="wizardWrapper"				type="Object" 				default="{}" 	access="global" />
+	<aura:attribute name="objectKey"					type="String" 				default=""      access="global" />
+	<aura:attribute name="identifier"					type="String" 				default=""      access="global" />
+	<aura:attribute name="field" 						type="Object" 				default="{}"    access="global" />
+	<aura:attribute name="disabledCountryCode" 			type="boolean"				default="true"	access="global" />
+	<aura:attribute name="disabledEuroControlCode"		type="boolean"				default="true"	access="global" />
+	<aura:attribute name="disabledCin"					type="boolean"				default="true"	access="global" />
+	<aura:attribute name="disabledAbi"					type="boolean"				default="true"	access="global" />
+	<aura:attribute name="disabledCab"					type="boolean"				default="true"	access="global" />
+	<aura:attribute name="disabledBankAccountNumber"	type="boolean"				default="true"	access="global" />
+	<aura:attribute name="disabledIban"					type="boolean" 				default="true"	access="global" />
+	<aura:attribute name="errorEuroCode"				type="String" 				default=""		access="global" />
+	<aura:attribute name="settMethodPostPagatoValue"	type="String" 				default=""		access="global" />
+	<aura:attribute name="reportTypeList"				type="List"					default=""		
+					description="the list where are salved the report type values" />  
+	<aura:attribute name="postPagatoPickList"				type="List"					default=""		
+					description="the list where are salved the report type values" /> 
+	<aura:attribute name="onfocusvar" 					type="boolean" 				default="true" 	access="global" /> 
+	<aura:attribute name="orderCreatedDate" 			type="String" 			 	access="global" /> 
+
+	<!-- attributes used to check generate terminal ID buttons: -->
+	<aura:attribute name="clickedBtnsList" type="List" description="list of clicked General ID buttons"/>
+	<aura:attribute name="allBtnsClicked" type="Boolean" default="false"/>
+
+	<!--Doris D. 25/03/2019... START -->
+	<aura:attribute name="showMessage"       		   type="Boolean" default= "false"/>
+	<!--Doris D. 25/03/2019... END -->
+	
+	<!--ID 155,  Doris Dongmo <doris.tatiana.dongmo@accenture.com>,  16/04/2109 Start -->
+	<aura:attribute name="isMandatoryField"   type="Boolean" 	default="false" access="global"/>
+	<aura:attribute name="isSpecialCharacter" type="Boolean" 	default="false" access="global"/>
+	<!-- ID 155,  Doris Dongmo <doris.tatiana.dongmo@accenture.com>,  16/04/2109 End-->
+
+	<!-- LUBRANO 16/01/2019 Libreria Log -->
+	<ltng:require scripts = "{!$Resource.utils}" afterScriptsLoaded =  "{!c.logInit}" />
+	<!-- START ANDREA SARACINI 11/03/2019 Manage Rac Sia Code -->
+	<aura:attribute name="siaIsValid" type="Boolean" default="true" access="global"/>	
+	<!-- STOP ANDREA SARACINI 11/03/2019 Manage Rac Sia Code -->
+
+	<!-- START francesca.ribezzi 12/06/2019 -->
+	<aura:attribute name="mapItemIdTerminalId" type="Map" default="{}"/>
+	<!-- END francesca.ribezzi 12/06/2019 -->
+	
+	<aura:attribute name="terminalsToCheck" type="List"/> <!--davide.franzini _ R1F2-227 _ 12/06/2019 -->
+	
+	<!--  <aura:handler name="change" value="{!v.objectDataMap.setRedBorderoperationalData}" action="{!c.setRedBorderoperationalData}"/> -->
+
+	<!-- ====================================================================================================== -->
+    <!-- pointless -->
+	<aura:handler action="{!c.onUpdateContext}" event="NE:Bit2win_Event_UpdateContext" />
+	<aura:handler action="{!c.handleAfterCheckOut}" event="NE:Bit2win_Event_CartEvent" />
+    
+	<ltng:require  	scripts="{!$Resource.FiscalCodeControl2}"	afterScriptsLoaded="{!c.doInit}"/> 
+  	
+  <style>
+	.flow-section-separator
+	{
+		height: 1px !important;
+		width: 100% !important;
+		margin-left: -12px !important;
+		padding-right: 0px !important;
+	}
+	.flow-section-separator-container
+	{
+		margin-left: -12px !important;
+		margin-top: 20px !important;
+	}
+	</style>
+
+	<div style="width:100%!important">
+		<!-- START ANDREA MORITTU 27.05.2019 	- Removing Andrea Saracini's code - fixing the R1F2-201 bug -->
+		<!-- END ANDREA MORITTU 27.05.2019 	- Removing Andrea Saracini's code - fixing the R1F2-201 bug -->
+  	<aura:if isTrue="{!and(v.isFlow,!v.isMaintenance)}"> 
+		<!-- START ANDREA MORITTU 27.05.2019 	- Removing Andrea Saracini's code - fixing the R1F2-201 bug -->
+		<!-- END ANDREA MORITTU 27.05.2019 	- Removing Andrea Saracini's code - fixing the R1F2-201 bug -->
+	<div class="slds-size--1-of-1 slds-grid bankprofile-section">
+		<div class="slds-size--1-of-1 slds-grid bankprofile-section-inner">
+
+			<div class="slds-size--9-of-12 slds-grid">
+				<div class="slds-col" style="max-width: 120px;">
+					<div class="slds-p-around--medium slds-form-element " >
+						<label class="slds-form-element__label" for="" value="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.Country_Code}
+						</label>
+						<lightning:input label=""
+										 id="countryCode"
+										 aura:id="countryCode"
+										 name=""   
+										 variant="label-hidden"
+										 value="{!v.objectDataMap.BillingProfilePOS.OB_CountryCode__c}" 
+										 disabled="{!v.disabledCountryCode}"
+										 onchange="{!c.fieldCheck}"
+										 maxlength="2"
+										 minlength="2"								
+										 onblur="{!c.completeIban}"/>
+					</div>
+				</div>
+
+				<div class="slds-col" style="max-width: 145px;">
+					<div class="slds-p-around--medium slds-form-element " >
+						<label class="slds-form-element__label" for="" value="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.Euro_Control_Code}
+						</label>
+						<lightning:input label=""
+										 id="euroControlCode"
+										 aura:id="euroControlCode"
+										 name=""   
+										 variant="label-hidden"
+										 value="{!v.objectDataMap.BillingProfilePOS.OB_EuroControlCode__c}" 
+										 disabled=""
+										 onblur="{!c.completeIban}"
+										 maxlength="2"
+										 onchange="{!c.fieldCheck}"/>
+					</div>
+				</div>
+
+				<div class="slds-col" style="max-width: 100px;">
+					<div class="slds-p-around--medium slds-form-element " >
+						<label class="slds-form-element__label" for="" value="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.CIN}
+						</label>
+						<lightning:input label="" 
+										 id="cin"
+										 aura:id="cin"
+										 name=""   
+										 variant="label-hidden"
+										 value="{!v.objectDataMap.BillingProfilePOS.OB_CINCode__c}"
+										 disabled=""
+										 onblur="{!c.completeIban}"
+										 maxlength="1"
+										 onchange="{!c.fieldCheck}"/>
+					</div>
+				</div>
+
+				<div class="slds-col" style="max-width: 150px;">
+					<div class="slds-p-around--medium slds-form-element" style="min-width: 105px;">
+						<label class="slds-form-element__label" for="" value="{!$Label.c.ABI}">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.ABI}
+						</label>
+						<lightning:input id="abi"
+										 aura:id="abi"
+										 name=""   
+										 variant="label-hidden"
+										 label=""
+										 value="{!v.objectDataMap.BillingProfilePOS.OB_ABICode__c}"
+										 disabled="{!v.disabledAbi}"
+										 onblur="{!c.completeIban}"
+										 maxlength="5"
+										 onchange="{!c.fieldCheck}"/>
+					</div>
+				</div>
+
+				<div class="slds-col" style="max-width: 150px;">
+					<div class="slds-p-around--medium slds-form-element " style="min-width: 105px;">
+						<label class="slds-form-element__label" for="" value="{!$Label.c.CAB}">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.CAB}
+						</label>
+						<lightning:input id="cab"
+										 aura:id="cab"
+										 name=""   
+										 label=""
+										 variant="label-hidden"
+										 value="{!v.objectDataMap.BillingProfilePOS.OB_CABCode__c}" 
+										 disabled="{!v.disabledCab}"
+										 onblur="{!c.completeIban}"
+										 maxlength="5"
+										 onchange="{!c.fieldCheck}"/>
+					</div>
+				</div>
+
+				<div class="slds-col">
+					<div class="slds-p-around--medium slds-form-element " >
+						<label class="slds-form-element__label" for="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.Bank_Account_Number}
+						</label>
+						<lightning:input label="" 
+										 id="bankAccountNumber"
+										 aura:id="bankAccountNumber"
+										 name=""   
+										 variant="label-hidden"
+										 value="{!v.objectDataMap.BillingProfilePOS.OB_Bank_Account_Number__c}" 
+										 disabled=""
+										 onblur="{!c.completeIban}"
+										 class=""
+										 maxlength="12"
+										 onchange="{!c.fieldCheck}"/>
+					</div>
+				</div>
+			</div>
+			
+			<div class="slds-size--3-of-12 slds-grid">
+				<div class="slds-p-around--medium slds-form-element " >
+					<label class="slds-form-element__label" for="">
+						{!$Label.c.IBAN}
+					</label>
+					<br/>
+					<span class="slds-badge ibanconcatenated" aura:id="iban" id="iban">
+						{!v.objectDataMap.BillingProfilePOS.OB_CountryCode__c}
+						{!v.objectDataMap.BillingProfilePOS.OB_EuroControlCode__c}
+						{!v.objectDataMap.BillingProfilePOS.OB_CINCode__c}
+						{!v.objectDataMap.BillingProfilePOS.OB_ABICode__c}
+						{!v.objectDataMap.BillingProfilePOS.OB_CABCode__c}
+						{!v.objectDataMap.BillingProfilePOS.OB_Bank_Account_Number__c}
+					</span>
+				
+					<div id="errorIbanNotValid" class="slds-hide">{!$Label.c.IbanNotValid}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- <div class="flow-section-separator-container">
+		<form class="slds-size_1-of-1 slds-form">
+			<fieldset class="bit2flowFormSectionCmp" name="OperationalData" data-aura-class="bit2flowFormSectionCmp">
+				<legend class="slds-form-element__label">{!$Label.c.Heading}</legend>
+			</fieldset>
+		</form>
+	</div>
+	<div class="sectionColsContainer flow-section-separator"/>
+ -->
+	<div class="slds-size--1-of-1 slds-grid">
+		<div class="slds-size--1-of-2 ">
+			<div class="slds-p-around--medium slds-form-element" >
+				<label class="slds-form-element__label" for="headerInternational">
+					<abbr class="slds-required" title="required">*</abbr>
+					{!$Label.c.Header_International}
+				</label>
+				<lightning:input label=""
+								 id="headerInternational"
+								 aura:id="headerInternational"
+								 name=""   
+								 variant="label-hidden"
+								 value="{!v.objectDataMap.BillingProfilePOS.OB_HeaderInternational__c}" 
+								 onblur="{!c.completeIban}"
+								 class=""/>
+			</div>
+		</div>
+	<!-- </div> -->
+
+	<!-- <div class="flow-section-separator-container">
+		<form class="slds-size_1-of-1 slds-form formu">
+			<fieldset class="bit2flowFormSectionCmp" name="OperationalData" data-aura-class="bit2flowFormSectionCmp">
+				<legend class="slds-form-element__label">{!$Label.c.ReportType}</legend>
+			</fieldset>
+		</form>
+	</div>
+	<div class="sectionColsContainer flow-section-separator"/> -->
+
+	<!-- <div class="slds-size-1-of-1 slds-grid"> -->
+		
+	</div>
+	<!--  START alessandro.tajana -->
+  	<div class="slds-size--1-of-1 slds-grid slds-wrap">
+  		<aura:if isTrue="{!v.objectDataMap.isCommunityUser == false}">
+	  		<div class="slds-size--1-of-2 ">
+				<div class="slds-p-around--medium slds-form-element" >
+					<label class="slds-form-element__label" for="orderHeaderDate">
+						<abbr class="slds-required" title="required">*</abbr>
+						{!$Label.c.OB_OrderHeaderDate}
+					</label>
+					<ui:inputDate label=""
+									 aura:id="orderHeaderDate"
+									 value="{!v.objectDataMap.OrderHeader.OB_OrderDate__c}" 
+									 class="orderHeaderDate"
+									 disabled=""
+									 blur="{!c.notBlank}"
+									 format="dd/MM/yyyy" 
+									 displayDatePicker="true"/>
+				</div>
+			</div>
+		</aura:if>
+		<aura:if isTrue="{!v.objectDataMap.reportTypeRO == true}">
+			<div class="slds-size--1-of-2 ">
+				<div class="slds-p-around--medium slds-form-element" >
+					<label class="slds-form-element__label" for="reportTypeExtSourceMap">
+						
+						{!$Label.c.Report_Type}
+						<!-- Doris D. ****** 13/03/2019 ***** START-->
+						<lightning:helptext content= "{!$Label.c.OB_TypeOfReportingTooltip}" /> 
+						<!-- Doris D. ****** 13/03/2019 ***** END-->
+					</label>
+					
+					<lightning:input label=""
+									 id="reportTypeExtSourceMap"
+									 aura:id="reportTypeExtSourceMap"
+									 name=""   
+									 variant="label-hidden"
+									 value="{!v.objectDataMap.ExternalSourceMappingUnique.OB_ReportType__c}" 
+									 class=""
+									 disabled="true"/>
+				</div>
+			</div>
+		</aura:if>
+		<!-- START gianluigi.virga 17/07/2019 - BACKLOG-110 - Show "Report Type" only if configuration contains acquiring-->
+		<aura:if  isTrue="{!and(v.objectDataMap.reportTypeRO == false, v.objectDataMap.showReportType == true)}" >
+		<!-- END gianluigi.virga 17/07/2019 - BACKLOG-110-->
+			<div class="slds-size--1-of-2">
+				<div class="slds-p-around--medium slds-form-element" >
+				<label class="slds-form-element__label" for="reportTypeExtSourceMap" style="margin-top: -4px; position: absolute;">
+					<abbr class="slds-required" title="required">*</abbr>	
+						{!$Label.c.Report_Type}
+						<!-- Doris D. ****** 13/03/2019 ***** START-->
+						<lightning:helptext content= "{!$Label.c.OB_TypeOfReportingTooltip}" /> 
+						<!-- Doris D. ****** 13/03/2019 ***** END-->
+					</label>
+					
+					<lightning:select 	name="reportType" 
+										aura:id="reportType"
+										label="" 
+										variant="label-hidden"
+										value="{!v.objectDataMap.OrderHeader.OB_Report_Type__c}" 
+										disabled=""
+										onchange="{!c.setPickListValue}"
+										class=""
+										>
+								
+						<option value="" aura:id="reportTypeNull"></option>
+						<aura:iteration items="{!v.reportTypeList}" var="item">
+							<option text="{!item.value}" value="{!item.key}" selected="{!item.selected}"/>
+						</aura:iteration>
+					</lightning:select>
+				</div>
+			</div>
+		</aura:if>
+		<div class="slds-size--1-of-2 ">
+			<div class="slds-p-around--medium slds-form-element" >
+				<label class="slds-form-element__label" for="prelimVerifCode">
+					<aura:if isTrue="{!v.objectDataMap.prelimVerifCodeRO != true}">
+						<abbr class="slds-required" title="required">*</abbr>
+					</aura:if>
+					{!$Label.c.OB_PreliminaryVerificationCode}
+				</label>
+				<!-- Doris D. ****** 13/03/2019 ***** START-->
+				<lightning:helptext content= "{!$Label.c.OB_PreliminaryVerificationTooltip}" /> 
+				<!-- Doris D. ****** 13/03/2019 ***** END-->
+				<lightning:input label=""
+								 id="prelimVerifCode"
+								 aura:id="prelimVerifCode"
+								 name=""   
+								 variant="label-hidden"
+								 value="{!v.objectDataMap.OrderHeader.OB_PreliminaryVerificationCode__c}" 
+								 class=""
+								 disabled="{!v.objectDataMap.prelimVerifCodeRO}"
+								 onblur="{!c.controlIsSpecialCharacter}"
+								 />
+								  <!-- ID 155, Doris Dongmo <doris.tatiana.dongmo@accenture.com>, 08/04/2109 changed   "removeRedBorder"  to  "controlIsSpecialCharacter"-->
+			
+				<!--  ID 155,  Doris Dongmo <doris.tatiana.dongmo@accenture.com>,  16/04/2109 Start-->
+				<aura:if isTrue="{!v.isMandatoryField }">
+						<span class="errorMessageStyle" >{!$Label.c.MandatoryField}</span>
+				</aura:if>
+
+				<aura:if isTrue="{!v.isSpecialCharacter}">
+					<span class="errorMessageStyle">{!$Label.c.errorSpecialCharacter}</span>
+				</aura:if>
+				<!--  ID 155,  Doris Dongmo <doris.tatiana.dongmo@accenture.com>,  16/04/2109  End-->				  
+			</div>
+		</div>
+		<aura:if isTrue="{!v.objectDataMap.isNEXI == true}">
+			<div class="slds-size--1-of-2 ">
+				<div class="slds-p-around--medium slds-form-element" >
+					<label class="slds-form-element__label" for="settType">
+						{!$Label.c.OB_SettlementType}
+					</label>
+					<lightning:input label=""
+									 id="settType"
+									 aura:id="settType"
+									 name=""   
+									 variant="label-hidden"
+									 value="{!v.objectDataMap.Configuration.OB_SettlementType__c}" 
+									 class=""
+									 disabled="true"
+									 onblur="{!c.removeRedBorder}"/>
+			
+				</div>
+			</div>
+		</aura:if>
+		<aura:if isTrue="{!v.objectDataMap.showPicklistPostpagato == true}">	
+			<div class="slds-size--1-of-2 ">
+				<div class="slds-p-around--medium slds-form-element" >
+					<label class="slds-form-element__label" for="postPagatoPick" style="margin-top: -4px; position: absolute;">
+						<abbr class="slds-required" title="required">*</abbr>
+						{!$Label.c.OB_SettlementMethod}
+					</label>
+					<lightning:select 	name="postPagatoPick" 
+									aura:id="postPagatoPick"
+									label="" 
+									value="{!v.settMethodPostPagatoValue}" 
+									disabled=""
+									onchange="{!c.picklistPrepagatoChange}"
+									class=""
+									>
+							
+					<option value="" aura:id="postPagatoPickNull"></option>
+					<aura:iteration items="{!v.postPagatoPickList}" var="item">
+						<option text="{!item}" value="{!item}" selected="{!item.selected}"/>
+					</aura:iteration>
+				</lightning:select>
+				</div>
+			</div>
+		</aura:if>
+		<aura:if isTrue="{!v.objectDataMap.interSettMethRO == true}">	
+			<div class="slds-size--1-of-2 ">
+				<div class="slds-p-around--medium slds-form-element" >
+					<label class="slds-form-element__label" for="internationalSettlementMethod">
+					
+						<aura:if isTrue="{!v.objectDataMap.viewSettMeth != true}">
+							{!$Label.c.OB_SettlementMethod}
+						</aura:if>
+						<aura:if isTrue="{!v.objectDataMap.viewSettMeth == true}">
+							{!$Label.c.OB_InternationalSettlementMethod}
+						</aura:if>	
+					</label>
+					<lightning:input label=""
+									 id="internationalSettlementMethod"
+									 aura:id="internationalSettlementMethod"
+									 name=""   
+									 variant="label-hidden"
+									 value="{!v.objectDataMap.Configuration.OB_InternationalSettlementMethod__c}" 
+									 class=""
+									 disabled="true"/>
+				</div>
+			</div>
+		</aura:if>
+		<aura:if isTrue="{!v.objectDataMap.viewSettMeth == true}">	
+			<div class="slds-size--1-of-2 ">
+				<div class="slds-p-around--medium slds-form-element" >
+					<label class="slds-form-element__label" for="SetOBPBSettlementMethod">
+						<abbr class="slds-required" title="required">*</abbr>
+						<aura:if isTrue="{!v.objectDataMap.interSettMethRO != true}">
+							{!$Label.c.OB_SettlementMethod}
+						</aura:if>
+						<aura:if isTrue="{!v.objectDataMap.interSettMethRO == true}">
+							{!$Label.c.OB_PBSettlementMethod}
+						</aura:if>
+					</label>
+					<lightning:input label=""
+									 id="setOBPBSettlementMethod"
+									 aura:id="setOBPBSettlementMethod"
+									 name=""   
+									 variant="label-hidden"
+									 value="{!v.objectDataMap.Configuration.OB_PBSettlementMethod__c}" 
+									 class=""
+									 disabled="{!v.objectDataMap.settMethRO}"
+									 onblur="{!c.removeRedBorder}"/>
+				</div>
+			</div>
+		</aura:if>
+	</div>
+	
+  	<!-- END alessandro.tajana -->
+	<!-- START 	micol.ferrari 01/10/2018 - CREATION OF BILLING PROFILES -->
+	<div class="slds-size--1-of-1 slds-grid"> 
+		<div class="slds-size--1-of-2">
+			<!-- Doris D. 25/03/2019 ...ADD MOUSEOVER -->
+			<div class="slds-p-around--medium slds-form-element" id="confirmBillingProfilesId" >  
+				<!-- Doris D. 25/03/2019 ... START-->
+				<span onmouseover="{!c.open}" onmouseout="{!c.close}" style = "position: relative;">
+				<!-- Doris D. 25/03/2019 ...   END-->	
+				<lightning:button variant="brand" 
+								  onclick="{!c.confirmCreationBillingProfiles}"
+								  label="{!$Label.c.OB_ConfirmOperationalDataLabel}" 
+								  class=""/>
+					<!-- Doris D. 25/03/2019 ... START-->
+					<aura:if isTrue="{!v.showMessage}">	
+							<span class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left" role="tooltip" id="help" style="position: absolute; top:-6em; left:5em;width:20em;pointer-events:none;">
+								<div class="slds-popover__body">{!$Label.c.OB_ConfirmOperationalDataTooltip}</div>              
+							</span>
+					</aura:if>				
+				</span>
+				<!-- Doris D. 25/03/2019 ...   END-->
+
+			</div>
+		</div>
+	</div>
+	<!-- END 	micol.ferrari 01/10/2018 - CREATION OF BILLING PROFILES -->
+  	</aura:if>
+  	<!--  START marco.ferri  - TECHNICAL DETAIL ON CART -->
+  	<aura:if isTrue="{!v.objectDataMap.confirmOperationalData==true || v.isFlow == false || v.isMaintenance == true}">
+  	
+		<div name="techDetailsWrapper" class="{!or(v.isFlow == false,v.isMaintenance == true)? 'slds-card':''}" style="width:100%; min-height:300px;margin-bottom: 1%;"> 
+			<div>
+			<!-- {!v.objectDataMap.Configuration.NE__Parameters__c} -->
+			<aura:if isTrue="{!or(v.isFlow == false,v.isMaintenance == true)}">
+					<span><!--  NO ENGINE NEEDED --></span>
+			<aura:set attribute="else">
+		   		<NE:B2WGin_Core_Engine aura:id="lightning" parameters="{!v.objectDataMap.Configuration.NE__Parameters__c}" disableRedirect="true"/>  
+	        </aura:set>
+	        </aura:if>
+				
+			</div>
+	   		 
+	   		<aura:if isTrue="{!v.Spinner}">
+			<div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+				<div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+					<span class="slds-assistive-text">Loading</span>
+					<div class="slds-spinner__dot-a"></div>
+					<div class="slds-spinner__dot-b"></div>
+				</div>
+			</div>
+			</aura:if>
+	   		
+				<!-- START [11-03-2019 Manage Rac Sia Code] Andrea Saracini -->
+				<!-- START antonio.vatrano 30/05/2019 RI-88 -->
+				<aura:if isTrue="{!and(!empty(v.posListAdd), v.objectDataMap.bankProfile.OB_Applicant_RAC_Code_SIA__c=='Banca')}"><!-- [29-04-2019] Andrea Saracini R1F2-60--> 
+				<!-- End antonio.vatrano 30/05/2019 RI-88 -->				
+					<c:OB_ManageRacSia objectDataMap="{!v.objectDataMap}" posList="{!v.posList}" contextOutput="{!v.contextOutput}" siaIsValid="{!v.siaIsValid}" isMaintenance="{!v.isMaintenance}"/>       
+				</aura:if>
+				<!-- STOP [11-03-2019 Manage Rac Sia Code] Andrea Saracini -->
+	   		<div name="SubTitle_Button_Container" class="{!v.isFlow == false?'slds-wrap notFlowPadding':'slds-gutters slds-wrap'}"> <!-- slds-grid -->
+			
+				<span class="slds-col slds-size_1-of-1 slds-medium-size_1-of-5 slds-small-size_1-of-1 subtitle">
+					{!$Label.c.OB_TechDetailHeader}
+				</span>
+				<!--
+				<span class="slds-col slds-size_1-of-1 slds-medium-size_2-of-5 slds-small-size_1-of-1">
+					 <lightning:button onclick="{!c.generateTerminalId}" label="Genera/Verifica Terminal ID dei terminali" class="slds-button slds-button_neutral" />  
+				</span>
+				-->
+				
+				<div class="tableContainer">
+	                    
+	                    <!-- START TECH DETAIL FOR POS  -->
+	                    <aura:if isTrue="{!!empty(v.posList)}">
+	                     <div id="base" class="product_row_color containerMargin" > 
+		                     <div> 
+			                     <div class="commissioni_info" data-label="label"> <!-- class="u122" --> 
+			                     <!-- 	<aura:if isTrue="{!v.contextOutput.cart[0].fields.OBCodiceSfd == XPAY_FULL}">
+			                     		<p class="u1730"><span class="upperCaseText">Gateway Virtuali</span></p> Servizi? TODO: Custom Label
+			                     		<aura:set attribute="else"> -->
+			                     			<p class="u1730"><span class="upperCaseText">{!$Label.c.OB_TerminaliLabel}</span></p>
+			                     <!-- 		</aura:set>		 
+			                     	</aura:if>	-->                          
+			                     </div>
+		                 	 </div>  
+	                        <aura:iteration items="{!v.posList}" var="pos" indexVar="firstIndex">
+	                           
+	                                <!--productRow starts -->
+	                               <div >
+	                                	<span class="productnamestyle">{!pos.fields.productname}</span>
+	                                	<aura:if isTrue="{! pos.fields.OBCodiceSfd == 'POS_TERZI_UNATTENDED'}">
+	                                		<div class="warningMsg">
+	                                			<lightning:icon iconName="utility:warning" alternativeText="Warning!" variant="warning"/>
+	                                			<span>{!v.warningPosUnAttended}</span>
+	                                		</div>
+	                                	</aura:if>
+		                                <span class="generaTerminalIdStyle">
+		                                	<aura:if isTrue="{!and(v.isReadOnly == false, or(pos.fields.status == undefined, pos.fields.status == 'Pending'))}">
+						 						<button id="{!firstIndex+'_POS-generateBtn'}" onclick="{!c.generateTerminalId}" name="{!firstIndex+'_POS-generateBtn'}"  class="slds-button slds-button_neutral">
+						 							{!$Label.c.OB_CallTerminalLabel}
+						 						</button> 
+											<aura:set attribute="else">
+												<span></span>
+											</aura:set>
+											</aura:if>
+										</span>
+	                                
+	                                </div>
+	                                
+	                                <div > <!-- id="{!item.id+'_info'}" -->
+	                                    <div class="slds-grid slds-gutters canone_dettaglio" style="width:98%; margin: 1%;">
+	                                        <!-- START DIV COL --> 
+	                                        <div class="slds-col slds-size_1-of-1 tecnicalContainer" >
+	                                        	<div class="slds-grid slds-gutters slds-wrap" > 
+	                                            <aura:iteration items="{!pos.listOfAttributes}" var="item" indexVar="index">
+	                                             <aura:if isTrue="{!and(or(item.fields.hidden == 'false',item.fields.hidden == false),item.fields.RecordTypeName !='Pricing')}">
+		                                            <div class="slds-col slds-size_1-of-5 attributeNames" > <!--  make columns here for responsiveness -->
+		                                                <p class="attributeNameStyle">
+		                                                	<aura:if isTrue="{!and(item.fields.required == 'Yes', item.fields.name == 'Terminal Id')}">  <!-- <aura:if isTrue="{!and(item.fields.required == 'Y', or(item.fields.required != '',item.fields.required != null))}">  -->
+		                                                		<abbr class="slds-required" title="required">*</abbr>
+															</aura:if>	
+															<!-- START gianluigi.virga 22/07/2019 - PRODOB-161 - Set 'SIMCARD' as a required field-->
+															<aura:if isTrue="{!or(item.fields.name == $Label.c.OB_SimCard,and(item.fields.name == $Label.c.OB_Property, pos.fields.categoryname == $Label.c.OB_TerminaliTerzi))}">
+		                                                		<abbr class="slds-required" title="required">*</abbr>
+															</aura:if>
+															<!-- END gianluigi.virga 22/07/2019 - PRODOB-161 -->
+		                                                	<label id="{!index+'_attName'}" for="{!index}">{!item.fields.name}</label> 
+		                                                </p>  
+		                                                <aura:if isTrue="{!item.fields.readonly == 'true' || item.fields.readonly == true || v.isReadOnly == true}">
+															<!-- START gianluigi.virga 01/08/2019 - PRODOB-161 - Attribute 'Proprietà' not read only if POS Terzi-->
+															<aura:if isTrue="{!and(item.fields.name == $Label.c.OB_Property, pos.fields.categoryname == $Label.c.OB_TerminaliTerzi)}">
+																<lightning:select class="selectClass" aura:id="propriet&agrave;" required="true" name="{!firstIndex+'_'+index+'_POS'}" label="" onchange="{!c.onChangeAttributeValuePOSPickList}">
+																	<option selected="selected" value="">{!$Label.c.OB_Select}</option>
+																	<aura:iteration items="{!item.listOfDomains}" var="picklist" indexVar="index2">
+																        <aura:if isTrue="{!picklist.fields.value == item.fields.value}">
+																        	<option value="{!picklist.fields.value}">{!picklist.fields.value}</option>
+																        <aura:set attribute="else"> 
+																        	<option value="{!picklist.fields.value}">{!picklist.fields.value}</option>
+																		</aura:set>
+																        </aura:if>
+																    </aura:iteration>
+																</lightning:select>
+															<aura:set attribute="else">
+																<input id="{!index}" class="slds-input" type="text" style="font-weight: bold;text-align:center;" name="{!firstIndex+'_POS'}" label="" value="{!item.fields.value}" readonly="readonly" /><!--giovanni spinelli change style-->
+															</aura:set>
+															</aura:if>
+															<!-- END gianluigi.virga 01/08/2019 - PRODOB-161-->
+																<aura:if isTrue="{!item.fields.name == 'Terminal Id'}">
+		                                                    		<p><span id="{!firstIndex+'_POS_ErrorTerminalId'}" class="errorMsg"></span></p>
+		                                                    	<aura:set attribute="else">
+		                                                    		<p><span id="{!firstIndex+'_POS_Error'}" class="errorMsg"></span></p>
+		                                                    	</aura:set>
+		                                                    	</aura:if>
+		                                                    <aura:set attribute="else">
+		                                                    <!--  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHH Nd Marco.Ferri -->
+		                                                    	<aura:if isTrue="{!item.fields.type != 'Enumerated'}">
+		                                                    		<!-- francesca.ribezzi - adding required attribute logic here -->
+		                                                    		<aura:if isTrue="{!item.fields.name == 'Terminal Id'}">
+																			<input id="{!firstIndex+'_'+index+'_POS'}" class="slds-input" type="text" style="font-weight: bold;text-align:center;" name="{!firstIndex}" label="" value="{!item.fields.value}" onchange="{!c.onChangeAttributeValueTerminalId}" /> <!-- onblur="{!c.checkInputValue}" --><!--giovanni spinelli change style-->
+			                                                        	<p><span id="{!firstIndex+'_'+index+'_POS_ErrorTerminalId'}" class="errorMsg"></span></p>
+	                                                    			<aura:set attribute="else">
+																			<input id="{!firstIndex+'_'+index+'_POS'}" class="slds-input" type="text" style="font-weight: bold;text-align:center;" name="{!firstIndex}" label="" value="{!item.fields.value}" onchange="{!c.onChangeAttributeValuePOS}" /><!--giovanni spinelli change style-->
+		                                                        		<p><span id="{!firstIndex+'_'+index+'_POS_Error'}" class="errorMsg"></span></p>
+	                                                    			</aura:set>
+		                                                    		</aura:if>
+		                                                    	<aura:set attribute="else">
+																<!-- START gianluigi.virga 22/07/2019 - PRODOB-161 - Set default value for SIMCARD null-->
+																	<aura:if isTrue="{!item.fields.name == $Label.c.OB_SimCard}">
+																		<lightning:select class="selectClass" aura:id="simCard" required="true" name="{!firstIndex+'_'+index+'_POS'}" label="" onchange="{!c.onChangeAttributeValuePOSPickList}">
+																			<option selected="selected" value="">{!$Label.c.OB_Select}</option>
+																			<aura:iteration items="{!item.listOfDomains}" var="picklist" indexVar="index2">
+																				<aura:if isTrue="{!picklist.fields.value == item.fields.value}">
+																					<option value="{!picklist.fields.value}">{!picklist.fields.value}</option>
+																				<aura:set attribute="else"> 
+																					<option value="{!picklist.fields.value}" >{!picklist.fields.value}</option>
+																				</aura:set>
+																				</aura:if>
+																			</aura:iteration>
+																		</lightning:select>
+																	<aura:set attribute="else">
+																		<lightning:select class="selectClass" name="{!firstIndex+'_'+index+'_POS'}" label="" onchange="{!c.onChangeAttributeValuePOSPickList}">
+																			<aura:iteration items="{!item.listOfDomains}" var="picklist" indexVar="index2">
+																				<aura:if isTrue="{!picklist.fields.value == item.fields.value}">
+																					<option selected="selected" value="{!picklist.fields.value}">{!picklist.fields.value}</option>
+																				<aura:set attribute="else"> 
+																					<option value="{!picklist.fields.value}" >{!picklist.fields.value}</option>
+																				</aura:set>
+																				</aura:if>
+																			</aura:iteration>
+																		</lightning:select>
+																	</aura:set>	
+																	</aura:if>
+																<!-- END gianluigi.virga 22/07/2019 - PRODOB-161 -->
+		                                                    	</aura:set> 
+		                                                    	</aura:if>
+		                                                    </aura:set>
+		                                                </aura:if> 
+		                                             </div>             
+	                                            </aura:if>     
+	                                            </aura:iteration>
+	                                            </div> 
+	                                            <!--  another iteration for the acquiring element here -->
+	                                             <div class="slds-col slds-size_1-of-1 " style="padding-top:1%;" > 
+		                                            <p class="attributeNameStyle">
+															<label for="{!index}"><span class="upperCaseText">{!$Label.c.OB_AcquiringLabel}</span>
+															<!-- Doris D. ****** 13/03/2019 ***** START-->
+																<lightning:helptext content= "{!$Label.c.OB_Acquiring_VAStooltip}" /> 
+																<!-- Doris D. ****** 13/03/2019 ***** END-->
+															</label>
+															
+			                                        </p>
+													
+													
+			                                        <div class="slds-grid slds-gutters slds-wrap">
+	                                            	<aura:iteration items="{!pos.childItems}" var="childItem" indexVar="index">
+	                                            	
+		                                            	<aura:if isTrue="{!and( or(childItem.fields.visible == 'true',childItem.fields.visible == true),childItem.fields.OB_Visible__c != N)}"> <!--  will be != N -->
+		                                            		 <aura:if isTrue="{!childItem.fields.RecordTypeName !='Pricing'}" >
+		                                            		 <div class="slds-col slds-size_1-of-5" style="padding-top: 1%;">	
+			                                            		 	<!-- check + label --> 
+			                                            		 	<span class="checkSel">
+			                                            		 	<!--  aura if on OB_enablement__c and OB_Ro__c -->
+		                                            		 		<aura:if isTrue="{! and(childItem.fields.OB_Ro__c == 'N',v.isReadOnly == false)}"> 
+		                                            		 		<aura:if isTrue="{!childItem.fields.OB_enablement__c == 'Y'}">
+		                                            		 				<lightning:input style="display: inline-block;" id="{!firstIndex+'_'+index+'_POS'}" name="{!childItem.fields.productname}" onchange="{!c.onCheck}" type="checkbox" checked="true" />
+			                                            		 		<aura:set attribute="else">
+			                                            		 			<lightning:input style="display: inline-block;" id="{!firstIndex+'_'+index+'_POS'}" name="{!childItem.fields.productname}" onchange="{!c.onCheck}" type="checkbox" checked="false"/>
+			                                            		 		</aura:set> 
+		                                            		 		</aura:if>
+		                                            		 	<aura:set attribute="else">
+		                                            		 		<aura:if isTrue="{!childItem.fields.OB_enablement__c == 'Y'}">
+		                                            		 			<lightning:input style="display: inline-block;" id="{!childItem.id}" name="{!childItem.fields.productname}" type="checkbox" checked="true" disabled="true" />
+		                                            		 		<aura:set attribute="else">
+		                                            		 			<lightning:input style="display: inline-block;" id="{!childItem.id}" name="{!childItem.fields.productname}" type="checkbox" checked="false" disabled="true" />
+		                                            		 		</aura:set>
+		                                            		 		</aura:if>
+		                                            		 	</aura:set> 
+		                                            		 	</aura:if> 	
+		                                            		 	</span>
+		                                            		 	<span class="checkLab">{!childItem.fields.productname}</span>
+			                                            		 	<!--   ========   -->
+		                                            		 </div>
+		                                            		 </aura:if> 
+		                                            	</aura:if>		 
+	                                            	</aura:iteration> 
+	                                            	</div>
+	                                            </div>
+	                                            <!-- optional notes here -->
+	                                            <div class="slds-col slds-size_1-of-2 " style="padding-top:1%;" > 
+		                                            <p class="attributeNameStyle">
+			                                                <label for="{!firstIndex}"><span class="upperCaseText">{!$Label.c.OB_AdditionalNotes}</span></label>
+			                                        </p>
+			                                        <p class="attributeSubNameStyle">
+			                                                <label for="{!firstIndex}">{!$Label.c.OB_AdditionalInfoDesc}&nbsp;<i>{!$Label.c.OB_OptionalLabel}</i></label>
+			                                        </p>
+		                                         	 <aura:if isTrue="{!v.isReadOnly == false}"> 
+		                                         		<textarea id="{!firstIndex}" maxlength="100" class="slds-textarea m217bis inputAttValueFont" name="{!firstIndex}" value="{!pos.fields.OB_Description__c == null?'': pos.fields.OB_Description__c}" onchange="{!c.onChangeItemValuePOS}" ></textarea>
+		                                         	<aura:set attribute="else">
+		                                         		<textarea id="{!firstIndex}" maxlength="100" class="slds-textarea m217bis inputAttValueFont" name="{!firstIndex}" value="{!pos.fields.OB_Description__c == null?'': pos.fields.OB_Description__c}" readonly="readonly"></textarea>
+		                                         	</aura:set>
+		                                         	</aura:if>	
+		                                            <!-- {!pos.fields.description} probably where to save the value  -->
+		                                         </div>
+		                                                  
+	                                            
+	                                        </div> 
+	                                        <!-- END DIV COL -->
+	                                        </div>
+	                                </div>
+	                        </aura:iteration>
+	                        </div>
+	                    </aura:if>
+	                
+	                <!-- START TECH DETAIL FOR BANCOMAT  -->
+	                <aura:if isTrue="{!!empty(v.bancomatList)}"> 
+	                <div id="base" class="product_row_color containerMargin" > 
+		                     <div> 
+			                     <div class="commissioni_info" data-label="label"> <!-- class="u122" --> 
+			                         <p class="u1730"><span class="upperCaseText">{!$Label.c.OB_NationalAcqLabel}</span></p>		                          
+			                     </div>
+		                 	 </div>  
+	                        <aura:iteration items="{!v.bancomatList}" var="bancomat" indexVar="firstIndex">
+	                           
+	                                <!--productRow starts -->
+	                                <div >
+	                                	<span class="productnamestyle">{!bancomat.fields.productname}</span>
+		                                
+	                                </div>
+	                                <div > <!-- id="{!item.id+'_info'}" -->
+	                                    <div class="slds-grid slds-gutters canone_dettaglio" style="width:98%; margin: 1%;">
+	                                        <!-- START DIV COL --> 
+	                                        <div class="slds-col slds-size_1-of-1 tecnicalContainer" >
+	                                        	<div class="slds-grid slds-gutters slds-wrap"> 
+	                                            <aura:iteration items="{!bancomat.listOfAttributes}" var="item" indexVar="index">
+	                                             <aura:if isTrue="{!and(or(item.fields.hidden == 'false',item.fields.hidden == false),item.fields.RecordTypeName !='Pricing')}">
+		                                            <div class="slds-col slds-size_1-of-5 attributeNames" > 
+		                                                <p class="attributeNameStyle">
+		                                                	<aura:if isTrue="{!or(item.fields.required == 'Yes', item.fields.required == 'true')}">  
+		                                                		<abbr class="slds-required" title="required">*</abbr>
+		                                                	</aura:if>	
+		                                                	<label for="{!index}">{!item.fields.name}</label>
+		                                                </p>  
+		                                                <aura:if isTrue="{!item.fields.readonly == 'true' || item.fields.readonly == true || v.isReadOnly == true}">
+		                                                    	<input id="{!index}" class="slds-input" name="{!firstIndex}" label="" type="text" style="font-weight: bold;text-align:center;"  value="{!item.fields.value}" readonly="readonly"/><!--giovanni spinelli change style-->
+		                                                    <aura:set attribute="else">
+		                                                    <!--  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHH Nd Marco.Ferri -->
+		                                                    	<!-- francesca.ribezzi - adding required attribute logic here -->
+		                                                    	<aura:if isTrue="{!item.fields.type != 'Enumerated'}">
+		                                                        	<input id="{!firstIndex+'_'+index+'_Bancomat'}" class="slds-input" name="{!firstIndex}" label="" type="text" style="font-weight: bold;text-align:center;" value="{!item.fields.value}" onchange="{!c.onChangeAttributeValueBancomat}"/>
+		                                                    		<p><span id="{!firstIndex+'_'+index+'_BancomatError'}" class="errorMsg"></span></p>
+		                                                    	<aura:set attribute="else">
+		                                                    		<lightning:select class="selectClass" name="{!firstIndex+'_'+index+'_bancomat'}" label=""  onchange="{!c.onChangeAttributeValueBancomatPickList}">
+																        <aura:iteration items="{!item.listOfDomains}" var="picklist" indexVar="index2">
+																        	<aura:if isTrue="{!picklist.fields.value == item.fields.value}">
+																        		<option selected="selected" value="{!picklist.fields.value}">{!picklist.fields.value}</option>
+																        	<aura:set attribute="else"> 
+																        		<option value="{!picklist.fields.value}">{!picklist.fields.value}</option>
+																        	</aura:set>
+																        	</aura:if>
+																        </aura:iteration>
+																    </lightning:select>
+		                                                    	</aura:set> 
+		                                                    	</aura:if>
+		                                                    </aura:set>
+		                                                </aura:if> 
+		                                             </div>             
+	                                            </aura:if>     
+	                                            </aura:iteration>
+	                                            </div> 
+	                                       
+													
+	                                        </div> 
+	                                        <!-- END DIV COL -->
+	                                        </div>
+	                                </div>
+	                        </aura:iteration>
+	                        </div>       
+	                </aura:if>
+	                
+	                <!-- START TECH DETAIL FOR ACQUIRING  -->
+	                <aura:if isTrue="{!!empty(v.acquiringList)}"> 
+	                <div id="base" class="product_row_color containerMargin" > 
+		                     <div> 
+			                     <div class="commissioni_info" data-label="label"> <!-- class="u122" --> 
+			                         <p class="u1730"><span class="upperCaseText">{!$Label.c.OB_AcqNexiOtherLabel}</span></p>		                          
+			                     </div>
+		                 	 </div>  
+	                        <aura:iteration items="{!v.acquiringList}" var="acquiring" indexVar="firstIndex">                     
+	                                <!--productRow starts -->
+	                                <div >
+	                                	<span class="productnamestyle">{!acquiring.fields.productname}</span>                            
+	                                </div>
+	                                <div > <!-- id="{!item.id+'_info'}" -->
+	                                    <div class="slds-grid slds-gutters canone_dettaglio" style="width:98%; margin: 1%;">
+	                                        <!-- START DIV COL --> 
+	                                        <div class="slds-col slds-size_1-of-1 tecnicalContainer" >
+	                                        	<div class="slds-grid slds-gutters slds-wrap"> 
+	                                            <aura:iteration items="{!acquiring.listOfAttributes}" var="item" indexVar="index">
+	                                             <aura:if isTrue="{!and(or(item.fields.hidden == 'false',item.fields.hidden == false),item.fields.RecordTypeName !='Pricing')}">
+		                                            <div class="slds-col slds-size_1-of-4 attributeNames" > 
+		                                                <p class="attributeNameStyle">
+		                                                <aura:if isTrue="{!item.fields.required == 'Yes'}">  
+		                                                		<abbr class="slds-required" title="required">*</abbr>
+		                                                </aura:if>	
+		                                                <label for="{!firstIndex}">{!item.fields.name}</label>
+		                                                </p>  
+		                                                <aura:if isTrue="{!item.fields.readonly == 'true' || item.fields.readonly == true || v.isReadOnly == true}">
+																	<input  id="{!firstIndex+'_'+index+'_ACQ'}"  class="slds-input" type="text" style="font-weight: bold;text-align:center;" name="{!firstIndex}" label="" value="{!item.fields.value}" readonly="readonly"/><!--giovanni spinelli change style-->
+																	<span>{!item.fields.description}</span>
+		                                                    <aura:set attribute="else">
+																	<input id="{!firstIndex+'_'+index+'_ACQ'}" class="slds-input" type="text" style="font-weight: bold;text-align:center;" name="{!firstIndex}" label="" value="{!item.fields.value}" onchange="{!c.onChangeAttributeValueACQ}"/><!--giovanni spinelli change style-->
+																	<span>{!item.fields.description}</span>
+		                                                        <p><span id="{!firstIndex+'_'+index+'_ACQ_Error'}" class="errorMsg"></span></p>
+		                                                    </aura:set>
+		                                                </aura:if> 
+		                                             </div>             
+	                                            </aura:if>     
+	                                            </aura:iteration>
+	                                            </div> 
+	                                       
+	                                        </div> 
+	                                        <!-- END DIV COL -->
+	                                        </div>
+	                                </div>
+	                        </aura:iteration>
+	                        </div> 
+	                </aura:if>
+	                
+	                <!-- START TECH DETAIL FOR VAS  -->
+	                <aura:if isTrue="{!!empty(v.vasList)}"> 
+	                <div id="base" class="product_row_color containerMargin" > 
+		                     <div> 
+			                     <div class="commissioni_info" data-label="label"> <!-- class="u122" --> 
+			                         <p class="u1730"><span class="upperCaseText">{!$Label.c.OB_VasLabel}</span></p>		                          
+			                     </div>
+		                 	 </div>  
+	                        <aura:iteration items="{!v.vasList}" var="vas" indexVar="firstIndex">
+	                           
+	                                <!--productRow starts -->
+	                                <div >
+	                                	<span class="productnamestyle">{!vas.fields.productname}</span>
+		                                <span class="generaTerminalIdStyle">
+		                                	<aura:if isTrue="{!and(v.isReadOnly == false, vas.hasTerminalId == true)}"> <!--  check something else -->
+						 						<button id="{!firstIndex+'_VAS-generateBtn'}" onclick="{!c.generateTerminalId}" name="{!firstIndex+'_VAS-generateBtn'}"  class="slds-button slds-button_neutral">
+						 							{!$Label.c.OB_CallTerminalLabel}
+						 						</button> 
+											<aura:set attribute="else">
+												<span></span>
+											</aura:set>
+											</aura:if>
+										</span>
+	                                </div>
+	                                <div > <!-- id="{!item.id+'_info'}" -->
+	                                    <div class="slds-grid slds-gutters canone_dettaglio" style="width:98%; margin: 1%;">
+	                                        <!-- START DIV COL --> 
+	                                        <div class="slds-col slds-size_1-of-1 tecnicalContainer" >
+	                                        	<div class="slds-grid slds-gutters slds-wrap"> 
+	                                            <aura:iteration items="{!vas.listOfAttributes}" var="item" indexVar="index">
+	                                             <aura:if isTrue="{!and(or(item.fields.hidden == 'false',item.fields.hidden == false),item.fields.RecordTypeName !='Pricing')}">
+		                                            <div class="slds-col slds-size_1-of-5 attributeNames" > 
+		                                                <p class="attributeNameStyle">
+		                                                	<aura:if isTrue="{!item.fields.required == 'Yes'}">  
+		                                                		<abbr class="slds-required" title="required">*</abbr>
+		                                                	</aura:if>	
+		                                                	<label id="{!index+'_attName'}"  for="{!index}">{!item.fields.name}</label>
+		                                                </p>  
+		                                                <aura:if isTrue="{!item.fields.readonly == 'true' || item.fields.readonly == true || v.isReadOnly == true}">	
+		                                                    <!-- add readOnly terminal id markup here -->
+																<input id="{!index}" class="slds-input" type="text" style="font-weight: bold;text-align:center;" name="{!firstIndex+'_VAS'}" label="" value="{!item.fields.value}" readonly="readonly" /><!--giovanni spinelli change style-->
+		                                                    	<aura:if isTrue="{!item.fields.name == 'Terminal Id'}">
+																		<p><span id="{!firstIndex+'_VAS_ErrorTerminalId'}" class="errorMsg"></span></p>
+		                                                    	<aura:set attribute="else">
+		                                                    		<p><span id="{!firstIndex+'_VAS_Error'}" class="errorMsg"></span></p>
+		                                                    	</aura:set>
+		                                                    	</aura:if>
+		                                                    <aura:set attribute="else">
+		                                                    <!--  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHH Nd Marco.Ferri -->
+		                                                    	<aura:if isTrue="{!item.fields.type != 'Enumerated'}">
+		                                                    	<!-- francesca.ribezzi - adding required attribute logic here -->
+		                                                    		<aura:if isTrue="{!item.fields.name == 'Terminal Id'}">
+																			<input id="{!firstIndex+'_'+index+'_VAS'}" lass="slds-input" type="text" style="font-weight: bold;text-align:center;" name="{!firstIndex}" label="" value="{!item.fields.value}" onchange="{!c.onChangeAttributeValueTerminalId}" /> <!-- onblur="{!c.checkInputValue}" -->
+			                                                        	<p><span id="{!firstIndex+'_'+index+'_VAS_ErrorTerminalId'}" class="errorMsg"></span></p>
+	                                                    			<aura:set attribute="else">
+																			<input id="{!firstIndex+'_'+index+'_VAS'}" lass="slds-input" type="text" style="font-weight: bold;text-align:center;" name="{!firstIndex}" label="" value="{!item.fields.value}" onchange="{!c.onChangeAttributeValueVAS}"/>
+		                                                    			<p><span id="{!firstIndex+'_'+index+'_VASError'}" class="errorMsg"></span></p>
+		                                                    		</aura:set>
+		                                                    		</aura:if>	
+		                                                    	<aura:set attribute="else">
+		                                                    		<lightning:select class="selectClass" name="{!firstIndex+'_'+index+'_VAS'}" label="" onchange="{!c.onChangeAttributeValueVASPickList}">
+																        <aura:iteration items="{!item.listOfDomains}" var="picklist" indexVar="index2">
+																        	<aura:if isTrue="{!picklist.fields.value == item.fields.value}">
+																        		<option selected="selected"  value="{!picklist.fields.value}">{!picklist.fields.value}</option>
+																        	<aura:set attribute="else"> 
+																        		<option value="{!picklist.fields.value}" >{!picklist.fields.value}</option>
+																        	</aura:set>
+																        	</aura:if>
+																        </aura:iteration>
+																    </lightning:select>
+		                                                    	</aura:set> 
+		                                                    	</aura:if>
+		                                                    </aura:set>
+		                                                </aura:if> 
+		                                             </div>             
+	                                            </aura:if>     
+	                                            </aura:iteration>
+	                                            </div> 
+	                                       
+	                                        </div> 
+	                                        <!-- END DIV COL -->
+	                                        </div>
+	                                </div>
+	                        </aura:iteration>
+	                        </div> 
+	                </aura:if>   
+	                
+	                <!-- END TECH DETAIL -->		  
+	            </div>
+	            
+	        <!--  Button of checkout --> 
+	         <aura:if isTrue="{! or(v.isFlow == true,v.isMaintenance == true)}">  
+				<div id='divNextBtnOverrideId' aura:id="checkout" class="nextBtnOverride"  >
+		        <button id="nextBtnOffertaId" onclick="{! c.checkout }"  class="slds-button slds-button_neutral slds-button--brand" >{!$Label.c.OB_NextLabel}</button>
+		    	</div>
+		    </aura:if>	   
+			<!-- end button  -->
+			   
+	        </div> 
+		</div>
+	</aura:if>
+	<!--  END marco.ferri -->
+
+	</div>	
+</aura:component>

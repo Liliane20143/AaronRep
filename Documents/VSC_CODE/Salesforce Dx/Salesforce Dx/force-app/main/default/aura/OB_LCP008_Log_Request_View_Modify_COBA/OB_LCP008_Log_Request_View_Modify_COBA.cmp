@@ -1,0 +1,20 @@
+<aura:component description="OB_LCP008_Log_Request_View_Modify_COBA">
+    <aura:attribute name="cobaWrapperList" type="Object[]" access="global" description="Attribute contains external data of modified CoBa from parent component"  />
+
+    <lightning:layout multipleRows="true">
+        <aura:iteration items="{!v.cobaWrapperList}" var="singleCobaWrapper">
+            <lightning:layoutItem size="3" class="slds-p-right--xx-small slds-p-vertical--xx-small">
+                <lightning:input type="text"  label="RAC-SIA" value="{!singleCobaWrapper.racsia}" disabled="true" />
+            </lightning:layoutItem>
+            <lightning:layoutItem size="3" class="slds-p-around--xx-small">
+                <lightning:input type="text"  label="Terminal Id" value="{!singleCobaWrapper.termId}" disabled="true" />
+            </lightning:layoutItem>
+            <lightning:layoutItem size="3" class="slds-p-around--xx-small">
+                <lightning:input type="text"  label="Old Iban" value="{!singleCobaWrapper.oldIban}" disabled="true" />
+            </lightning:layoutItem>
+            <lightning:layoutItem size="3" class="slds-p-left--xx-small slds-p-vertical--xx-small">
+                <lightning:input type="text"  label="New Iban" value="{!singleCobaWrapper.newIban}" disabled="true" />
+            </lightning:layoutItem>
+        </aura:iteration>
+    </lightning:layout>
+</aura:component>

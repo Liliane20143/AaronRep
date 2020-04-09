@@ -1,0 +1,4 @@
+<aura:event type="COMPONENT" description="Raised when BT_Slider value attribute changes">
+    <aura:attribute name="name" type="String" />
+    <aura:attribute name="value" type="Decimal" />
+</aura:event>

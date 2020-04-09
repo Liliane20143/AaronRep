@@ -1,0 +1,5 @@
+<aura:component implements="force:lightningQuickAction">
+    <c:OB_ContinuationBrokerComponent/>
+    <c:OB_RetrieveAnagraficaServicePoint/>
+
+</aura:component>

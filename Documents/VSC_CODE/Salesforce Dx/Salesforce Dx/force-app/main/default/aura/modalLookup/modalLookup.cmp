@@ -1,0 +1,69 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="ModalLookupController" access="global"> 
+    <aura:attribute name="objectDataMap" type="Object"/>
+    <aura:attribute name="lovs" type="NE__Lov__c[]"/>
+    <aura:attribute name="type" type="String"/>
+    <aura:attribute name="objectString" type="String"/>
+    <!-- EP 06/10 SAE ATECO -->
+    <aura:attribute name="subType" type="String" default=''/>
+    <aura:attribute name="subTypeField" type="String" default=''/>
+    <!-- EP 06/10 SAE ATECO -->
+    <aura:attribute name="mycolumns" type="List"/>
+    <aura:attribute name="mapOfSourceFieldTargetField" type="Map"/>
+    <aura:attribute name="mapLabelColumns" type="Map"/>
+    <aura:attribute name="showModal" type="Boolean"/>
+    <aura:attribute name="input" type="String" default=''/>
+    <aura:attribute name="selectedRows" type="List" default="[]"/>
+    <aura:attribute name="messageIsEmpty" type="String" default=""/>
+    <aura:attribute name="spinner" type="Boolean" default="false"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>  
+    <aura:registerEvent name="showModalEvent" type="c:modalLookupEvent"/>
+    
+    <div aura:id="modal" class="modalContainer" style="height: 640px;">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                
+                    CATEGORIE MERCEOLOGICHE
+                
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" iconName="utility:close" size="large" alternativeText="Close" variant="bare" onclick="{!c.closeModal}"/>
+                    
+                    <h1 id="modal-heading-01" class="slds-modal__footer">CATEGORIE MERCEOLOGICHE </h1>
+
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col" onkeydown="{!c.formPress}">
+                            <span><lightning:input label="Search" name="searchInput" value="{!v.input}"/></span>
+                        </div>
+                        <div class="slds-col"   style="margin-top: 3.6%">
+                            <span><lightning:buttonIcon iconName="utility:search" size="large" alternativeText="Search" onclick="{!c.searchLovs}"/></span>
+                        </div>
+                    </div>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium slds-is-relative" style="height: 400px" id="modal-content-id-1">
+                    <aura:if isTrue="{!!empty(v.messageIsEmpty)}">
+                    <div class="slds-align_absolute-center" style="height: 1.5rem;">
+                        <p style="color:rgb(0, 95, 178)">{!v.messageIsEmpty}</p>
+                        </div> 
+                    </aura:if>
+                    <aura:if isTrue="{!!empty(v.lovs)}">   
+                        <lightning:datatable data="{!v.lovs}" 
+                                             columns="{!v.mycolumns}" 
+                                             keyField="id"
+                                             selectedRows="{!v.selectedRows}"
+                                             onrowselection="{!c.getSelectedrow}"/>
+                        
+                    </aura:if>
+                    <aura:if isTrue="{!v.spinner}"> 
+                        <div class="slds-spinner_container" style="height: 400px">
+                            <div class="slds-spinner--brand slds-spinner slds-spinner--small" role="alert">
+                                <span class="slds-assistive-text">Loading...</span>
+                                <div class="slds-spinner__dot-a"></div>
+                                <div class="slds-spinner__dot-b"></div>
+                            </div>
+                        </div>
+             </aura:if>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</aura:component>

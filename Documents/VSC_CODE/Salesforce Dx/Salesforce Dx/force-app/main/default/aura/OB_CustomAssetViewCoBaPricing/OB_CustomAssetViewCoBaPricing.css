@@ -1,0 +1,28 @@
+/* .THIS .hideOverflow {
+    overflow: hidden!important;
+    height: 30rem;
+} */
+/* .THIS .slds-modal__content {
+    overflow: hidden!important;
+} */
+
+.THIS .lightBlueBGC, .THIS .slds-modal__footer, .THIS .slds-modal__header, .THIS .slds-table_resizable-cols thead th {
+    background-color: rgb(244, 246, 254)!important;
+}
+.THIS .slds-table_resizable-cols:focus:hover {
+    background-color: rgb(244, 246, 254)!important;
+}
+.THIS .slds-modal__footer, .THIS .slds-modal__header {
+    border: none!important;
+}
+.THIS .title {
+    font-weight: 700!important;
+}
+.THIS .closeModalButton, .THIS .slds-button_icon-inverse  {
+    fill: rgb(244, 246, 254)!important;
+}
+/* Start masoud zaribaf defect RI-113 10/05/2019  */
+.THIS .hideArrows .slds-th__action .slds-button__icon {
+    display: none;
+}
+/* End masoud zaribaf defect RI-113 10/05/2019  */

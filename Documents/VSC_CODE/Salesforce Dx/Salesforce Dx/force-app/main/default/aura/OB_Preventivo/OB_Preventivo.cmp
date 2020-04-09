@@ -1,0 +1,43 @@
+<aura:component controller="OB_ContinuationController" access="global" 
+	implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId,flexipage:availableForRecordHome">
+
+    <aura:attribute name="parent" type="Aura.Component" />
+    <aura:attribute name="mapChildIdName" type="Map" default="{}"/>
+    <aura:attribute name="checkAgreedChanges" type="Boolean" default="false"/>
+    <aura:attribute name="showPrintDocuments" type="Boolean" default="false"/>
+    <aura:attribute name="checkAttributeRules" type="String" default="ok"/>
+    <aura:attribute name="variation" type="String" />
+    <aura:attribute name="isMaintenancePricing" type="Boolean" default="false"/>
+    <aura:attribute name="isEditCommissionModel" type="Boolean" default="false"/>
+    <aura:attribute name="myMap" type="Map" default="{}" access="global"/>
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="bundleStep" type="Integer" default="0"/>
+    <aura:attribute name="step" type="Integer" default="0"/>
+    <aura:attribute name="afterSummary" type="Boolean" default="false"/>
+    <aura:attribute name="contextOutput" type="Object"/>
+    <aura:attribute name="isMaintenance" type="Boolean" default="false"/>
+    <aura:attribute name="bundleElementName" type="String" />
+    <aura:attribute name="isCheckNextRequired" type="Boolean" default="false" /> 
+    <aura:attribute name="bundleMaxQty" type="Integer" />
+    <aura:attribute name="bundleMinQty" type="Integer" /> 
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <aura:attribute name="modalHeader" type="String"/>
+	<aura:attribute name="modalDesc" type="String" />
+    <aura:attribute name="showWarningModal" type="Boolean" default="false"/>
+    <aura:attribute name="requestCheckout" type="Boolean" default="false"/>
+
+    <aura:attribute name="mapRecordId" type="Map" default="{}" access="global"/>
+    <aura:attribute name="documentsList" type="String[]" />
+
+    <aura:attribute name="templateName" type="String"/>
+    <aura:attribute name="templateId" type="String"/>
+
+    <aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+    <aura:method name="callDocService" action="{!c.callService}" access="global"></aura:method>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <div class="slds-grid slds-size--1-of-1" >
+        <div class="slds-size--1-of-12 padLeft"> 
+            <lightning:button label="GENERA PREVENTIVO" class="slds-button_outline-brand CTAStyle_BRAND" title="Genera Preventivo" onclick="{!c.nextStepBundle}" /> <!-- g.v. 01/10/2019 changed button style-->
+        </div>
+    </div>
+</aura:component>

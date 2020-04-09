@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "baseUrl": ".",
+        "paths": {
+            "c/samples": [
+                "../staticresources/chartjsplugindatalabels/samples/samples.js"
+            ],
+            "c/plc_AvailableStockPercentageWgt": [
+                "plc_AvailableStockPercentageWgt/plc_AvailableStockPercentageWgt.js"
+            ],
+            "c/plc_OverallStockPercentageWgt": [
+                "plc_OverallStockPercentageWgt/plc_OverallStockPercentageWgt.js"
+            ]
+        }
+    },
+    "include": [
+        "**/*",
+        "../../../../.sfdx/typings/lwc/**/*.d.ts"
+    ],
+    "typeAcquisition": {
+        "include": [
+            "jest"
+        ]
+    }
+}

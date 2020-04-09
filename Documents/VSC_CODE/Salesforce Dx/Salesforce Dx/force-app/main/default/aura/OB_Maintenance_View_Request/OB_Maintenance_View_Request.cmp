@@ -1,0 +1,350 @@
+<aura:component controller ="OB_Maintenance_View_Request_Controller" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global">
+	<aura:attribute name="recordId" type="String" />
+	
+	<aura:attribute name="oldData" type="Object[]" />
+	<aura:attribute name="newData" type="Object[]" />
+
+	<aura:attribute name="isInternalUser" type="boolean" default="false"  />
+	<aura:attribute name="showRejectModal" type="boolean" default="false"  />
+	<aura:attribute name="switchOnload" type="boolean" default="false" />
+	<aura:attribute name="isDraft" type="boolean" default="false" />
+
+	<!--START elena.preteni 21/06/2019 coba -->
+	<aura:attribute name="isCoba" type="boolean"  />
+	<aura:attribute name="wrapperCoba" type="Object[]" />
+		<!--END elena.preteni 21/06/2019 coba -->
+	<aura:attribute name="rejectreason" type="String" default="" access="global"/>
+	
+	<aura:attribute name="logStatus" type="string" default=""/>
+	<aura:attribute name="logStatusPending" type="string" default="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_STATUS_PENDING}"/>
+
+	<aura:attribute name="booleanValueList" type="List" />
+
+	<aura:attribute name="isOperation" type="boolean" default="false" />
+
+	<aura:attribute name="currentLogRequest" type="OB_LogRequest__c" access ="global"/>
+
+	<aura:handler name="init" value="{! this }" action="{! c.init }"/>
+
+	<aura:handler event="force:refreshView" action="{!c.isRefreshed}" />
+
+	<!-- NEXI-91 Log request status and layout - wojciech.kucharek@accenture.com 21/06/2019 START -->
+	<aura:attribute name="showCurrentContacSection" type="boolean" default="true" />
+	<aura:attribute name="logRequestType" type="string" default="" />
+	<!-- NEXI-91 Log request status and layout - wojciech.kucharek@accenture.com STOP -->
+
+	<!--NEXI-138 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 28/06/2019 START-->
+	<aura:attribute name="showRole" type="Boolean" access="private" description="Controls showing role" />
+	<aura:attribute name="showAction" type="Boolean" access="private" description="Controls showing action" />
+	<!--NEXI-138 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 28/06/2019 STOP-->
+	<!--NEXI-240 Marlena Lukomska-Rogala <m.lukomska-rogala@accenture.com>, 30/07/2019 START-->
+	<aura:attribute name="companyCode" type="String" access="global" description="Value of OB_CustomerCodeClientCode__c field from ExternalSourceMapping object"/>
+	<aura:attribute name="servicePointCode" type="String" access="global" description="Value of OB_ServicePointCodeShopCode__c field from ExternalSourceMapping object"/>
+	<aura:attribute name="isChangeServicePoint" type="Boolean" access="global" description="Check if type of log request is anagrafica service point"/>
+	<aura:attribute name="isChangeMerchant" type="Boolean" access="global" description="Check if type of log request is anagrafica merchant"/>
+	<aura:attribute name="objectType" type="String" access="global" description="Check type of modified data object"/>
+	<!--NEXI-240 Marlena Lukomska-Rogala <m.lukomska-rogala@accenture.com>, 30/07/2019 STOP-->
+	<!--francesca.ribezzi 19/08/19  - F2WAVE2-176 - adding source attribute:-->
+	<aura:attribute name="source" type="String" access="global" description="Value of OB_Source__c field from ExternalSourceMapping object"/>
+
+	<div class="slds-form slds-form_compound" aura:id="MainDiv">
+		<aura:if isTrue="{!not(v.isCoba)}">
+			<ui:scrollerWrapper>
+			<div class="slds-form-element__row">
+				<div class="slds-form-element slds-size_1-of-2">
+					<aura:iteration items="{!v.oldData}" var="oldDataObject">
+						<!--NEXI-149 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 01/07/2019 Start-->
+						<aura:if isTrue="{!and(oldDataObject.action == 'Add',or(v.logRequestType == 'Maintenance of data of actual owners',v.logRequestType == 'Maintenance of esecutore'))}"> <!-- NEXI-168 Marta Stempien <marta.stempien@accenture.com> - Added 'Maintenance of esecutore' logRequestType to condition 05/07/2019 -->
+							<h3 class="slds-section__title">
+								{!$Label.c.OB_MAINTENANCE_BUTTON_PREVIOUS}&nbsp;{!oldDataObject.objectName}:
+							</h3>
+							<aura:set attribute="else">
+                                <!--NEXI-158 Zuzanna Urban<z.urban@accenture.com>, 03/07/2019 Start-->
+                        		<aura:if isTrue="{! v.logRequestType != 'Maintenance of location referents' }">
+                        			<!--NEXI-158 Zuzanna Urban<z.urban@accenture.com>, 03/07/2019 Stop-->
+									<h3 class="slds-section__title">
+										{!$Label.c.OB_MAINTENANCE_BUTTON_PREVIOUS}&nbsp;{!oldDataObject.objectName}:&nbsp;{!oldDataObject.objectLabel}
+									</h3>
+                                </aura:if>
+                               	<!--NEXI-158 Zuzanna Urban<z.urban@accenture.com>, 03/07/2019 Start-->
+                        		<aura:if isTrue="{! and(oldDataObject.action != 'None',v.logRequestType == 'Maintenance of location referents') }">
+									<h3 class="slds-section__title">
+										{!$Label.c.OB_MAINTENANCE_BUTTON_PREVIOUS}&nbsp;{!oldDataObject.objectName}:&nbsp;{!oldDataObject.objectLabel}
+									</h3>
+                                </aura:if>
+                                <!--NEXI-158 Zuzanna Urban<z.urban@accenture.com>, 03/07/2019 Stop-->
+							</aura:set>
+						</aura:if>
+						<!--NEXI-149 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 01/07/2019 Stop-->
+						<!--NEXI-240 Marlena Lukomska-Rogala <m.lukomska-rogala@accenture.com>, 30/07/2019 START-->
+						<aura:if isTrue="{! and(or (v.isChangeServicePoint, v.isChangeMerchant), v.objectType == 'ExternalSourceMapping__c')}">
+                                <div class="slds-form__item">
+                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+						                <span class="slds-form-element__label">
+											{!$Label.c.OB_MAINTENANCE_COMPANYCODECLIENTCODE}
+						                </span>
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-form-element__static">
+                                             {!v.companyCode}
+                                            </div>
+                                        </div>
+                                        <span class="slds-form-element__label">
+                                            {!$Label.c.OB_MAINTENANCE_SERVICEPOINTCODESHOPCODE}
+						                </span>
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-form-element__static">
+                                             {!v.servicePointCode}
+                                            </div>
+                                        </div>
+										<!--START francesca.ribezzi 19/08/19  - F2WAVE2-176 - adding source -->
+										<span class="slds-form-element__label">
+											Source
+										</span>
+										<div class="slds-form-element__control">
+											<div class="slds-form-element__static">
+												{!v.source}
+											</div>
+										</div>
+										<!--END francesca.ribezzi 19/08/19  - F2WAVE2-176 -->
+                                    </div>
+                                </div>
+						</aura:if>
+						<!--NEXI-240 Marlena Lukomska-Rogala <m.lukomska-rogala@accenture.com>, 30/07/2019 STOP-->
+							<!--NEXI-138 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 28/06/2019 START added aura:if's-->
+							<aura:if isTrue="{!v.showAction}">
+                                <!--NEXI-158 Zuzanna Urban<z.urban@accenture.com>, 03/07/2019 Start-->
+                        		<aura:if isTrue="{! v.logRequestType != 'Maintenance of location referents' }">
+									<aura:if isTrue="{! not( empty( oldDataObject.action ) ) }">
+										<div class="slds-p-around_xx-small">
+											<lightning:input value="{! oldDataObject.action }" label ="Action" disabled="true" />
+										</div>
+										<aura:set attribute="else">
+											<aura:if isTrue="{!v.logRequestType =='Maintenance of data of actual owners'}">
+												<div class="slds-p-around_xx-small slds-hidden">
+													<lightning:input value=" " label ="Action" disabled="true" />
+												</div>
+											</aura:if>
+										</aura:set>
+									</aura:if>
+                                </aura:if>
+                        		<aura:if isTrue="{! and(oldDataObject.action != 'None',v.logRequestType == 'Maintenance of location referents') }">
+									<aura:if isTrue="{! not( empty( oldDataObject.action ) ) }">
+										<div class="slds-p-around_xx-small">
+											<lightning:input value="{! oldDataObject.action }" label ="Action" disabled="true" />
+										</div>
+									<aura:set attribute="else">
+										<aura:if isTrue="{!v.logRequestType =='Maintenance of data of actual owners'}">
+											<div class="slds-p-around_xx-small slds-hidden">
+												<lightning:input value=" " label ="Action" disabled="true" />
+											</div>
+										</aura:if>
+									</aura:set>
+									</aura:if>
+                            	</aura:if>
+                          	</aura:if>
+                            <!--NEXI-158 Zuzanna Urban<z.urban@accenture.com>, 03/07/2019 Stop-->
+								<aura:iteration items="{!oldDataObject.listOfRow}" var="oldDataFieds">
+									<aura:if isTrue="{! oldDataObject.action != 'Add' }">
+										<div class="slds-p-around_xx-small">
+											<!-- START 	 micol.ferrari 28/12/2018 -->
+											<aura:if isTrue="{!oldDataFieds.datatype=='BOOLEAN'}">
+												<lightning:input type="checkbox" checked="{!oldDataFieds.value}" label ="{!oldDataFieds.label}" disabled="true" />
+											</aura:if>
+											<aura:if isTrue="{!oldDataFieds.datatype=='STRING'}">
+												<lightning:input value="{!oldDataFieds.value}" label ="{!oldDataFieds.label}" disabled="true" />
+											</aura:if>
+											<!-- END 	 micol.ferrari 28/12/2018 -->
+										</div>
+										<aura:set attribute="else">
+											<div class="slds-p-around_xx-small">
+												<aura:if isTrue="{!oldDataFieds.datatype=='BOOLEAN'}">
+													<lightning:input type="checkbox" checked="false" label ="{!oldDataFieds.label}" disabled="true" />
+												</aura:if>
+												<aura:if isTrue="{!oldDataFieds.datatype=='STRING'}">
+													<lightning:input value="" label ="{!oldDataFieds.label}" disabled="true" />
+												</aura:if>
+											</div>
+										</aura:set>
+									</aura:if>
+									<!--NEXI-138 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 28/06/2019 STOP-->
+								</aura:iteration>
+						</aura:iteration>
+					<!-- </div> -->
+				</div>
+			<aura:if isTrue="{!v.showCurrentContacSection}"> <!-- NEXI-91 wojciech.kucharek@accenture.com 21/06/2019 -->
+					<div class="slds-form-element slds-size_1-of-2">
+							<aura:iteration items="{!v.newData}" var="newDataObject">
+								<!--NEXI-138 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 28/06/2019 START added aura:if's-->
+								<aura:if isTrue="{! newDataObject.action != 'Remove' }">
+									<h3 class="slds-section__title">
+										<!--NEXI-138 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 28/06/2019 Start-->
+										<!--NEXI-149 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 01/07/2019 Start-->
+                                        <aura:if isTrue="{!and(v.logRequestType =='Maintenance of data of actual owners',newDataObject.action == 'Add')}">
+											{!$Label.c.OB_NewEffectiveOwner}:&nbsp;{!newDataObject.objectLabel}
+											<aura:set attribute="else">
+                                                <!--NEXI-158 Zuzanna Urban<z.urban@accenture.com>, 03/07/2019 Start-->
+												<!--NEXI-228 Grzegorz Banach <grzegorz.banach@accenture.com> 22/07/2019 START-->
+												<aura:if isTrue="{! newDataObject.contactStateChange}">
+													{!$Label.c.OB_MAINTENANCE_BUTTON_PREVIOUS}&nbsp;{!newDataObject.objectName}: {!newDataObject.objectLabel}
+													<aura:set attribute="else">
+														<aura:if isTrue="{! v.logRequestType != 'Maintenance of location referents' }">
+															{!$Label.c.OB_MAINTENANCE_BUTTON_CURRENT}&nbsp;{!newDataObject.objectName}:&nbsp;{!newDataObject.objectLabel}
+														</aura:if>
+													</aura:set>
+												</aura:if>
+												<!--NEXI-228 Grzegorz Banach <grzegorz.banach@accenture.com> 22/07/2019 STOP-->
+                                                <aura:if isTrue="{! and(newDataObject.action != 'None',v.logRequestType == 'Maintenance of location referents') }">
+													{!$Label.c.OB_MAINTENANCE_BUTTON_CURRENT}&nbsp;{!newDataObject.objectName}:&nbsp;{!newDataObject.objectLabel}
+                                                </aura:if>
+                                                <!--NEXI-158 Zuzanna Urban<z.urban@accenture.com>, 03/07/2019 Stop-->
+                                            </aura:set>
+										</aura:if>
+										<!--NEXI-138 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 28/06/2019 Stop-->
+									</h3>
+                                    <!--NEXI-240 Marlena Lukomska-Rogala <m.lukomska-rogala@accenture.com>, 1/08/2019 START-->
+                                    <aura:if isTrue="{! and(or (v.isChangeServicePoint, v.isChangeMerchant), v.objectType == 'ExternalSourceMapping__c')}">
+                                        <div class="slds-form__item slds-hidden">
+                                            <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+						                        <span class="slds-form-element__label">
+						                        	{!$Label.c.OB_MAINTENANCE_COMPANYCODECLIENTCODE}
+						                        </span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">
+                                                         {!v.companyCode}
+                                                    </div>
+                                                </div>
+                                                <span class="slds-form-element__label">
+                                                    {!$Label.c.OB_MAINTENANCE_SERVICEPOINTCODESHOPCODE}
+						                        </span>
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-form-element__static">
+                                                         {!v.servicePointCode}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </aura:if>
+                                    <!--NEXI-240 Marlena Lukomska-Rogala <m.lukomska-rogala@accenture.com>, 1/08/2019 STOP-->
+                                    <!--NEXI-158 Zuzanna Urban<z.urban@accenture.com>, 05/07/2019 Start-->
+                                    <aura:if isTrue="{! v.logRequestType != 'Maintenance of location referents' }">
+										<aura:if isTrue="{! and( not( empty( newDataObject.recordTypeName ) ), v.showRole )}">
+											<div class="slds-p-around_xx-small">
+												<lightning:input value="{! newDataObject.recordTypeName }" label ="Role" disabled="true" />
+											</div>
+										<aura:set attribute="else">
+											<aura:if isTrue="{! v.logRequestType =='Maintenance of data of actual owners'}">
+												<!--NEXI-149 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 01/07/2019 Stop-->
+                                                <div class="slds-p-around_xx-small slds-hidden">
+													<lightning:input value="{! newDataObject.action }" label ="Action" disabled="true" />
+												</div>
+											</aura:if>
+										</aura:set>
+										</aura:if>
+                                    </aura:if>
+                                    <aura:if isTrue="{! and(and(newDataObject.action != 'None', v.logRequestType == 'Maintenance of location referents'), not( empty( newDataObject.recordTypeName )) ) }"> <!--NEXI-226 Marta Stempien <marta.stempien@accenture.com 22/07/2019 Added check for empty recordTypeName -->
+                                    	<div class="slds-p-around_xx-small">
+											<lightning:input value="{! newDataObject.recordTypeName }" label ="Role" disabled="true" />
+										</div>
+                                    </aura:if>
+                                    <!--NEXI-158 Zuzanna Urban<z.urban@accenture.com>, 05/07/2019 Stop-->
+									<aura:iteration items="{!newDataObject.listOfRow}" var="newDataFieds">
+										<!-- NEXI-91 Wojciech Kucharek<wojciech.kucharek@accenture.com>, 24/06/2019 START -->
+										<aura:if isTrue="{!empty(newDataFieds.label)}">
+											<div class="">
+												<div class="slds-p-around_xx-small slds-hidden">
+													<lightning:input value="hide" label ="hide" disabled="true" />
+												</div>
+											</div>
+											<aura:set attribute="else">
+												<div class="slds-p-around_xx-small">
+													<!-- START 	 micol.ferrari 28/12/2018 -->
+													<aura:if isTrue="{!newDataFieds.datatype=='BOOLEAN'}">
+														<lightning:input type="checkbox" checked="{!newDataFieds.value}" label ="{!newDataFieds.label}" disabled="true" />
+													</aura:if>
+													<aura:if isTrue="{!newDataFieds.datatype=='STRING'}">
+														<lightning:input value="{!newDataFieds.value}" label ="{!newDataFieds.label}" disabled="true" />
+													</aura:if>
+													<!-- END 	 micol.ferrari 28/12/2018 -->
+												</div>
+											</aura:set>
+										</aura:if>
+									</aura:iteration>
+
+									<aura:set attribute="else">
+										<h3 class="slds-section__title slds-hidden slds-m-top_xxx-small">
+											{!newDataObject.objectName}
+										</h3>
+										<div class="slds-p-around_xx-small slds-hidden">
+											<lightning:input value="{! newDataObject.action }" label ="Action" disabled="true" />
+										</div>
+										<aura:iteration items="{!newDataObject.listOfRow}" var="newDataFieds">
+											<!-- NEXI-91 Wojciech Kucharek<wojciech.kucharek@accenture.com>, 24/06/2019 START -->
+											<aura:if isTrue="{!empty(newDataFieds.label)}">
+												<div class="">
+													<div class="slds-p-around_xx-small slds-hidden">
+														<lightning:input value="" label ="{!newDataFieds.label}" disabled="true" />
+													</div>
+												</div>
+												<aura:set attribute="else">
+													<div class="slds-p-around_xx-small slds-hidden">
+														<aura:if isTrue="{!newDataFieds.datatype=='BOOLEAN'}">
+															<lightning:input type="checkbox" checked="false" label ="{!newDataFieds.label}" disabled="true" />
+														</aura:if>
+														<aura:if isTrue="{!newDataFieds.datatype=='STRING'}">
+															<lightning:input value="" label ="{!newDataFieds.label}" disabled="true" />
+														</aura:if>
+													</div>
+												</aura:set>
+											</aura:if>
+										</aura:iteration>
+									</aura:set>
+								</aura:if>
+								<!--NEXI-138 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 28/06/2019 STOP-->
+							</aura:iteration>
+					</div>
+				</aura:if>
+			</div>
+			</ui:scrollerWrapper>
+			<!-- NEXI-129 Marta Stempien <marta.stempien@accenture.com> 27/06/2019, Remove 2 buttons -->
+
+			<c:strike_modal
+				title="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_MODAL_REJECT}"
+				primaryButtonLabel="Ok"
+				secondaryButtonLabel="Cancel"
+				showHeader="true"
+				showFooter="false"
+				showClose="true"
+				showModal="{!v.showRejectModal}">
+
+					<lightning:input value="" label ="{!$Label.c.OB_MAINTENANCE_REJECTREASON}" aura:id="RejectReason" required="true" onchange="{!c.fieldChanged}"/>
+					<div class="slds-align_absolute-center" >
+						<lightning:button class="slds-m-top_small" variant="brand" type="submit" name="update" label="{!$Label.c.OB_MAINTENANCE_UPDATE}" onclick="{!c.confirmReject}" aura:id="finalReject" disabled="true"/>
+					</div>
+			</c:strike_modal>
+		<!--START elena.preteni 21/06/2019 coba -->
+		</aura:if>
+		<aura:if isTrue="{!v.isCoba}">
+				<aura:iteration items="{!v.wrapperCoba}" var="wrap">
+
+				<div class="slds-form-element__row">
+					<div class="slds-form-element slds-size_1-of-4">
+
+						<lightning:input type="text"  label ="RAC-SIA" value="{!wrap.racsia}" disabled="true" />
+					</div>
+					<div class="slds-form-element slds-size_1-of-4">
+						<lightning:input type="text"  label ="Terminal Id" value="{!wrap.termId}" disabled="true" />
+					</div>
+					<div class="slds-form-element slds-size_1-of-4">
+						<lightning:input type="text"  label ="Old Iban" value="{!wrap.oldIban}" disabled="true" />
+					</div>
+					<div class="slds-form-element slds-size_1-of-4">
+						<lightning:input type="text"  label ="New Iban" value="{!wrap.newIban}" disabled="true" />
+					</div>
+
+				</div>
+
+				</aura:iteration>
+		</aura:if>
+		<!--END elena.preteni 21/06/2019 coba -->
+	</div>
+</aura:component>

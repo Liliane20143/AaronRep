@@ -1,0 +1,71 @@
+<!--
+ - Created by dilorenzo on 20/12/2018.
+ -->
+
+<apex:page id="Plc_WorkOrderPrintLabel" standardController="WorkOrder" extensions="Plc_WorkOrderPrintLabelCnt"
+           sidebar="false" applyBodyTag="false" applyHtmlTag="false"
+           showHeader="false" standardStylesheets="false" renderAs="PDF">
+
+
+
+    <head>
+        <style type="text/css" media="print" >
+         @page {
+           size: 62mm 25mm;
+           margin-bottom: 0.2%;
+           margin-right: 0.1%;
+           margin-left: 0.1%;
+           margin-top:  0.2%;
+        }
+
+         span{
+            font-weight: bold;
+            font-family: Arial Unicode MS;
+        }
+        h1
+        {
+            font-size: 1px;
+            visibility: hidden;
+            color: green;
+            text-decoration: none;
+        }
+        </style>
+    </head>
+
+    <apex:variable var="cnt" value="{!0}"/>
+    <apex:repeat value="{!woli}" var="workOrdLinItem">
+        <div style="{!if(cnt > 0, 'page-break-before:always;','page-break-before:avoid;')}">
+            <header>
+                <h1>header</h1>
+            </header>
+            <body>
+
+            <table width= "100%">
+                <tr style="vertical-align:middle; text-align:left; font-size: 9px;">
+                    <td style="text-align:left">
+                        <apex:image id="LogoNexi" value="{!If(urlLogo == "", $Resource.Logo_Nexi, '/sfc/servlet.shepherd/version/download/' + urlLogo)}" height="15px" width="70px"/>
+                    </td>
+
+                    <td style="text-align:center">
+                        <apex:image id="LogoPhone" url="{!$Resource.Logo_Phone}" width="15px" height="45px"/>
+                    </td>
+
+                    <td style="text-align:center">
+                        <!--<b style="font-size: 13px;">{!$Label.Plc_NumeroVerde}</b> <br /> --> <!-- Numero verde -->
+                        <b style="font-size: 13px;">{!wo.Plc_CustomerCare__c}</b> <br />
+                        <br />
+                        <!--<i> Codice Linea Diretta </i> <br /> -->
+                        <i>{!$Label.Plc_CodeDirectLine} </i> <br />
+                            {!wo.Plc_Cti__c}<br />
+                        <!-- ID {!workOrdLinItem.LineItemNumber}--> <!-- TEMP, modificare perche il valore non è popolato -->
+                        ID {!workOrdLinItem.Plc_ExternalTermId__c} <!-- SCOMMENTARE perche in ambiente i vlaori non sono popolati -->
+                    </td>
+                    <apex:variable var="cnt" value="{!cnt+1}"/>
+                </tr>
+
+            </table>
+            </body>
+        </div>
+    </apex:repeat>
+
+</apex:page>

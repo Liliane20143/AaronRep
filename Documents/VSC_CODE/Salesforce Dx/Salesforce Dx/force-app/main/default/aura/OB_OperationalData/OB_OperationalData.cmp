@@ -1,0 +1,263 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" 
+				access="global" 							controller="OB_OperationalData_CC">
+	<ltng:require  	scripts="{!$Resource.FiscalCodeControl2}"	afterScriptsLoaded="{!c.doInit}"/> 
+		
+	<aura:attribute name="orderHeader" 					type="NE__Order_Header__c" 					access="global" />
+	<aura:attribute name="ibanComplete" 				type="String"								access="global" />
+	<aura:attribute name="objectDataMap" 				type="Object"								access="global" />
+	<aura:attribute name="wizardWrapper"				type="Object" 				default="{}" 	access="global" />
+	<aura:attribute name="objectKey"					type="String" 				default=""      access="global" />
+	<aura:attribute name="identifier"					type="String" 				default=""      access="global" />
+	<aura:attribute name="field" 						type="Object" 				default="{}"    access="global" />
+	<aura:attribute name="disabledCountryCode" 			type="boolean"				default="true"	access="global" />
+	<aura:attribute name="disabledEuroControlCode"		type="boolean"				default="true"	access="global" />
+	<aura:attribute name="disabledCin"					type="boolean"				default="true"	access="global" />
+	<aura:attribute name="disabledAbi"					type="boolean"				default="false"	access="global" />
+	<aura:attribute name="disabledCab"					type="boolean"				default="true"	access="global" />
+	<aura:attribute name="disabledBankAccountNumber"	type="boolean"				default="true"	access="global" />
+	<aura:attribute name="disabledIban"					type="boolean" 				default="true"	access="global" />
+	<aura:attribute name="errorEuroCode"				type="String" 				default=""		access="global" />
+	<aura:attribute name="reportTypeList"				type="List"					default=""		
+					description="the list where are salved the report type values" />
+	<aura:attribute name="onfocusvar" 					type="boolean" 				default="true" 	access="global" /> 
+
+	<aura:handler name="init" 	value="{!this}" 		action="{!c.doInit}"/>
+	<!-- <aura:handler name="change" value="{!v.objectDataMap.setRedBorderoperationalData}" action="{!c.setRedBorderoperationalData}"/>  -->
+	
+	<style>
+	.flow-section-separator
+	{
+		height: 1px !important;
+		width: 100% !important;
+		margin-left: -12px !important;
+		padding-right: 0px !important;
+	}
+	.flow-section-separator-container
+	{
+		margin-left: -12px !important;
+		margin-top: 20px !important;
+	}
+	</style>
+	
+	<div class="slds-size--1-of-1 slds-grid bankprofile-section">
+		<div class="slds-size--1-of-1 slds-grid bankprofile-section-inner">
+
+			<div class="slds-size--9-of-12 slds-grid">
+				<div class="slds-col" style="max-width: 120px;">
+					<div class="slds-p-around--medium slds-form-element " >
+						<label class="slds-form-element__label" for="" value="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.Country_Code}
+						</label>
+						<lightning:input label=""
+										 id="countryCode"
+										 aura:id="countryCode"
+										 name=""   
+										 variant="label-hidden"
+										 value="{!v.objectDataMap.BillingProfilePOS.OB_CountryCode__c}" 
+										 disabled="{!v.disabledCountryCode}"
+										 onchange="{!c.fieldCheck}"
+										 maxlength="2"
+										 minlength="2"								
+										 onblur="{!c.completeIban}"/>
+					</div>
+				</div>
+
+				<div class="slds-col" style="max-width: 145px;">
+					<div class="slds-p-around--medium slds-form-element " >
+						<label class="slds-form-element__label" for="" value="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.Euro_Control_Code}
+						</label>
+						<lightning:input label=""
+										 id="euroControlCode"
+										 aura:id="euroControlCode"
+										 name=""   
+										 variant="label-hidden"
+										 value="{!v.objectDataMap.BillingProfilePOS.OB_EuroControlCode__c}" 
+										 disabled=""
+										 onblur="{!c.completeIban}"
+										 maxlength="2"
+										 onchange="{!c.fieldCheck}"/>
+					</div>
+				</div>
+
+				<div class="slds-col" style="max-width: 100px;">
+					<div class="slds-p-around--medium slds-form-element " >
+						<label class="slds-form-element__label" for="" value="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.CIN}
+						</label>
+						<lightning:input label="" 
+										 id="cin"
+										 aura:id="cin"
+										 name=""   
+										 variant="label-hidden"
+										 value="{!v.objectDataMap.BillingProfilePOS.OB_CINCode__c}"
+										 disabled=""
+										 onblur="{!c.completeIban}"
+										 maxlength="1"
+										 onchange="{!c.fieldCheck}"/>
+					</div>
+				</div>
+
+				<div class="slds-col" style="max-width: 150px;">
+					<div class="slds-p-around--medium slds-form-element" style="min-width: 105px;">
+						<label class="slds-form-element__label" for="" value="{!$Label.c.ABI}">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.ABI}
+						</label>
+						<lightning:input id="abi"
+										 aura:id="abi"
+										 name=""   
+										 variant="label-hidden"
+										 label=""
+										 value="{!v.objectDataMap.BillingProfilePOS.OB_ABICode__c}"
+										 disabled="{!v.disabledAbi}"
+										 onblur="{!c.completeIban}"
+										 maxlength="5"
+										 onchange="{!c.fieldCheck}"/>
+					</div>
+				</div>
+
+				<div class="slds-col" style="max-width: 150px;">
+					<div class="slds-p-around--medium slds-form-element " style="min-width: 105px;">
+						<label class="slds-form-element__label" for="" value="{!$Label.c.CAB}">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.CAB}
+						</label>
+						<lightning:input id="cab"
+										 aura:id="cab"
+										 name=""   
+										 label=""
+										 variant="label-hidden"
+										 value="{!v.objectDataMap.BillingProfilePOS.OB_CABCode__c}" 
+										 disabled=""
+										 onblur="{!c.completeIban}"
+										 maxlength="5"
+										 onchange="{!c.fieldCheck}"/>
+					</div>
+				</div>
+
+				<div class="slds-col">
+					<div class="slds-p-around--medium slds-form-element " >
+						<label class="slds-form-element__label" for="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.Bank_Account_Number}
+						</label>
+						<lightning:input label="" 
+										 id="bankAccountNumber"
+										 aura:id="bankAccountNumber"
+										 name=""   
+										 variant="label-hidden"
+										 value="{!v.objectDataMap.BillingProfilePOS.OB_Bank_Account_Number__c}" 
+										 disabled=""
+										 onblur="{!c.completeIban}"
+										 class=""
+										 maxlength="12"
+										 onchange="{!c.fieldCheck}"/>
+					</div>
+				</div>
+			</div>
+			
+			<div class="slds-size--3-of-12 slds-grid">
+				<div class="slds-p-around--medium slds-form-element " >
+					<label class="slds-form-element__label" for="">
+						{!$Label.c.IBAN}
+					</label>
+					<br/>
+					<span class="slds-badge ibanconcatenated" aura:id="iban" id="iban">
+						{!v.objectDataMap.BillingProfilePOS.OB_CountryCode__c}
+						{!v.objectDataMap.BillingProfilePOS.OB_EuroControlCode__c}
+						{!v.objectDataMap.BillingProfilePOS.OB_CINCode__c}
+						{!v.objectDataMap.BillingProfilePOS.OB_ABICode__c}
+						{!v.objectDataMap.BillingProfilePOS.OB_CABCode__c}
+						{!v.objectDataMap.BillingProfilePOS.OB_Bank_Account_Number__c}
+					</span>
+					<div id="errorIbanNotValid" class="slds-hide">{!$Label.c.IbanNotValid}</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+
+	<!-- <div class="flow-section-separator-container">
+		<form class="slds-size_1-of-1 slds-form">
+			<fieldset class="bit2flowFormSectionCmp" name="OperationalData" data-aura-class="bit2flowFormSectionCmp">
+				<legend class="slds-form-element__label">{!$Label.c.Heading}</legend>
+			</fieldset>
+		</form>
+	</div>
+	<div class="sectionColsContainer flow-section-separator"/>
+ -->
+	<div class="slds-size--1-of-1 slds-grid">
+		<div class="slds-size--1-of-2 ">
+			<div class="slds-p-around--medium slds-form-element" >
+				<label class="slds-form-element__label" for="headerInternational">
+					<abbr class="slds-required" title="required">*</abbr>
+					{!$Label.c.Header_International}
+				</label>
+				<lightning:input label=""
+								 id="headerInternational"
+								 aura:id="headerInternational"
+								 name=""   
+								 variant="label-hidden"
+								 value="{!v.objectDataMap.BillingProfilePOS.OB_HeaderInternational__c}" 
+								 onblur="{!c.completeIban}"
+								 class=""/>
+			</div>
+		</div>
+	<!-- </div> -->
+
+	<!-- <div class="flow-section-separator-container">
+		<form class="slds-size_1-of-1 slds-form formu">
+			<fieldset class="bit2flowFormSectionCmp" name="OperationalData" data-aura-class="bit2flowFormSectionCmp">
+				<legend class="slds-form-element__label">{!$Label.c.ReportType}</legend>
+			</fieldset>
+		</form>
+	</div>
+	<div class="sectionColsContainer flow-section-separator"/> -->
+
+	<!-- <div class="slds-size-1-of-1 slds-grid"> -->
+		<div class="slds-size--1-of-2">
+			<div class="slds-p-around--medium slds-form-element" >
+
+				<lightning:select 	name="reportType" 
+									aura:id="reportType"
+									label="{!$Label.c.Report_Type}" 
+									value="{!v.objectDataMap.OrderHeader.OB_Report_Type__c}" 
+									disabled=""
+									onchange="{!c.setPickListValue}"
+									class=""
+									>
+							
+					<option value="" aura:id="reportTypeNull"></option>
+					<aura:iteration items="{!v.reportTypeList}" var="item">
+						<option text="{!item.value}" value="{!item.key}" selected="{!item.selected}"/>
+					</aura:iteration>
+				</lightning:select>
+			</div>
+		</div>
+	</div>
+
+	<!-- START 	micol.ferrari 01/10/2018 - CREATION OF BILLING PROFILES -->
+	<div class="slds-size--1-of-1 slds-grid">
+		<div class="slds-size--1-of-2">
+			<div class="slds-p-around--medium slds-form-element" >
+				<lightning:button variant="brand" 
+								  onclick="{!c.confirmCreationBillingProfiles}"
+								  label="{!$Label.c.OB_ConfirmOperationalDataLabel}" 
+								  class=""/>
+			</div>
+		</div>
+	</div>
+	<!-- END 	micol.ferrari 01/10/2018 - CREATION OF BILLING PROFILES -->
+
+	<!-- START 	micol.ferrari 02/10/2018 - SHOW CATALOG -->	
+	<aura:if isTrue="{!v.objectDataMap.confirmOperationalData==true}">
+		<div class="slds-size--1-of-1 slds-grid"> 
+			### CHECKOUT HERE ###
+		</div>
+	</aura:if>
+	<!-- END 	micol.ferrari 02/10/2018 - SHOW CATALOG -->	
+</aura:component>

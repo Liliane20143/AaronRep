@@ -1,0 +1,20 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" >
+
+	<!-- START  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+	<aura:attribute name="objectDataMap" type="Object"  access="global"/>
+	<aura:attribute name="identifier" type="String" default="" access="global"/>
+	<aura:attribute name="field" type="Object" default="{}" access="global"/>
+	<aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+	<!-- END  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->	
+	
+	<div class="slds-size--1-of-2 slds-grid">
+		<div class="slds-form-element slds-small-size--1-of-1 slds-large-size--1-of-1 bit2flowAbstractFormElement" >
+			<c:AutoCompleteComponentPostelComune aura:id="comuneComponent"	
+												 province="{!v.province}"
+												 caps="{!v.caps}"																				
+												 objectDataMap="{!v.objectDataMap}"
+												 addressMapping="{!v.addressMapping}"/>
+		</div>
+	</div>
+	<c:OB_ContinuationBrokerComponent/>
+</aura:component>

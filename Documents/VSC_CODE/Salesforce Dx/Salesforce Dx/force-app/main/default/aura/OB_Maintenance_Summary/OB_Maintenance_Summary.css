@@ -1,0 +1,89 @@
+.THIS .selected{
+    color:orange;
+}
+.THIS #ServicePointDataTableDIV .slds-scrollable_x{
+	min-height: 9rem !important;
+}
+
+/*.THIS .slds-button_icon-bare { 
+    display: none;    
+}*/
+
+/* ANDREA MORITTU START 27-Aug-2019 */
+/* CTA = CALL TO ACTION*/
+.THIS .headerModalStyle{
+    font-family     :   Arial!important;
+    font-weight     :   600!important;
+    text-transform  :   uppercase!important;
+    font-size       :   0.8em!important;
+    color           :   #666!important;
+}
+
+.THIS .inputStyle {
+    font-family     :   Arial!important;
+    font-size       :   1.2em!important;
+}
+
+.THIS .labelStyle {
+    font-size       :   1em!important;
+}
+
+.THIS .tytleStyle {
+    font-size       :   1.5em!important;
+}
+/*giovanni spinelli start*/
+.THIS .CTAStyle {
+    font-size       :   1.2em!important;
+    text-transform  :   uppercase!important;
+    font-weight     :   600!important;
+    border-color: rgb(48, 58, 178);
+    border-width: 0.3125rem;
+    border-width: 0.0625rem;
+}
+/* ANDREA MORITTU END 27-Aug-2019 */
+/*giovanni spinelli start*/
+.THIS .slds-th__action{
+    width: 13em;/*giovanni spinelli 14/10/2019*/
+}
+.THIS .slds-dropdown__item .slds-truncate {
+    font-family     :   Arial!important;
+    font-weight     :   600!important;
+    text-transform  :   uppercase!important;
+    font-size       :   0.8em!important;
+}
+.THIS .newFlowStyleButton{
+    float: right;    
+}
+/*giovanni spinelli end*/
+/* ANDREA MORITTU START 30-Sept-2019 - EVO_Fix_CSSMaintenance(Untracked) */
+.THIS #customAccName {
+    margin-left: -35%;
+    width: 135%;
+
+}
+/* ANDREA MORITTU END 30-Sept-2019 - EVO_Fix_CSSMaintenance(Untracked) */
+/*giovanni spinelli - start - 11/10/2019*/
+.THIS .sectionTitle{
+	font-weight: bold;
+    text-transform: uppercase;
+}
+/*giovanni spinelli - start - 11/10/2019*/
+
+/*ANDREA MORITTU START 16-Oct-2019 */
+.THIS .alignToGrid {
+    white-space 	:	nowrap!important;
+    top	:	0.6rem!important;
+}
+
+.THIS .CTAStyle_NoBorder {
+    font-size       :   1.2em!important;
+    /*text-transform  :   uppercase!important;*/
+    font-weight     :   600!important;
+    border: none;
+    text-decoration: underline;
+}
+
+.THIS .paddingLeft {
+    padding-left	: 1rem;
+}
+/*ANDREA MORITTU END 16-Oct-2019 */

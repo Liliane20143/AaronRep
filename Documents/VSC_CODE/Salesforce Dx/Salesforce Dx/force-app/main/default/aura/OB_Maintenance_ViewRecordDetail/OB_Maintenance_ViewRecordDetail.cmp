@@ -1,0 +1,411 @@
+<aura:component access="global" implements="flexipage:availableForRecordHome,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable,force:hasRecordId"
+				controller="OB_Maintenance_ViewRecordDetail_CC">
+	
+	<!-- AURA ATTRIBUTE -->
+	<!-- <aura:attribute name="recordId" type="String" access="global"/> -->
+	<aura:attribute name="showRejectReason" 	type="Boolean" access="global" default="false"	/>
+	<aura:attribute name="showButton" 			type="Boolean" access="global" default="false"	/>
+	<aura:attribute name="showModalDocuments" 	type="Boolean" access="global" default="false"	/>
+	<aura:attribute name="showSaveButton" 		type="Boolean" access="global" default="false"	/>
+	<aura:attribute name="isDraft" 				type="Boolean" access="global" default="false"	/>
+	<aura:attribute name="logRequest" 			type="OB_LogRequest__c" access="global"	/>
+
+	<!-- DG START -->
+	<aura:attribute name="isProfForOrderDetails"			type="Boolean" access="global" default="false" 	/>
+	<aura:attribute name="pageUrl"										type="String" access="global" default="false" 	/>
+	<!-- DG END -->
+
+	<!-- ANDREA START -->
+
+	<!-- ANDREA END -->
+	<aura:attribute name="isProfCom"			type="Boolean" access="global" default="false" 	/>
+	<aura:attribute name="listEmpty"			type="Boolean" access="global" default="false" 	/>
+	
+	<!-- ANDREA START -->
+	<aura:attribute name="accountLookupValorized" 	type="Boolean" access="global" default="false"	/>
+	<aura:attribute name="servicePointLookupValorized" 	type="Boolean" access="global" default="false"	/>
+	<aura:attribute name="isConfirmButton" type="Boolean" access="private" default="false"/><!--NEXI-33 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 14/05/2019-->
+	<!-- AURA HANDLER -->
+	<!-- NEXI-156 Wojciech Kucharek<wojciech.kucharek@accenture.com> 05/07/2019 Start-->
+	<aura:attribute name="isTEEdit" type="Boolean" access="global" default="false" description="Use for check if log request is from edit Titolare Effettivi " />
+	<!-- NEXI-156 Wojciech Kucharek<wojciech.kucharek@accenture.com> 05/07/2019 Stop-->
+	<aura:handler name="init" value="{! this }" action="{! c.doInit }"/> 
+
+	<div style="padding-left: 28px;padding-right: 28px;">
+		<div class="slds-form" role="list">
+			<aura:if isTrue="{!v.logRequest.OB_OrderId__c!=null}">
+				<div class="slds-form__row">
+					<div class="slds-form__item" role="listitem">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+							<span class="slds-form-element__label">
+								{!$Label.c.OB_OrderIdLabel}
+							</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									<a href="{!v.pageUrl+'/'+v.logRequest.OB_OrderId__c}">{!v.logRequest.OB_OrderId__r.Name}</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="slds-form__item" role="listitem">
+					</div>
+				</div>
+			</aura:if>
+
+			<div class="slds-form__row">
+				<div class="slds-form__item" role="listitem">
+					<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+						<span class="slds-form-element__label">
+							{!$Label.c.OB_MAINTENANCEMAINTENANCETYPEFIELDLABEL}
+						</span>
+						<div class="slds-form-element__control">
+							<div class="slds-form-element__static">
+								{!v.logRequest.OB_MaintenanceType__c}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="slds-form__item" role="listitem">
+					<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+						<span class="slds-form-element__label">
+							{!$Label.c.OB_MAINTENANCECREATEDDATEFIELDLABEL}
+						</span>
+						<div class="slds-form-element__control">
+							<div class="slds-form-element__static">
+								<lightning:formattedDateTime value="{!v.logRequest.CreatedDate}" year="numeric" month="numeric" day="numeric" hour="2-digit" minute="2-digit" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="slds-form__row">
+				<div class="slds-form__item" role="listitem">
+					<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+						<span class="slds-form-element__label">
+							{!$Label.c.OB_MAINTENANCESTATUSFIELDLABEL}
+						</span>
+						<div class="slds-form-element__control">
+							<div class="slds-form-element__static">
+								{!v.logRequest.OB_StatusFormula__c}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="slds-form__item" role="listitem">
+					<aura:if isTrue="{!v.logRequest.OB_RejectReason__c!=null}">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+							<span class="slds-form-element__label">
+								{!$Label.c.OB_MAINTENANCEREJECTREASONFIELDLABEL}
+							</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									{!v.logRequest.OB_RejectReason__c}
+								</div>
+							</div>
+						</div>
+					</aura:if>
+				</div>
+			</div>
+
+			<div class="slds-form__row">
+				<div class="slds-form__item" role="listitem">
+					<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+						<span class="slds-form-element__label">
+							{!$Label.c.OB_MAINTENANCEFISCALCODEFIELDLABEL}
+						</span>
+						<div class="slds-form-element__control">
+							<div class="slds-form-element__static">
+								{!v.logRequest.OB_AccountId__r.NE__Fiscal_code__c}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="slds-form__item" role="listitem">
+					<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+						<span class="slds-form-element__label">
+							{!$Label.c.OB_MAINTENANCEVATFIELDLABEL}
+						</span>
+						<div class="slds-form-element__control">
+							<div class="slds-form-element__static">
+								{!v.logRequest.OB_AccountId__r.NE__VAT__c}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="slds-form__row">
+				<div class="slds-form__item" role="listitem">
+					<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+						<span class="slds-form-element__label">
+							{!$Label.c.OB_MAINTENANCESERVICEPOINTNAMEFIELDLABEL}
+						</span>
+						<div class="slds-form-element__control">
+							<div class="slds-form-element__static">
+								{!v.logRequest.OB_ServicePointId__r.Name}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="slds-form__item" role="listitem">
+					<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+						<span class="slds-form-element__label">
+							{!$Label.c.OB_MAINTENANCESERVICEPOINTADDRESSFIELDLABEL}
+						</span>
+						<div class="slds-form-element__control">
+							<div class="slds-form-element__static">
+								{!v.logRequest.OB_ServicePointId__r.OB_AddressFormula__c}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--START- - - Simone Misani 22/07/2019 fix tracking -->
+			<aura:if isTrue="{!and(v.logRequest.OB_MaintenanceType__c == 'Consistenza', v.isProfCom == false)}"> <!--francesca.ribezzi 20/11/19 - PROD-138 - adding isProfCom condition-->
+				<div class="slds-form__row">
+					<div class="slds-form__item" role="listitem">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+							<span class="slds-form-element__label">
+									{!$Label.c.OB_TRACKRESPONSE}
+							</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									{!v.logRequest.OB_Response_Track__c}
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- <aura:if isTrue="{!v.logRequest.OB_Response_Track__c == 'KO'}"> -->
+						<div class="slds-form__item" role="listitem">
+							<aura:if isTrue="{!and(v.logRequest.OB_Response_Track__c == 'KO', v.isProfCom == false)}"> <!--francesca.ribezzi 20/11/19 - PROD-138 - adding isProfCom condition-->  
+							<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+
+								<span class="slds-form-element__label">
+										{!$Label.c.OB_TRACKINGERRO}
+								</span>
+								<div class="slds-form-element__control">
+									<div class="slds-form-element__static">
+										{!v.logRequest.OB_Error_Tracking__c}
+									</div>
+								</div>
+
+							</div>
+						</aura:if>
+						</div>
+
+				</div>
+			</aura:if>
+			<!--END- - - Simone Misani 22/07/2019 fix tracking -->
+            <!-- NEXI-205 Marlena Lukomska-Rogala<m.lukomska-rogala@accenture.com> 18/07/2019 Start-->
+            <aura:if isTrue="{!v.logRequest.OB_LogType__c=='Nuovo Esecutore' || v.logRequest.OB_LogType__c=='Modify Owner Data'}">
+                <div class="slds-form__row">
+                    <div class="slds-form__item" role="listitem">
+                        <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+            	            <span class="slds-form-element__label">
+            	                {!$Label.c.OB_Gianos}
+            	            </span>
+                            <div class="slds-form-element__control">
+                                <div class="slds-form-element__static">
+            	                       {!v.logRequest.OB_Gianos__c}
+            	                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aura:if>
+            <!-- NEXI-205 Marlena Lukomska-Rogala<m.lukomska-rogala@accenture.com> 18/07/2019 Stop-->
+            <aura:if isTrue="{!v.logRequest.OB_MaintenanceType__c == 'Anagrafica'}">
+				<div class="slds-form__row">
+					<div class="slds-form__item" role="listitem">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+							<span class="slds-form-element__label">
+								{!$Label.c.OB_MAINTENANCE_CHANGELEGAL}
+							</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									<ui:outputCheckbox  value="{!v.logRequest.OB_ChangeLegalRepresentative__c}"  />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="slds-form__item" role="listitem">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+							<span class="slds-form-element__label">
+								{!$Label.c.OB_MAINTENANCE_NEWLEGAL}
+							</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									<ui:outputCheckbox  value="{!v.logRequest.OB_NewLegalRepresentative__c}"  />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="slds-form__row">
+					<div class="slds-form__item" role="listitem">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+							<span class="slds-form-element__label">
+								{!$Label.c.OB_MAINTENANCE_CHANGELEGALFORM}
+							</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									<ui:outputCheckbox  value="{!v.logRequest.OB_ChangeLegalForm__c}"  />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="slds-form__item" role="listitem">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+							<span class="slds-form-element__label">
+								{!$Label.c.OB_MAINTENANCE_CHANGECOMPANYDATA}
+							</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									<ui:outputCheckbox  value="{!v.logRequest.OB_ChangeCompanyData__c}"  />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="slds-form__row">
+					<div class="slds-form__item" role="listitem">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+							<span class="slds-form-element__label">
+								{!$Label.c.OB_MAINTENANCE_CHANGESERVICEPOINT}
+							</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									<ui:outputCheckbox  value="{!v.logRequest.OB_ChangeServicePointData__c}"  />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="slds-form__item" role="listitem">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+							<span class="slds-form-element__label">
+								{!$Label.c.OB_MAINTENANCE_CHANGEMERCHANTNAME}
+							</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									<ui:outputCheckbox  value="{!v.logRequest.OB_ChangeMerchantName__c}"   />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--NEXI-91 Wojciech Kucharek<wojciech.kucharek@accenture.com>, 24/06/2019 START-->
+				<div class="slds-form__row">
+					<div class="slds-form__item" role="listitem">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+							<span class="slds-form-element__label">
+								{!$Label.c.OB_MAINTENANCE_CHANGEOFDATAOFBENEFICIALOWNER}
+							</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									<ui:outputCheckbox  value="{!v.logRequest.OB_Change_of_data_of_beneficial_owners__c}"   />
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--NEXI-187 Grzegorz Banach <grzegorz.banach@accenture.com> 11/07/2019 START-->
+					<div class="slds-form__item" role="listitem">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+							<span class="slds-form-element__label">
+								{!$Label.c.OB_ChangeInTypeOfReporting}
+							</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									<ui:outputCheckbox  value="{!v.logRequest.OB_change_of_reporting_type__c}"   />
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--NEXI-187 Grzegorz Banach <grzegorz.banach@accenture.com> 11/07/2019 STOP-->
+				</div>
+				<!--NEXI-91 Wojciech Kucharek<wojciech.kucharek@accenture.com>, 24/06/2019 STOP-->
+				<!--NEXI-187 Grzegorz Banach <grzegorz.banach@accenture.com> 11/07/2019 START-->
+				<div class="slds-form__row">
+					<div class="slds-form__item" role="listitem">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+						<span class="slds-form-element__label">
+							{!$Label.c.OB_ChangeInSettlementProcedures}
+						</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									<ui:outputCheckbox  value="{!v.logRequest.OB_Settlement_Procedure__c}"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--NEXI-91 grzegorz.banach@accenture.com 24/06/2019 START-->
+					<div class="slds-form__item" role="listitem">
+						<div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent">
+						<span class="slds-form-element__label">
+							{!$Label.c.OB_MAINTENANCE_ABI}
+						</span>
+							<div class="slds-form-element__control">
+								<div class="slds-form-element__static">
+									{!v.logRequest.OB_ABI__c}
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--NEXI-91 grzegorz.banach@accenture.com 24/06/2019 END-->
+				</div>
+				<!--NEXI-187 Grzegorz Banach <grzegorz.banach@accenture.com> 11/07/2019 STOP-->
+			</aura:if>
+		</div>
+		<!-- GV START -->
+		<c:OB_Maintenance_Log_Request_Notes recordId="{!v.recordId}" />
+		<!-- GV END  --> 
+		<div class="slds-p-top_large">
+			<aura:if isTrue="{!v.showButton}">
+				<lightning:button aura:id="resubmit" disabled="false" variant="brand" label="{!$Label.c.OB_Resubmit}" title="{!$Label.c.OB_Resubmit}" onclick="{!c.clickResubmit}" />
+			</aura:if>
+			<aura:if isTrue="{!and(and(and(v.logRequest.OB_MaintenanceType__c == 'Anagrafica',v.isDraft),v.isProfCom),v.logRequest.OB_Save_as_Draft__c )}">
+				<lightning:button disabled="false" variant="brand" label="{!$Label.c.OB_MAINTENANCE_UPLOAD_DOCS}" title="{!$Label.c.OB_MAINTENANCE_UPLOAD_DOCS}" onclick="{!c.showDocs}" />
+			</aura:if>
+            <!--NEXI-33 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 14/05/2019 Start-->
+            <aura:if isTrue="{!v.isConfirmButton}">
+                <lightning:button variant="brand" label="{!(v.logRequest.OB_MaintenanceType__c == 'Variazione Coba')? $Label.c.OB_MAINTENANCE_LOGREQUEST_STATUS_CONFIRMED :$Label.c.OB_MAINTENANCE_LOGREQUEST_BUTTON_APPROVE }" onclick="{!c.updateLogStatus}" /> <!--NEXI-97 Marta Stempien <marta.stempien@accenture.com>, changed label value 12/06/2019 -->
+            </aura:if>
+            <!--NEXI-33 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 14/05/2019 Stop-->
+		</div>
+
+		 <!--DOCUMENTS MODAL EXECUTOR-->
+		<aura:if isTrue="{!v.showModalDocuments}" >
+
+			<c:strike_modal
+				title="{!$Label.c.OB_MAINTENANCE_DOCUMENTS}"
+				primaryButtonLabel="Ok"
+				secondaryButtonLabel="Cancel"
+				showHeader="true"
+				showFooter="false"
+				showClose="false"
+				showModal="{!v.showModalDocuments}"
+				size="large"
+				>
+				<c:OB_Maintenance_AttachedDocumentations recordId="{!v.recordId}" isDraft="{!v.isDraft}" isDraftModal="true" showSaveButton="{!v.showSaveButton}" listIsEmpty= "{!v.listEmpty}"/>
+				<lightning:buttonGroup class="slds-align_absolute-center" >
+					<aura:if isTrue = "{!!v.listEmpty}">
+						<div>
+							<lightning:button class ="draft" variant="neutral" aura:id="SaveAsDraft"  label="{!$Label.c.OB_Cancel}" title="" onclick="{! c.hideDocs }" />
+						</div>
+						<div>
+							<lightning:button class="" variant="brand" aura:id="closeModal"  label="{!$Label.c.OB_MAINTENANCE_SAVE}" title="{!$Label.c.OB_MAINTENANCE_SAVE}" onclick="{! c.save }" />
+						</div>
+						<aura:set attribute="else">
+							<div>
+								<lightning:button class="close" variant="brand" aura:id="closeModal"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_CLOSEBUTTON}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_CLOSEBUTTON}" onclick="{! c.hideDocs }" />
+							</div>
+						</aura:set>
+
+					</aura:if>
+				</lightning:buttonGroup>
+			</c:strike_modal>
+		</aura:if>
+	</div>
+</aura:component>

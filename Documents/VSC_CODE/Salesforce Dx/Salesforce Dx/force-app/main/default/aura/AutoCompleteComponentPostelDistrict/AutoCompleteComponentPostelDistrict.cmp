@@ -1,0 +1,81 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="AutoCompleteComponentController">
+	<ltng:require styles="{! $Resource.jqueryuiCSS}" scripts="{!join(',', $Resource.JQueryResourceCode ,  $Resource.jqueryuiJS) }"/>
+	<aura:registerEvent name="AutocompleteEvent" type="c:OB_AutocompleteEvent"/>
+	<aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:method name="reInit" action="{!c.doInit}" description="Runs the init method again ">
+	</aura:method>
+	<aura:method name="blankValue" action="{!c.blankValue}" description="Reset to blank the value">
+	</aura:method>
+	<aura:attribute name="frazioni" type="List" default="{}" access="global" />
+	<aura:attribute name="provinceList" type="List" default="{}" access="global"/>
+	<aura:attribute name="responseDistr" type="Object" default="{}" access="global"/>
+	<aura:attribute name="response" type="Object"   access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="valueProvince" type="String" default=""/>
+	
+	<aura:attribute name="comune" type="String"  />
+	<aura:attribute name="frazione" type="String" default=""/>
+	<aura:attribute name="caps" type="List"  />
+	<aura:attribute name="districtString" type="String"/>
+	<aura:attribute name="districtId" type="String" default="frazione"/>
+	<aura:attribute name="districtEEId" type="String" default="districtEE"/>
+	<aura:attribute name="isEE" type="Boolean" default="false" access="global"/>
+	
+	<!-- START  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+  	<aura:attribute name="identifier" type="String" default="" access="global"/>
+  	<aura:attribute name="field" type="Object" default="{}" access="global"/>
+  	<aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+  	<!-- END  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+
+   
+ 	<div class="slds-p-around--medium slds-form-element">
+
+	  	<!-- START	micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+		<aura:if isTrue="{!v.addressMapping.sectionaddress=='sedelegale'}">
+			<label class="slds-form-element__label" for="{!$Label.c.OB_Legal_District}">
+				{!$Label.c.OB_Legal_District}
+			</label>
+		</aura:if>
+		<aura:if isTrue="{!v.addressMapping.sectionaddress=='sedeamministrativa'}">
+			<label class="slds-form-element__label" for="{!$Label.c.OB_Administrative_Office_District}">
+				{!$Label.c.OB_Administrative_Office_District}
+			</label>
+		</aura:if>
+		<aura:if isTrue="{!or(v.addressMapping.sectionaddress=='generaladdress',v.addressMapping.sectionaddress=='documentrelease',v.addressMapping.sectionaddress=='birthaddress')}">
+			<label class="slds-form-element__label" for="{!$Label.c.OB_Address_District}">
+				{!$Label.c.OB_Address_District}
+			</label>		
+		</aura:if>				
+		<!-- END	micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+
+		<div class="slds-form-element__control">
+		   <aura:if isTrue="{!v.isEE != true}">
+			  <input id="{!v.districtId}"  
+					 value="{!v.districtString}"
+					 class="slds-input"
+					 label =""
+					 type="text" 
+					 oninput="{!c.callDistrict}"
+					 onchange="{!c.getValue}"
+					 onkeydown="{!c.clearInput}"
+					 disabled="{!v.addressMapping.districtdisabled}" 
+					 onblur= "{!c.district}"
+					 name="districtString"
+					 />
+			</aura:if>
+			<aura:if isTrue="{!v.isEE == true}">
+			  <input id="{!v.districtEEId}"  
+					 value="{!v.districtString}"
+					 class="slds-input"
+					 label =""
+					 type="text" 
+					 onchange="{!c.getValueEE}"
+					 disabled="{!v.addressMapping.districtdisabled}" 
+					 name="districtString"
+					 />
+			</aura:if>
+		  </div>
+	  </div>
+
+</aura:component>

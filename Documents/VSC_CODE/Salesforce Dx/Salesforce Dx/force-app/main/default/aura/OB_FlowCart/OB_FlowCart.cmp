@@ -1,0 +1,372 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable" access="global" controller="OB_CatalogController">
+  <!-- ,force:hasRecordId -->
+  <!-- LUBRANO 16/01/2019 Libreria Log -->
+	<ltng:require scripts = "{!$Resource.utils}" afterScriptsLoaded =  "{!c.logInit}" />
+
+
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+    <aura:attribute name="lightningFromParam" type="String" access="global" />
+	
+	<aura:attribute name="asset2OrderDone" type="Boolean" default="false"/> 	<!-- enrico.purificato 23/10/2019 perfromance-->
+	<aura:attribute name="sessionId" type="String" default=""/> 			<!-- enrico.purificato 23/10/2019 perfromance-->
+	
+    <aura:attribute name="validItems" type="Object[]"/>
+    <aura:attribute name="validBundles" type="Object[]"/>
+    <aura:attribute name="step" type="Integer" default="0"/>
+    <aura:attribute name="productCategories" type="Object"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    
+    <!-- NEW Attributes to have the dynamic components to switch -->
+    <aura:attribute name="bundleStep" type="Integer" default="0"/>
+    <aura:attribute name="bundleElementName" type="String"  />
+    <aura:attribute name="configureBundle" type="Boolean" default="false"/>
+	<aura:attribute name="contextOutput" type="Object"/>
+	<aura:attribute name="checkAgreedChanges" type="Boolean" default="false"/>
+	<aura:attribute name="offertaId" type="ID"/>
+    <aura:attribute name="orderId" type="String"/>
+    <aura:attribute name="requestCheckout" type="Boolean" default="false"/>
+    <aura:attribute name="afterSummary" type="Boolean" default="false"/>
+    <aura:attribute name="goToNextStep" type="Boolean" default="false"/>
+    
+    <aura:attribute name="isUnusualStep" type="Boolean" default="false"/>
+    <aura:attribute name="isCheckNextRequired" type="Boolean" default="false" />  
+	
+	<aura:attribute name="startBundle" type="Boolean" default="false"/> 
+	
+	<aura:attribute name ="qtyMax" type="Integer" default="900"/>
+    <aura:attribute name="clearCart" type="Boolean" default="false"/> 
+    <aura:attribute name="backToOfferSelection" type="Boolean" default="false"/>
+    
+    <aura:attribute name="checkAttributeRules" type="String" default="ok"/> <!-- ok,warning,error  NEW-->
+    <aura:attribute name="showWarningModal" type="Boolean" default="false"/> <!-- NEW-->
+
+    <aura:attribute name="bundleMaxQty" type="Integer" /> <!-- NEW-->
+    <aura:attribute name="bundleMinQty" type="Integer" /> <!-- NEW-->
+    
+    <aura:attribute name="urlImages" type="String" default="/servlet/servlet.FileDownload?file="/>
+    <aura:attribute name="bankABI" type="String" /> 
+    
+    <aura:attribute name="MapAttributeItemsError" type="Object"/>
+    <aura:attribute name="MapAttributeItemsWarning" type="Object"/>
+    
+    <!--  modal stuff -->
+	<aura:attribute name="modalHeader" type="String"/>
+	<aura:attribute name="modalDesc" type="String" />
+	<aura:attribute name="modalButton" type="String"/>
+    
+    <!-- maintenance attributes: -->
+    <aura:attribute name="isMaintenance" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="isMaintenancePricing" type="Boolean" default="false"/>
+	<aura:attribute name="isEditCommissionModel" type="Boolean" default="false"/>
+	<aura:attribute name="isMaintenanceOffer" type="Boolean" default="false"/>
+	
+	<aura:attribute name="objectAdministration" type="Aura.Component[]" />
+	
+	 <aura:attribute name="showPrintDocuments" type="Boolean" default="false"/>
+	<aura:attribute name="showTechDetail" type="Boolean" default="false"/>
+	<aura:attribute name="showConfDetail" type="Boolean" default="false"/>
+	<aura:attribute name="variation" type="String"  />
+	<aura:attribute name="maintenanceWizard" type="String"  default="OB_Maintenance_Catalogo_Nuovo_Contratto"/>
+	<aura:attribute name="wizardConfigurationId" type="String"  access="global"/>
+		
+	<!-- 25/01/19 new preload functionality attributes: -->
+	<aura:attribute name="activatePreLoad" type="Boolean" default="false"/>
+	<aura:attribute name="parameters" type="String" default="lightningFromVF=true;"/>	
+	<aura:attribute name="ordIdParam" type="String"  default=""/>
+		
+	<aura:attribute name="blockCheckOut" type="Boolean" default="false"/><!-- 18/07/19 francesca.ribezzi set this variable to true - custom checkout-->
+
+	<aura:attribute name="myMap" type="Map" default="{}" access="global"/>
+
+	<aura:attribute name="mapChildIdName" type="Map" default="{}"/> 
+	
+	<!-- ANDREA MORITTU START 18-Sept-2019 - EVO_PRODOB_452 -->
+	<aura:attribute name="offerAssetId" type="String" access="global"/>	
+	<aura:attribute name="selfComponent" type="Aura.component" access="global"/>	
+	<aura:attribute name="showFlowCartForPreload" type="boolean" default="false"/>
+	<aura:attribute name="isPricing" type="boolean" default="false" access="global"/>
+	
+	<!-- ANDREA MORITTU END 18-Sept-2019 - EVO_PRODOB_452 -->
+	<!-- ANDREA MORITTU START - 02-Oct-2019 - EVO_BACKLOG_245 -->
+    <aura:attribute     name="oldVMAttributes"                   type="Object"                                        access="global"             />
+    <!-- ANDREA MORITTU END - 02-Oct-2019 - EVO_BACKLOG_245 -->
+
+
+	    <!--LUBRANO 2019/02/23-->
+		<!-- <aura:attribute name="documentsLoaded" type="Boolean" default="false" access="global"/>
+		<aura:attribute name="isDocumentListEmpty"  type="Boolean" default="false" access="global"/>
+		<aura:handler  action="{!c.showDocuments}" event="c:OB_Document_Event"/> -->
+	
+	<!-- Start antonio.vatrano 08/05/2019 r1f2-106 -->
+	<aura:attribute name="userLicense" type="String"  default="" access="global"/>
+	<!-- End antonio.vatrano 08/05/2019 r1f2-106 -->
+	<!--Start giovanni.spinelli 19/08/2019-->
+	<aura:attribute name="approvalLevel" type="String"  default="" access="global"/>
+	<!--Start giovanni.spinelli 19/08/2019-->
+	<!--START gianluigi.virga 19/09/2019-->
+	<aura:attribute name="redirect" type="String" access="global"/> 
+	<aura:attribute name="showQuoteButton" type="Boolean" default="false"/>
+	<aura:attribute name="isPrivacyOk" type="Boolean" default="{v.objectDataMap.isPrivacyOk}" access="global"/>
+	<!--END gianluigi.virga 19/09/2019-->
+	<!-- Daniele Gandini <daniele.gandini@accenture.com> - 29/04/2019 - TerminalsReplacement - Added typologiesValue parameter to make logic with in FlowCart -> ConfigurePOS -> ConfigureActivePOS - START -->
+	<aura:attribute name="typologiesValue" type="String"/>
+	<aura:attribute name="isReplacement" type="Boolean"/>
+	<aura:attribute name="maintenanceWizardReplacement" type="String"  default="OB_Maintenance_Sostituzione"/>
+	<!-- Daniele Gandini <daniele.gandini@accenture.com> - 29/04/2019 - TerminalsReplacement - Added typologiesValue parameter to make logic with in FlowCart -> ConfigurePOS -> ConfigureActivePOS - END -->
+
+	<aura:attribute name="attrVariationMap" type="Map"  default="{}" access="global"/> <!--francesca.ribezzi 25/11/19 - performance - adding AttrVariationMap --> 
+	<aura:attribute name="priceApprovalLevel" type="String" access="global"/> <!--francesca.ribezzi 26/11/19 - performance - adding priceApprovalLevel -->   
+
+	
+	<!-- maintenance event -->
+	 <aura:registerEvent name="flowMaintenanceEvent" type="c:OB_FlowCartMaintenanceEvent"/>
+	<!--event used to destroy core Engine -->
+	 <aura:registerEvent name="flowCartEngineEvent" type="c:OB_FlowCartEngineEvent"/>
+	<!--28/02/19 francesca.ribezzi event used to send the selected servicePoint id to Maintenance Summary cmp-->
+	 <aura:registerEvent name="servicePointIdEvent" type="c:OB_PickServicePointId"/>
+
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <!--  event to get context updates from children -->
+    <aura:handler action="{!c.onUpdateContextChildren}" event="c:OB_CustomUpdateContextEvent" />
+    <!--  NEW event to update attribute checkAttributeRules -->
+    <aura:handler action="{!c.onUpdateApprovalOrderRules}" event="c:OB_ApprovalOrderRulesEvent" />
+    
+ 	<!--  ============================================== -->
+ 	<aura:handler action="{!c.onUpdateContext}" event="NE:Bit2win_Event_UpdateContext" />
+ 	<aura:handler action="{!c.handleAfterCheckOut}" event="NE:Bit2win_Event_CartEvent" />
+ 	<!-- <aura:handler name="change" value="{!v.goToNextStep}" action="{!c.handleGoToNextStep}"/>  -->
+ 	<aura:handler event="c:OB_maintenanceConfigEvent" action="{!c.handleMainConfEvent}"/>
+ 	<aura:handler event="c:OB_MaintenancePreLoadEvent" action="{!c.handleMaintenanceEvent}"/>
+	<!--  <ltng:require scripts="{!$Resource.ruleStepOffertaNext}"/> -->
+
+	<!--15/02/19 francesca.ribezzi adding new event to receive bundle step from ItemsApprovalStatus.cmp	
+	<aura:handler event="c:OB_itemsApprovalStatusEvent" action="{!c.handleItemsApprovalStatusEvent}"/>-->
+	
+	<!--22/02/19 francesca.ribezzi adding event to check Maggiorazione and Percentuale values for maintenance pricing-->
+    <aura:handler action="{!c.onUpdateMapForMaggiorazione}" event="c:OB_childItemACQevent" />
+
+	<aura:registerEvent name="spinnerEvent" type="c:OB_SpinnerEvent"/>
+	
+	<c:OB_ContinuationBrokerComponent aura:id="contBrokerCmp"/> 
+	
+    <div name="newCartWrapper" style="width:100%">
+	    <aura:if isTrue="{!v.spinner}">
+			<div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+				<div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+					<span class="slds-assistive-text">Loading</span>
+					<div class="slds-spinner__dot-a"></div>
+					<div class="slds-spinner__dot-b"></div>
+				</div>
+			</div>
+        </aura:if> 
+     
+		<!-- Configuration Summary Info   {!v.body}  Dynamic cmp into Dynamic cmp is a bad idea, unmanageable -->
+		<aura:if isTrue="{!v.showConfDetail}">
+		  <c:OB_ConfigurationInfo
+			configuration ="{!v.contextOutput.configuration}"
+			variation="{!v.variation}"
+			checkAgreedChanges="{!v.checkAgreedChanges}"
+			isEditCommissionModel="{!v.isEditCommissionModel}"
+			/>
+		</aura:if>
+		<!--  ========================= -->
+		
+		<!-- ANDREEA MORITTU START 19-Sept-2019 - EVO_PRODOB_452 -->
+		<aura:if isTrue="{!v.isPricing}">
+			<div class="slds-size--1-of-1 slds-grid">
+				<div class="slds-size--3-of-4" />
+				<div class="slds-size--1-of-3 slds-p-around_medium">
+					<lightning:button 	class="CTAStyle"
+										label="{!$Label.c.OB_CancelRequest}"																		
+										variant="neutral"
+										onclick="{!c.cancelOrder_JS}"/>
+				</div>
+
+			</div>
+		</aura:if>
+		<!-- ANDREEA MORITTU START 19-Sept-2019 - EVO_PRODOB_452 -->
+
+		<!-- modal for every occasion -->
+		<aura:if isTrue="{!v.showWarningModal}">
+			<div class="modalStyle">
+				<section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+					<div class="slds-modal__container">
+						<header class="slds-modal__header">
+								<lightning:buttonIcon class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" iconName="utility:close" size="large" alternativeText="Close" variant="bare" onclick="{!c.handleModalCancel}"/>
+								<h2 id="modal-heading-01" class="headerModalStyle slds-text-heading_medium slds-hyphenate">
+									{!v.modalHeader}
+								</h2>
+						</header>
+						<div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
+							<p class="centeredText">{!v.modalDesc}</p>
+							<aura:if isTrue="{!v.objectDataMap.isPreventivo}"> <!--Start gianluigi.virga 16/09/2019 - If is a quote show privacy cmp -->
+								<c:OB_PrivacySectionComponent objectDataMap="{!v.objectDataMap}"
+																isPrivacyOk="{!v.isPrivacyOk}"/>
+							<aura:set attribute="else">
+								<!--Start giovanni.spinelli 19/08/2019 add row with info about approver name-->
+								<p class="centeredText approvalLevelClass">{!$Label.c.OB_ApprovalLevel} <b>{!v.approvalLevel}</b> </p>
+								<!--Start giovanni.spinelli 19/08/2019 add row with info about approver name-->
+							</aura:set>
+							</aura:if> 
+						</div>
+						<footer class="slds-modal__footer slds-theme_default">
+							<!-- insert aura if here to know which button label we want -->
+							<!-- START gianluigi.virga 20/09/2019 - If is a quote show button only if privacy is Ok -->
+							<aura:if isTrue="{!v.objectDataMap.isPreventivo != true}"> <!-- g.v. 26/09/2019 fix aura if condition -->
+								<lightning:button label="OK" onclick="{!c.handleModalButton}" variant="brand" class="CTAStyle_BRAND slds-m-top_medium"/>
+							</aura:if>
+							<aura:if isTrue="{!and(v.objectDataMap.isPreventivo == true, v.isPrivacyOk == true)}"> 
+								<lightning:button label="{!$Label.c.OB_Generate}" onclick="{!c.handleModalButton}" variant="brand" class="CTAStyle_BRAND slds-m-top_medium"/>
+							</aura:if>
+							<!-- END gianluigi.virga 20/09/2019 -->
+							<lightning:button label="{!$Label.c.OB_Cancel}" onclick="{!c.handleModalCancel}" class="CTAStyle_NoBorder slds-m-top_medium" />
+						</footer>
+					</div>
+				</section>
+			  	<div class="slds-backdrop slds-backdrop_open"></div>
+			</div>
+		</aura:if>
+
+  
+   
+    <div>
+	     <aura:if isTrue="{!v.activatePreLoad == true}">
+		  <!--    <NE:B2WGin_Core_Engine aura:id="lightning" disableRedirect="true" accId="{!v.objectDataMap.merchant.Id}" parameters="{!v.parameters}" activatePreLoad="{!v.activatePreLoad}"/> -->
+	    	<aura:set attribute="else"> 
+	    		<NE:B2WGin_Core_Engine aura:id="lightning" disableRedirect="true" parameters="{!v.objectDataMap.Configuration.NE__Parameters__c}"/> 
+	   		</aura:set>
+	    </aura:if>
+    </div>
+	        <!--  "NEW activatePreLoad  LOGIC:"  -->
+	 <aura:if isTrue="{!or(v.activatePreLoad == false, v.ordIdParam != '')}"> 
+	    <aura:if isTrue="{!v.step == 0}">
+		    <div aura:id="offertaComponent" id="offertaComponentId" class="padding-button">
+				 <!--  <NE:Bit2win_CatalogsNavigator></NE:Bit2win_CatalogsNavigator> -->  
+				<c:OB_SelectOffer objectDataMap ="{!v.objectDataMap}" offertaId="{!v.offertaId}" urlImages="{!v.urlImages}"  />
+		    </div>
+	    </aura:if>
+
+	    <aura:if isTrue="{! and(v.bundleStep == 0,v.step == 1,v.isUnusualStep == false) }">  <!-- and(v.bundleStep == 0,v.step == 1) -->
+		    <div aura:id="POSComponent" id="POSComponentId" class="padding-button">	
+				<!-- Daniele Gandini <daniele.gandini@accenture.com> - 29/04/2019 - TerminalsReplacement - Added typologiesValue parameter to make logic with in FlowCart -> ConfigurePOS -> ConfigureActivePOS - START -->
+		        <c:OB_ConfigurePOS objectDataMap ="{!v.objectDataMap}"  bundleStep ="{!v.bundleStep}" isCheckNextRequired ="{!v.isCheckNextRequired}" bundleMaxQty = "{!v.bundleMaxQty}" bundleMinQty = "{!v.bundleMinQty}" urlImages="{!v.urlImages}" typologiesValue = "{!v.typologiesValue}" isReplacement= "{!v.isReplacement}"/>
+				<!-- Daniele Gandini <daniele.gandini@accenture.com> - 29/04/2019 - TerminalsReplacement - Added typologiesValue parameter to make logic with in FlowCart -> ConfigurePOS -> ConfigureActivePOS - END -->
+			</div>
+	    </aura:if> 
+	    
+	    <aura:if isTrue="{!and(v.bundleElementName == 'Gestione Pagobancomat',v.step == 1)}">
+		    <div aura:id="PagoBancomat" id="PagoBancomatId" class="padding-button">
+	        	<c:OB_newCartBancomat objectDataMap ="{!v.objectDataMap}" bundleStep ="{!v.bundleStep}" bundleMaxQty = "{!v.bundleMaxQty}" bundleMinQty = "{!v.bundleMinQty}" urlImages="{!v.urlImages}" />
+	    	</div> 
+     	</aura:if>
+     	 
+     	<aura:if isTrue="{!and(v.bundleElementName == 'Selezione Acquiring',v.step == 1)}">
+			<div aura:id="Acquiring" id="AcquiringId" class="padding-button">		<!-- aura:id="Acquiring" id="AcquiringId" class="hidden" -->
+				<!-- ANDREA MORITTU START- 02-Oct-2019 - EVO_BACKLOG_245 - ADDING PARAMETER TO NEW_CART_ACQUIRING -->
+	        	<c:OB_newCartAcquiring objectDataMap ="{!v.objectDataMap}"  bundleStep ="{!v.bundleStep}" isCheckNextRequired ="{!v.isCheckNextRequired}" bundleMaxQty = "{!v.bundleMaxQty}" bundleMinQty = "{!v.bundleMinQty}" urlImages="{!v.urlImages}" isEditCommissionModel="{!v.isEditCommissionModel}" userLicense="{!v.userLicense}" oldVMAttributes="{!v.oldVMAttributes}"/> <!--antonio.vatrano 08/05/2019 rif2-106 add attribute-->
+				<!-- ANDREA MORITTU END - 02-Oct-2019 - EVO_BACKLOG_245 - ADDING PARAMETER TO NEW_CART_ACQUIRING -->
+			</div>	
+   		</aura:if>
+   		
+   		<aura:if isTrue="{!and(v.bundleElementName == 'Selezione VAS',v.step == 1)}">
+	    	<div aura:id="VASComponent" id="VASComponentId" class="padding-button">
+	        	<c:OB_ConfigureVAS objectDataMap ="{!v.objectDataMap}" bundleStep ="{!v.bundleStep}" isCheckNextRequired ="{!v.isCheckNextRequired}" bundleMaxQty = "{!v.bundleMaxQty}" bundleMinQty = "{!v.bundleMinQty}" urlImages="{!v.urlImages}"/>
+	    	</div>
+	    </aura:if>	    
+		<aura:if isTrue="{!(v.bundleElementName == 'Modalità di Integrazione' &amp;&amp; v.step == 1) || (v.step == 1 &amp;&amp; v.isUnusualStep == true)}"><!--[21-05-2019 No Card Present] Andrea Saracini-->
+	    	<div aura:id="GenericComponent" id="GenericComponentId" class="padding-button">
+	        	<c:OB_ConfigureVAS objectDataMap ="{!v.objectDataMap}" bundleStep ="{!v.bundleStep}" isCheckNextRequired ="{!v.isCheckNextRequired}"  bundleMaxQty = "{!v.bundleMaxQty}" bundleMinQty = "{!v.bundleMinQty}" urlImages="{!v.urlImages}"/>
+	    	</div>
+		</aura:if>
+	    <aura:if isTrue="{! v.step == 2 || (v.step > 2 &amp;&amp; v.checkAttributeRules == 'warning' &amp;&amp; v.isMaintenance == false) }">
+	    	<div aura:id="PriceSummary" id="PriceSummaryId" class="padding-button">
+				<!-- ANDREA MORITTU START- 02-Oct-2019 - EVO_BACKLOG_245 - ADDING PARAMETER TO NEW_CART_ACQUIRING -->
+				<c:OB_newCartPriceSummary 
+						objectDataMap ="{!v.objectDataMap}" 
+						isMaintenance="{!v.isMaintenance}" 
+						isMaintenancePricing="{!v.isMaintenancePricing}" 
+						isEditCommissionModel="{!v.isEditCommissionModel}" 
+						userLicense="{!v.userLicense}" 
+						oldVMAttributes="{!v.oldVMAttributes}"
+						priceApprovalLevel="{!v.priceApprovalLevel}" 
+				/> <!--antonio.vatrano 08/05/2019 rif2-106 add attribute-->
+				<!-- ANDREA MORITTU END- 02-Oct-2019 - EVO_BACKLOG_245 - ADDING PARAMETER TO NEW_CART_ACQUIRING -->
+			</div>
+	    </aura:if>
+	    
+	    <aura:if isTrue="{!v.showTechDetail}">	
+			<!--16/07/19 francesca.ribezzi changing component to OB_TechDetailService_New and isFlow = true - PERFORMANCE -->
+   			<c:OB_TechDetailService_New objectDataMap="{!v.objectDataMap}" bankABI="{!v.bankABI}" isMaintenance="{!v.isMaintenance}" isFlow="true" />
+   		</aura:if> 
+	        
+	      <aura:if isTrue="{!v.showPrintDocuments}">
+			   <c:stampaDocumenti objectDataMap="{!v.objectDataMap}" myMap="{!v.myMap}"/>
+			   <!-- LUBRANO 2019/02/23  send info if document list is empty -->
+			   <!-- <aura:if isTrue="{!v.documentsLoaded}"> -->
+				   <c:uploadProductDocuments2 objectDataMap="{!v.objectDataMap}" myMap="{!v.myMap}"/>
+				<!-- </aura:if> -->
+   		</aura:if>   
+   		
+   		<aura:if isTrue="{!v.isMaintenance}">
+   			{!v.body}
+   		</aura:if>
+		
+		   <!-- START gianluigi.virga 12/09/2019 -->
+		<aura:if isTrue="{!v.step == 2}">
+			<aura:if isTrue="{!and(v.showQuoteButton == true, v.isMaintenance != true)}">
+				<c:OB_Preventivo aura:id="quote"
+								parent="{!this}"
+								mapChildIdName = "{!v.mapChildIdName}"
+								checkAgreedChanges = "{!v.checkAgreedChanges}"
+								showPrintDocuments ="{!v.showPrintDocuments}"
+								checkAttributeRules ="{!v.checkAttributeRules}"
+								variation ="{!v.variation}"
+								isMaintenancePricing ="{!v.isMaintenancePricing}"
+								isEditCommissionModel ="{!v.isEditCommissionModel}"
+								myMap ="{!v.myMap}"
+								objectDataMap ="{!v.objectDataMap}"
+								bundleStep ="{!v.bundleStep}"
+								step ="{!v.step}"
+								afterSummary ="{!v.afterSummary}"
+								contextOutput ="{!v.contextOutput}"
+								isMaintenance ="{!v.isMaintenance}"
+								bundleElementName ="{!v.bundleElementName}"
+								isCheckNextRequired ="{!v.isCheckNextRequired}"
+								bundleMaxQty ="{!v.bundleMaxQty}"
+								bundleMinQty ="{!v.bundleMinQty}"
+								spinner ="{!v.spinner}"
+								modalHeader ="{!v.modalHeader}"
+								modalDesc ="{!v.modalDesc}"
+								showWarningModal ="{!v.showWarningModal}"
+								requestCheckout ="{!v.requestCheckout}"
+								/>
+			</aura:if>
+		</aura:if>
+		<!-- END gianluigi.virga 12/09/2019 -->
+		
+	    <div class="slds-button-group buttonGroup" role="group">
+			
+	     	<div aura:id="previousButtonDiv" class="previousBtn hidden" >
+	    		<button id="previousBtn" onclick="{! c.previousStepBundle }" class="slds-button slds-button_neutral" disabled="false">{!or(v.step == 2, and(v.step > 2, v.checkAttributeRules == 'warning'))? $Label.c.OB_BackToSelectOffer:$Label.c.OB_PreviousLabel}</button>
+	    	</div> 
+			    <div aura:id="buttondiv" class="nextBtnOverride" >
+			        <button id="nextBtnOffertaId" onclick="{! c.nextStep }"  class="slds-button slds-button_neutral slds-button--brand" disabled="true">{!$Label.c.OB_NextLabel}</button>
+			    </div>
+			    <div aura:id="navigateStepBundle" class="nextBtnOverride hidden" >
+			        <button id="nextBtnId" onclick="{! c.nextStepBundle }" class="slds-button slds-button_neutral slds-button--brand" disabled="true">{!$Label.c.OB_NextLabel}</button>
+			    </div>
+		    
+		    
+		    <!--  NOT USED ANYMORE -->
+		    <div aura:id="checkout" class="hidden" > 
+		        <button onclick="{! c.checkout }"  class="slds-button slds-button_neutral slds-button--brand">Checkout</button>
+		    </div> 
+		</div>
+		</aura:if>	
+	
+	<!--  <button onclick="{! c.testPreload }"  class="slds-button slds-button_neutral slds-button-brand">Test</button>   -->	
+	
+
+    </div>
+</aura:component>

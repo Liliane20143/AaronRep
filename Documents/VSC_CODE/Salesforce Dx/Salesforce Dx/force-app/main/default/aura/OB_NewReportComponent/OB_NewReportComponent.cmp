@@ -1,0 +1,135 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable"  controller="OB_NewReportController" access="global">
+<aura:attribute name="allData"				type	= "Object"															/>
+<aura:attribute name="data"					type	= "Object"															/>
+<aura:attribute name="currentPageNumber"	type	= "Integer"			default = "1"									/>
+<aura:attribute name="pageSize"				type	= "Integer"			default = "10"									/>
+<aura:attribute name="totalPages"			type	= "Integer"			default = ""									/>
+<aura:attribute name="pageList"				type	= "List"			default = "[]"									/>
+<aura:attribute name="columns"				type	= "List"															/>
+<aura:attribute name="reportName"			type	= "String"			default = ""					access='global' />
+<aura:attribute name="reportRealName"		type	= "String"			default = ""									/>
+<aura:attribute name="reportId"				type	= "String"			default = ""									/>
+<aura:attribute name="sessionId"			type	= "String"			default = ""									/>
+<aura:attribute name="filters"				type	= "Object"			default = ""									/>
+<aura:attribute name="listFilters"			type	= "List"			default = "[]"									/>
+<aura:attribute name="listFixNameFilters"	type	= "String"											access="global" />
+<aura:attribute name="listNameFilters"		type	= "String"											access="global" />
+<aura:attribute name="listValueFilters"		type	= "Map"																/>
+<aura:attribute name="recordUser"			type	= "Object"															/>
+
+<!--  START   	micol.ferrari 29/11/2018	-->
+<aura:attribute name="isLoading" type="Boolean" default="false"/>
+<!--  END   	micol.ferrari 29/11/2018	-->
+
+<aura:handler 	name="init" 				value	= "{!this}" 		action = "{!c.doInit}"							/>
+<aura:handler   name="change"				value	= "{!v.allData}"	action = "{!c.changeData}"						/>
+<aura:handler   name="change"				value	= "{!v.filters}"	action = "{!c.setDataTable}"					/>
+
+<!-- SEARCH INPUT AND SEARCH BUTTON-->  
+	<lightning:layout> 
+		<aura:iteration items="{!v.listFilters}" var="filter">
+			<aura:if isTrue="{!filter.isRunPageEditable == true}">
+				<lightning:layoutItem size="2" padding="around-small">
+					<aura:if isTrue="{!filter.type!='picklist'}">
+						
+						<lightning:input 	value="{!filter.value}" 
+											required="false"
+											placeholder="{!$Label.c.OB_SearchReport + ' ' + filter.label}" 
+											id = "{!filter.label+'Id'}"
+											aura:id="{!filter.label+'Id'}"
+											label="{!$Label.c.OB_SearchReport + ' ' + filter.label}"/> 
+							
+						
+						<aura:set attribute="else">
+							<lightning:select 	aura:id="{!filter.label+'Id'}" 
+												name="{!filter.column}" 
+												label="{!filter.label}" 
+												required="false" 
+												onchange="{!c.onControllerFieldChange}" >
+
+								<option value="{!filter.stringValues}">
+									{!$Label.c.OB_All}
+								</option>
+								<aura:iteration items="{!filter.filterValues}" var="filterVal">        
+									<option value="{!filterVal.value}">
+										{!filterVal.label}
+									</option>
+								</aura:iteration>
+							</lightning:select> 
+						</aura:set>
+					</aura:if> 
+				</lightning:layoutItem>
+			</aura:if>
+		</aura:iteration>
+		<div className="-x-small-buttons--horizontal" style="margin-top:35px">
+			<lightning:button 	onclick="{!c.searchClick}"
+								variant="brand"
+								label="{!$Label.c.OB_Search}"
+								iconName="utility:search"/>
+
+			<lightning:button 	onclick="{!c.exportClick}"
+								variant="brand"
+								label="{!$Label.c.OB_Export}"
+								iconName="utility:share_file"/>
+		</div>
+	</lightning:layout>
+	 
+	<lightning:card title="{!v.reportRealName}">
+		<lightning:layout multipleRows="true" horizontalAlign="center">
+			<lightning:layoutItem padding="around-small" size="12">
+				<!-- the container element determine the height of the datatable-->
+				<div >
+					<lightning:datatable
+							keyField="id"
+							data="{!v.data}"
+							columns="{!v.columns}"
+							hideCheckboxColumn="true"
+							initialWidth="200"
+	
+							/>
+				</div>
+			</lightning:layoutItem>
+			<aura:if isTrue="{! v.totalPages > 1}">
+				<lightning:layoutItem padding="around-small" flexibility="auto">
+
+					<lightning:button 	label="{!$Label.c.OB_MAINTENANCE_DATATABLE_FIRST}" 
+										iconName="utility:left" 
+										iconPosition="left"
+									  	onclick="{!c.onFirst}" 
+									  	disabled="{! v.currentPageNumber == 1}"/>
+
+					<lightning:button 	iconName="utility:chevronleft" 
+										iconPosition="left"
+									  	onclick="{!c.onPrev}" 
+									  	disabled="{! v.currentPageNumber == 1}"/>
+
+					<aura:iteration items="{!v.pageList}" var="item" end="5">
+						<span class="slds-p-horizontal_x-small">
+							<a onclick="{!c.processMe}" name="{!item}" class="{! (v.currentPageNumber == item) ? 'selected' : ''}">
+								{!item}
+							</a>
+						</span>
+					</aura:iteration>
+					
+					<lightning:button 	iconName="utility:chevronright" 
+										iconPosition="right" 
+									  	disabled="{! v.currentPageNumber == v.totalPages}" 
+									  	onclick="{!c.onNext}"/>
+
+					<lightning:button 	label="{!$Label.c.OB_MAINTENANCE_DATATABLE_LAST}" 
+										iconName="utility:right"
+										iconPosition="right" 
+									  	disabled="{! v.currentPageNumber == v.totalPages}" 
+									  	onclick="{!c.onLast}"/>
+				</lightning:layoutItem>
+			</aura:if>
+		</lightning:layout>
+	</lightning:card>
+
+
+    <!--  START   	micol.ferrari 29/11/2018	-->
+	<aura:if isTrue="{! v.isLoading }">
+        <lightning:spinner alternativeText="Loading"/>
+    </aura:if>
+    <!--  END   	micol.ferrari 29/11/2018	-->
+</aura:component>

@@ -1,0 +1,22 @@
+.THIS .slds-radio__label {
+    height: 			1.4rem;
+}
+.THIS #NexiText {
+	position: 			absolute;
+    text-align: 		center;
+}
+.THIS #OtherNexi {
+	position: 			absolute;
+    text-align: 		center;
+}
+
+.THIS #Nexi {
+    background-color: 	blue!important;
+}
+.THIS .cont{
+    vertical-align: 	middle1important;
+    vertical-align: 	text-center;
+}
+.THIS .slds-form-element__label{
+	margin-left: 		2rem;
+}

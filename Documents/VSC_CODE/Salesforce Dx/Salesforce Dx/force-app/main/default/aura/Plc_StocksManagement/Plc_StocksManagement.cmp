@@ -1,0 +1,296 @@
+<!--
+ - Created by Andrea Liverani on 29/01/2019.
+ -->
+
+<aura:component description="Plc_StocksManagement" controller="Plc_StocksManagementCnt"
+                extends="c:Plc_BaseGoodsManagement">
+
+    <!-- Handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.handleInitialize}"/>
+    <aura:handler event="c:Plc_FilterEvt" action="{!c.handleFilterEvt}"/>
+    <aura:handler name="change" value="{!v.availableSelectedList}" action="{!c.handleUpdateGlobaList}"/>
+    <aura:handler name="change" value="{!v.withdrawnSelectedList}" action="{!c.handleUpdateGlobaList}"/>
+    <aura:handler name="change" value="{!v.availableList}" action="{!c.handleUpdateGlobaList}"/>
+    <aura:handler name="change" value="{!v.withdrawnList}" action="{!c.handleUpdateGlobaList}"/>
+    <aura:handler name="change" value="{!v.technicianSelected}" action="{!c.handleTechnicianUpdated}"/>
+
+    <!-- Modal attributes -->
+    <aura:attribute name="showModal" type="Boolean" description="display or not modal" default="false"/>
+    <!-- FB 20190627 NEXIPLC-589 [START] -->
+    <aura:attribute name="showUploadCsvModal" type="Boolean" description="display or not csv modal" default="false"/>
+    <!-- FB 20190627 NEXIPLC-589 [END] -->
+    <!-- Management attributes -->
+    <aura:attribute name="globalList" type="List" access="private" description="A global list which contains all records extracted"/>
+    <aura:attribute name="availableList" type="List" access="private" description="Total records in state 'Available' extracted by query"/>
+    <aura:attribute name="withdrawnList" type="List" access="private" description="Total records in state 'Withdrawn' extracted by query"/>
+    <aura:attribute name="availableSelectedList" type="List" access="private" description="Total records selected with state 'Available'"/>
+    <aura:attribute name="withdrawnSelectedList" type="List" access="private" description="Total records selected with state 'Withdrawn'"/>
+    <aura:attribute name="filterResult" type="List" access="private" description="Total records returned by filterCmp"/>
+    <aura:attribute name="technicianList" type="List" access="private" description="technicians (contacts) to select from picklist"/>
+    <aura:attribute name="technicianSelected" type="Object" access="private" description="technician selected"/>
+    <aura:attribute name="warehouseId" type="String" access="public" description="Warehouse Id passed by url"/>
+    <aura:attribute name="firstTableColumns" type="List" access="private" description="Name and value of every column/field on first datatable"/>
+    <aura:attribute name="secondTableColumns" type="List" access="private" description="Name and value of every column/field on second datatable"/>
+    <aura:attribute name="disableSelectAll" type="Boolean" access="private" description="if selected enable select all button"/>
+    <aura:attribute name="disableDeselectAll" type="Boolean" access="private" description="if selected enable deselect all button"/>
+
+    <!-- Tab parameters and General attributes -->
+    <aura:attribute name="titleFirstTable" type="String" access="private" description="Title of the first table"/>
+    <aura:attribute name="firstTableTotalQuantity" type="Decimal" access="private" description="Total quantity first table serial"/>
+    <aura:attribute name="titleSecondTable" type="String" access="private" description="Title of the second table"/>
+    <aura:attribute name="secondTableTotalQuantity" type="Decimal" access="private" description="Total quantity second table serial"/>
+    <aura:attribute name="tabFocused" type="String" access="private" description="Tab focused" default="WithdrawnManagement"/>
+    <aura:attribute name="dataLoaded" type="Boolean" access="private" description="Initial attribute for load all values necessary for the process"/>
+    <aura:attribute name="hideSelection" type="Boolean" access="private" description="Enable the selection of the serial products availables" default="true"/>
+    <aura:attribute name="modalMessage" type="String" description="Message displayed in modal popup"/>
+    <aura:attribute name="modalType" type="String" description="Type of modal to show: success/warning"/>
+    <aura:attribute name="disableManufacturerInput" type="Boolean" default="true"/>
+    <aura:attribute name="disableSearchInput" type="Boolean" default="true"/>
+    <aura:attribute name="resetInputsAfterSearching" type="Boolean" default="false"/>
+    <aura:attribute name="translationMap" type="Map" access="private" default="{}" description="Contains tranlated label got from server call in the init function" />
+    <aura:attribute name="propertiesMap" type="Map" access="private" default="{}" description="Contains some context and utility data" />
+    <aura:attribute name="warehousesList" type="List" access="private" default="[]" description="Contains the list of available warehouses" />
+    <aura:attribute access="private" name="columns" type="List" default="[]" description="Data table columns describer"/>
+    <!-- FB 20190627 NEXIPLC-589 [START] -->
+    <aura:attribute name="stockSerialStatus" type="String" description="(BUTTON CSV)stockSerialStatus to filter on (to check if csv data are present in SFDC)" default="Available"/>
+    <aura:Attribute name="uploadCsvConfigurationMap" type="Map" description="Additional configuration for Upload Csv component" 
+                    default="{'technicianWithdrawnManagement' : true, 'skipStatus2Check' : true, 'technicianName': ''}" />
+    <!-- FB 20190627 NEXIPLC-589 [END] -->
+    <!-- Base Wizard attributes -->
+    <aura:set attribute="isNextVisible" value="false"/>
+    <aura:set attribute="isBackVisible" value="false"/>
+    <aura:set attribute="uploadCsvIsVisible" value="false"/>
+    <aura:set attribute="serialStatusFilterIsVisible" value="false"/>
+    <aura:set attribute="rangeSerialA_DA_AreVisible" value="false"/>
+    <aura:set attribute="isSaveEnabled" value="false"/>
+    <aura:set attribute="isFilterVisible" value="false"/>
+    <aura:set attribute="showButtonsUpOrDown" value="up"/>
+    <aura:set attribute="disableApplyFilterButton" value="true"/>
+    <aura:attribute name="inputSearch" type="String" access="public" description="Contains the string to search" default=""/>
+    <aura:attribute name="availableGoods" type="List" access="public"
+                    description="Total inbound goods from Shipment line items from single shipment or List of Shipment in Stock Order related list"/>
+    <!-- FB 20190627 NEXIPLC-589 [START] -->
+    <aura:handler event="c:Plc_FilterEvt" action="{!c.filterResult}"/>
+    <!-- FB 20190627 NEXIPLC-589 [END] -->
+    <aura:if isTrue="{!v.dataLoaded}">
+
+        <c:Plc_FilterCmp configuationMap="{!v.searchConfigurationMap}"
+                         inputSearchIsVisible="{!v.inputSearchIsVisible}"
+                         inputSearch="{!v.inputSearch}"
+                         rangeSerialA_DA_AreVisible="{!v.rangeSerialA_DA_AreVisible}"
+                         manufacturerFilterIsVisible="{!v.manufacturerFilterIsVisible}"
+                         serialStatusFilterIsVisible="{!v.serialStatusFilterIsVisible}"
+                         uploadCsvIsVisible="{!v.uploadCsvIsVisible}"
+                         showButtonsUpOrDown="{!v.showButtonsUpOrDown}"
+                         disableRemoveFilterButton="{!v.disableRemoveFilterButton}"
+                         disableApplyFilterButton="{!v.disableApplyFilterButton}"
+                         searchOnLoad="{!v.searchOnLoad}"
+                         warehouseId="{!v.warehouseId}"
+                         stockSerialStatus="{!v.stockSerialStatus}"
+                         distributionListItemModels="{!v.distributionListItemModels}"
+                         disableManufacturerInput="{!v.disableManufacturerInput}"
+                         disableSearchInput="{!v.disableSearchInput}"
+                         resetInputsAfterSearching = "{!v.resetInputsAfterSearching}"/>
+
+        <div class="slds-grid slds-gutters slds-size_12-of-12 slds-m-bottom--medium">
+
+            <!-- TECHNICIAN PICKLIST -->
+            <div class="slds-col slds-size--2-of-12">
+                <lightning:select aura:id='technicianPicklist'
+                                  label="{!$Label.c.Plc_technicianLabel}"
+                                  onchange="{!c.handleChangeTechnicianPicklist}">
+                    <option value="">{!$Label.c.Plc_technicianSelection}</option>
+                    <aura:iteration items="{!v.technicianList}" var="technician">
+                        <option value="{!technician.Id}">{!technician.Name}</option>
+                    </aura:iteration>
+                </lightning:select>
+            </div>
+            <!-- BUTTONS SELECT/DESELECT ALL -->
+            <div class="slds-col slds-m-top_large">
+                <lightning:button iconName="utility:multi_select_checkbox" label="{!$Label.c.Plc_SelectAll}"
+                                  class="slds-float_left slds-m-right_medium"
+                                  onclick="{!c.handleSelectAll}"
+                                  disabled="{!v.disableSelectAll}"/>
+                <lightning:button iconName="action:remove_relationship" label="{!$Label.c.Plc_DeselectAll}"
+                                  disabled="{!v.disableDeselectAll}" class="slds-m-right_medium"
+                                  onclick="{!c.handleDeselectAll}"/>
+                <!-- FB 20190627 NEXIPLC-589 [START] -->
+                <lightning:button iconPosition="left" variant="neutral" onclick="{!c.handleShowCsvModal}"
+                                  label="{!$Label.c.Plc_LoadFromCSVButton}"
+                                  iconName="doctype:csv"/>
+                 <!-- FB 20190627 NEXIPLC-589 [END] -->
+            </div>
+
+        </div>
+
+
+        <div class="slds-tabs_default">
+
+            <!-- MODAL COMPONENT -->
+            <div role="alertdialog" tabindex="-1"
+                 class="{!v.showModal ? 'slds-modal slds-fade-in-open slds-modal--prompt' : 'slds-hide'}"
+                 aria-labelledby="header43">
+                <div class="slds-modal__container">
+                    <div class="{!v.modalType == 'success' ? 'slds-modal__header slds-theme--success slds-theme--alert-texture' : 'slds-modal__header slds-theme--alt-inverse'}">
+                        <aura:if isTrue="{!v.modalType == 'success'}">
+                        <h2 id="header43" class="slds-text-heading--medium">{!$Label.c.Plc_Success}</h2>
+                        </aura:if>
+                        <aura:if isTrue="{!v.modalType != 'success'}">
+                        <h2 id="header43" class="slds-text-heading--medium">{!$Label.c.Plc_Attention}</h2>
+                        </aura:if>
+                    </div>
+                    <div class="slds-modal__content slds-p-around--medium">
+                        <div class="slds-text-align--center">
+                            <ui:outputRichText value="{!v.modalMessage}"/>
+                        </div>
+                    </div>
+                    <div class="slds-modal__footer slds-theme--default">
+                        <button class="slds-button slds-button--neutral" onclick="{!c.handleCloseModal}">OK</button>
+                    </div>
+                </div>
+            </div>
+            <div class="{!v.showModal ? 'slds-backdrop slds-backdrop--open' : 'slds-hide'}"></div>
+
+            <!-- TAB MANAGEMENT -->
+            <ul class="slds-tabs_default__nav" role="tablist">
+                <li class="slds-tabs_default__item slds-is-active" aura:id="withdrawnManagementTab"
+                    title="Gestione Prelievi" role="presentation">
+                    <a aura:id="tabGestionePrelievi" class="slds-tabs_default__link" role="tab"
+                       onclick="{!c.handleFocusOnWithdrawnManagement}"
+                       aria-selected="true" aria-controls="tab-default-1"
+                       id="tab-default-1__item">{!$Label.c.Plc_withdrawnManagement}</a>
+                </li>
+                <li class="slds-tabs_default__item" id="tabGestioneRilasci" aura:id="availableManagementTab"
+                    title="Gestione Rilasci" role="presentation">
+                    <a aura:id="tabGestioneRilasci" class="slds-tabs_default__link" role="tab"
+                       onclick="{!c.handleFocusOnAvailableManagement}"
+                       aria-selected="false" aria-controls="tab-default-2"
+                       id="tab-default-2__item">{!$Label.c.Plc_availableManagement}</a>
+                </li>
+            </ul>
+
+            <!-- DINAMIC TAB -->
+            <div aura:id="tabGestionePrelieviContent" class="slds-show">
+                <div class="slds-grid slds-wrap">
+
+                    <!-- TITLE SELECTED TABLE -->
+                    <div class="slds-col slds-size--12-of-12 slds-m-top--x-large">
+                        <p class="slds-text-title--caps slds-line-height--reset slds-text-title_bold">{!v.titleFirstTable} - {!$Label.c.Plc_Total} : {!v.firstTableTotalQuantity}</p>
+                    </div>
+
+                    <!-- SELECTED TABLE -->
+                    <div class="slds-col slds-m-top--medium slds-m-bottom--medium slds-scrollable slds-box_border"
+                         style="height:200px;">
+                        <lightning:datatable keyField="id" aura:id="selectedItemsTable"
+                                             data="{!v.tabFocused == 'WithdrawnManagement' ? v.availableSelectedList : v.withdrawnSelectedList}"
+                                             columns="{!v.firstTableColumns}" onrowaction="{!c.handleRemoveManagement}"
+                                             hideCheckboxColumn="true"/>
+                    </div>
+
+                    <!-- TITLE NOT SELECTED TABLE -->
+                    <div class="slds-col slds-size--12-of-12 slds-m-top--x-large">
+                        <p class="slds-text-title--caps slds-line-height--reset slds-text-title_bold">{!v.titleSecondTable} - {!$Label.c.Plc_Total} : {!v.secondTableTotalQuantity}</p>
+                    </div>
+
+                    <!-- NOT SELECTED TABLE -->
+                    <div class="slds-col slds-m-top--medium slds-m-bottom--medium slds-scrollable slds-box_border"
+                         style="height:200px;">
+                        <lightning:datatable keyField="id" aura:id="unselectedItemsTable"
+                                             data="{!v.tabFocused == 'WithdrawnManagement' ? v.availableList : v.withdrawnList}"
+                                             columns="{!v.secondTableColumns}" onrowaction="{!c.handleSelectManagement}"
+                                             hideCheckboxColumn="true"/>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </aura:if>
+    <!-- START Modal of selectable warehouses -->
+    <section aura:id="modal-warehouses" role="dialog" tabindex="-1" class="slds-modal slds-modal_large">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.handleBack}">
+                    <lightning:icon iconName="utility:close" size="medium" alternativeText="alternative"/>
+                </button>
+                <h2 id="modal-heading-01" class="slds-text-heading_medium">
+                    {!$Label.c.Plc_AllAllSelect + ' ' + $Label.c.Plc_warehouse} 
+                </h2>
+            </header>
+            <div class="slds-modal__content">
+                <lightning:layout>
+                    <lightning:layoutItem class="navigation">
+                            <lightning:verticalNavigation selectedItem="ricercaMagazzino">
+                                <lightning:verticalNavigationSection label="{!$Label.c.Plc_AllAllSearchLabel}">
+                                    <lightning:verticalNavigationItemBadge label="{!$Label.c.Plc_warehouse}" name="ricercaMagazzino" badgeCount="{!v.warehousesList.length}"/>
+                                </lightning:verticalNavigationSection>
+                            </lightning:verticalNavigation>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem class="layoutContent minimal-window-height slds-scrollable--y">
+                        <lightning:layout multipleRows="true">
+                            <lightning:layoutItem padding="around-small" size="6">
+                            </lightning:layoutItem>
+                            <lightning:layoutItem padding="around-small" size="6">
+                                <div class="slds-grid_align-end slds-float_right">
+                                    <lightning:input name="search-text" type="search" value="{!v.propertiesMap.searchKey}"
+                                                     label="{!$Label.c.Plc_AllAllSearchLabel}" 
+                                                     onchange="{!c.handleWarehousesFilter}" />
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem padding="around-small" size="12">
+                                <!-- Data table container -->
+                                <div class="slds-is-relative">
+                                    <div aura:id="table-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+                                        <lightning:spinner variant="brand" size="medium" alternativeText="text"/>
+                                    </div>
+                                    <lightning:datatable
+                                        aura:id="warehouses-table"
+                                        keyField="Id"
+                                        columns="{!v.columns}"
+                                        data="{!v.warehousesList}"
+                                        sortedBy="{!v.sortedBy}"
+                                        sortedDirection="{!v.sortedDirection}"
+                                        onrowselection="{!c.handleUpdateSelectedRows}"
+                                        showRowNumberColumn="true"
+                                        maxRowSelection="1"
+                                        />
+                                    <div class="{!v.propertiesMap.showNoWarehouseIllustration == true ? 'slds-p-top_medium' : 'slds-hide'}">
+                                        <div class="slds-illustration slds-illustration_small" aria-hidden="true">
+                                            <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt=""/>
+                                            <div class="slds-text-color_weak">
+                                                <h3 class="slds-text-heading_small">
+                                                    {!$Label.c.Plc_AllAllNoResultMessage}
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </div>
+            <footer class="slds-modal__footer">
+                <span class="slds-modal__footer_directional"> 
+                    <lightning:button label="{!$Label.c.Plc_AllAllBack}" onclick="{!c.handleBack}"/>
+                </span>
+                <lightning:button variant="brand" label="{!$Label.c.Plc_AllAllNextLabel}" disabled="{!empty(v.propertiesMap.warehouse)}"
+                                  onclick="{!c.handleCloseTableModal}" />
+            </footer>
+        </div>
+    </section>
+    <!-- FB 20190627 NEXIPLC-589 [START] -->
+    <aura:if isTrue="{!v.showUploadCsvModal}">
+        <div class="slds-modal_large">
+            <c:Plc_UploadCsvCmp
+                    warehouseId="{!v.warehouseId}"
+                    stockSerialStatus="{!v.stockSerialStatus}"
+                    skipOriginalMethods="true"
+                    configurationMap="{!v.uploadCsvConfigurationMap}" />
+        </div>
+    </aura:if>
+    <!-- FB 20190627 NEXIPLC-589 [END] -->
+    <!-- END Modal of selectable warehouses -->
+    <div class="slds-backdrop" aura:id="Modalbackdrop"></div>
+    <!-- END Component body -->
+</aura:component>

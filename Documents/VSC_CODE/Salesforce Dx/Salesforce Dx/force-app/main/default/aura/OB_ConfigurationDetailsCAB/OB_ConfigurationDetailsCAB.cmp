@@ -1,0 +1,364 @@
+<!--@author ?-->
+<!--@date ?-->
+<!--@description Component for Pricing Configuration on Nexi Tab internaly-->
+<!--@history Adrian Dlugolecki <adrian.dlugolecki@accenture.com> 11/04/2019 change step attributes in lightning inputs to be conditional 1.0 for Gratuità 0.001 for other-->
+
+<aura:component implements="flexipage:availableForAllPageTypes" controller="OB_ConfigurationDetailsCABController">
+    <aura:attribute name="matrixParameter" type="NE__Matrix_Parameter__c" default="{'sobjectType':'NE__Matrix_Parameter__c', 'Id': 'a0r9E000002ITfuQAG'}"/>
+	<aura:attribute name="rows" type="NE__Matrix_Parameter_Row__c[]"/> 
+	<aura:attribute name="catalogItems" type="List"/>
+	<aura:attribute name="attributes" type="List"/> 
+	<aura:attribute name="spinner" type="Boolean" default="true"/>
+	<aura:attribute name="showEmptyCard" type="Boolean" default="false"/>
+	<aura:attribute name="newRow" type="NE__Matrix_Parameter_Row__c" default="{'sobjectType':'NE__Matrix_Parameter_Row__c', 'OB_Massimale__c':'0', 'OB_Massimo__c':'0','OB_Minimo__c':'0', 'OB_Soglia_Max_Approvazione__c':'0','OB_Soglia_Min_Approvazione__c' : '0','OB_Valore_Default__c' :'0', 'OB_SelfLookup__c' : '', 'OB_Product__c' : '', 'OB_Codici__c' : ''}"/>
+	<aura:attribute name="OB_Componente__c" type="String" default=""/>
+	<aura:attribute name="showAttributesCard" type="Boolean" default="false"/>
+	<aura:attribute name="attributesList" type="List"/>  <!-- new list to be used for attributes related to families and commercial product -->
+	<aura:attribute name="families" type="NE__ProductFamily__c[]"/>
+	<aura:attribute name="childrenRowsfamilies" type="NE__ProductFamily__c[]"/>
+	<aura:attribute name="attributeSpinner" type="Boolean" default="false"/>
+	<aura:attribute name="familyAttributesMap" type="Map" />
+	<aura:attribute name="newRows" type="NE__Matrix_Parameter_Row__c[]"/> 
+	<aura:attribute name="attributesAndNewRows" type="List"/> 
+	<aura:attribute name="tempRow" type="NE__Matrix_Parameter_Row__c" default="{'sobjectType':'NE__Matrix_Parameter_Row__c','OB_ReadOnly__c':'false', 'OB_Massimale__c':'0', 'OB_Massimo__c':'0','OB_Minimo__c':'0', 'OB_Soglia_Max_Approvazione__c':'0','OB_Soglia_Min_Approvazione__c' : '0','OB_Valore_Default__c' :'0', 'OB_SelfLookup__c' : '', 'OB_Product__c' : '', 'NE__Start_Date__c' : '', 'NE__End_Date__c' : '', 'NE__Active__c':'', 'OB_Codici__c' : ''}"/>
+	<aura:attribute name="searchText" type="String" default=""/>
+	<aura:attribute name="selectedRecord" type="sObject" default="{}" description="Use,for store SELECTED sObject Record"/>
+    <aura:attribute name="listOfSearchRecords" type="List" description="Use,for store the list of search records which returns from apex class"/>
+    <aura:attribute name="SearchKeyWord" type="string"/>
+    <aura:attribute name="objectAPIName" type="string" default=""/>
+    <aura:attribute name="IconName" type="string" default=""/>
+    <aura:attribute name="label" type="string" default=""/>
+    <aura:attribute name="Message" type="String" default=""/>
+    <aura:attribute name="oRecord" type="sObject" />
+	<aura:attribute name="parentChildrenRows" type="List" />
+	<aura:attribute name="blockedRowsId" type="List" />
+	<aura:attribute name="inactiveRowsId" type="List" />
+	<aura:attribute name="tempParentChildrenRows" type="List" />
+	<aura:attribute name="errorMessageSequence" type="String" default="Input accept only numbers"/>
+	<aura:attribute name="disableNewCardBtn" type="Boolean" default="false"/>
+	<aura:attribute name="offer" type="NE__Bundle__c" />
+	<aura:attribute name="abiCabLov" type="sObject" />
+	<aura:attribute name="currentUser" type="User"/>
+	<aura:attribute name="configurations" type="List"/> 
+	<aura:attribute name="onlyDoInit" type="Boolean" default="false"/> 
+	<!-- LUBRANO 2019-02-27 - Disable Pulsante Maintenance -->
+	<aura:attribute name="valuesError" type="Boolean" default="false"/>
+	<aura:attribute name="dateError" type="Boolean" default="false"/>
+	
+	<!--  modal stuff  -->
+	<aura:attribute name="modalHeader" type="String"/>
+	<aura:attribute name="modalDesc" type="String" />
+	<aura:attribute name="modalButton" type="String"/>
+	<aura:attribute name="Confirm" type="Boolean" default="false"/>
+	<aura:attribute name="selectedRow" type="Object"/>
+	<!-- LUBRANO 2019-02-05 - OPERATORI DI BANCA NON DEVONO POTER ELIMINARE LE VOCI DI PRICING -->
+	 
+	<aura:attribute name="numInputError" type="Integer" default='0'/>
+	 
+	<aura:attribute name="goToConfigurazioniTableCAB" type="Boolean" access="global"  default="false"/>
+	 
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+	<aura:if isTrue="{!!v.goToConfigurazioniTableCAB}">
+		<div class="detailsCatalogContainer">
+			<aura:if isTrue="{!v.spinner}">
+				<div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99">
+					<div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+						<span class="slds-assistive-text">Loading</span>
+						<div class="slds-spinner__dot-a"></div>
+						<div class="slds-spinner__dot-b"></div>
+					</div>
+				</div>
+			</aura:if>
+            <!-- modal for every occasion -->
+            <aura:if isTrue="{!v.Confirm}">
+                <div class="modalStyle">
+                    <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                        <div class="slds-modal__container">
+                            <header class="slds-modal__header">
+                                <lightning:buttonIcon class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" iconName="utility:close" size="large" alternativeText="Close" variant="bare" onclick="{!c.handleModalCancel}"/>
+                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                                    {!v.modalHeader}
+                                </h2>
+                            </header>
+                            <div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
+                                <p class="centeredText">{!v.modalDesc}</p>
+                            </div>
+                            <footer class="slds-modal__footer slds-theme_default">
+                                <!-- insert aura if here to know which button label we want -->
+                                <lightning:button label="{!v.modalButton}" onclick="{!c.handleModalButton}" variant="brand" class="slds-m-top_medium"/>
+                                <lightning:button label="Cancel" onclick="{!c.handleModalCancel}" class="slds-m-top_medium" />
+                            </footer>
+                        </div>
+                    </section>
+                    <div class="slds-backdrop slds-backdrop_open"></div>
+                </div>
+            </aura:if>
+			<div class="goBackBox">
+				<p><span class="pointerClass" onclick="{!c.goBackToConfigurazioniTableCAB}"><lightning:buttonIcon  iconName="utility:back" size="medium" variant="bare" alternativeText="Back" iconClass="blueIcon" /> <span class="goBackText"> {!$Label.c.OB_ConfigurationListLabel}</span></span></p>
+			</div>
+			<div class="cardsContainer">
+				<div class="slds-grid slds-gutters slds-wrap headerBox">
+					<div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-small-size_1-of-2">
+						<span>
+							<p><span class="supertitle">{!v.abiCabLov.NE__Value2__c}</span></p>
+							<h1 class="title">{!v.offer.Name}</h1>
+						</span>
+					</div>
+					<div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-small-size_1-of-2">
+						<span>
+							<p class="saveCancelBtnsBox">
+								<button class="slds-button cancelBtn" label="cancel" onclick="{!c.reloadRowsList}">
+									<span class="createNewElement" >{!$Label.c.OB_Cancel}</span>
+								</button>
+								<button id="saveChangesBtn" class="slds-button slds-button_neutral slds-button--brand " label="save"  onclick="{!c.handleSaveChangedRows}">
+									<span class="saveBtnText" >{!$Label.c.OB_SaveChanges}</span>
+								</button>
+							</p>
+						</span>
+					</div>
+				</div>
+                <!-- prezzi e commissioni + button  -->
+                <div>
+                    <h1 class="matrixProductName">{!v.matrixParameter.Name}</h1>
+                </div>
+                <div class="slds-grid slds-gutters slds-wrap priceAndCommissionBox">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-5 slds-small-size_1-of-1">
+                        <span>
+                            <h1 class="cardsHeader">{!$Label.c.OB_PriceAndCommission}</h1>
+                        </span>
+                    </div>
+                </div>
+				<aura:if isTrue="{!!empty(v.parentChildrenRows)}">
+					<aura:iteration items="{!v.parentChildrenRows}" var="row" indexVar="index">
+						<aura:if isTrue="{!row.activeByNexi}">
+                            <aura:if isTrue="{!row.parent.NE__Active__c}">
+                                <article id="{!row.parent.Id+'_card'}" class="{!empty(row.cloneId) ? 'slds-card' : 'slds-card selectedCard'}">
+                                    <header class="slds-card__header slds-grid">
+                                    </header>
+                                    <div class="slds-card__body upCard">
+                                        <div class="slds-grid slds-wrap slds-gutters">
+                                            <div class="slds-col">
+                                                <span>
+                                                    <h1 class="productNameClass">{!row.parent.OB_Product__r.Name}</h1> <!--  NE__Matrix_Parameter__r.Name-->
+                                                </span>
+                                            </div>
+                                            <!-- LUBRANO 2019-02-05 - OPERATORI DI BANCA NON DEVONO POTER ELIMINARE LE VOCI DI PRICING -->
+                                        </div>
+                                        <div class="slds-grid slds-gutters calendarAndEditingSection">
+                                            <div class="slds-col slds-size_3-of-4">
+                                                <span>
+                                                    <p class="descriptionClass"><aura:unescapedHtml value="{!row.parent.OB_Product__r.NE__Description__c}"/></p> <!-- OB_Componente__r.Ne__product_name__c, -->
+                                                </span>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-small-size_1-of-1">
+                                                <div class="sequenceInputAndErrorMsg">
+                                                    <span>
+                                                        <p style="text-align: right;"><lightning:input label="{!$Label.c.OB_Sequence}" id="{!index+'_SequenceConf'}" class="f217sequence sequenceClass" name="Sequence" type="text"  value="{!row.parent.OB_Sequence__c}"  disabled="true"/></p>
+                                                        <span id="{!index+'_SequenceError'}" class="errMsg slds-hide">
+                                                            <p style="text-align: right;">{!v.errorMessageSequence}</p>
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-grid slds-gutters calendarAndEditingSection">
+                                            <div class="slds-col slds-size_1-of-4">
+                                                <span>
+                                                    <lightning:input id="{!index+'_parentStartDate'}"  required="true" class="datesClass" type="date" name="inputStartDate" label="{!$Label.c.OB_SelectAStartDate}" value="{!row.parent.NE__Start_Date__c}" onblur="{!c.handleOnchangeStartDateOldRow}"/>
+                                                </span>
+                                                <span id="{!index+'_parentStartDateError'}" class = "dateErrorSpan"></span>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-4">
+                                                <span>
+                                                    <lightning:input id="{!index+'_parentEndDate'}" class="datesClass"  type="date" name="inputEndDate" label="{!$Label.c.OB_SelectAnEndDate}" value="{!row.parent.NE__End_Date__c}" onchange="{!c.checkValidityDates}"/>
+                                                </span>
+                                                <span id="{!index+'_parentEndDateError'}" class = "dateErrorSpan"></span>
+                                            </div>
+                                            <div class="editingSection"></div>
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-small-size_1-of-1 createNewBtn">
+                                                <span>
+                                                    <button id="{!index+'_newBtn'}" class="slds-button slds-button_neutral newBtn" label="Create new" onclick="{!c.createNewRow}">
+                                                            <p><span class="plusIcon">&#43;</span><span class="createNewText" >{!$Label.c.OB_New}</span> </p>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-card__body downCard">
+                                        <!--R1F2_RP_010 Adrian Dlugolecki<adrian.dlugolecki@accenture.com> 08/04/2019 change all divs into component START-->
+                                        <c:OB_AdministrationPricingHeader/>
+                                        <!--R1F2_RP_010 Adrian Dlugolecki<adrian.dlugolecki@accenture.com> 08/04/2019 STOP-->
+                                        <aura:iteration items="{!row.children}" var="child" indexVar="index2">
+                                            <!-- ITERATION OVER MATRIX PARAMETER ROWs CHILDREN : -->
+                                            <div class="slds-grid slds-gutters slds-wrap calendarAndEditingSection attributesSectionDiv" >
+                                                <div class="slds-col slds-size_1-of-12"><!--Nex-005 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 26/03/2019 change size to 1 of 12-->
+                                                    <span>
+                                                        <div>
+                                                            <p class="labelAndTitles" style="font-size:0.75em !important" >{!child[0].child.OB_DynamicPropertyDefinition__r.Name} </p>
+                                                        </div>
+                                                    </span>
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-12">
+                                                    <span>
+                                                        <aura:if isTrue="{!or(or(child.OB_Read_Only_CAB__c == true, child[0].child.OB_Read_Only_banca__c == true), child[0].child.OB_ReadOnly__c == true)}">
+                                                            <lightning:input id="{!index+'_'+index2+'-2new'}" variant="label-hidden" class="attributesValues inputNumberReadonly" name="OB_Valore_Default__c" type="number"  value="{!child[0].child.OB_Valore_Default__c}" readonly="readonly"/>
+                                                            <span class="errMsg"/>
+                                                            <aura:set attribute="else">
+                                                                 <lightning:input  step="{!child[0].child.OB_DynamicPropertyDefinition__r.Name == 'Gratuità' ? '1.0':'0.001'}" variant="label-hidden" id="{!index+'_'+index2+'-2new'}" class="attributesValues inputNumber" name="OB_Valore_Default__c" type="number"  value="{!child[0].child.OB_Valore_Default__c}" onblur="{!c.onChangeValueOldRow}" onfocus="{!c.onChangeValueOldRow}" />
+                                                                 <span class="errMsg"/>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                        <span>
+                                                            <p style="text-align:right;">{!child[0].child.OB_DynamicPropertyDefinition__r.NE__Description__c} </p>
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-12">
+                                                    <span>
+                                                        <aura:if isTrue="{!child.OB_Read_Only_CAB__c == true || child[0].child.OB_Read_Only_banca__c == true || child[0].child.OB_ReadOnly__c == true || v.matrixParameter.OB_Product__r.RecordType.DeveloperName == 'Acquiring'}">
+                                                            <lightning:input variant="label-hidden" id="{!index+'_'+index2+'-3new'}" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Massimale__c" type="number"  value="{!child[0].child.OB_Massimale__c}" readonly="readonly"/>
+                                                            <span class="errMsg"/>
+                                                            <aura:set attribute="else">
+                                                                <lightning:input step="{!child[0].child.OB_DynamicPropertyDefinition__r.Name == 'Gratuità' ? '1.0':'0.001'}" variant="label-hidden" id="{!index+'_'+index2+'-3new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Massimale__c" type="number"  value="{!child[0].child.OB_Massimale__c}" onblur="{!c.onChangeValueOldRow}" onfocus="{!c.onChangeValueOldRow}" />
+                                                                <span class="errMsg"/>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </span>
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-12">
+                                                    <span>
+                                                        <aura:if isTrue="{!or(or(child.OB_Read_Only_CAB__c == true, child[0].child.OB_Read_Only_banca__c == true), child[0].child.OB_ReadOnly__c == true)}">
+                                                            <lightning:input id="{!index+'_'+index2+'-4new'}" variant="label-hidden" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Minimo__c" type="number"  value="{!child[0].child.OB_Minimo__c}"  readonly="readonly"/>
+                                                            <span class="errMsg"/>
+                                                            <aura:set attribute="else">
+                                                                <lightning:input step="{!child[0].child.OB_DynamicPropertyDefinition__r.Name == 'Gratuità' ? '1.0':'0.001'}" variant="label-hidden" id="{!index+'_'+index2+'-4new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Minimo__c" type="number"  value="{!child[0].child.OB_Minimo__c}" onblur="{!c.onChangeValueOldRow}" onfocus="{!c.onChangeValueOldRow}"/>
+                                                                <span class="errMsg"/>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </span>
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-12">
+                                                    <span>
+                                                       <aura:if isTrue="{!or(or(child.OB_Read_Only_CAB__c == true, child[0].child.OB_Read_Only_banca__c == true), child[0].child.OB_ReadOnly__c == true)}">
+                                                            <lightning:input variant="label-hidden" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Massimo__c" type="number"  value="{!child[0].child.OB_Massimo__c}" readonly="readonly"/>
+                                                            <span class="errMsg"/>
+                                                            <aura:set attribute="else">
+                                                                <lightning:input step="{!child[0].child.OB_DynamicPropertyDefinition__r.Name == 'Gratuità' ? '1.0':'0.001'}" variant="label-hidden" id="{!index+'_'+index2+'-5new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Massimo__c" type="number"  value="{!child[0].child.OB_Massimo__c}" onblur="{!c.onChangeValueOldRow}" onfocus="{!c.onChangeValueOldRow}" />
+                                                                <span class="errMsg"/>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </span>
+                                                </div >
+                                                <!--Nex-005 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 25/03/2019 Start add 4 fields and change css-->
+                                                <div class="slds-col slds-size_1-of-12">
+                                                    <span>
+                                                        <aura:if isTrue="{!or(child[0].child.OB_ReadOnly__c == true, child[0].child.OB_Read_Only_banca__c == true)}">
+                                                            <lightning:input id="{!index+'_'+index2+'-6new'}"  variant="label-hidden" class="slds-align_absolute-center attributesValues inputNumberReadonly " name="OB_MinThresholdL3__c" type="number"  value="{!child[0].child.OB_MinThresholdL3__c}" readonly="readonly"/>
+                                                            <span class="errMsg"/>
+                                                            <aura:set attribute="else">
+                                                                <lightning:input step="{!child[0].child.OB_DynamicPropertyDefinition__r.Name == 'Gratuità' ? '1.0':'0.001'}" variant="label-hidden" id="{!index+'_'+index2+'-6new'}" class="slds-align_absolute-center attributesValues inputNumber " name="OB_MinThresholdL3__c" type="number"  value="{!child[0].child.OB_MinThresholdL3__c}" onblur="{!c.onChangeValueOldRow}" onfocus="{!c.onChangeValueOldRow}"/>
+                                                                <span class="errMsg"/>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </span>
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-12">
+                                                    <span>
+                                                        <aura:if isTrue="{!or(child[0].child.OB_ReadOnly__c == true, child[0].child.OB_Read_Only_banca__c == true)}">
+                                                            <lightning:input id="{!index+'_'+index2+'-7new'}"  variant="label-hidden" class="slds-align_absolute-center attributesValues inputNumberReadonly " name="OB_MinThresholdL2__c" type="number"  value="{!child[0].child.OB_MinThresholdL2__c}" readonly="readonly"/>
+                                                            <span class="errMsg"/>
+                                                            <aura:set attribute="else">
+                                                                <lightning:input step="{!child[0].child.OB_DynamicPropertyDefinition__r.Name == 'Gratuità' ? '1.0':'0.001'}" variant="label-hidden" id="{!index+'_'+index2+'-7new'}" class="slds-align_absolute-center attributesValues inputNumber " name="OB_MinThresholdL2__c" type="number"  value="{!child[0].child.OB_MinThresholdL2__c}" onblur="{!c.onChangeValueOldRow}" onfocus="{!c.onChangeValueOldRow}"/>
+                                                                <span class="errMsg"/>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </span>
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-12">
+                                                    <span>
+                                                        <aura:if isTrue="{!or(child[0].child.OB_ReadOnly__c == true, child[0].child.OB_Read_Only_banca__c == true)}">
+                                                            <lightning:input id="{!index+'_'+index2+'-8new'}"  variant="label-hidden" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Soglia_Min_Approvazione__c" type="number"  value="{!child[0].child.OB_Soglia_Min_Approvazione__c}" readonly="readonly"/>
+                                                            <span class="errMsg"/>
+                                                            <aura:set attribute="else">
+                                                                <lightning:input step="{!child[0].child.OB_DynamicPropertyDefinition__r.Name == 'Gratuità' ? '1.0':'0.001'}" variant="label-hidden" id="{!index+'_'+index2+'-8new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Soglia_Min_Approvazione__c" type="number"  value="{!child[0].child.OB_Soglia_Min_Approvazione__c}" onblur="{!c.onChangeValueOldRow}" />
+                                                                <span class="errMsg"/>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </span>
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-12">
+                                                    <span>
+                                                        <aura:if isTrue="{!or(child[0].child.OB_ReadOnly__c == true, child[0].child.OB_Read_Only_banca__c == true)}">
+                                                            <lightning:input id="{!index+'_'+index2+'-9new'}"  variant="label-hidden" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Soglia_Max_Approvazione__c" type="number"  value="{!child[0].child.OB_Soglia_Max_Approvazione__c}"  readonly="readonly"/>
+                                                            <span class="errMsg"/>
+                                                            <aura:set attribute="else">
+                                                                    <lightning:input step="{!child[0].child.OB_DynamicPropertyDefinition__r.Name == 'Gratuità' ? '1.0':'0.001'}" variant="label-hidden" id="{!index+'_'+index2+'-9new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Soglia_Max_Approvazione__c" type="number"  value="{!child[0].child.OB_Soglia_Max_Approvazione__c}" onblur="{!c.onChangeValueOldRow}" />
+                                                                    <span class="errMsg"/>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </span>
+                                                </div>
+                                                <!--R1F2_RP_010 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 09/04/2019  fix if from -09 new into -10new and increment next one Start-->
+                                                <div class="slds-col slds-size_1-of-12">
+                                                    <span>
+                                                        <aura:if isTrue="{!or(child[0].child.OB_ReadOnly__c == true, child[0].child.OB_Read_Only_banca__c == true)}">
+                                                            <lightning:input id="{!index+'_'+index2+'-10new'}"  variant="label-hidden" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_MaxThresholdL2__c" type="number"  value="{!child[0].child.OB_MaxThresholdL2__c}"  readonly="readonly"/>
+                                                            <span class="errMsg"/>
+                                                            <aura:set attribute="else">
+                                                                    <lightning:input step="{!child[0].child.OB_DynamicPropertyDefinition__r.Name == 'Gratuità' ? '1.0':'0.001'}" variant="label-hidden" id="{!index+'_'+index2+'-10new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_MaxThresholdL2__c" type="number"  value="{!child[0].child.OB_MaxThresholdL2__c}" onblur="{!c.onChangeValueOldRow}" />
+                                                                    <span class="errMsg"/>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </span>
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-12">
+                                                    <span>
+                                                        <aura:if isTrue="{!or(child[0].child.OB_ReadOnly__c == true, child[0].child.OB_Read_Only_banca__c == true)}">
+                                                            <lightning:input id="{!index+'_'+index2+'-11new'}"  variant="label-hidden" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_MaxThresholdL3__c" type="number"  value="{!child[0].child.OB_MaxThresholdL3__c}"  readonly="readonly"/>
+                                                            <span class="errMsg"/>
+                                                            <aura:set attribute="else">
+                                                                    <lightning:input step="{!child[0].child.OB_DynamicPropertyDefinition__r.Name == 'Gratuità' ? '1.0':'0.001'}" variant="label-hidden" id="{!index+'_'+index2+'-11new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_MaxThresholdL3__c" type="number"  value="{!child[0].child.OB_MaxThresholdL3__c}" onblur="{!c.onChangeValueOldRow}" />
+                                                                    <span class="errMsg"/>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </span>
+                                                </div>
+                                                <!--R1F2_RP_010 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 09/04/2019  fix if from -09 new into -10new and increment next one End-->
+                                                <!--Nex-005 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 25/03/2019 End-->
+                                                <div class="slds-col slds-size_1-of-12">
+                                                    <span>
+                                                        <p class="labelHeaderText">
+                                                            <aura:if isTrue="{!or(or(child[0].child.OB_Read_Only_CAB__c == true), child[0].child.OB_Read_Only_banca__c == true)}">
+                                                                <span class="lockIconBlockedSpan" >
+                                                                    <lightning:icon class="lockIconBlocked" iconName="utility:lock"  alternativeText="isLocked" />
+                                                                </span>
+                                                                <aura:set attribute="else">
+                                                                    <span class="{!child[0].blocked == false? 'lockIconSpan' : 'lockIconClockedSpan'}" onclick="{!c.handleEditableExistingRow}" id="{!child[0].child.OB_ReadOnly__c == true? index+'_'+index2+'-true' : index+'_'+index2+'-false'}">
+                                                                        <lightning:icon class="{!child[0].blocked == false? 'lockIcon' : 'lockIconBlocked'}" iconName="{!child[0].child.OB_ReadOnly__c == true? 'utility:lock':'utility:unlock'}"  alternativeText="lock" />
+                                                                    </span>
+                                                                    <span class="errMsg"></span>
+                                                                </aura:set>
+                                                            </aura:if>
+                                                        </p>
+                                                    </span>
+                                                </div>
+                                                <aura:if isTrue="{!child[0].child.addLine}">
+                                                    <c:OB_AdministrationPricingHeader/>
+                                                </aura:if>
+                                            </div>
+                                        </aura:iteration>
+                                    </div>
+                                </article>
+                            </aura:if> <!-- aura if active == true -->
+						</aura:if>
+					</aura:iteration>
+				</aura:if>
+				<!-- END ITERATION OVER MATRIX PARAMETER ROW FIELDS -->
+			</div>
+		</div>
+		<aura:set attribute="else">
+			<c:OB_ConfigurazioniTableCAB offerta="{!v.offer}" abiCabLov="{!v.abiCabLov}"/>
+		</aura:set>
+	</aura:if>
+</aura:component>

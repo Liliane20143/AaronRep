@@ -1,0 +1,462 @@
+<!-- Component used to manage distribution lists and their items -->
+<aura:component controller="Plc_GoodsDistributionListCnt" implements="lightning:isUrlAddressable,force:hasRecordId">
+    <!-- Declaring attributes -->
+    <aura:attribute access="private" name="translationMap" type="Map" default="{}" description="Contains tranlated label got from server call in the init function" />
+    <aura:attribute access="private" name="propertiesMap" type="Map" default="{}" description="Utils and context data"/>
+    <aura:attribute access="private" name="activeSections" type="List" default="[]" description="List of open accordion"/>
+    <aura:attribute access="private" name="dealerIds" type="List" default="[]" description=""/>
+    <aura:attribute access="private" name="warehouseIds" type="List" default="[]" description=""/>
+    <aura:attribute access="private" name="whSolutionIds" type="List" default="[]" description=""/>
+    <aura:attribute access="private" name="itemsList" type="List" default="[]" description="List of all items"/>
+    <aura:attribute access="private" name="itemsListAllToFilter" type="List" default="[]" description="List of all items on which filtering"/>
+    <aura:attribute access="private" name="distributionsListId" type="String" default="" description="Id of the retrieved distribution list, if defined"/>
+    <aura:attribute access="private" name="modelSkuToAvailableNewQty" type="Map" default="{}" 
+                    description="Maps product Sku identifier to available and requested qties for new items"/>
+    <aura:attribute access="private" name="modelSkuToOldRequestedNewQty" type="Map" default="{}" 
+                    description="Maps destination warehouse + product Sku identifier to last requested value in the wizard"/>
+    <aura:attribute access="private" name="modelSkuWarehouseToAvailableRepairedQty" type="Map" default="{}" 
+                    description="Maps origin warehouse id + product Sku identifier to available and requested qties for repaired items"/>
+    <aura:attribute access="private" name="modelSkuWarehouseToOldRequestedRepairedQty" type="Map" default="{}" 
+                    description="Maps origin warehouse id + destination warehouse id + product Sku identifier to last requested value in the wizard"/>
+    <!-- Declaring attributes for pagination -->
+    <aura:attribute access="private" name="startPage" type="Integer" default="0" description="Starting element number of pagination" />
+    <aura:attribute access="private" name="endPage" type="Integer" default="0" description="Ending element number of pagination" />
+    <aura:attribute access="private" name="pageSize" type="Integer" default="10" description="Number of items shown in a page" />
+    <!-- Declaring handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.handleInit}"/>
+    <!-- Component view  -->
+    <div class ="slds-card slds-p-bottom_medium">
+        <div aura:id="main-spinner" role="dialog" tabindex="-1" class="slds-spinner_medium slds-fade-in-open slds-hide">
+            <lightning:spinner class="slds-is-fixed" variant="brand" size="large" alternativeText="text"/>
+        </div>
+        <!-- BEGIN Component header -->
+        <div class="slds-page-header slds-p-around_medium"> 
+            <div class="slds-media">
+                <div class="slds-media__figure slds-icon">
+                    <lightning:icon iconName="standard:proposition" size="medium" alternativeText="icona"/>
+                </div>
+                <div class="slds-media__body">
+                    <div class="slds-grid">
+                        <div class="slds-col slds-container_left">
+                            <p class="slds-text-heading_label">
+                                {!v.translationMap.Plc_DistributionList__c}
+                            </p>
+                            <div class="slds-page-header__title">
+                                {!v.propertiesMap.title}
+                            </div> 
+                        </div>
+                        <div class="slds-p-top_x-small slds-text-title slds-grid_align-end slds-text-color_weak slds-float_right">
+                            <span class="{!v.propertiesMap.isUserOwner ? 'slds-hide' : ''}">
+                                {!$Label.c.Plc_AllAllReadOnlyMode}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <!-- END Component header -->
+        </div>
+        <div class="slds-p-top_small"/>
+        <!-- START Search fields -->
+        <div class="slds-grid slds-gutters slds-p-left_small slds-p-right_small">
+            <div class="slds-col slds-size_3-of-15">
+                <lightning:input name="search-text" type="search" 
+                                 placeholder="{!$Label.c.Plc_AllAllSearchLabel + ' ' + v.translationMap.Bit2Shop__Dealer__c}" onchange="{!c.handleDealerFilter}"/>
+            </div>
+
+            <div class="slds-col slds-size_3-of-15">
+                <lightning:input name="search-text" type="search" 
+                                 placeholder="{!$Label.c.Plc_AllAllSearchLabel + ' ' + v.translationMap.Bit2Shop__Warehouse__c}" onchange="{!c.handleWarehouseFilter}"/>
+            </div>
+            <div class="slds-col slds-size_3-of-15">
+                <lightning:input name="search-text" type="search" 
+                                 placeholder="{!$Label.c.Plc_AllAllSearchLabel + ' ' + v.translationMap.Plc_Solution__c}" onchange="{!c.handleWhSolutionFilter}"/>
+            </div>
+            <div class="slds-col slds-size_3-of-15">
+                <lightning:input name="search-text" type="search" 
+                                 placeholder="{!$Label.c.Plc_AllAllSearchLabel + ' ' + v.translationMap.Bit2Shop__Product_Stock__c}" onchange="{!c.handleProductFilter}"/>
+            </div>
+        </div>
+        <!-- END Search fields -->
+        <div class="slds-p-around_small">
+            <div class="slds-box">
+                <!-- START Main commands section -->
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-grid slds-gutters">
+                            <div class="slds-col">
+                                <span>
+                                    <button class="slds-button" onclick="{!c.handleExpandAll}">{!$Label.c.Plc_AllAllExpandAll}</button>
+                                </span>
+                            </div>
+                            <div class="slds-col">
+                                <span>
+                                    <button class="slds-button" onclick="{!c.handleCompressAll}">{!$Label.c.Plc_AllAllCollapseAll}</button>
+                                </span>
+                            </div>
+                            <div class="slds-col slds-align-middle">
+                                <span>
+                                    <!-- <ui:inputCheckbox aura:id="checkbox" label="Sottosoglia" disabled="true"
+                                                      value="true" /> -->
+                                    {!$Label.c.Plc_AllAllSubthreshold}
+                                    <ui:outputCheckbox value="true" />
+                                </span>
+                            </div>
+                        </div>  
+                    </div>
+                </div>
+                <aura:if isTrue="{!v.propertiesMap.showEmptyDealersIllustration == true}">
+                    <div class="slds-illustration slds-illustration_small" aria-hidden="true">
+                        <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt=""/>
+                        <div class="slds-text-color_weak">
+                            <h3 class="slds-text-heading_medium">{!$Label.c.Plc_LightningComponentGoodsDistributionListNoSubthresholdSolutionMessage}</h3>
+                        </div>
+                    </div>
+                    <!-- <div class="slds-text-heading_small slds-align_absolute-center">
+                        Nessuna soluzione in sottosoglia trovata
+                    </div> -->
+                </aura:if>
+                <!-- END Main commands section -->
+                <!-- START Accordion navigation structure -->
+                <lightning:accordion aura:id="accordionDealers" allowMultipleSectionsOpen="true" activeSectionName="{!v.activeSections}" >
+                    <aura:iteration items="{!v.itemsList}" var="dealer" indexVar="indexElemDealer" start="{!v.startPage}" end="{!v.endPage + 1}">
+                        <lightning:accordionSection name="{!dealer.Id}" label="{!dealer.Name}" class="{!(dealer.isVisible == true ? '' : 'slds-hide')}">
+                            <aura:iteration items="{!dealer.warehouses}" var="warehouse" indexVar="indexElemWarehouse" >
+                                <lightning:accordionSection name="{!warehouse.Id}" label="{!warehouse.Name}" class="{!(warehouse.isVisible == true ? '' : 'slds-hide')}">
+                                        <aura:iteration items="{!warehouse.whSolutions}" var="whSolution" indexVar="indexElemWhSolution" >
+                                            <lightning:accordionSection name="{!whSolution.Id}" label="{!whSolution.Plc_Warehouse__r.Name + ' - ' + whSolution.Plc_Solution__r.Name}" class="{!(whSolution.isVisible == true ? '' : 'slds-hide')}">
+                                                <aura:set attribute="body">
+                                                    <!-- START Area with reorder values and security stocks -->
+                                                    <div class="slds-p-vertical_medium">
+                                                        <span class="slds-media">
+                                                            <div class="slds-media__figure slds-icon">
+                                                                <lightning:icon iconName="standard:calibration" size="small" alternativeText="ALTERNATIVE"/>
+                                                            </div>
+                                                            <div class="slds-media__body">
+                                                                 <div class="slds-grid">
+                                                                    <div class="slds-col slds-size_1-of-12">
+                                                                        <span class="slds-text-body_small">
+                                                                            {!v.translationMap.Plc_ReorderStock__c + ':'}
+                                                                        </span>
+                                                                        <span class="slds-text-heading_small">
+                                                                            <div>
+                                                                            </div>
+                                                                            {!whSolution.reorderValue}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="slds-col slds-size_1-of-12">
+                                                                        <span class="slds-text-body_small">
+                                                                            {!v.translationMap.Plc_SecurityStock__c + ':'}
+                                                                        </span>
+                                                                        <span class="slds-text-heading_small">
+                                                                            <div>
+                                                                            </div>
+                                                                            {!whSolution.Plc_SecurityStock__c}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </span>
+                                                    </div>
+                                                    <!-- END Area with reorder values and security stocks -->
+                                                    <!-- START Table with quantitites -->
+                                                    <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                                        <tbody>
+                                                            <tr class="slds-hint-parent">
+                                                                <th>
+                                                                    <div class="slds-text-title_caps slds-truncate cell-break-line">
+                                                                        {!v.translationMap.ProductStockName}
+                                                                    </div>
+                                                                </th>
+                                                                <th>
+                                                                    <div class="slds-text-title_caps slds-truncate cell-break-line">
+                                                                        {!v.translationMap.Plc_ProductSku__c}
+                                                                    </div>
+                                                                </th>
+                                                                <th>
+                                                                    <div class="slds-text-title_caps slds-truncate cell-break-line">
+                                                                        {!v.translationMap.Plc_Manufacturer__c}
+                                                                    </div>
+                                                                </th>
+                                                                <th>
+                                                                    <div class="slds-text-title_caps slds-truncate cell-break-line">
+                                                                        {!v.translationMap.Plc_AvailableQty__c}
+                                                                    </div>
+                                                                </th>
+                                                                <th>
+                                                                    <div class="slds-text-title_caps slds-truncate cell-break-line">
+                                                                        {!v.translationMap.Plc_OrderedQty__c}
+                                                                    </div>
+                                                                </th>
+                                                                <th>
+                                                                    <div class="slds-text-title_caps slds-truncate cell-break-line">
+                                                                        {!v.translationMap.Plc_MinimumStock__c}
+                                                                    </div>
+                                                                </th>
+                                                                <th>
+                                                                    <div class="slds-text-title_caps slds-truncate cell-break-line">
+                                                                        {!$Label.c.Plc_LightningComponentGoodsDistributionListNewItemsHeaderTitle}
+                                                                    </div>
+                                                                </th>
+                                                                <th>
+                                                                    <div class="slds-text-title_caps slds-truncate cell-break-line">
+                                                                        {!$Label.c.Plc_LightningComponentGoodsDistributionListRepairedItemsHeaderTitle}
+                                                                    </div>
+                                                                </th>
+                                                                <th>
+                                                                </th>
+                                                            </tr>
+                                                            <!-- START Generated product rows -->
+                                                            <aura:iteration items="{!whSolution.products}" var="product" indexVar="indexElemProduct" >
+                                                                <tr class="{!(product.isVisible == true ? 'slds-hint-parent' : 'slds-hide')}" style="{!product.newItems > 0 || product.repairedItems > 0 ? 'background-color: rgb(250, 255, 189)' : ''}">
+                                                                    <th>
+                                                                        <div>
+                                                                            {!product.Name}
+                                                                        </div>
+                                                                    </th>
+                                                                    <th>
+                                                                        <div>
+                                                                            {!product.PlcProductSku}
+                                                                        </div>
+                                                                    </th>
+                                                                    <th>
+                                                                        <div>
+                                                                            {!product.PlcManufacturer}
+                                                                        </div>
+                                                                    </th>
+                                                                    <td>
+                                                                        <div>
+                                                                            {!product.PlcAvailableQty}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div>
+                                                                            {!(product.PlcOrderedQty == undefined ? '0' : product.PlcOrderedQty)}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div>
+                                                                            {!product.PlcMinimumStock == undefined ? '1' : product.PlcMinimumStock}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div>
+                                                                        </div>
+                                                                        <div class="slds-grid slds-gutters">
+                                                                            <div class="slds-col slds-size_3-of-7">
+                                                                                <lightning:input type="number" variant="label-hidden" required="true" name="{! indexElemDealer + ',' + indexElemWarehouse + ',' + indexElemWhSolution + ',' + indexElemProduct}" min="0" step="{!(product.newItems &lt; (product.PlcMinimumStock == undefined ? 1 : product.PlcMinimumStock)) ? product.PlcMinimumStock : 1}" value="{!product.newItems}" max="{!product.remainingQty}" onchange="{!c.handleProductQtyChange}"/>
+                                                                            </div>
+                                                                            <div class="slds-col slds-size_2-of-7 slds-align-middle">
+                                                                                /{!product.remainingQty}
+                                                                            </div>
+                                                                            <div class="slds-col slds-size_2-of-7 slds-align-middle">
+                                                                                <lightning:buttonIconStateful selected="{!product.noteNew != undefined &amp;&amp; product.noteNew != ''}" name="{!indexElemDealer + ',' + indexElemWarehouse + ',' + indexElemWhSolution + ',' + indexElemProduct}" iconName="utility:note" variant="border-filled" onclick="{! c.handleNoteNew }" alternativeText="Note" />
+                                                                                <span class="slds-p-right_medium"></span>
+                                                                                <section class="{!(product.isPopupVisible == true ? 'slds-popover slds-nubbin_left-top-corner slds-popover_small absolute-positioning' : 'slds-hide')}" role="dialog" aria-label="Note">
+                                                                                    <div class="slds-popover__body">
+                                                                                        <span class="slds-text-body_small">
+                                                                                            {!v.translationMap.Plc_Note__c}
+                                                                                        </span>
+                                                                                        <span class="slds-float_right">
+                                                                                            <lightning:buttonIcon name="{!indexElemDealer + ',' + indexElemWarehouse + ',' + indexElemWhSolution + ',' + indexElemProduct}" iconName="utility:close" variant="bare" onclick="{! c.handleNoteNew }" alternativeText="Chiudi" />
+                                                                                        </span>
+                                                                                        <lightning:textarea variant="label-hidden" rows="1" maxlength="255" value="{!product.noteNew}"/>
+                                                                                    </div>
+                                                                                </section>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="slds-grid slds-gutters">
+                                                                            <div class="slds-col slds-size_3-of-7">
+                                                                                <lightning:input type="number" variant="label-hidden" required="true" name="{! indexElemDealer + ',' + indexElemWarehouse + ',' + indexElemWhSolution}" min="0" value="{!product.repairedItems}" max="{!product.numberOfRepaired}" onchange="{!c.handleProductQtyChange}" disabled="true" />
+                                                                            </div> 
+                                                                            <div class="slds-col slds-size_2-of-7 slds-align-middle">
+                                                                                /{!product.numberOfRepaired}
+                                                                            </div>
+                                                                            <div class="slds-col slds-size_2-of-7 slds-align-middle">
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="slds-grid slds-gutters">
+                                                                            <lightning:buttonIcon variant="border-filled" name="{!indexElemDealer + ',' + indexElemWarehouse + ',' + indexElemWhSolution + ',' + indexElemProduct}" onclick="{!c.handleShowRepairedItems}" iconName="{!product.isRepairedSectionVisible == true ? 'utility:dash' : 'utility:add'}" class="{!product.whRepairedItems.length > 0 ? '' : 'slds-hide'}" alternativeText="Open" />
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <!-- START Generated repaired item rows quantities per product -->
+                                                                <aura:iteration items="{!product.whRepairedItems}" var="whRepairedItemRequest" indexVar="indexElemRepairingItem" >
+                                                                    <tr class="{!product.isRepairedSectionVisible == true &amp;&amp; product.isVisible == true ? 'slds-hint-parent secondary-row' : 'slds-hide'}" >
+                                                                        <th colspan="4">
+                                                                        </th>
+                                                                        <th>
+                                                                            <div class="slds-truncate slds-align-middle white-background">
+                                                                                <lightning:buttonIconStateful selected="{!whRepairedItemRequest.note != undefined &amp;&amp; whRepairedItemRequest.note != ''}"  name="{!indexElemDealer + ',' + indexElemWarehouse + ',' + indexElemWhSolution + ',' + indexElemProduct + ',' + indexElemRepairingItem}" iconName="utility:note" variant="border-filled" onclick="{! c.handleNoteRepaired }" alternativeText="Note" />
+                                                                                <span class="slds-p-right_medium"></span>
+                                                                                <section class="{!(whRepairedItemRequest.isPopupVisible == true ? 'slds-popover slds-nubbin_left-top-corner slds-popover_small absolute-positioning' : 'slds-hide')}" role="dialog" aria-label="Note">
+                                                                                    <div class="slds-popover__body">
+                                                                                        <span class="slds-text-body_small">
+                                                                                            {!v.translationMap.Plc_Note__c}
+                                                                                        </span>
+                                                                                        <span class="slds-float_right">
+                                                                                            <lightning:buttonIcon name="{!indexElemDealer + ',' + indexElemWarehouse + ',' + indexElemWhSolution + ',' + indexElemProduct + ',' + indexElemRepairingItem}" iconName="utility:close" variant="bare" onclick="{! c.handleNoteRepaired }" alternativeText="Chiudi" />
+                                                                                        </span>
+                                                                                        <lightning:textarea variant="label-hidden" rows="1" maxlength="255" value="{!whRepairedItemRequest.note}"/>
+                                                                                    </div>
+                                                                                </section>
+                                                                            </div>
+                                                                        </th>
+                                                                        <th colspan="2" class="cell-break-line">
+                                                                            <div class="slds-truncate cell-break-line">
+                                                                                <ul class="slds-list--dotted">
+                                                                                    <li>
+                                                                                        {!whRepairedItemRequest.dealerName}
+                                                                                        &nbsp;&gt;&nbsp;
+                                                                                        {!whRepairedItemRequest.name}
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </th>
+                                                                        <th>
+                                                                            <div class="slds-grid slds-gutters">
+                                                                                <div class="slds-col slds-size_3-of-7">
+                                                                                    <lightning:input type="number" variant="label-hidden" required="true" name="{! indexElemDealer + ',' + indexElemWarehouse + ',' + indexElemWhSolution + ',' + indexElemProduct + ',' + indexElemRepairingItem}" min="0" value="{!whRepairedItemRequest.requestedQty}" max="{!whRepairedItemRequest.availableQty}" onchange="{!c.handleProductRepairedQtyChange}"/>
+                                                                                </div>
+                                                                                <div class="slds-col slds-size_2-of-7 slds-align-middle">
+                                                                                    /{!whRepairedItemRequest.availableQty}
+                                                                                </div>
+                                                                                <div class="slds-col slds-size_2-of-7 slds-align-middle">
+                                                                                </div>
+                                                                            </div>
+                                                                        </th>
+                                                                        <th>
+                                                                        </th>
+                                                                    </tr>
+                                                                </aura:iteration>
+                                                                <!-- END Generated repaired item rows quantities per product -->
+                                                            </aura:iteration>
+                                                            <tr class="{!whSolution.products.length > 0 ? 'slds-hide' : ''}">
+                                                                <th colspan="9" class="cell-break-line">
+                                                                    <div class="slds-text-color_weak slds-text-heading_small slds-align_absolute-center slds-p-vertical_small">
+                                                                        <lightning:layout>
+                                                                            <lightning:layoutItem class="slds-align_absolute-center" size="1">
+                                                                                <lightning:icon iconName="utility:info" size="x-small"/>
+                                                                            </lightning:layoutItem>
+                                                                            <lightning:layoutItem size="11">
+                                                                                <h2 class="slds-text-heading_small">
+                                                                                    {! format($Label.c.Plc_LightningComponentGoodsDistributionListNoProductsWithAvailableQuantities, whSolution.Plc_Warehouse__r.Name + ' - ' + whSolution.Plc_Solution__r.Name)}
+                                                                                </h2>
+                                                                            </lightning:layoutItem>
+                                                                        </lightning:layout>
+                                                                    </div>
+                                                                </th>
+                                                            </tr>
+                                                            <!-- START Row for adding a new product to the view -->
+                                                            <tr class="{!whSolution.isNewProductSectionVisible == true ? '' : 'slds-hide'}">
+                                                                <th colspan="3">
+                                                                    <div class="slds-grid slds-gutters">
+                                                                        <div class="slds-col slds-size_1-of-12 slds-align-middle">
+                                                                            <lightning:icon iconName="utility:picklist_choice" size="x-small" alternativeText="alternative"/>
+                                                                        </div>
+                                                                        <div class="slds-col slds-size_11-of-12">
+                                                                            <lightning:combobox name="" label="Prodotti" variant="label-hidden" value="{!whSolution.selectedAvailableModel}" placeholder="{!v.translationMap.B2WExtCat__External_Catalog_Item__c}" options="{!whSolution.availableModels}" />
+                                                                        </div>
+                                                                    </div>
+                                                                </th>
+                                                                <th colspan="2">
+                                                                    <lightning:button name="{!indexElemDealer + ',' + indexElemWarehouse + ',' + indexElemWhSolution}" variant="brand" disabled="{!whSolution.selectedAvailableModel == '' || whSolution.selectedAvailableModel == undefined}" label="{!$Label.c.Plc_LightningComponentGoodsDistributionListProductCensus}" onclick="{!c.handleCreateNewProductStock}"/>
+                                                                </th>
+                                                                <th colspan="4">
+                                                                </th>
+                                                            </tr>
+                                                            <!-- START Row for adding a new product to the view -->
+                                                        </tbody>
+                                                        <!-- END Generated product rows -->
+                                                    </table>
+                                                    <div class="slds-text-title_caps slds-truncate cell-break-line slds-p-left_small slds-p-top_small">
+                                                        <lightning:buttonIconStateful name="{!indexElemDealer + ',' + indexElemWarehouse + ',' + indexElemWhSolution}" onclick="{!c.handleShowNewProductSection}" selected="{!whSolution.isNewProductSectionVisible}" disabled="{!v.propertiesMap.isUserOwner == false}" iconClass="slds-button_success" iconName="{!whSolution.isNewProductSectionVisible == true ? 'utility:dash' : 'utility:add'}" alternativeText="Open" />
+                                                    </div>
+                                                    <!-- END Table with quantitites -->
+                                                </aura:set>
+                                            </lightning:accordionSection>
+                                        </aura:iteration>
+                                </lightning:accordionSection>
+                            </aura:iteration>
+                        </lightning:accordionSection>
+                    </aura:iteration>
+                </lightning:accordion>
+                <!-- END Accordion navigation structure -->
+            </div>
+        </div>
+        <footer class="slds-m-top_x-small slds-p-horizontal_medium slds-p-bottom_medium">
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning:buttonGroup>
+                        <lightning:button label="{!$Label.c.Plc_AllAllPreviousLabel}" disabled="{!v.startPage == 0}"  
+                                          onclick="{!c.handlePrevious}" variant="neutral"
+                                          iconName="utility:back"/>
+                        <lightning:button label="{!$Label.c.Plc_AllAllNextLabel}" disabled="{!v.endPage >= v.itemsList.length}" 
+                                          onclick="{!c.handleNext}" variant="neutral"
+                                          iconName="utility:forward" iconPosition='right'/>
+                    </lightning:buttonGroup>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <span class="slds-align_absolute-center slds-text-title">
+                        {!v.itemsList.length == 0 ? 0 : v.startPage + 1} - {!(v.endPage + 1 > v.itemsList.length) ? v.itemsList.length : v.endPage + 1 } / {!v.itemsList.length}
+                    </span>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <span class="slds-float_right">
+                        <aura:if isTrue="{!v.itemsList.length > 0}">
+                            <lightning:buttonGroup>
+                                <lightning:button label="{!$Label.c.Plc_AllAllSave + ' &amp; ' + $Label.c.Plc_AllAllExit}" onclick="{!c.handleSaveAndExit}"
+                                                  disabled="{!v.propertiesMap.isUserOwner == false}" />
+                                <lightning:button label="{!$Label.c.Plc_AllAllSave}" variant="brand" onclick="{!c.handleSave}"
+                                                  iconName="utility:save" iconPosition='right' 
+                                                  disabled="{!v.propertiesMap.isUserOwner == false}" />
+                            </lightning:buttonGroup>
+                        </aura:if>
+                    </span>
+              </div>
+            </div>
+        </footer>
+    </div>
+     <!-- BEGIN Modal -->
+    <section aura:id="modal-owner" role="dialog" tabindex="-1" class="slds-modal slds-modal_medium">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.handleCloseModal}">
+                    <lightning:icon iconName="utility:close" size="medium" alternativeText="alternative"/>
+                </button>
+                <h2 id="modal-heading-01" class="slds-text-heading_medium">
+                    <lightning:icon iconName="utility:warning" size="small"/>
+                    Warning
+                </h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_small">
+                <div class="slds-box slds-theme_default">
+                    {!$Label.c.Plc_LightningComponentGoodsDistributionListOwnershipChangeFirstSentence + ':'}
+                    <div class="slds-p-top_small" />
+                    <ul class="slds-list--dotted slds-text-heading_small">
+                        <li>
+                            {!v.propertiesMap.ownerName}
+                        </li>
+                    </ul>
+                    <div class="slds-p-top_small" />
+                    <p>
+                        {!$Label.c.Plc_LightningComponentGoodsDistributionListOwnershipChangeSecondSentence + '.'}
+                    </p>
+                    <p> 
+                        {!$Label.c.Plc_LightningComponentGoodsDistributionListOwnershipChangeThirdSentence + '.'}
+                    </p>
+                </div>    
+            </div>
+            <footer class="slds-modal__footer">
+                <lightning:button label="{!$Label.c.Plc_AllAllReadOnly}" onclick="{!c.handleCloseModal}" />
+                <lightning:button variant="brand" label="{!$Label.c.Plc_AllAllChangeOwner}" iconName="utility:change_owner" 
+                                  iconPosition='right' onclick="{!c.handleChangeOwner}" />
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop" aura:id="Modalbackdrop"></div>
+    <!-- END Modal -->
+</aura:component>

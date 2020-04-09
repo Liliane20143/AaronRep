@@ -1,0 +1,13 @@
+.THIS .offerDescription .slds-table_bordered .slds-rich-text-editor__output td {
+    border: unset;
+}
+
+.THIS .offerDescription {
+    max-width: 65%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.THIS .offerDescription .slds-rich-text-editor__output td, .THIS.offerDescription td, .THIS.offerDescription td .slds-truncate, .THIS .slds-rich-text-editor__output {
+    white-space: normal;
+}

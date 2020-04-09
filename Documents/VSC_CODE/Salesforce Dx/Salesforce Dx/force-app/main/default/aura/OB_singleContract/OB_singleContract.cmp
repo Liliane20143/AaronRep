@@ -1,0 +1,28 @@
+<aura:component controller="OB_ContinuationController" access="global" implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId">
+    <aura:attribute name="listFields" 			type="String[]" 					access="global"/>
+    <aura:attribute name="item" 			    type="String" 					    access="global"/>
+    <aura:attribute name="contractName" 			    type="String" 					    access="global"/>
+    <aura:attribute name="configurationId" 			    type="String" 					    access="global"/>
+    <aura:attribute name="servicePointId" 			    type="String" 					    access="global"/>
+    <aura:attribute name="merchantId" 			         type="String" 					    access="global"/>
+    <aura:attribute name="docId" 			             type="String" 					    access="global"/>
+    <!--giovanni spinelli 02/04/2019-->
+	<aura:attribute name="mapValueContracts" 			type="Map" 		default="{}" access="global"/>
+
+
+    <aura:handler name="init" 		value="{!this}"			 	action="{!c.doInit}"/>
+
+    <tr class="trow">
+        <th>
+            <div class="slds-grid slds-gutters myGrid slds-grid_vertical-align-center myRow">
+                <div class="slds-col slds-size_5-of-10 myWord">
+                    {!v.contractName}
+                </div>
+                <div class="slds-col slds-size_2-of-10 slds-col_bump-left ">
+                    <input type="button" value ="{!$Label.c.OB_Visualize}" onclick="{!c.viewDocument}" class="slds-button slds-button--neutral GeneraButton"/>
+                </div>
+            </div>
+        </th>	
+    </tr>         
+
+</aura:component>

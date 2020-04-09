@@ -1,0 +1,77 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" 
+				access="global"
+				controller="ModalLookupController">
+	
+	<aura:attribute name="mydata" 						type="Object"/>
+	<aura:attribute name="wizardWrapper" 				type="Object" 	default="{}" 										access="global"	/>
+	<aura:attribute name="objectDataMap" 				type="Object"  	default="{}" 										access="global"	/>
+	<aura:attribute name="nextCheckout" 				type="String" 	default="{!v.objectDataMap.unbind.nextCheckout}" 					/>
+	<aura:attribute name="objectKey" 					type="String" 	default="" 											access="global"	/>
+	<aura:attribute name="identifier" 					type="String" 	default="" 											access="global"	/>
+	<aura:attribute name="field" 						type="Object" 	default="{}" 										access="global"	/> 
+	<aura:attribute name="type" 						type="String" 														access="global"	/>
+	<!-- EP SAE/ATECO -->
+	<aura:attribute name="subType" 						type="String" 														access="global" />
+	<aura:attribute name="subTypeField" 				type="String" 														access="global"	/>
+	<aura:attribute name="fatecoField" 					type="String" 														access="global"	/>
+	<aura:attribute name="objectString" 				type="String" 														access="global"	/>
+	<aura:attribute name="mapOfSourceFieldTargetField" 	type="Map" 															access="global"	/>
+	<aura:attribute name="mapLabelColumns" 				type="Map" 		default="{}" 										access="global"	/>
+	<aura:attribute name="messageIsEmpty" 				type="String" 	default="" 											access="global"	/>
+	<aura:attribute name="orderBy" 						type="String" 														access="global"	/> 
+	<aura:attribute name="disabled" 					type="Boolean" 	default="false" 									access="global"	/> 
+	<aura:attribute name="disabledInput_sp" 			type="Boolean" 														access="global"	/>
+	<aura:attribute name="disabledCAB" 					type="Boolean" 	default="true" 										access="global"	/>
+	
+    <aura:attribute name="addressMapping" 				type="Object" 	default="{!v.field.addressMapping}" 				access="global"	/>
+	<aura:attribute name="inputField" 					type="String" 	default="" 															/>
+    <aura:attribute name="fieldInputLabel" 				type="String" 														access="global" />
+    <aura:attribute name="doneRenderParent" 			type="Boolean" 	default="true" 										access="global"	/>
+    <!-- NEXI-30 Customer DS-1 & FG-1 grzegorz.banach@accenture.com 09.05.2019 END !-->
+	<aura:attribute name="isScalable"			    	type="Boolean"  default="false"										access="global" description="Defines if component is scaled internally to its full width, in order to be easily scaled from outside.
+	 																																					Please consider this as a hotfix until the component will be used properly for the rest of ACN-NEXI team"/>
+	<aura:attribute name="isDisableModify"			    type="Boolean"  default="false"										access="global" description="Defines if field has been unlocked for modiying "/>
+    <!-- NEXI-30 Customer DS-1 & FG-1 grzegorz.banach@accenture.com 09.05.2019 END !-->
+	<!--NEXI-251 Marta Stempien <marta.stempien@accenture.com> 30/09/2019 START-->
+	<aura:attribute name="previousAteco"				type = "String" default = ""										access = "global" 	description = "Previous value of ATECO" />
+	<!--NEXI-251 Marta Stempien <marta.stempien@accenture.com> 30/09/2019 STOP-->
+
+    <aura:handler name="init" 			value="{!this}" 				action="{!c.doInit}"				/>
+	<aura:handler name="showModalEvent" event="c:modalLookupEvent" 		action="{!c.handleShowModalEvent}"	/> 
+	<aura:handler name="change" 		value="{!v.objectDataMap}" 		action="{!c.objectDataMapChanges}"	/>
+
+    <div class="{! v.isScalable ? 'slds-size--1-of-1 slds-grid' : 'slds-size--1-of-2 slds-grid' }"><!-- NEXI-30 Customer DS-2 & FG-2 grzegorz.banach@accenture.com 30.05.2019 !-->
+		<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+			<div class="slds-p-around--medium slds-form-element">
+				<label class="slds-form-element__label" for="inputNameSample1" value="{!v.fieldInputLabel}">
+					<abbr class="slds-required" title="required">*</abbr>
+					{!v.fieldInputLabel}
+				</label>
+				<div class="slds-grid slds-size--1-of-1">
+					<div class="slds-size--11-of-12">
+						<lightning:input 	label="" 
+										id="{!v.addressMapping.inputFieldId}"
+										aura:id="inputField"
+										name="searchInput"   
+										variant="label-hidden" 
+										value="{!v.inputField}" 
+										disabled="true"
+										class="flow_required"
+										/>
+					</div>
+					<div class="slds-size--1-of-12">
+                        <!-- NEXI-30 Customer DS-2 & FG-2 grzegorz.banach@accenture.com 09.05.2019 START !-->
+						<lightning:button 	variant="neutral"
+											onclick="{!c.openModal}"
+                                            disabled="{!v.isDisableModify}"
+											iconName="utility:search"
+											class="lens-search-mod-button" />
+                        <!-- NEXI-30 Customer DS-2 & FG-2 grzegorz.banach@accenture.com 09.05.2019 END !-->
+                    </div>
+				</div>
+	        </div>
+		</div>
+    </div>
+
+	{!v.body}
+</aura:component>

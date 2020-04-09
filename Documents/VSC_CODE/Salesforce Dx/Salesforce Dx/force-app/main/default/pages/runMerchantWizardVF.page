@@ -1,0 +1,19 @@
+<apex:page >
+    <script>
+    function test(){
+        $Lightning.use("bit2flow:dependencyApp", function() {
+            $Lightning.createComponent("bit2flow:dynWizardMain",    
+                                       { params : "objectId=,objectType=,wizardConfigurationId=00P9E0000041XBCUA2,displayMenu=false,inputParameters=,sourceVF=true" },
+                                       "lightning",
+                                       function(cmp) {
+                                           // do some stuff
+                                       });
+        });
+    }
+    </script>
+    
+    <apex:form >
+        <apex:commandButton value="Nuovo contratto" onClick="test();return false;"/>
+    </apex:form>
+    
+</apex:page>

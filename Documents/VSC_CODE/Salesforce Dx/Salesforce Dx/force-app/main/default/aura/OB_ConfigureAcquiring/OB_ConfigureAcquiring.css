@@ -1,0 +1,420 @@
+.THIS .u120{
+    font-family: "Salesforce Sans";
+    font-weight: 410;
+    font-style: normal;
+    font-size: 20px;
+    color: rgb(79, 106, 146);
+    line-height: 28px;
+    border-width: 0px;
+    margin-top: 85px;
+    margin-left: 14px;
+    width: 38%;
+}
+.THIS.u116{
+    position: absolute;
+    left: 14px;
+    top: 29px;
+    width: 247px;
+    height: 20px;
+    font-family: "Salesforce Sans Light", "Salesforce Sans Regular", "Salesforce Sans";
+    font-weight: 300;
+    font-style: normal;
+    font-size: 28px;
+    line-height: 20px;
+    border-width: 0px;
+}
+.THIS .u124{
+    height: 1px;
+    text-align: left;
+    border-width: 0px;
+    margin-left: 14px;
+    margin-top: -13px;
+}
+.THIS .check_box{
+    margin-left: 815px;
+    width: 26px;
+    height: 33px;
+    margin-top: -20px;
+}
+.THIS input[type=checkbox]{
+    /* Double-sized Checkboxes */
+    -ms-transform: scale(2); /* IE */
+    -moz-transform: scale(2); /* FF */
+    -webkit-transform: scale(2); /* Safari and Chrome */
+    -o-transform: scale(2); /* Opera */
+    padding: 10px;
+    cursor:pointer;
+    border: 3px solid blue;
+}
+.THIS .u122{
+    width: 317px;
+    height: 34px;
+    font-family: "Salesforce Sans Light", "Salesforce Sans Regular", "Salesforce Sans";
+    font-weight: 300;
+    font-style: normal;
+    font-size: 16px;
+    line-height: 28px;
+    border-width: 0px;
+    margin-left: 91px;
+    margin-top: -13px;
+}
+.THIS.u172 {
+    position: absolute;
+    left: 949px;
+    top: 29px;
+    width: 249px;
+    height: 28px;
+    font-family: "Salesforce Sans Light Italic", "Salesforce Sans Regular", "Salesforce Sans";
+    font-weight: 300;
+    font-style: italic;
+    font-size: 14px;
+    color: rgb(102, 102, 102);
+    line-height: 28px;
+    border-width: 0px;
+}
+.THIS.u170 {
+    position: absolute;
+    left: 968px;
+    top: 59px;
+    width: 263px;
+    height: 35px;
+    font-family: "Salesforce Sans";
+    font-weight: 400;
+    font-style: normal;
+    line-height: 18px;
+    border-width: 0px;
+}
+.THIS .u171 {
+    margin-top: -37px;
+}
+.THIS .u215 {
+    cursor: pointer;
+    border-width: 0px;
+    width: 22px;
+    word-wrap: break-word;
+    margin-left: 475px;
+    margin-top: -42px;
+    color: #0070D2;
+    font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 700;
+    font-style: normal;
+    font-size: 28px;
+}
+.THIS .u216 {
+    border-width: 0px;
+    width: 44px;
+    height: 26px;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    margin-left: 495px;
+    margin-top: -31px;
+}
+.THIS .u216_div {
+    padding-left: 16px;
+    padding-top: 4px;
+    color: #000000;
+    font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 700;
+}
+.THIS .u219 {
+    cursor:pointer;
+    border-width: 0px;
+    width: 22px;
+    word-wrap: break-word;
+    margin-left: 550px;
+    margin-top: -36px;
+    color: #0070D2;
+    font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 700;
+    font-style: normal;
+    font-size: 28px;
+}
+.THIS .u212 {
+    margin-left: 627px;
+    margin-top: -22px;
+    border-width: 0px;
+    width: 129px;
+    height: 30px;
+    font-family: 'Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    color: #0070D2;
+}
+.THIS .u221{
+    border-width: 0px;
+    margin-left: 748px;
+    margin-top: -27px;
+    width: 12px;
+    height: 12px;
+}
+.THIS .prd_img{
+    margin-top: 45px;
+    margin-left: 14px;
+    width: 60px;
+    height: 34px;
+}
+.THIS .qty{
+    border-width: 0px;
+    width: 65px;
+    height: 28px;
+    font-family: 'Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-size: 10px;
+    color: #666666;
+    text-align: center;
+    line-height: 28px;
+    margin-left: 488px;
+    margin-top: -26px;
+}
+.THIS .qtyContainer{
+    margin-bottom: 19px;
+    margin-top: -7px;
+}
+.THIS .u216 input[type=text]{
+    padding-left: 16px;
+    padding-top: 4px;
+    font-family: 'Salesforce Sans Bold','Salesforce Sans Regular','Salesforce Sans';
+    font-weight: 700;
+    width: 44px;
+    height: 26px;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    box-shadow: none;
+    margin-left: -1px;
+    margin-top: -1px;
+}
+.THIS .dettagli{
+    border-width: 0px;
+    width: 94px;
+    height: 28px;
+    font-family: 'Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-size: 10px;
+    color: #666666;
+    text-align: center;
+    line-height: 28px;
+    margin-left: 650px;
+    margin-top: -26px;
+}
+.THIS .seleziona{
+    border-width: 0px;
+    width: 65px;
+    height: 28px;
+    font-family: 'Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-size: 10px;
+    color: #666666;
+    text-align: center;
+    line-height: 28px;
+    margin-left: 790px;
+    margin-top: -26px;
+}
+.THIS .circle{
+    border-width: 0px;
+    width: 26px;
+    height: 26px;
+    margin-left: 682px;
+    margin-top: -49px;
+}
+.THIS .arrow_image{
+    border-width: 0;
+    width: 12px;
+    height: 21px;
+    margin-left: 689px;
+    margin-top: -23px;
+}
+.THIS .commissioni_info{
+    width: 98.3%;
+    height: 100%;
+    margin-bottom: 7px;
+    margin-top: -5px;
+    margin-left: 14px;
+}
+.THIS .comm_dettaglio{
+    border-width: 0px;
+    margin-left: 14px;
+    width: 285px;
+    height: 106px;
+    font-family: 'Salesforce Sans';
+    font-weight: 410;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 18px;
+}
+.THIS .u1052 {
+    border-width: 0;
+    margin-left: 409px;
+    margin-top: -109px;
+    width: 361px;
+    height: 3px;
+}
+.THIS .u1049{
+    border-width: 0px;
+    margin-left: 409px;
+    margin-top: 19px;
+    width: 358px;
+    word-wrap: break-word;
+}
+.THIS .u1051{
+    border-width: 0px;
+    margin-left: 800px;
+    margin-top: -36px;
+    width: 80px;
+    word-wrap: break-word;
+}
+.THIS .u1049a{
+    border-width: 0px;
+    margin-left: 600px;
+    margin-top: 40px;
+    width: 200px;
+    word-wrap: break-word;
+}
+.THIS .u1051a{
+    border-width: 0px;
+    margin-left: 800px;
+    margin-top: -26px;
+    width: 80px;
+    word-wrap: break-word;
+}
+.THIS .u1076{
+    margin-left: 409px;
+    margin-top: 11px;
+}
+.THIS .u1078{
+    margin-left: 538px;
+    margin-top: 19px;	
+    font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 700;
+    font-style: normal;
+    font-size: 12px;
+    color: #4F6A92;
+    line-height: 18px;
+}
+.THIS .u1057 {
+    font-weight: 400;
+    font-style: italic;
+    border-width: 0px;
+    font-size:10px;
+    word-wrap: break-word;
+    color: #666666;
+    line-height: 12px;
+    font-size: 10px;
+    margin-left: 428px;
+    margin-top: 7px;
+}
+.THIS .showDetails{
+    cursor:pointer;
+    width: 26px;
+}
+.THIS .hideDetails{
+    cursor:pointer;
+}
+.THIS .hidden{
+    display:none;
+}
+.THIS .product_row_color{
+    background-color: rgba(243, 245, 248, 1);
+}
+.THIS .line{
+    width: 100%;
+}
+.THIS .thumbnailimage{
+    height: 34px;
+    width: 60px;
+    margin-top: 18px;
+}
+.THIS #u1679_img{
+    border-width: 0;
+    margin-left: -18px;
+    width: 2px;
+    height: 100%;
+}
+
+/* EDIT By Marco Ferri some date.. */
+
+.THIS.u187{
+    margin-top:50px;
+	background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(193, 217, 227, 1);
+    border-radius: 4px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    padding: 15px;
+
+}
+
+.THIS .u187title{
+	
+	font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 700;
+    font-style: normal;
+    font-size: 14px;
+    color: #4F6A92;
+    line-height: 16px;
+}
+
+.THIS .tableline{
+	border-bottom: 3px solid;
+	border-color:#d8dde6; 	
+}
+
+.THIS .tableText{
+	
+	border-width: 0px;
+    font-family: 'Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-size: 10px;
+    color: #666666;
+    line-height: 28px;
+    border-bottom: 1px solid;
+	border-color:#d8dde6; 	
+}
+
+.THIS .tableText .value1{
+	
+	margin-left: 0px;
+}
+
+.THIS .tableText .value2{
+	
+	margin-left: 40%;
+}
+
+.THIS .tableText .valueN{
+	
+	margin-left: 10%;
+}
+
+.THIS .cartItemContainer{
+	
+	border-bottom: 1px solid;
+	border-color:#d8dde6; 
+}
+
+.THIS .cartItemToEdit{
+	
+	font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 700;
+}

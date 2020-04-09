@@ -1,0 +1,1 @@
+<aura:event type="APPLICATION" description="Used by Plc_ActivityCompileReport to trigger external actions" />

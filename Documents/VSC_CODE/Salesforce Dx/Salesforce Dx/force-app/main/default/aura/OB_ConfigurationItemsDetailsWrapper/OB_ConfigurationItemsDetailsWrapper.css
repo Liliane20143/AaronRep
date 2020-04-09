@@ -1,0 +1,27 @@
+.THIS .x_class svg{
+    fill:#FFFFFF;
+}
+.THIS .textArea_class textarea{
+    height: 278px;
+}
+/*ANDREA MORITTU START 30-Sept-2019 PRODOB_475 */
+.THIS .CTAStyle {
+	font-size: 1.2em!important;
+	text-transform: uppercase!important;
+	font-weight: 600!important;
+	border-color: rgb(48, 58, 178);
+	border-width: 0,5px;
+	border-width: 1px;
+	color: rgb(48, 58, 178);
+	font-family: arial;
+}
+
+.THIS .CTAStyle_BRAND {
+	font-size: 1.2em!important;
+	text-transform: uppercase!important;
+	font-weight: 600!important;
+	border-color: rgb(48, 58, 178);
+	border-width: 0.3125rem;
+	border-width: 0.0625rem; 
+    }
+/*ANDREA MORITTU START 30-Sept-2019 PRODOB_475 */

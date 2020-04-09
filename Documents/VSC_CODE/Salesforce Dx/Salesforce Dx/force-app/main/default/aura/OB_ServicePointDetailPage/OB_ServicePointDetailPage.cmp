@@ -1,0 +1,438 @@
+<aura:component implements="lightning:actionOverride,force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId" controller="OB_ServicePointsDetailsPage_CC">
+
+    <aura:attribute name="recordId" type="String" access="global" />
+    <aura:attribute name="contextAccount" type="Account" default="{}" access="global" />
+    <aura:attribute name="esecutore" type="Contact" default="{}" access="global" />
+    <aura:attribute name="titolariEffettivi" type="List" default="[]" access="global" />
+    <aura:attribute name="configurations" type="List" default="[]" access="global" />
+    <aura:attribute name="contacts" type="List" default="[]" access="global" />
+    <aura:attribute name="servicePoint" type="NE__Service_Point__c" default="{}" access="global" />
+    <aura:attribute name="isOpen" type="Boolean" default="false" access="global" />
+    <aura:attribute name="activeSections" type="List" default="['contextAccount']" />
+    <aura:attribute name="indexFromOne" type="List" default="[]" access="global" />
+
+    <aura:attribute name="completeLegalAddress" type="String" default="" />
+    <!--Elena Preteni 09/01/2019 MAIN_62-->
+    <aura:attribute name="isLoadedAbi" type="Boolean" default="false" access="global" />
+    <aura:attribute name ="proposerABI"  type="String"  access="global"/>
+    <!--Elena Preteni 09/01/2019 MAIN_62-->
+
+    <!-- <aura:attribute name="openDays" 
+					type="List" 
+					default="[]" 
+					/> -->
+
+    <aura:attribute name="days" type="String[]" default="['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']" />
+
+    <aura:attribute name="assets" type="Object" />
+
+    <aura:attribute name="acquirings" type="Object[]" />
+
+    <aura:attribute name="terminali" type="Object[]" />
+
+    <aura:attribute name="vas" type="Object[]" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+
+    <div class="flow-section-separator-container">
+        <form class="slds-size_1-of-1 slds-form">
+            <legend class="slds-form-element__label">{!$Label.c.OB_Company}</legend>
+            <fieldset class="bit2flowFormSectionCmp" name="companysection" data-aura-class="bit2flowFormSectionCmp" />
+        </form>
+    </div>
+    <div class="sectionColsContainer flow-section-separator" />
+
+    <div class="slds-grid slds-size--1-of-1">
+        <div class="slds-size--1-of-2 slds-grid">
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label">{!$Label.c.OB_Name}</label>
+                    <lightning:input value="{!v.contextAccount.Name}" disabled="true" variant="label-hidden" />
+                </div>
+            </div>
+        </div>
+        <div class="slds-size--1-of-2 slds-grid">
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label">{!$Label.c.AccountStatus}</label>
+                    <lightning:input value="{!v.contextAccount.NE__Status__c}" disabled="true" variant="label-hidden" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="slds-grid slds-size--1-of-1">
+        <div class="slds-size--1-of-2 slds-grid">
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label">{!$Label.c.FiscalCode}</label>
+                    <lightning:input value="{!v.contextAccount.NE__Fiscal_code__c}" disabled="true" variant="label-hidden" />
+                </div>
+                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                    <div class="slds-p-around--medium slds-form-element">
+                        <label class="slds-form-element__label">{!$Label.c.AccountVAT}</label>
+                        <lightning:input value="{!v.contextAccount.NE__VAT__c}" disabled="true" variant="label-hidden" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-size--1-of-2 slds-grid">
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label">{!$Label.c.OB_Legal_Address}</label>
+                    <lightning:textarea value="{!v.completeLegalAddress}" disabled="true" variant="label-hidden" class="addressTextArea" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flow-section-separator-container">
+        <form class="slds-size_1-of-1 slds-form">
+            <legend class="slds-form-element__label">{!$Label.c.OB_ServicePointInfo}</legend>
+            <fieldset class="bit2flowFormSectionCmp" name="companysection" data-aura-class="bit2flowFormSectionCmp" />
+        </form>
+    </div>
+    <div class="sectionColsContainer flow-section-separator" />
+
+    <div class="slds-grid slds-size--1-of-1">
+        <div class="slds-size--1-of-2 slds-grid">
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label">{!$Label.c.OB_ServicePointName}</label>
+                    <lightning:input value="{!v.servicePoint.Name}" disabled="true" variant="label-hidden" />
+                </div>
+            </div>
+        </div>
+        <div class="slds-size--1-of-2 slds-grid">
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label">{!$Label.c.OB_Tipology}</label>
+                    <lightning:input value="{!v.servicePoint.OB_Typology__c}" disabled="true" variant="label-hidden" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="slds-grid slds-size--1-of-1">
+        <div class="slds-size--1-of-2 slds-grid">
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label">{!$Label.c.Province}</label>
+                    <lightning:input value="{!v.servicePoint.NE__Province__c}" disabled="true" variant="label-hidden" />
+                </div>
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label">{!$Label.c.OB_Address}</label>
+                    <lightning:input value="{!v.servicePoint.NE__Street__c}" disabled="true" variant="label-hidden" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="slds-grid slds-size--1-of-1">
+        <div class="slds-size--1-of-2 slds-grid">
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+
+                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                    <div class="slds-p-around--medium slds-form-element">
+                        <label class="slds-form-element__label">{!$Label.c.City}</label>
+                        <lightning:input value="{!v.servicePoint.NE__City__c}" disabled="true" variant="label-hidden" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="slds-grid slds-size--1-of-1">
+        <div class="slds-size--1-of-2 slds-grid">
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label">{!$Label.c.OB_OpeningTimeLabel}</label>
+                    <lightning:input value="{!v.servicePoint.OB_Opening_Time__c}" disabled="true" variant="label-hidden" />
+                </div>
+            </div>
+        </div>
+        <div class="slds-size--1-of-2 slds-grid">
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label">{!$Label.c.OB_ClosingTime}</label>
+                    <lightning:input value="{!v.servicePoint.OB_Ending_Time__c}" disabled="true" variant="label-hidden" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="slds-grid slds-size--1-of-1">
+        <div class="slds-size--1-of-2 slds-grid">
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label">{!$Label.c.OB_BreakStartTimeLabel}</label>
+                    <lightning:input value="{!v.servicePoint.OB_Break_Start_Time__c}" disabled="true" variant="label-hidden" />
+                </div>
+            </div>
+        </div>
+        <div class="slds-size--1-of-2 slds-grid">
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label">{!$Label.c.OB_BreakEndTime}</label>
+                    <lightning:input value="{!v.servicePoint.OB_Break_End_Time__c}" disabled="true" variant="label-hidden" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <aura:if isTrue="{! v.contacts > 0}">
+        <div class="flow-section-separator-container">
+            <form class="slds-size_1-of-1 slds-form">
+                <legend class="slds-form-element__label">{!$Label.c.OB_Referrals}</legend>
+                <fieldset class="bit2flowFormSectionCmp" name="referralssection" data-aura-class="bit2flowFormSectionCmp" />
+            </form>
+        </div>
+        <div class="sectionColsContainer flow-section-separator" />
+    </aura:if>
+
+    <aura:iteration items="{!v.contacts}" var="con">
+        {!con.RecordType.Name}
+        <div class="slds-grid slds-size--1-of-1">
+            <div class="slds-size--1-of-2 slds-grid">
+                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                    <div class="slds-p-around--medium slds-form-element">
+                        <label class="slds-form-element__label">{!$Label.c.FirstName}</label>
+                        <lightning:input value="{!con.FirstName}" disabled="true" variant="label-hidden" />
+                    </div>
+                </div>
+            </div>
+            <div class="slds-size--1-of-2 slds-grid">
+                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                    <div class="slds-p-around--medium slds-form-element">
+                        <label class="slds-form-element__label">{!$Label.c.LastName}</label>
+                        <lightning:input value="{!con.FirstName}" disabled="true" variant="label-hidden" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid slds-size--1-of-1">
+            <div class="slds-size--1-of-2 slds-grid">
+                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                    <div class="slds-p-around--medium slds-form-element">
+                        <label class="slds-form-element__label">{!$Label.c.E_Mail}</label>
+                        <lightning:input value="{!con.Email}" disabled="true" variant="label-hidden" />
+                    </div>
+                </div>
+            </div>
+            <div class="slds-size--1-of-2 slds-grid">
+                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                    <div class="slds-p-around--medium slds-form-element">
+                        <label class="slds-form-element__label">{!$Label.c.Phone}</label>
+                        <lightning:input value="{!con.Phone}" disabled="true" variant="label-hidden" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:iteration>
+
+
+    <div class="flow-section-separator-container">
+        <form class="slds-size_1-of-1 slds-form">
+            <legend class="slds-form-element__label">{!$Label.c.OB_OpeningDays}</legend>
+            <fieldset class="bit2flowFormSectionCmp" name="flagsection" data-aura-class="bit2flowFormSectionCmp" />
+        </form>
+    </div>
+    <div class="sectionColsContainer flow-section-separator" />
+
+    <div class="slds-grid slds-size--1-of-1">
+
+        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+            <div class="slds-p-around--medium slds-form-element">
+
+                <!-- Table Flag -->
+
+                <table class="slds-table slds-table_cell-buffer slds-table_border">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="slds-text-title_caps" scope="col">
+                                <div class="slds-truncate" title="period"></div>
+                            </th>
+                            <aura:iteration items="{!v.days}" var="day">
+                                <th class="slds-text-title_caps" scope="col">
+                                    <div class="slds-truncate" title="day">{!day}</div>
+                                </th>
+                            </aura:iteration>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="slds-hint-parent">
+                            <th data-label="Morning" scope="row">
+                                <div class="slds-truncate" title="Cloudhub">{!$Label.c.OB_Opening_Times_Morning}</div>
+                            </th>
+
+                            <td data-label="Opening_Monday_Morning">
+                                <div class="slds-truncate" title="Opening_Monday_Morning">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Monday_Morning__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+
+                            <td data-label="Opening_Tuesday_Morning">
+                                <div class="slds-truncate" title="Opening_Tuesday_Morning">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Tuesday_Morning__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+
+                            <td data-label="Opening_Thursday_Morning">
+                                <div class="slds-truncate" title="Opening_Thursday_Morning">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Thursday_Morning__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+
+                            <td data-label="Opening_Wednesday_Morning">
+                                <div class="slds-truncate" title="Opening_Wednesday_Morning">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Wednesday_Morning__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+
+                            <td data-label="Opening_Friday_Morning">
+                                <div class="slds-truncate" title="Opening_Friday_Morning">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Friday_Morning__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+
+                            <td data-label="Opening_Saturday_Morning">
+                                <div class="slds-truncate" title="Opening_Saturday_Morning">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Saturday_Morning__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+
+                            <td data-label="Opening_Sunday_Morning">
+                                <div class="slds-truncate" title="Opening_Sunday_Morning">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Sunday_Morning__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="slds-hint-parent">
+                            <th data-label="Afternoon" scope="row">
+                                <div class="slds-truncate" title="Opening_Times_Afternoon">{!$Label.c.OB_Opening_Times_Afternoon}</div>
+                            </th>
+                            <td data-label="Opening_Monday_Afternoon">
+                                <div class="slds-truncate" title="Opening_Monday_Afternoon">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Monday_Afternoon__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+
+                            <td data-label="Opening_Tuesday_Afternoon">
+                                <div class="slds-truncate" title="Opening_Tuesday_Afternoon">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Tuesday_Afternoon__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+
+                            <td data-label="Opening_Thursday_Afternoon">
+                                <div class="slds-truncate" title="Opening_Thursday_Afternoon">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Thursday_Afternoon__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+
+                            <td data-label="Opening_Wednesday_Afternoon">
+                                <div class="slds-truncate" title="Opening_Wednesday_Afternoon">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Wednesday_Afternoon__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+
+                            <td data-label="Opening_Friday_Afternoon">
+                                <div class="slds-truncate" title="Opening_Friday_Afternoon">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Friday_Afternoon__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+
+                            <td data-label="Opening_Saturday_Afternoon">
+                                <div class="slds-truncate" title="Opening_Saturday_Afternoon">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Saturday_Afternoon__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+
+                            <td data-label="Opening_Sunday_Afternoon">
+                                <div class="slds-truncate" title="Opening_Sunday_Afternoon">
+                                    <aura:if isTrue="{!v.servicePoint.OB_Opening_Sunday_Afternoon__c}">
+                                        {!$Label.c.OB_Opening_Times_Open}
+                                        <aura:set attribute="else">
+                                            {!$Label.c.OB_Opening_Times_Closed}
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="flow-section-separator-container"> 
+		<form class="slds-size_1-of-1 slds-form">
+			<legend class="slds-form-element__label">{!$Label.c.OB_Asset}</legend>
+			<fieldset class="bit2flowFormSectionCmp" name="flagsection" data-aura-class="bit2flowFormSectionCmp"/>
+		</form>
+	</div>
+    <aura:if isTrue="{!v.isLoadedAbi}">
+        <c:OB_Maintenance_Asset_Summary ServicePointSelectedRow="{!v.recordId}" isFromServicePoint="true" proposerABI="{!v.proposerABI}"
+        AccountData = "{!v.contextAccount}"/>
+    </aura:if>
+</aura:component>

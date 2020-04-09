@@ -1,0 +1,1 @@
+<apex:page showHeader="false" sidebar="false" contentType="text/plain">{!$Api.session_id}</apex:page>

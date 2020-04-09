@@ -1,0 +1,217 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" 
+				extends="forceCommunity:navigationMenuBase" 
+				controller="OB_CommunitySideBarController" 
+				access="global">
+
+    <!-- ATTRIBUTRES FOR SHOWING LOVS IN THE SIDE BAR -->
+    <aura:attribute name="ABI" 				type="String" 			default="" />
+    <aura:attribute name="objectLov" 		type="Object" 			default="" />
+    <aura:attribute name="urlLov" 			type="String" 			default="" />
+
+    <aura:attribute name="imageBankLov" 	type="List" 			default="" />
+    <aura:attribute name="videoBankLov" 	type="List" 			default="" />
+    <aura:attribute name="disableAutoplay" 	type="String" 			default="" />
+    <aura:attribute name="phoneBank" 		type="String" 			default="" />
+    <aura:attribute name="faxBank" 			type="String" 			default="" />
+    <aura:attribute name="currentUserName" 	type="String" />
+    <aura:attribute name="showPituresModal" type="Boolean" 			default="false" />
+    <aura:attribute name="currentImage"		type="String" />
+
+
+
+    <ltng:require styles="{! $Resource.bootstrap}" afterScriptsLoaded="{!c.jsLoaded}" /> <!--  non trova jQYERY di bootstrap, usare jquery -->
+    <ltng:require styles="{! $Resource.jqueryuiCSS}" scripts="{!join(',',  
+						   $Resource.JQueryResourceCode ,   
+						   $Resource.jqueryuiJS)
+						   }" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <div id="myDiv" class="slds-col--padded slds-size--12-of-12 slds-medium-size--11-of-12 slds-large-size--11-of-12 comm-layout-column">
+        <!--  PREVIEW WITHOUT BOOTSTRAP: -->
+        <span class="badge badge-pill badge-light">
+        <div class="slds-grid slds-grid_horizontal">
+            <div class="container">
+              <div class="row">
+                <div id="iconDocum" class="col-sm">
+                	<lightning:icon iconName="utility:user" size="x-small" alternativeText="Link" />
+                </div>
+                <div class="col-sm bodyLinkDocum">
+                		{!v.currentUserName}
+                </div>
+              </div>
+            </div>
+            
+        
+            
+           
+        </div>
+        </span>
+        <!-- QUICK ACTION --> 
+        <!-- micol.ferrari 17/01/2019 -->
+        <!-- <aura:if isTrue="{!!empty(v.objectLov)}">
+            <div class="OB_CommunityTitle">{!$Label.c.OB_QuickActionLabel}</div>
+            <aura:iteration items="{!v.objectLov}" var="lov">
+                <aura:if isTrue="{!lov.Name== 'Quick Action'}">
+                    <div class="slds-grid slds-grid_horizontal">
+                        <div id="iconDocum">
+                            <lightning:icon iconName="utility:link" size="x-small" alternativeText="Link" />
+                        </div>
+                        <div class="bodyLinkDocum">
+                            <a href="{!lov.NE__Value2__c}">{!lov.NE__Value1__c}</a>
+                        </div>
+                    </div>
+                </aura:if>
+            </aura:iteration>
+        </aura:if> -->
+
+        <!-- PHONE && FAX -->
+        <!--<div class="OB_CommunityTitle">{!$Label.c.OB_SupportLabel}</div>
+        <div class="slds-grid slds-grid_vertical">
+            <div class="slds-grid slds-grid_horizontal">
+                <div id="iconDocum">
+                    <span class="glyphicon glyphicon-link"></span>
+                    <lightning:icon iconName="utility:call" size="x-small" alternativeText="Phone" />
+                </div>
+                <div class="bodyLinkDocum">
+                    {!v.phoneBank}
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid slds-grid_vertical">
+            <div class="slds-grid slds-grid_horizontal">
+                <div id="iconDocum">
+                    <lightning:icon iconName="utility:print" size="x-small" alternativeText="Phone" />
+                </div>
+                <div class="bodyLinkDocum">
+                    {!v.faxBank}
+                </div>
+            </div>
+        </div>  -->
+
+        <!-- DOCUMENTAZIONE -->
+        <aura:if isTrue="{!!empty(v.objectLov)}">
+            <div class="OB_CommunityTitle">{!$Label.c.OB_UsefulLinksLabel}</div>
+            <aura:iteration items="{!v.objectLov}" var="lov">
+                <aura:if isTrue="{!lov.Name== 'Documentazione'}">
+                    <div class="slds-grid slds-grid_horizontal">
+                        <div id="iconDocum">
+                            <lightning:icon iconName="utility:link" size="x-small" alternativeText="Link" />
+                        </div>
+                        <div class="bodyLinkDocum">
+                            <a href="https://www.nexi.it" el="noopener noreferrer" target="_blank">NEXI</a>
+                        </div>
+                    </div>
+                    <div class="slds-grid slds-grid_horizontal">
+                        <div id="iconDocum">
+                            <lightning:icon iconName="utility:link" size="x-small" alternativeText="Link" />
+                        </div>
+                        <div class="bodyLinkDocum">
+                            <a href="{!lov.NE__Value2__c}" el="noopener noreferrer" target="_blank">{!lov.NE__Value1__c}</a>
+                        </div>
+                    </div>
+                </aura:if>
+            </aura:iteration>
+        </aura:if>
+
+        <!-- IMAGES && VIDEOS -->
+        <!-- IMAGES -->
+        <aura:if isTrue="{!!empty(v.objectLov)}">
+            <div class="OB_CommunityTitle">{!$Label.c.OB_ImagesVideosLabel}</div>
+            <div class="slds-grid slds-grid_horizontal">
+                <div class="slds-col 2-of-6" />
+                <div class="slds-col 2-of-6" id="CarouselDiv">
+                    <lightning:carousel disableAutoRefresh="false" disableAutoScroll="false">
+                        <aura:iteration items="{!v.objectLov}" var="lov">
+                            <aura:if isTrue="{!lov.Name== 'Images'}">
+                                <lightning:carouselImage src="{!'../resource/'+lov.NE__Value2__c}" alt="" class="{!'../resource/'+lov.NE__Value2__c}" data-largesrc="{!'../resource/'+lov.NE__Value2__c}" onclick="{!c.openModalCurrentImage}"/>
+                            </aura:if>
+                        </aura:iteration>
+                    </lightning:carousel>
+                </div>
+            </div>
+
+
+            <aura:if isTrue="{!!empty(v.objectLov)}">
+                <div class="OB_CommunityTitle"></div>
+                <aura:iteration items="{!v.objectLov}" var="lov">
+                    <aura:if isTrue="{!lov.Name== 'Video Link'}">
+                        <div class="slds-grid slds-grid_horizontal">
+                            <div id="iconDocum">
+                                <lightning:icon iconName="utility:video" size="x-small" alternativeText="Link" />
+                            </div>
+                            <div class="bodyLinkDocum">
+                                <a href="{!lov.NE__Value2__c}" el="noopener noreferrer" target="_blank">{!lov.NE__Value1__c}</a>
+                            </div>
+                        </div>
+                    </aura:if>
+                </aura:iteration>
+            </aura:if>
+
+            <!-- VIDEOS -->
+            <div class="OB_CommunityTitle" />
+            <aura:iteration items="{!v.objectLov}" var="lov">
+                <aura:if isTrue="{!lov.Name== 'Videos'}">
+                    <div class="slds-grid slds-grid_vertical">
+                        <div class="slds-col 2-of-2">
+                            <video height="100" width="100" controls="controls" id="videoBank2">
+							<source src="{!'../resource/'+lov.NE__Value2__c}" type="video/mp4" />
+						</video>
+                            <!-- <iframe name="videoPlayer" class="video-player" src="{!'../resource/'+lov.NE__Value2__c+v.disableAutoplay}" id="videoBank" 
+								allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" /> -->
+                        </div>
+                    </div>
+                </aura:if>
+            </aura:iteration>
+        </aura:if>
+    </div>
+
+    <!--  PREVIEW WITH BOOTSTRAP: -->
+    <!-- <div class="OB_CommunityTitle"/>
+		<aura:iteration items="{!v.objectLov}" var="lov" >
+			<aura:if isTrue="{!lov.Name== 'Images'}">		
+				<div id="carouselExampleFade" class="carousel slide carousel-fade" data-ride="carousel">
+			  		<div class="carousel-inner">
+			    		<div class="carousel-item active">
+			     			 <img class="d-block w-100" src="{!'../resource/'+lov.NE__Value2__c+v.firstSlider}" alt="First Slide"/>
+			    		</div>
+			    		<div class="carousel-item">
+					      <img class="d-block w-100" src="{!'../resource/'+lov.NE__Value2__c}" alt="Second Slide"/>
+					    </div>
+					    <div class="carousel-item">
+					      <img class="d-block w-100" src="{!'../resource/'+lov.NE__Value2__c}" alt="Third Slide"/>
+					    </div>
+			  		</div>
+			  	</div>
+  		</aura:if>
+	</aura:iteration> -->
+	
+	<!-- MODAL ON CLICK IMAGES --> 
+									
+	
+	<aura:if isTrue="{!v.showPituresModal}">
+		<div aura:id="modal" class="modalContainer">
+			<section 	role="dialog" tabindex="-1"
+						aria-labelledby="{!$Label.Bit2Archetypes.Search}" aria-modal="true"
+						aria-describedby="modal-content-id-1"
+						class="slds-modal slds-fade-in-open">
+				<div class="slds-modal__container">
+					<header class="slds-modal__header">
+						<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="{!$Label.c.Close}" onclick="{!c.closeModalConfigurationDetails}">
+							<lightning:icon iconName="utility:close" size="x-small" alternativeText="{!$Label.c.Close}" onclick="{!c.closeModalConfigurationDetails}"/>
+							<span class="slds-assistive-text">{!$Label.c.Close}</span>
+						</button>
+					</header>
+					<div class="slds-modal__content slds-p-around_medium slds-is-relative" style="height: 800px" id="modal-content-id-1">
+						<img src="{!v.currentImage}" alt="" class="center"/>
+					</div>
+					<footer class="slds-modal__footer slds-modal__footer_directional">
+						<button class="slds-button slds-button_brand" onclick="{!c.closeModalCurrentImage}">{!$Label.c.Close}</button>
+					</footer>
+				</div>
+				
+			</section>
+		</div>
+		<div class="slds-backdrop slds-backdrop_open"></div>
+	</aura:if>
+</aura:component>

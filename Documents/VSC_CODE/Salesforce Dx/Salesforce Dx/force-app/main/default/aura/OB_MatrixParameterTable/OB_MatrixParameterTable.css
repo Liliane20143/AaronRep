@@ -1,0 +1,18 @@
+.THIS .recordTypeTitle {
+    font-family: 'Salesforce Sans';
+    font-weight: 600;
+    font-style: normal;
+    font-size: 1.2em;
+    color: #0070d2;
+}
+
+.THIS .selected{
+    color:orange;
+}
+
+.THIS .slds-truncate {
+    text-overflow: inherit;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}

@@ -1,0 +1,3 @@
+<aura:component access="global">
+	<div>CATALOGO OFFERTA </div>
+</aura:component>

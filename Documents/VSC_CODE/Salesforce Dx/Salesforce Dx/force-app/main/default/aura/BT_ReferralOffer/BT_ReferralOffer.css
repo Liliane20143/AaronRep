@@ -1,0 +1,17 @@
+.THIS .slds-table_bordered td {
+    border: unset;
+}
+
+.THIS.offerDescription {
+    max-width: 65%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.THIS .slds-rich-text-editor__output td {
+    white-space: normal;
+}
+
+.THIS .commTable {
+    min-width: 55%;
+}

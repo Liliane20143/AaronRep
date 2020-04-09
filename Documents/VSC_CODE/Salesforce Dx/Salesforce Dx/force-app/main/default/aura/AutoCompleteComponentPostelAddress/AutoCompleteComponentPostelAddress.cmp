@@ -1,0 +1,128 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="AutoCompleteComponentController">
+	<!-- <ltng:require  scripts="{!$Resource.JQueryResourceCode}" afterScriptsLoaded="completeCountry" /> -->
+	
+	<ltng:require styles="{! $Resource.jqueryuiCSS}" 
+				  scripts="{!join(',', 
+						   $Resource.JQueryResourceCode ,   
+						   $Resource.jqueryuiJS)
+						   }"/>
+	<!-- afterScriptsLoaded="{!c.completeProvincia}"/>-->
+	
+	<!-- calling event handling action method. "name" attribute should be same
+   as mentioned on event registration in child component -->
+	<!--<aura:handler name="cmpEvent" event="c:autoCompletComponentEvent" action="{!c.handleComponentEvent}"/>-->
+	<aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+	<aura:registerEvent name="AutocompleteEvent" type="c:OB_AutocompleteEvent"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:method name="reInit" action="{!c.doInit}" description="Runs the init method again ">
+    </aura:method>
+    <aura:method name="blankValue" action="{!c.blankValue}" description="Reset to blank the value">
+    </aura:method>
+	
+	<aura:attribute name="streets" type="List" default="{}" access="global"/>
+	<aura:attribute name="responseStreets" type="Object" default="{}" access="global"/>
+	<aura:attribute name="response" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"   access="global"/>
+	<aura:attribute name="comune"   type="String" />
+	<aura:attribute name="frazione" type="String" />
+	<aura:attribute name="caps" type="List" default="[]"/>
+	<aura:attribute name="disabled" type="Boolean" default="true" />
+	<aura:attribute name="disabledInput_sp" type="Boolean"/>
+	<aura:attribute name="disabledInput" type="Boolean" default="true"/>
+	<aura:attribute name="streetString" type="String"/>
+	<aura:attribute name="streetNumberString" type="String"/>
+	<aura:attribute name="stradaId" type="String" default="strada"/>
+	<aura:attribute name="civicoId" type="String" default="civico"/>
+	<aura:attribute name="stradaEEId" type="String" default="streetEE"/>
+	<aura:attribute name="civicoEEId" type="String" default="civicoEE"/>
+	<!-- START  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+	<aura:attribute name="identifier" type="String" default="" access="global"/>
+  	<aura:attribute name="field" type="Object" default="{}" access="global"/>
+  	<aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+  	<aura:attribute name="isEE" type="Boolean" default="false" access="global"/>
+  	<!-- END  micol.ferrari 22/08/2018 - PARAMETERS FROM BIT2FLOW -->
+	
+	<div class="slds-grid">
+		<div class="slds-form-element slds-small-size--2-of-3 slds-large-size--2-of-3 slds-p-around--medium">
+			<!-- START	micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+			<aura:if isTrue="{!v.addressMapping.sectionaddress=='sedelegale'}">
+				<label class="slds-form-element__label" for="{!$Label.c.OB_Legal_Address_Street}">
+					<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Legal_Address_Street}
+				</label>
+			</aura:if>
+			<aura:if isTrue="{!v.addressMapping.sectionaddress=='sedeamministrativa'}">
+				<label class="slds-form-element__label" for="{!$Label.c.OB_Administrative_Office_Street}">
+					<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Administrative_Office_Street}
+				</label>
+			</aura:if>
+			<aura:if isTrue="{!or(v.addressMapping.sectionaddress=='generaladdress',v.addressMapping.sectionaddress=='documentrelease',v.addressMapping.sectionaddress=='birthaddress')}">
+				<label class="slds-form-element__label" for="{!$Label.c.OB_Address_Street}">
+					<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Address_Street}
+				</label>
+			</aura:if>			
+			<!-- END	micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+			
+			<div class="slds-form-element__control">
+				<aura:if isTrue="{!v.isEE != true}">
+					<input id="{!v.stradaId}"  
+						   class="flow_required slds-input"  
+						   value="{!v.streetString}" 
+						   type="text" 
+						   oninput="{!c.callStreet}" 
+						   onkeyup="{!c.clearInput}"
+						   onchange="{!c.getValue}"
+						   disabled="{!v.addressMapping.streetdisabled}"
+						   onblur="{! c.street}"
+						   name="street"
+						   />
+					
+				</aura:if>
+				<aura:if isTrue="{!v.isEE == true}">
+					<input id="{!v.stradaEEId}"  
+						   class="flow_required slds-input"  
+						   value="{!v.streetString}" 
+						   type="text" 
+						   onchange="{!c.getValueEE}"
+						   disabled="{!v.addressMapping.streetdisabled}"
+						   name="street"
+						   />
+					
+				</aura:if>
+			</div>
+		</div>
+
+		<div class="slds-form-element slds-small-size--1-of-3 slds-large-size--1-of-3 slds-p-around--medium">  
+			<label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.Street_Number}">
+					<abbr class="slds-required" title="required">*</abbr>
+				{!$Label.c.Street_Number}
+			</label>
+			<div class="slds-form-element__control">
+				<aura:if isTrue="{!v.isEE != true}">
+					<input id="{!v.civicoId}"  
+						   class="flow_required slds-input"  
+						   type="text"
+						   value="{!v.streetNumberString}" 
+						   disabled="{!v.addressMapping.streetnumberdisabled}"
+						   onchange="{!c.getValueStreetNumber}"	
+						   onblur="{! c.removeRedBorderCivico}"
+						   maxlength="6"
+						   name="civico"
+						   /> 
+				</aura:if>
+				<aura:if isTrue="{!v.isEE == true}">
+					<input id="{!v.civicoEEId}"  
+							   class="flow_required slds-input"  
+							   type="text"
+							   value="{!v.streetNumberString}" 
+							   onchange="{!c.getValueStreetNumberEE}"
+							   disabled="{!v.addressMapping.streetnumberdisabled}"
+							   maxlength="6"
+							   name="civico"
+							   /> 
+				</aura:if>
+			</div>
+		</div>
+		
+	</div>	
+	
+</aura:component>

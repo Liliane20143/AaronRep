@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" >
+        <aura:attribute name="isDocumentListEmpty" type="Boolean"/>
+        <!-- <aura:attribute name="message" type="Boolean"/> -->
+    </aura:event>

@@ -1,0 +1,22 @@
+.THIS {
+}
+
+/* CLASSI CSS PER MODELLARE BACKGROUND STEP (Saesforce 2019 sovrascrive)*/
+.THIS .bit2flowDynWizard .slds-tabs_path .slds-is-current {
+    background-color: rgb(0, 112, 210) !important;
+}
+.THIS .bit2flowDynWizard .slds-tabs_path .slds-is-current:hover{
+    background-color: rgb(0, 95, 178) !important;
+}
+.THIS .bit2flowDynWizard .slds-tabs_path.slds-is-current + .slds-is-incomplete:before {
+    background-color: rgb(0, 112, 210) !important;
+}
+.THIS .bit2flowDynWizard .slds-tabs_path.slds-is-current + .slds-is-incomplete:before:hover {
+    background-color: rgb(0, 112, 210) !important;
+}
+
+.THIS .messageEmp1{
+     font-size: 12pt;
+    text-align: center;
+    padding: 20px 20px;
+}

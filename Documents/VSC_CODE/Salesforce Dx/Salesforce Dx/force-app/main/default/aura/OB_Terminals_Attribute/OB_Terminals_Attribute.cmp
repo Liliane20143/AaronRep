@@ -1,0 +1,20 @@
+<aura:component controller = "OB_Active_Asset_View" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global">
+
+        <aura:attribute name="attributesList"   type="Object" access="global"/>
+        <aura:attribute name="attributeColumns"  type="List" access="global"/>
+        <aura:attribute name="isToShowAttribute" type="Boolean"/> 
+        {! v.attributesList }
+        {! v.attributeColumns }
+        <div >
+                <lightning:datatable
+                columns="{! v.attributeColumns }"
+                data="{! v.attributesList }"
+                keyField="Id"
+                aura:id="attributeTable"
+                />
+        </div>
+        <div > 
+                <lightning:button onclick="{! c.closeModal }" label="Annulla" class="slds-button slds-button_neutral slds-button--brand"></lightning:button>
+        </div>
+        
+</aura:component>

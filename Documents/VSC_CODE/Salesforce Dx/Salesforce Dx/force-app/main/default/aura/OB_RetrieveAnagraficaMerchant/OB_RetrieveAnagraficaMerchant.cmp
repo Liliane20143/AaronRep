@@ -1,0 +1,25 @@
+<aura:component implements="force:hasRecordId"  controller="OB_RetrieveAnagraficaMerchantController" access="global" >
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="account" type="Object" />
+    <aura:attribute name="FC" type="String" />
+    <aura:attribute name="VAT" type="String" />
+    <aura:attribute name="responseMerchant" type="Object"  default="{}" description="save the call service response"/>
+    <aura:attribute name="isContainerRendered" type="Boolean"  default="false" /> 
+    <aura:handler name="init" action="{!c.handleClick}" value="{!this}" description="Call method to update merchant data from service"/> 
+    <aura:handler name="change" value="{!v.responseMerchant}" action="{!c.responseMerchantChange}"/>
+    <aura:handler name="change" value="{!v.isContainerRendered}" action="{!c.handleClick}"/>
+    <aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+
+    <aura:html tag="style">
+        
+        .modal-body.scrollable.slds-modal__content.slds-p-around--medium {
+            box-shadow: 0 0px 0px 0 rgba(0, 0, 0, 0);
+            background: rgba(0,0,0,0);
+        }
+        .slds-button_icon-inverse[title="Close this window"]{
+            visibility:hidden;
+        }
+        
+    </aura:html>
+
+</aura:component>

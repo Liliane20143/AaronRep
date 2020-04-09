@@ -1,0 +1,340 @@
+<aura:component controller="OB_Maintenance_Consistenza_LogRequest_CC"
+				implements= "flexipage:availableForRecordHome,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable,force:hasRecordId" 
+				access="global">
+	<!--  Attribute salvatore start -->
+	<aura:attribute name="terminalId" 				type="String" 		default=""	access="global" /> 
+	<aura:attribute name="model" 					type="String" 		default=""	access="global" />
+	<aura:attribute name="modelDesc" 				type="String" 		default=""	access="global" />
+	<aura:attribute name="releaseDesc" 				type="String" 		default=""	access="global" />
+	<aura:attribute name="connectionDescr" 			type="String" 		default=""	access="global" />
+	<aura:attribute name="release" 					type="String" 		default=""	access="global" />
+	<aura:attribute name="connectionType" 			type="String" 		default=""	access="global" />
+	<aura:attribute name="installationDate" 		type="Datetime"		default=""	access="global" />
+	<aura:attribute name="installationStatus"		type="String" 		default="" 	access="global" />
+	<aura:attribute name="unistallationDate"		type="Datetime" 	default=""	access="global" />
+	<aura:attribute name="rejectionReason"			type="String"		default=""	access="global" />
+	<aura:attribute name="circuitName"				type="String" 		default="" 	access="global" />
+	<aura:attribute name="startDate" 				type="Datetime"		default=""	access="global" />
+	<aura:attribute name="endDate" 					type="Datetime"		default=""	access="global" />
+	<aura:attribute name="recordId" 				type="String" 		 					access="global"/>
+	<aura:attribute name="hasPos" 					type="Boolean" 		default="false"		access="global"/>
+	<aura:attribute name="hasAcquiring" 			type="Boolean" 		default="false"		access="global"/>
+	<aura:attribute name="hasVas"		 			type="Boolean" 		default="false"		access="global"/>
+	<aura:attribute name="contextLogRequest" 		type="Object"							access="global"/>
+	<aura:attribute name="dataInstallazionePos" 	type="Datetime"							access="global"/>
+	<aura:attribute name="dataDisinstallazionePos" 	type="Datetime"							access="global"/>
+	<aura:attribute name="codiceConvenzione" 		type="String"							access="global"/>
+	<aura:attribute name="companyCode" 				type="String"							access="global"/>
+	<aura:attribute name="status" 					type="String"							access="global"/>
+	<aura:attribute name="showButtonPos"			type="Boolean" 		default="false" 	access="global"/>
+	<aura:attribute name="showButtonAcq"			type="Boolean" 		default="false"		access="global"/>
+	<aura:attribute name="savedPos" 				type="Boolean" 		default="false" 	access="global"/>
+	<aura:attribute name="rejectedPos" 				type="Boolean" 		default="false" 	access="global"/>
+	<aura:attribute name="savedAcq" 				type="Boolean" 		default="false" 	access="global"/>
+	<aura:attribute name="rejectedAcq" 				type="Boolean" 		default="false" 	access="global"/>
+	<aura:attribute name="isNotOperation" 			type="Boolean" 		default="false" 	access="global"/>
+	<!--  Attribute salvatore End -->
+	<!-- START andrea.morittu 25/01/2019 -->
+	<aura:attribute name="confId"						type="String"								access="global"/>
+	<aura:attribute name="lookupNOTEmpty" 				type="Boolean" 			default="false" 	access="global"/>
+	<aura:attribute name="configuration" 				type="NE__Order__c" 						access="global" />
+	<aura:attribute name="configurationItem" 			type="Object[]"			 					access="global" />
+	<!-- SORTING CONFIGURATION ITEMS UPON RECORD TYPE -->
+	<aura:attribute name="configurationTerminalItem" 	type="Object[]" 							access="global" />
+
+	<aura:attribute name="configurationTerminalObject" 	type="Object[]" 							access="global" />
+	<aura:attribute name="configurationVASItem" 		type="Object[]" 							access="global" />
+	<aura:attribute name="configurationACQUIRINGItems" 	type="Object[]" 							access="global" />
+	<aura:attribute name="pagoBancomatItemsAttributes" 	type="Object[]" 							access="global" />
+	<!-- START elena.preteni  descoping consistenza -->
+	<aura:attribute name="listIntegrazionetItem" 		type="Object[]" 							access="global" />
+	<aura:attribute name="listGatewaytItem" 		    type="Object[]" 							access="global" />
+	<aura:attribute name="listRecOneClickVasItem"	    type="Object[]" 							access="global" />
+	<aura:attribute name="listVasGatewayItem"	    	type="Object[]" 							access="global" />
+	<aura:attribute name="hasIntegrazione" 				type="Boolean" 			default="false"		access="global"/>
+	<aura:attribute name="hasGateway" 					type="Boolean" 			default="false"		access="global"/>
+	<aura:attribute name="hasRecOneClickVas" 			type="Boolean" 			default="false"		access="global"/>
+	<aura:attribute name="hasVasGateway" 				type="Boolean" 			default="false"		access="global"/>
+	<!--END elena.preteni  descoping consistenza -->
+	<aura:attribute name="enstabilishmentSIACode"		type="String"								access="global"/>
+	<aura:attribute name="progressiveSIACode"			type="String"								access="global"/>
+	<aura:attribute name="SIACode"						type="String"								access="global"/>
+	
+	<aura:attribute name="configurationBancomatItemId" 	type="String"								access="global"/>
+	<aura:attribute name="configurationAcquiringItemId" type="String"								access="global"/>
+	<aura:attribute name="configurationItemAttributes" 	type="Object"								access="global"/> 
+	<aura:attribute name="mainDoInitDone" 				type="Boolean" 			default="false"		access="global"/>
+	<aura:attribute name="customerCode" 				type="String"								access="global"/> 
+	<aura:attribute name="errorMessage" 				type="String"			default="{!$Label.c.OB_MAINTENANCELOGREQUESTERROR}"			access="global"/> 
+	<!-- Attribute containing All attributes, vith vas, related with terminal -->
+	<aura:attribute name="VASRelatedtoTerminal"			type="Object[]" 							access="global" />
+	<aura:attribute name="disconnectedVAS"			type="Object[]" 							access="global" />
+	<aura:attribute name="isError" 						type="Boolean" 			default="false"		access="global"/>
+	<aura:attribute name="CTICode" 						type="String"								access="global"/> 
+	<aura:attribute name="clientId" 					type="String"								access="global"/> 
+	<aura:attribute name="OB_CustomerCode__c" 			type="String"								access="global"/> 
+	<aura:attribute name="OB_ShopCode__c" 		 		type="String"								access="global"/> 
+	<aura:attribute name="isFirstPos" 					type="Boolean" 			default="false"		access="global"/>
+	<aura:attribute name="configurationItemIDS" 		type="String[]"								access="global"/>
+	<aura:attribute name="isNotIntegrated" 				type="Boolean" 	default="false"		access="global"/>
+	<!-- Simone Misani 11/10/2019 WN-563 START-->
+	<aura:attribute name="isFinalStatus"					type="Boolean"		default="false"		access="global" /> 
+	<!-- Simone Misani 11/10/2019 WN-563 end -->
+	<!-- START shaghayegh.tofighian 09/05/2019 add attribute name="ShowModal"  -->
+	<aura:attribute name="ShowModal" 					type="Boolean"			default="false"			access="global"/>
+	<!-- Simone Misani 02/07/2019 F2WAVE2-82 -->
+	<aura:attribute name ="istechnicalconfigurator"		type="Boolean"			default="false"			access="global"/>
+
+    <aura:attribute name="operationLogged"                 type="Boolean"     default="false"        access="global"/><!-- Simone Misani 17/12/2019 Perf-76 START-->
+
+
+	<aura:handler 	name="init" value="{!this}" action="{!c.doInit}" />
+	
+	<aura:if isTrue="{!v.mainDoInit == false}" >
+		<div class="slds-is-relative">
+			<lightning:spinner aura:id="spinner" variant="brand" size="large" class="slds-hide"/>
+		</div>
+	</aura:if>
+
+	<aura:if isTrue="{!v.isError == false}">
+		<div class="slds-grid">
+			<div class="slds-size--1-of-1 slds-grid">
+
+			</div>
+		</div>
+		<div class="slds-grid">
+			<div class="slds-size--1-of-1 slds-grid">
+				<!-- <div class="slds-size1-of-2 slds-p-right_medium"> -->
+					<!-- <span class="slds-form-element__label">
+						{!$Label.c.OB_LocationLabel}
+					</span> 
+					<div class="slds-form-element__static">
+						{!v.contextLogRequest.OB_ServicePointId__r.Name}
+					</div> -->
+				<!--</div> -->
+			</div>
+			<div class="slds-size--1-of-1 slds-grid">
+				<div class="slds-size--1-of-2 slds-p-left_medium">
+					<div class="slds-form-element ">
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="slds-grid">
+			<div class="slds-size--1-of-1 slds-grid">
+				<div class="slds-size--1-of-2 slds-p-right_medium">
+					<span class="slds-form-element__label">
+						
+					</span> 
+					<div class="slds-form-element__static">
+						
+					</div>
+				</div>
+			</div>
+			<div class="slds-size--1-of-1 slds-grid">
+				<div class="slds-size--1-of-2 slds-p-left_medium">
+					<div class="slds-form-element ">
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- START - 2019/05/10 - salvatore.pianura - Conferma SIA button -->
+		<!-- Simone Misani 02/07/2019 F2WAVE2-82 -->
+		<aura:if isTrue = "{!!v.istechnicalconfigurator}">
+		<div class="slds-align_absolute-center">
+			<aura:if isTrue="{!and(v.contextLogRequest.OB_SIAToBeApproved__c,!v.isNotOperation)}">
+				<lightning:button label="{!$Label.c.OB_ApproveSIA}" variant="brand" onclick="{!c.confirmRequestSia}" 
+				disabled="{!and(v.contextLogRequest.OB_Status__c!='Bozza', !v.isFinalStatus)}"/>
+			</aura:if>
+		
+		</div>
+		<!-- END - 2019/05/10 - salvatore.pianura - Conferma SIA button -->
+	</aura:if><!-- Simone Misani 02/07/2019 F2WAVE2-82 -->
+		<lightning:accordion activeSectionName="POSSECTION" allowMultipleSectionsOpen="true">
+            <aura:if isTrue="{!and(v.hasPos,v.contextLogRequest.OB_MaintenanceType__c!='Consistenza eCommerce')}"> <!-- micol.ferrari 19/12/2019 - PERF-97 -->
+				<lightning:accordionSection name="POSSECTION" label="{!$Label.c.OB_Pos}" aura:id="accordionSectionTitle">
+					<aura:if isTrue="{!v.hasPos}">
+						<aura:if isTrue="{!and(v.isNotOperation,v.configuration.NE__Type__c!='Disconnection')}">
+							<div class="slds-grid">
+								<div class="slds-size--1-of-1 slds-grid slds-wrap">
+									<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+										<div class="slds-form-element ">
+											<lightning:input 	aura:id="clientId" 
+																label="{!$Label.c.OB_ClientIDLabel}" 
+																placeholder="{!v.OB_CustomerCode__c}"
+																value="{!v.OB_CustomerCode__c}"
+																required="{!v.isFirstPos}"
+																disabled="{! !v.isFirstPos}"/>
+										</div>
+									</div>
+									<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+											<div class="slds-form-element ">
+												<lightning:input 	aura:id="shopCode" 
+																	label="{!$Label.c.OB_ShopCode}" 
+																	placeholder="{!v.OB_ShopCode__c}"
+																	value="{!v.OB_ShopCode__c}"
+																	required="{!v.isFirstPos}"
+																	disabled="{! !v.isFirstPos}"/>
+											</div>
+									</div>
+									<div class="slds-size--1-of-2 slds-p-horizontal_medium">
+										<div class="slds-form-element ">
+											<lightning:input 	aura:id="codiceCti" 
+																label="{!$Label.c.OB_CTICodeLabel}" 
+																value="{!v.configuration.OB_CTI_Code__c}"
+																placeholder="{!v.CTICode}"
+																required="{!v.isFirstPos}"
+																disabled="{! !v.isFirstPos}" /> 
+										</div>
+									</div>						
+								</div>
+							</div>
+						</aura:if>
+					</aura:if>
+					<div id="separator"> 
+						<!-- ITERATE EVERY TERMINAL ITEM WITH HIS ATTRIBUTES -->
+						<aura:if isTrue="{!v.mainDoInitDone}"> 
+								<!-- START- Simone Misani F2WAVE2-66-18 08/07/2019  add istechnicalconfigurator-->
+							<aura:iteration items="{!v.configurationTerminalObject}" var="singleconfitem">	
+								<c:OB_Maintenance_Consistenza_ConfigurationItem isNotIntegrated ="{!v.isNotIntegrated}" clientId = "{!v.OB_CustomerCode__c}" ctiCode = "{!v.configuration.OB_CTI_Code__c}" shopCode = "{!v.OB_ShopCode__c}" SIACode="{!v.SIACode}" progressiveSIACode="{!v.progressiveSIACode}" enstabilishmentSIACode="{!v.enstabilishmentSIACode}" configuration="{!v.configuration}" configurationTerminalObject="{!singleconfitem}" isNotOperation="{!v.isNotOperation}" isFirstPos="{!v.isFirstPos}" istechnicalconfigurator="{!v.istechnicalconfigurator}" confId="{!v.singleconfitem.Id}"/> 
+							</aura:iteration>
+							<!-- END - Simone Misani F2WAVE2-66-18 08/07/2019  add istechnicalconfigurator-->
+							<!-- @author shaghayegh tofighian 
+								<shaghayegh.tofighian@accenture.com> 
+								@date 10/05/2019
+								@description this method updates the list of orderitems 
+							START-->
+							<!--START  Simone Misani 02/07/2019 F2WAVE2-82 -->
+							<aura:if isTrue="{!and(!v.contextLogRequest.OB_Track_LogRequest__c,v.contextLogRequest.OB_Status__c!='Confermato')}">
+								<aura:if isTrue="{!and(v.istechnicalconfigurator, v.operationLogged)}"><!--START  Simone Misani 17/12/2019 Perf-76 -->
+									<br></br>
+									<lightning:button 	class="slds-button slds-float_right"
+														label="Conferma" 
+														variant="brand" 	
+														onclick="{!c.showModal}"/>
+									<br></br>												
+								</aura:if>
+							</aura:if>				
+							<!--END  Simone Misani 02/07/2019 F2WAVE2-82 -->						
+									
+								<c:strike_modal size="small" primaryButtonLabel="ok" showHeader="false" showFooter="true" showClose="true" showModal="{!v.ShowModal}">
+									<div class="slds-align_absolute-center"> {!$Label.c.OB_confirmationMessage}</div>
+									<aura:set attribute="footerButtons">
+										<lightning:button 		class="slds-button slds-float__middle"
+																label="ok" 
+																variant="brand" 	
+																onclick="{!c.handleUpdateOrderItems}"></lightning:button>
+									</aura:set>
+								</c:strike_modal>
+								<!-- @author shaghayegh tofighian 
+									<shaghayegh.tofighian@accenture.com> 
+									@date 10/05/2019
+									@description this method updates the list of orderitems
+								END-->							
+						</aura:if>
+					</div>
+
+				</lightning:accordionSection>				
+			</aura:if>
+			<!--START - elena.preteni 06/06/2019 descoping consistenza RT Integrazione-->			
+			<aura:if isTrue="{!v.hasIntegrazione}">			
+				<lightning:accordionSection name="Integrazionet" label="Modalità di Integrazione" aura:id="accordionSectionTitle">
+					<!-- ITERATE EVERY intEGRAZiONE ITEM WITH HIS ATTRIBUTES -->
+					<aura:if isTrue="{!v.mainDoInitDone == true}">
+						<div>
+							<aura:iteration items="{!v.listIntegrazionetItem}" var="singleIntegrazioneitem" >
+								<c:OB_Maintenance_Consistenza_ItemIntegrazione isNotIntegrated ="{!singleIntegrazioneitem.OB_isNotIntegrated__c}" configuration="{!v.configuration}" integrazionetItem="{!singleIntegrazioneitem}" />
+							</aura:iteration> 
+						</div>
+					</aura:if>
+				</lightning:accordionSection> 
+			</aura:if>
+			<aura:if isTrue="{!v.hasGateway}">			
+				<lightning:accordionSection name="Gateway" label="Gateway" aura:id="accordionSectionTitle">
+					<!-- ITERATE EVERY GATEWAY ITEM WITH HIS ATTRIBUTES -->
+					<aura:if isTrue="{!v.mainDoInitDone == true}">
+						<div>
+							<aura:iteration items="{!v.listGatewaytItem}" var="singleGatewayitem" >
+								<c:OB_Maintenance_Consistenza_ItemGateway isNotIntegrated ="{!singleGatewayitem.OB_isNotIntegrated__c}" configuration="{!v.configuration}" gatewaytItem="{!singleGatewayitem}" />
+							</aura:iteration> 
+						</div>
+					</aura:if>
+				</lightning:accordionSection> 
+			</aura:if>
+			<!--END - elena.preteni 06/06/2019 descoping consistenza RT Integrazione-->
+			<!--  Simone Misani 02/07/2019 F2WAVE2-82 -->
+			<aura:if isTrue="{!!v.istechnicalconfigurator}">	
+				<aura:if isTrue="{!v.hasAcquiring}">			
+					<lightning:accordionSection name="ACQUIRINGSECTION" label="{!$Label.c.OB_Acquiring}" aura:id="accordionSectionTitle">
+						<!-- ITERATE EVERY ACQUIRING ITEM WITH HIS ATTRIBUTES -->
+						<aura:if isTrue="{!v.mainDoInitDone == true}">
+							<div>
+								<aura:iteration items="{!v.configurationACQUIRINGItems}" var="singleacquiringitem" >
+									<!--davide.franzini - 17/10/2019 - removed isFinalStatus attribute-->
+									<c:OB_Maintenance_Consistenza_ItemAcquiring isNotIntegrated ="{!singleacquiringitem.OB_isNotIntegrated__c}" SIACode="{!v.SIACode}" progressiveSIACode="{!v.progressiveSIACode}" enstabilishmentSIACode="{!v.enstabilishmentSIACode}" configuration="{!v.configuration}" configurationACQUIRINGItems="{!singleacquiringitem}" isNotOperation="{!v.isNotOperation}" confId="{!v.singleacquiringitem.Id}"/> 
+								</aura:iteration> 
+							</div>
+						</aura:if>
+					</lightning:accordionSection> 
+				</aura:if>
+				<aura:if isTrue="{!v.hasVas == true}">
+					<aura:if isTrue="{!not(empty(v.disconnectedVAS))}">
+						<lightning:accordionSection name="C" label="{!$Label.c.OB_Vas}" aura:id="accordionSectionTitle">
+							<aura:if isTrue="{!v.mainDoInitDone == true}" >
+								<div class="slds-p-top_medium">
+
+									<aura:iteration items="{!v.disconnectedVAS}" var="disconnectedVAS"	>
+										<!--elena.preteni 28/06/2019 added attribute isNotIntegrated-->
+										<c:OB_Maintenance_Consistenza_ItemVas isNotIntegrated ="{!disconnectedVAS.OB_isNotIntegrated__c}" disconnectedVAS="{!disconnectedVAS}" isNotOperation="{!v.isNotOperation}" enstabilishmentSIACode="{!v.enstabilishmentSIACode}" progressiveSIACode="{!v.progressiveSIACode}" SIACode="{!v.SIACode}" configuration="{!v.configuration}" configurationTerminalObject="{!v.configurationTerminalObject}" confId="{!v.disconnectedVAS.Id}" />
+									</aura:iteration>
+								</div>
+								<div class="slds-size--1-of-1 slds-grid">
+								</div>
+							</aura:if>
+						</lightning:accordionSection>
+					</aura:if>	
+				</aura:if>
+				<!-- START elena.preteni  descoping consistenza ONE CLICK AND RECURRING-->
+				<aura:if isTrue="{!v.hasRecOneClickVas == true}">
+					<lightning:accordionSection name="C" label="VAS OneClick/Recurring" aura:id="accordionSectionTitle">
+						<aura:if isTrue="{!v.mainDoInitDone == true}" >
+							<div class="slds-p-top_medium">
+
+								<aura:iteration items="{!v.listRecOneClickVasItem}" var="disconnectedVAS"	>
+									<!--elena.preteni 28/06/2019 added attribute isNotIntegrated-->
+									<c:OB_Maintenance_Consistenza_ItemVas isNotIntegrated ="{!disconnectedVAS.OB_isNotIntegrated__c}" hasRecOneClickVas="{!v.hasRecOneClickVas}" disconnectedVAS="{!disconnectedVAS}" isNotOperation="{!v.isNotOperation}" enstabilishmentSIACode="{!v.enstabilishmentSIACode}" progressiveSIACode="{!v.progressiveSIACode}" SIACode="{!v.SIACode}" configuration="{!v.configuration}" configurationTerminalObject="{!v.configurationTerminalObject}"/>
+								</aura:iteration>
+
+							</div>
+							<div class="slds-size--1-of-1 slds-grid">
+							</div>
+						</aura:if>
+					</lightning:accordionSection>
+				</aura:if>
+				<!-- END elena.preteni  descoping consistenza ONE CLICK AND RECURRING-->
+			</aura:if>  
+			<!--END  Simone Misani 02/07/2019 F2WAVE2-82 -->
+		</lightning:accordion> 
+
+		<div class="slds-grid"/>
+		<div class="slds-size--1-of-1 slds-grid"/>
+		<div class="slds-size--1-of-2 slds-p-right_medium"/>
+		<aura:set attribute="else">
+			<div class="slds-grid">
+				<div class="slds-size--1-of-1 slds-grid">
+					<div class="slds-size--2-of-6 slds-grid slds-p-around_medium"/>
+					<div class="slds-size--2-of-6 slds-grids lds-p-around_medium">
+						<span id="ErrorSection">
+							<lightning:icon iconName="utility:error" alternativeText="Error!" variant="error" size="x-large"/>
+						</span>
+						<span id="ErrorSection">
+								{!v.errorMessage}
+						</span>
+					</div>
+					<div class="slds-size--2-of-6 slds-grid slds-p-around_medium">
+					</div>
+				</div>
+			</div>
+		</aura:set>
+	</aura:if>
+</aura:component>

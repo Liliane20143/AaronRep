@@ -1,0 +1,16 @@
+<apex:page sidebar="false" showHeader="false"  controller="OB_PreviewPDF_CC">
+	 	
+    <script>
+    	function printPDF()
+    	{	
+            var fileUrl = '{!fileUrl}';
+            window.open(fileUrl, "_self", "height=1000,width=1000");
+         }
+
+    </script>
+
+    <body onload="printPDF();"> 
+
+    	
+    </body>
+</apex:page>

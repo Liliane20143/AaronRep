@@ -1,0 +1,294 @@
+<aura:component >
+	 <aura:handler name="init"
+                  value="this" 
+                  action="{!c.doInit}"/>
+
+
+	<aura:attribute name="iterationStep" type="Integer" default="0" access="global"/>
+	<aura:attribute name="titolareEffettivo" type="Contact" default="{}" access="global"/>
+
+	<lightning:accordionSection name="{!v.titolareEffettivo.LastName}" label="{!'Titolare Effettivo ' + v.iterationStep}">
+
+								<div class="slds-grid slds-size--1-of-1" >		
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.FirstName}</label>
+						<lightning:input value="{!v.titolareEffettivo.FirstName}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.LastName}</label>
+						<lightning:input value="{!v.titolareEffettivo.LastName}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="slds-grid slds-size--1-of-1" >		
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OBFiscalCodeContact}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Fiscal_Code__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Sex}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Sex__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="slds-grid slds-size--1-of-1" >		
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Country_Birth}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Country_Birth__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Birth_State}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Birth_State__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="slds-grid slds-size--1-of-1" >		
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Birth_City}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Birth_City__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Citizenship}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Citizenship__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="slds-grid slds-size--1-of-1" >		
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<!-- ANDREA MORITTU START 30-Sept-2019 PRODOB_475 -->
+					<label class="slds-form-element__label slds-no-flex">{!$Label.c.OB_Birth_Date}</label>
+					<ui:inputDate aura:id="OB_Birth_Date__c" value="{!v.titolareEffettivo.OB_Birth_Date__c}" format="DD-MM-YYYY" displayDatePicker="false" disabled="true" />
+					<!-- ANDREA MORITTU END 30-Sept-2019 PRODOB_475 -->
+				</div>
+			</div>
+		</div>
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Document_Number}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Document_Number__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="slds-grid slds-size--1-of-1" >		
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Document_Type}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Document_Type__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Document_Release_Authority}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Document_Release_Authority__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="slds-grid slds-size--1-of-1" >		
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<!-- ANDREA MORITTU START 30-Sept-2019 PRODOB_475 -->
+					<label class="slds-form-element__label slds-no-flex">{!$Label.c.OB_Document_Release_Date}</label>
+					<ui:inputDate aura:id="OB_Birth_Date__c" value="{!v.titolareEffettivo.OB_Document_Release_Date__c}" format="DD-MM-YYYY" displayDatePicker="false" disabled="true" />
+					<!-- ANDREA MORITTU END 30-Sept-2019 PRODOB_475 -->
+				</div>
+			</div>
+		</div>
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<!-- ANDREA MORITTU START 30-Sept-2019 PRODOB_475 -->
+					<label class="slds-form-element__label slds-no-flex">{!$Label.c.OB_Document_Expiration_Date}</label>
+					<ui:inputDate aura:id="OB_Birth_Date__c" value="{!v.titolareEffettivo.OB_Document_Expiration_Date__c}" format="DD-MM-YYYY" displayDatePicker="false" disabled="true" />
+					<!-- ANDREA MORITTU END 30-Sept-2019 PRODOB_475 -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="slds-grid slds-size--1-of-1" >		
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Document_Release_State}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Document_Release_State__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Document_Release_City}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Document_Release_City__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="slds-grid slds-size--1-of-1" >		
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_PEP}</label>
+					<!-- DG - 13/02/19 - 1362 - START -->
+						<!-- <lightning:input value="{!v.titolareEffettivo.OB_PEP__c}"
+										 disabled="true"
+										 variant="label-hidden"
+										 type="checkbox"/> -->
+					 <ui:outputCheckbox value="{!v.titolareEffettivo.OB_PEP__c}"/>
+					 <!-- DG - 13/02/19 - 1362 - END -->
+				</div>
+			</div>
+		</div>
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Address_Country}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Address_Country__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="slds-grid slds-size--1-of-1" >		
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Address_State}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Address_State__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Address_City}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Address_City__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="slds-grid slds-size--1-of-1" >		
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Address_Hamlet}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Address_Hamlet__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Address_Street}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Address_Street__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+		<div class="slds-grid slds-size--1-of-1" >		
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Address_Street_Number}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Address_Street_Number__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+		<div class="slds-size--1-of-2 slds-grid">
+			<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+				<div class="slds-p-around--medium slds-form-element">
+					<label class="slds-form-element__label">{!$Label.c.OB_Address_PostalCode}</label>
+						<lightning:input value="{!v.titolareEffettivo.OB_Address_PostalCode__c}"
+										 disabled="true"
+										 variant="label-hidden"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+						</lightning:accordionSection>
+</aura:component>

@@ -1,0 +1,78 @@
+<aura:component >
+	<aura:attribute name="record" type="BT_Simulation__c" required="true"/>
+    <aura:attribute name="step" type="String" />
+    <aura:attribute name="showSimulationResult" type="Boolean" default="false" />
+    
+    <aura:attribute name="simulationId" type="String" />
+    <aura:attribute name="canCompute" type="Boolean" />
+
+    <aura:registerEvent name="simulationSaveEvent" type="c:BT_SimulationSave" />
+
+    <aura:if isTrue="{!v.showSimulationResult}">
+        <!-- Simulation result -->
+        <lightning:layout pullToBoundary="small">
+            <lightning:layoutItem flexibility="auto" padding="around-small" >
+                <div class="box">
+                    <div class="slds-text-heading_small slds-text-align_center slds-m-bottom_xx-small">
+                        <b>{#$Label.c.BT_MerchantFeeMediaLorda}</b>
+                        <lightning:helptext content="{#$Label.c.BT_PopCommMedia}" iconName="utility:info" class="popover"/>
+                    </div>
+                    <div class="slds-text-align_center"> 
+                        <ui:outputNumber format="#####0.00%" value="{!v.record.BT_CommissioneMedia__c / 100.0}" />
+                    </div>
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="auto" padding="around-small" >
+                <div class="box" >
+                    <div class="slds-text-heading_small slds-text-align_center slds-m-bottom_xx-small">
+                        <b>{#$Label.c.BT_NegoziatoMedioMese}</b>
+                    </div>
+                    <div class="slds-text-align_center">   
+                        <lightning:formattedNumber minimumFractionDigits="2" maximumFractionDigits="2" value="{!v.record.BT_NegoziatoAnnuo__c / 12.0}" style="currency"/>
+                    </div>
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="auto" padding="around-small" >
+                <div class="box">
+                    <div class="slds-text-align_center slds-text-heading_small slds-m-bottom_xx-small" style="min-height: auto;">
+                        <b>{#$Label.c.BT_MarginalitaOffertaCliente}</b>
+                    </div>
+                    <div class="slds-text-align_center">   
+                        <c:BT_Semaphore value="{!v.record.BT_MargineOK__c}" size="medium"/>
+                    </div>
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="auto" padding="around-small" >
+                <div class="box">
+                    <div class="slds-text-heading_small slds-text-align_center slds-m-bottom_xx-small">
+                        <b>{#$Label.c.BT_StimaCostoMedioMensile}</b>
+                        <lightning:helptext content="{#$Label.c.BT_PopStimaCommMensile}" iconName="utility:info" class="popover" />
+                    </div>
+                    <div class="slds-text-align_center"> 
+                        <lightning:formattedNumber minimumFractionDigits="2" maximumFractionDigits="2" value="{!v.record.BT_StimaCommissionaleMensile__c}" style="currency"/>
+                    </div>
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="auto" padding="around-small" >
+                <div class="box">
+                    <div class="slds-text-heading_small slds-text-align_center slds-m-bottom_xx-small">
+                        <b>{#$Label.c.BT_CostoPOS}</b>
+                    </div>
+                    <div class="slds-text-align_center">    
+                        <lightning:formattedNumber minimumFractionDigits="2" value="{!v.record.BT_TotalePOS__c}" style="currency"/>
+                    </div>
+                </div>
+            </lightning:layoutItem>
+        </lightning:layout>
+        <!-- Do Simulation --> 
+        <aura:set attribute="else">
+            <lightning:layout pullToBoundary="medium">
+                <lightning:layoutItem flexibility="auto" padding="around-small" >
+                    <div class="slds-text-align_center">   
+                        <lightning:button disabled="{!not(v.canCompute)}" label="{#$Label.c.BT_DoSimulation}" iconName="utility:connected_apps" iconPosition="left" variant="brand" onclick="{!c.onCalculateClicked}" />
+                    </div>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </aura:set>
+    </aura:if>
+</aura:component>

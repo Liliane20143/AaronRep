@@ -1,0 +1,52 @@
+<aura:component >
+    
+    <aura:attribute name="errorMessage" type="String" />
+    
+    <aura:attribute name="showErrorMessage" type="boolean" default="false"/>
+    
+    <aura:if isTrue="{!v.showSuccessMessage}">
+    <div class="demo-only" style="height: 4rem;">
+        <div class="slds-notify_container slds-is-relative">
+            <div class="slds-notify slds-notify_toast slds-theme_error" role="alert">
+                <span class="slds-assistive-text">error</span>
+                <span class="slds-icon_container slds-icon-utility-error slds-m-right_small slds-no-flex slds-align-top"
+                      title="Description of icon when needed">
+                    <lightning:icon class="icon"
+                                    iconName="utility:error" 
+                                    size="small"
+                                    variant="warning"
+                                    
+                                    />
+                    
+                </span>
+                
+                
+                <div class="slds-notify__content">
+                    <h2 class="slds-text-heading_small">   </h2>
+                    <p>{!v.errorMessage} </p>
+                   
+                     
+                        <button id="close"
+                                class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" 
+                                title="Close"
+                                onclick="{!c.Close}">
+                     
+                              
+                    <lightning:icon 
+                                    class="icon"
+                                    iconName="utility:close" 
+                                    size="small" 
+                                    variant="warning"
+                
+                                    />
+                        
+                        <span class="slds-assistive-text">Close</span>
+                        
+                    </button>     
+                </div>
+                
+            </div>
+        </div>
+    </div>
+  </aura:if>   
+</aura:component>

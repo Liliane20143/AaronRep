@@ -1,0 +1,385 @@
+.THIS .u120{
+    font-family: "Salesforce Sans";
+    font-weight: 410;
+    font-style: normal;
+    font-size: 20px;
+    color: rgb(79, 106, 146);
+    border-width: 0px;
+}
+
+.THIS.cartContainer{
+	float:right;
+}
+
+@media screen and (max-width: 750px) {
+  .THIS.cartContainer{
+	  float:none;
+  }
+} 
+
+@media screen and (max-width: 750px) {
+  .THIS .wrapItemDetails{
+	 -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+  }
+} 
+
+
+.THIS .u116{
+
+    font-family: "Salesforce Sans Light", "Salesforce Sans Regular", "Salesforce Sans";
+    font-weight: 300;
+    font-style: normal;
+    font-size: 28px;
+    border-width: 0px;
+}
+.THIS .u124{
+    text-align: left;
+    border-width: 0px;
+}
+.THIS .check_box{
+
+}
+.THIS .priceInput{
+	text-align: center;
+}
+.THIS input[type=checkbox]{
+    /* Double-sized Checkboxes */
+    -ms-transform: scale(2); /* IE */
+    -moz-transform: scale(2); /* FF */
+    -webkit-transform: scale(2); /* Safari and Chrome */
+    -o-transform: scale(2); /* Opera */
+    cursor:pointer;
+    border: 3px solid blue;
+}
+.THIS .u122{
+    font-family: "Salesforce Sans Light", "Salesforce Sans Regular", "Salesforce Sans";
+    font-weight: 300;
+    font-style: normal;
+    font-size: 16px;
+    border-width: 0px;
+
+}
+.THIS .u172 {
+    font-family: "Salesforce Sans Light Italic", "Salesforce Sans Regular", "Salesforce Sans";
+    font-weight: 300;
+    font-style: italic;
+    font-size: 14px;
+    color: rgb(102, 102, 102);
+    border-width: 0px;
+}
+.THIS .u170 {
+    font-family: "Salesforce Sans";
+    font-weight: 400;
+    font-style: normal;
+    border-width: 0px;
+    border-left: 1px solid;
+	border-color:#d8dde6; 	
+	padding-left: 2%;
+}
+.THIS .u171 {
+
+}
+.THIS .u215 {
+    cursor: pointer;
+    border-width: 0px;
+    word-wrap: break-word;
+    color: #0070D2;
+    font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 700;
+    font-style: normal;
+    font-size: 28px;
+}
+.THIS .u216 {
+    border-width: 0px;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+.THIS .u216_div {
+    color: #000000;
+    font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 700;
+}
+.THIS .u219 {
+    cursor:pointer;
+    border-width: 0px;
+    word-wrap: break-word;
+    color: #0070D2;
+    font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 700;
+    font-style: normal;
+    font-size: 28px;
+}
+.THIS .arrow .slds-icon-text-default{
+	color: #0070D2;
+}
+
+.THIS lightning-icon.arrow > lightning-primitive-icon > svg > use{
+    fill: #0070D2;
+}
+
+.THIS .catalogItemWrapper{
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.THIS .topBorderItemDetail{
+	border-top: 3px solid;
+    border-color: #d8dde6;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.THIS .economicConditionsGutters{
+	border-top: 1px solid;
+	border-color:#d8dde6; 	
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.THIS .rowDetail{
+	padding-top: 2%;
+}
+
+.THIS .arrowCircleContainer{
+	border: 1px solid;
+	border-radius: 50%;
+	border-color:#d8dde6; 	
+	background-color: white;
+}
+
+.THIS .u212 {
+    border-width: 0px;
+    font-family: 'Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    color: #0070D2;
+}
+.THIS .u221{
+    border-width: 0px;
+
+}
+.THIS .prd_img{
+	min-height: 34px;
+	width: 60px;
+	padding-right: 0; 
+    padding-left: 0; 
+}
+
+.THIS .rowHeader{
+	margin-top: 5%; 
+	margin-left: 0.1%; 
+	margin-right: 0.1%;
+}
+.THIS .qty{
+    border-width: 0px;
+    font-family: 'Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-size: 10px;
+    color: #666666;
+    text-align: center;
+ 
+}
+.THIS .qtyContainer{
+
+}
+
+.THIS .qtyBox{
+ 	width: 30%;
+    height: 25px;
+	font-family: 'Salesforce Sans Bold','Salesforce Sans Regular','Salesforce Sans';
+    font-weight: 700;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    box-shadow: none;
+    text-align: center;
+}
+
+.THIS .u216 input[type=text]{
+    font-family: 'Salesforce Sans Bold','Salesforce Sans Regular','Salesforce Sans';
+    font-weight: 700;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    box-shadow: none;
+
+}
+.THIS .dettagli{
+    border-width: 0px;
+    font-family: 'Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-size: 10px;
+    color: #666666;
+    text-align: center;
+}
+.THIS .seleziona{
+    border-width: 0px;
+    font-family: 'Salesforce Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-size: 10px;
+    color: #666666;
+    text-align: center;
+}
+.THIS .circle{
+    border-width: 0px;
+}
+.THIS .arrow_image{
+    border-width: 0;
+}
+.THIS .commissioni_info{
+
+}
+.THIS .comm_dettaglio{
+    border-width: 0px;
+
+    font-family: 'Salesforce Sans';
+    font-weight: 410;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 18px;
+}
+.THIS .u1052 {
+    border-width: 0;
+
+}
+.THIS .u1049{
+    border-width: 0px;
+	text-align: right;
+    word-wrap: break-word;
+}
+.THIS .u1051{
+    border-width: 0px;
+
+    word-wrap: break-word;
+}
+.THIS .u1049a{
+    border-width: 0px;
+	text-align: right;
+    word-wrap: break-word;
+}
+
+.THIS .economicConditionsContainer{
+	text-align: right;
+
+} 
+
+.THIS .u1051a{
+    border-width: 0px;
+
+    word-wrap: break-word;
+}
+.THIS .u1076{
+
+}
+.THIS .canone_dettaglio{
+
+}
+
+.THIS .u1078{
+
+    font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';
+    font-weight: 700;
+    font-style: normal;
+    font-size: 12px;
+    color: #4F6A92;
+
+}
+.THIS .u1057 {
+    font-weight: 400;
+    font-style: italic;
+    border-width: 0px;
+    font-size:10px;
+    word-wrap: break-word;
+    color: #666666;
+
+    font-size: 10px;
+
+}
+.THIS .showDetails{
+    cursor:pointer;
+    width: 26px;
+}
+.THIS .hideDetails{
+    cursor:pointer;
+}
+.THIS .hidden{
+    display:none;
+}
+.THIS .product_row_color{
+    background-color: rgba(243, 245, 248, 1);
+}
+.THIS .line{
+    width: 100%;
+}
+.THIS .thumbnailimage{
+	border-radius: 10%;
+	height: 60px;
+	max-width: 100%;
+}
+.THIS #u1679_img{
+    border-width: 0;
+
+    height: 100%;
+}
+
+
+/*francesca.ribezzi 30/08/18   */
+.THIS .f216 {
+    border-width: 0px;
+
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    width: 40%;
+    text-align: right;
+
+}
+.THIS .f217{
+    border-width: 0;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+     border-width: 1px; 
+     border-style: solid; 
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    box-shadow: none;
+    width: 40%;
+    text-align: right;
+}
+
+.THIS .tablelineSlim{
+	border-bottom: 1px solid;
+	border-color:#d8dde6; 	
+}

@@ -1,0 +1,119 @@
+<aura:component controller="OB_Maintenance_Consistenza_ConfItem_CC"
+				implements=
+				"flexipage:availableForRecordHome,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable" 
+				access="global">
+	<aura:attribute name="configurationACQUIRINGItems" 		type="Object"							access="global" />
+	<aura:attribute name="confItemId" 						type="String" 		default="" 			access="global" />
+	<aura:attribute name="confId" 							type="String" 		default="" 			access="global" />
+	<aura:attribute name="companyCode" 						type="String" 		default="" 			access="global" />
+	<aura:attribute name="servicePointCode" 				type="String" 		default="" 			access="global" />
+	<aura:attribute name="startDateAcq" 					type="Datetime" 	default="" 			access="global" />
+	<aura:attribute name="endDateAcq" 						type="Datetime" 	default="" 			access="global" />
+	<aura:attribute name="isNexi" 							type="Boolean" 		default="false" 	access="global" />
+	<aura:attribute name="isNotNexi" 						type="Boolean" 		default="false" 	access="global" />
+	<aura:attribute name="isVisaMast" 						type="Boolean" 		default="false" 	 				/>
+	<aura:attribute name="isAmex" 							type="Boolean" 		default="false" 	access="global" />
+	<aura:attribute name="isDiners" 						type="Boolean" 		default="false" 	access="global" />
+	<aura:attribute name="isNotOperation"					type="Boolean"		default="false"		access="global"	/>
+	<aura:attribute name="configuration"					type="Object"							access="global" />
+	<aura:attribute name="enstabilishmentSIACode"			type="String"							access="global" />
+	<aura:attribute name="progressiveSIACode"				type="String"							access="global" />
+	<aura:attribute name="SIACode"							type="String"							access="global" />
+	<aura:attribute name="circuitNameAcq"					type="String"							access="global" />
+	<aura:attribute name="action"							type="String"							access="global" />
+	<aura:attribute name="isFinalStatus"					type="Boolean"		default="false"		access="global" />
+	<aura:attribute name="isInApprovation"					type="Boolean"		default="true"		access="global" />
+	<aura:attribute name="isNotIntegrated" 					type="Boolean" 	default="false"		access="global"/><!-- START elena.preteni  descoping consistenza 28/06/2019-->
+
+	<aura:handler 	name="init" value="{!this}" action="{!c.doInit}" />
+	<!-- <aura:if isTrue="{!or(v.isVisaMast,v.isAmex,isDiners)}"> -->	
+		<div class="slds-grid slds-wrap slds-box slds-m-top_large" aura:id="MainDiv">
+			<!-- <aura:if isTrue="{!v.isVisaMast}"> -->
+				<div class="slds-size_3-of-4 slds-grid slds-m-top_large slds-wrap">
+					<!-- CIRCUIT NAME -->
+						<!-- <div class="slds-size__1-of-10 slds-grid">
+								<div class="slds-badge slds-badge_lightest">
+									{!v.circuitNameAcq}
+								</div>
+							</div> -->
+							<div class="slds-size_1-of-4 slds-p-horizontal_medium">					
+									<div class="slds-m-top_x-large" style="font-size:16px;">
+											{!v.circuitNameAcq}
+									</div>
+								</div>
+					<!-- <div class="slds-size_1-of-1 slds-grid"> -->
+						<!-- CODICE SOCIETA' -->
+						<aura:if isTrue="{!v.isNexi}">
+							<div class="slds-size_1-of-4 slds-p-horizontal_medium">		
+								<div class="slds-form-element ">
+									<lightning:input 	value="{!v.companyCode}" 
+														label ="{!$Label.c.OB_MAINTENANCE_COMPANYCODE}" 
+														aura:id="companyCode" 
+														disabled="{!or(and(!v.isVisaMast,v.isNexi),or(or(!not(v.isNotOperation),v.configurationACQUIRINGItems.NE__Action__c!='Add'),v.isFinalStatus,v.isInApprovation))}" 
+														required="{!and(v.isVisaMast,and(and(v.configurationACQUIRINGItems.NE__Action__c=='Add',v.isNotOperation),!v.isFinalStatus))}"/>
+								</div>
+							</div>
+						</aura:if>
+						<!-- CODICE CONVENZIONE -->
+						<div class="slds-size_1-of-4 slds-p-horizontal_medium">		
+							<div class="slds-form-element ">
+								<lightning:input 	value="{!v.servicePointCode}" 
+													label ="{!$Label.c.OB_MAINTENANCE_CONVENTIONCODE}" 
+													aura:id="servicePointCode" 
+													disabled="{!or(and(!v.isVisaMast,v.isNexi),or(or(!not(v.isNotOperation),v.configurationACQUIRINGItems.NE__Action__c!='Add'),v.isFinalStatus,v.isInApprovation))}"
+													required="{!and(v.isVisaMast,and(and(v.configurationACQUIRINGItems.NE__Action__c=='Add',v.isNotOperation),!v.isFinalStatus))}"/>
+							</div>
+						</div>
+
+					<!-- </div> -->
+					<!-- <div class="slds-size1-of-1 slds-grid"> -->
+						<aura:if isTrue="{!v.configurationACQUIRINGItems.NE__Action__c=='Add'}">
+							<div class="slds-size_1-of-4 slds-p-horizontal_medium">		
+								<div class="slds-form-element">
+									<lightning:input 	value="{!v.configurationACQUIRINGItems.NE__StartDate__c}"
+														type="date"
+														label ="Data Inizio Validità" 
+														aura:id="startDateAcq"
+														format="dd/mm/yyyy" 
+														displayDatePicker="true"
+														disabled="{!or(or(!not(v.isNotOperation),v.configurationACQUIRINGItems.NE__Action__c=='Remove'),v.isFinalStatus,v.isInApprovation)}"
+														required="{!and(v.isNexi,and(and(v.configurationACQUIRINGItems.NE__Action__c=='Add',v.isNotOperation),!v.isFinalStatus))}"/>
+								</div>
+							</div>
+						</aura:if>
+						<aura:if isTrue="{!v.configurationACQUIRINGItems.NE__Action__c=='Remove'}">
+							<div class="slds-size_1-of-4 slds-p-horizontal_medium">	
+								<div class="slds-form-element">
+									<lightning:input 	value="{!v.configurationACQUIRINGItems.NE__EndDate__c}"
+														type="date"
+														label ="Data Fine Validità" 
+														aura:id="endDateAcq"
+														format="dd/mm/yyyy" 
+														displayDatePicker="true"
+														disabled="{!or(or(!not(v.isNotOperation),v.configurationACQUIRINGItems.NE__Action__c=='Add'),v.isFinalStatus,v.isInApprovation)}"
+														required="{!and(and(v.configurationACQUIRINGItems.NE__Action__c=='Remove',v.isNotOperation),!v.isFinalStatus)}" />
+								</div>
+							</div>
+						</aura:if>
+					<!-- </div> -->
+					
+				</div>
+
+				<!-- BUTTONS -->
+
+			<aura:if isTrue="{!and(and(not(v.isNotOperation),v.isInApprovation),v.isNotIntegrated)}">
+				<div class="slds-size_1-of-1 slds-grid slds-m-top_large">
+					<div class="slds-align_absolute-center">
+						<lightning:button 	label="{!$Label.c.OB_Save}" 
+											variant="brand" 	
+											onclick="{!c.save}"	
+											disabled ="{!v.isFinalStatus}"/>
+						<lightning:button 	label="{!$Label.c.OB_Cancel}" 	
+											variant="neutral"
+											onclick=""	
+											disabled ="{!v.isFinalStatus}"/>
+					</div>
+				</div>
+			</aura:if>
+		</div>
+</aura:component>

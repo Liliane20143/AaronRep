@@ -1,0 +1,31 @@
+.THIS .button 
+{
+	margin-top: 1.5rem;
+}
+.THIS .bold
+{
+	font-weight: bold;
+}
+.THIS .separatorConsistenzaMain  
+{
+	border-bottom: 0.05rem solid #d6cfcf;
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+}
+.THIS .spaceTop
+{
+	margin-top: 0.5rem;
+}
+
+.THIS #divmicol .slds-form-element
+{
+	margin-top: 9px !important;
+}
+.THIS #divmicol .slds-form-element__control
+{
+	text-align: center !important;
+}
+.THIS #divmicol 
+{
+	text-align: center !important;
+}

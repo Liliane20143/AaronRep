@@ -1,0 +1,1067 @@
+<aura:component extends="c:OB_BaseComponent" controller="OB_Maintenance_EditServicePoint_Ctr" >
+
+    <aura:attribute name="FlowData" type="string"/>
+    <aura:attribute name="oldInfo" type="string"/>
+    <aura:attribute name="FlowStep" type="string"/>
+    <aura:attribute name="modifyServicePointId" type="string"/>
+    <aura:attribute name="ServicePointFieldsLabel" type="Object"/>
+    <aura:attribute name="ContactFieldsLabel" type="Object"/>
+    <aura:attribute name="objectDataMap" type="Object" access="global"/>
+    <aura:attribute name="DisabledFields" type="List"/>
+    <aura:attribute name="typologyValuedPicklist" type="List" access="global"/>
+    <aura:attribute name="postelcomponentparams" type="Object" default="{}" access="global"/>
+    <aura:attribute name="isLoaded" type="boolean" default="false"/>
+    <aura:attribute name="ServicePointColumns" type="List"/>
+    <aura:attribute name="ListOfServicePoint" type="Object"/>
+    <aura:attribute name="listPuntiVenditaToModify" type="Object"/>
+    <!--START - eòena.preteni WN-144 20/07/2019 create two log rquest for MCC not integrated-->
+    <aura:attribute name="MCCNewMap" type="Map"/>
+    <aura:attribute name="listNotIntegrated" type="List"/>
+    <!--END - eòena.preteni WN-144 20/07/2019 create two log rquest for MCC not integrated-->
+    <aura:attribute name="ListOfServicePointUpdated" type="Object"/>
+    <aura:attribute name="changeLocation" type="boolean" default="false"/>
+    <aura:attribute name="isListOfServicePointDIV" type="boolean" default="true"/>
+    <aura:attribute name="isListOfServicePointUpdatedDIV" type="boolean" default="false"/>
+    <aura:attribute name="adminResp" type="boolean" default="false"/>
+    <aura:attribute name="servPointResp" type="boolean" default="false"/>
+    <aura:attribute name="techRef" type="boolean" default="false"/>
+    <aura:attribute name="isUrlShown" type="boolean" default="false"/>
+    <aura:attribute name="status" type="string" default="VIEW"/>
+    <aura:attribute name="days" type="String[]" default="[]"/>
+    <aura:attribute name="addReferent" type="boolean" default="false"/>
+    <aura:attribute name="isToSave" type="boolean" default="false"/>
+    <aura:attribute name="cancelToShowRefTech" type="boolean" default="false"/>
+    <aura:attribute name="cancelToShowAdminResp" type="boolean" default="false"/>
+    <aura:attribute name="cancelToShowRespPv" type="boolean" default="false"/>
+    <aura:attribute name="selectedCab" type="string"/>
+    <aura:attribute name="missingfields" type="String[]"/>
+    <!-- ANDREA: ATTRIBUTE FOR DECLARING MAINTENANCE ENVIRONMENT -->
+    <aura:attribute name="isFromMaintenance" type="Boolean" default="" access="global"/>
+    <!-- ANDREA 26/12 ATTRIBUTE FOR TAKING NEW TIME VALUE -->
+    <aura:attribute name="openingTimeValue" type="Time" default="" access="global"/>
+    <aura:attribute name="closingTimeValue" type="Time" default="" access="global"/>
+    <aura:attribute name="breakStartTimeValue" type="Time" default="" access="global"/>
+    <aura:attribute name="breakEndTimeValue" type="Time" default="" access="global"/>
+    <!-- ANDREA: ATTRIBUTE FOR DISABLING SAVE IF THERE'S AN ERROR IN TIME'S INPUT -->
+    <aura:attribute name="timesHaveError" type="Boolean" default="false" access="global"/>
+    <!-- ANDREA  START 18/01 -->
+    <aura:attribute name="finalOpenTime" type="String" access="global"/>
+    <aura:attribute name="finalClosingTime" type="String" access="global"/>
+    <aura:attribute name="finalBreakStartTime" type="String" access="global"/>
+    <aura:attribute name="finalBreakEndTime" type="String" access="global"/>
+    <!-- ANDREA  END 18/01 -->
+    <!-- DG  START  Bolean to empty error message in fields after cancel button clicked -->
+    <aura:attribute name="isRPV" type="Boolean" access="global"/>
+    <aura:attribute name="isRA" type="Boolean" access="global"/>
+    <aura:attribute name="isRT" type="Boolean" access="global"/>
+    <!-- DG  END -->
+    <!--Doris D. 25/03/2019... START -->
+    <aura:attribute name="showMessageModify"   type="Boolean" default= "false"/>
+    <aura:attribute name="showMessage"      type="Boolean" default= "false"/>
+    <!--Doris D. 25/03/2019... END -->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <!-- ANDREA  START 08/01 -->
+    <!-- ANDREA  END 08/01 -->
+    <!-- Start antonio.vatrano 04/04/2019 shortcut servicePoint -->
+    <aura:attribute name="fromShortCutSP" type="Boolean" access="global" default="false"/>
+    <!-- end antonio.vatrano 04/04/2019 shortcut servicePoint  -->
+    <!-- Start antonio.vatrano 15/04/2019 shortcut Referents -->
+    <aura:attribute name="fromShortCutReferents" type="Boolean" access="global" default="false"/>
+    <!-- end antonio.vatrano 15/04/2019 shortcut Referents -->
+    <!-- Start antonio.vatrano 16/04/2019 shortcut Referents show only the context contact -->
+    <aura:attribute name="shortcutContactId" type="String" access="global" default=""/>
+    <!-- End antonio.vatrano 16/04/2019 shortcut Referents show only the context contact -->
+    <!-- NEXI-76 Zuzanna Urban <z.urban@accenture.com> 14/06/2019 START-->
+    <aura:attribute type="Boolean" name="isNewRPV" default="false" access="global"/>
+    <aura:attribute type="Boolean" name="isNewRA" default="false" access="global"/>
+    <aura:attribute type="Boolean" name="isNewRT" default="false" access="global"/>
+    <!-- NEXI-76 Zuzanna Urban <z.urban@accenture.com> 14/06/2019 STOP-->
+    <!-- NEXI-81 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 24/05/2019 START-->
+    <aura:attribute type="Boolean" name="isMCCDisabled" default="true" access="global" description="Controls selecting MCC" />
+    <aura:attribute type="Boolean" name="isMCCModalOpen" default="false" access="global" description="Controls closing modal with MCC" />
+    <aura:attribute type="Boolean" name="isChecked" access="global" default="false" description="Controls checkbox value" />
+    <aura:attribute type="Boolean" name="isDisabled" access="global" default="true" description="Controls confirmation button" />
+    <aura:attribute type="Object" name="selectedMCCL2" access="global" description="NE__Value2__c or OB_Value4__c of MCC L2" />
+    <aura:attribute type="Object" name="selectedMCCL3" access="global" description="NE__Value2__c of MCC L3" />
+    <aura:attribute type="String" name="MCCL2input" default="" access="global" description="Name of MCC L2" />
+    <aura:attribute type="String" name="MCCL3input" default="" access="global" description="Name of MCC L3" />
+    <aura:attribute type="String" name="MCCL2oldValue" default="" access="global" description="Name of MCC L2 - old" />
+    <aura:attribute type="String" name="MCCL3oldValue" default="" access="global" description="Name of MCC L3 - old" />
+    <aura:attribute type="String" name="level" access="global" description="Level of Lov" />
+    <aura:attribute type="List" name="mccL2" access="global" description="L2 list - out" />
+    <aura:attribute type="List" name="mccL3" access="global" description="L3 list - out" />
+    <aura:attribute type="List" name="mccL3response" access="global" description="L3 list - after filtering" />
+    <!-- NEXI-81 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 24/05/2019 STOP-->
+
+
+    <!--NEXI-65 Wojciech Kucharek <wojciech.kucharek@accenture.com> 29/05/2019 START-->
+    <aura:attribute type="Boolean" name="isDocumentUploadOpen" default="false" access="global" />
+    <aura:attribute type="Boolean" name="uploadNewDocument" default="true" access="global" />
+    <aura:attribute type="String" name="saveLogRequest" default="" access="global" />
+    <aura:attribute type="Boolean" name="showConfirmButton" default="false" access="global" />
+    <!--NEXI-65 Wojciech Kucharek <wojciech.kucharek@accenture.com> 29/05/2019 STOP-->
+    <!-- //NEXI-110 24.06.2019 <damian.krzyzaniak@accenture.com> START-->
+    <aura:attribute type="Boolean" name="isCheckedCheckboxInsegna" access="global" description="Controls checkbox value" default="false" />
+    <aura:attribute type="Boolean" name="isCheckedCheckboxInsegnaScontrino" access="global" description="Controls checkbox value" default="false" />
+    <aura:attribute type="Boolean" name="isCheckedCheckboxLocalitaScontrino" access="global" description="Controls checkbox value" default="false" />
+    <!-- //NEXI-110 24.06.2019 <damian.krzyzaniak@accenture.com> STOP-->
+    <aura:attribute type="Boolean" name="isApprovalProcessRequired" default="false" access="private" description="Defines if approval process needs to be started"/> <!--NEXI-146 Grzegorz Banach <grzegorz.banach@accenture.com> 08/07/2019 Added attribute isApprovalProcessRequired-->
+    <!-- NEXI-180 Wojciech Szuba <wojciech.szuba@accenture.com>, 10/07/2019, START-->
+    <aura:attribute type="Boolean" name="isCheckedCheckboxSettlementMethod" access="global" description="Controls checkbox value" default="false" />
+    <aura:attribute type="String" name="SettlementMethodValue" access="global" description="New value of Settlement Method" default="" />
+    <aura:attribute type="Boolean" name="isAnyAssetRelated" access="global" description="Controls visibility of Attenzione modal" default="false" />
+
+    <aura:attribute type="Boolean" name="isSpinner" access="private" description="Controls visibility of spinner" default="false" /><!--NEXI-180 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 12/07/2019-->
+    <!--NEXI-298 Marta Stempien <marta.stempien@accenture.com>, 06/09/2019 Start -->
+    <aura:attribute name = "logRequestsRequiringDocumentation" 		type = "List"	default = "[]" 	description = "List of all created log requests that requires docs"		access = "private"/>
+    <!--NEXI-298 Marta Stempien <marta.stempien@accenture.com>, 06/09/2019 Stop -->
+    <aura:attribute type="List" name="seasonValues" access="global" default="['','01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']"/> <!--francesca.ribezzi 12/11/19 - PROD-72 - adding list for start and end seasonal fields -->       
+    <aura:handler name="modalEvent" event="c:OB_LEV000_ModalEvent" action="{!c.handleAttenzioneModalEvent}"/>
+    <!-- NEXI-180 Wojciech Szuba <wojciech.szuba@accenture.com>, 10/07/2019, STOP-->
+    <!--NEXI-180 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 12/07/2019 START-->
+    <aura:if isTrue="{!v.isSpinner}">
+        <lightning:spinner variant="brand" size="large" class="slds-show" alternativeText=" " style="position: fixed;"/>
+    </aura:if>
+    <!--NEXI-180 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 12/07/2019 STOP-->
+
+<div class="slds-form slds-form_compound" aura:id="MainDiv">
+         <!--  Doris D. ****** 25/03/2019 ***** START -->
+        <!-- antonio.vatrano 18/04/2019 add condition for visibility of elements of component for SHORTCUT Maintenance -->
+        <aura:if isTrue="{!and(!v.fromShortCutSP, !v.fromShortCutReferents)}">
+            <span  onmouseover="{!c.openTooltipCancelButton}" onmouseout="{!c.closeTooltipCancelButton}" >
+            <!--  Doris D. ****** 25/03/2019 ***** END -->
+            <lightning:buttonGroup class="slds-align_absolute-left">
+                <lightning:button variant="neutral" aura:id="cancelButton" iconName="utility:back"
+                                  onclick="{! c.cancel }"/>
+            </lightning:buttonGroup>
+                <!-- Doris D. 25/03/2019 ... START-->
+                <aura:if isTrue="{!v.showMessage}">
+                        <span class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left" role="tooltip" id="help" style="position: absolute;top: 6em; left:8em; pointer-events:none; ">
+                            <div class="slds-popover__body">{!$Label.c.OB_GoBackButtonTooltip}</div>
+                        </span>
+        </aura:if>
+            </span>
+        </aura:if>
+		<!-- Doris D. 25/03/2019 ...   END-->
+
+        <lightning:accordion aura:id="accordion" allowMultipleSectionsOpen="true">
+            <!-- antonio.vatrano 18/04/2019 add condition for visibility of elements of component for SHORTCUT Maintenance -->
+            <aura:if isTrue="{! !v.fromShortCutReferents }">
+                <lightning:accordionSection name="A" label="{! $Label.c.OB_MAINTENANCE_SERVICEPOINTEDIT_SECTION1 }">
+
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                            <lightning:input value="{! v.objectDataMap.pv.Name }" label="{! $Label.c.OB_Location }"
+                                             aura:id="Name" disabled="true" onblur="{! c.formalCheck }"/>
+                            <aura:if isTrue="{! v.objectDataMap.errorFamily.ErrorNamePv }">
+                                <div class="error-input-message">
+                                    {! v.objectDataMap.errorFamilyMessage.ErrorMessageNamePV }
+                                </div>
+                            </aura:if>
+                        </div>
+
+                        <!-- giovanni spinelli 11/10/2019 delete mcc input and add typology field-->
+                        <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                            <lightning:select value="{! v.objectDataMap.pv.OB_Typology__c }"
+                                              label="{! v.ServicePointFieldsLabel.OB_Typology__c }"
+                                              aura:id="OB_Typology__c" disabled="true">
+                                <aura:iteration items="{! v.typologyValuedPicklist }" var="item">
+                                    <option text="{! item }" value="{! item }" selected="{! item.selected }"/>
+                                </aura:iteration>
+                            </lightning:select>
+                        </div>
+                        <!-- giovanni spinelli 11/10/2019 delete mcc input and add typology field-->
+                    </div>
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                            <label class="slds-form-element__label" for="OB_Email__c"
+                                   style="margin-top: -4px; position: absolute;">
+                                <aura:if isTrue="{! v.status == 'EDIT' }">
+                                    <abbr class="slds-required" title="required">*</abbr>
+                                </aura:if>
+                                {! v.ServicePointFieldsLabel.OB_Email__c }
+                            </label>
+                            <lightning:input value="{!v.objectDataMap.pv.OB_Email__c }" label="" aura:id="OB_Email__c"
+                                             disabled="true" onblur="{! c.formalCheck }"/>
+                            <aura:if isTrue="{! v.objectDataMap.errorFamily.errorEmailPv }">
+                                <div class="error-input-message">
+                                    {! v.objectDataMap.errorFamilyMessage.ErrorMessageEmailPV }
+                                </div>
+                            </aura:if>
+                        </div>
+
+                        <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                            <label class="slds-form-element__label" for="OB_Mobile_Phone_Number__c"
+                                   style="margin-top: -4px; position: absolute;">
+                                <aura:if isTrue="{! v.status == 'EDIT' }">
+                                    <abbr class="slds-required" title="required">*</abbr>
+                                </aura:if>
+                                {! v.ServicePointFieldsLabel.OB_Mobile_Phone_Number__c }
+                            </label>
+                            <lightning:input value="{! v.objectDataMap.pv.OB_Mobile_Phone_Number__c }" label=""
+                                             aura:id="OB_Mobile_Phone_Number__c" disabled="true"
+                                             onblur="{! c.formalCheck }"/>
+                            <aura:if isTrue="{! v.objectDataMap.errorFamily.errorPhonePv }">
+                                <div class="error-input-message">
+                                    {! v.objectDataMap.errorFamilyMessage.ErrorMessagePhonePV }
+                                </div>
+                            </aura:if>
+                        </div>
+                    </div>
+                    <div class="slds-form-element__row">
+                        <!-- giovanni spinelli 11/10/2019 delete  typology field-->
+                        <aura:if isTrue="{! v.isUrlShown == true }">
+                            <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                <lightning:input value="{! v.objectDataMap.pv.OB_URL__c }"
+                                                 label="{! v.ServicePointFieldsLabel.OB_URL__c }" aura:id="OB_URL__c"/>
+                            </div>
+                        </aura:if>
+                    </div>
+                </lightning:accordionSection>
+
+                <lightning:accordionSection name="B" label="{! $Label.c.OB_MAINTENANCE_SALESPONITS }"
+                                            aura:id="accordionPuntiVendita">
+                    <aura:if isTrue="{! v.isListOfServicePointDIV == true }">
+                        <div>
+                            <lightning:datatable
+                                    columns="{! v.ServicePointColumns }"
+                                    data="{! v.ListOfServicePoint }"
+                                    keyField="Id"
+                                    aura:id="servicePointTable"
+                                    onrowselection="{!c.updateSelectedRows }"
+                            />
+                        </div>
+                    </aura:if>
+                    <aura:if isTrue="{! v.isListOfServicePointUpdatedDIV == true }">
+                        <div>
+                            <lightning:datatable
+                                    columns="{! v.ServicePointColumns }"
+                                    data="{! v.ListOfServicePointUpdated }"
+                                    keyField="Id"
+                                    aura:id="servicePointTable"
+                                    onrowselection="{!c.updateSelectedRows }"
+                            />
+                        </div>
+                    </aura:if>
+                    <div class="slds-align_absolute-center buttons">
+                        <lightning:button variant="brand" aura:id="refresh" label="{! $Label.c.OB_MAINTENANCE_UPDATE }"
+                                          title="{! $Label.c.OB_MAINTENANCE_UPDATE }" onclick="{! c.saveDraftCustom }"
+                                          disabled="true"/>
+                    </div>
+                    <aura:if isTrue="{! v.changeLocation }">
+                        <c:strike_modal title="{! $Label.c.OB_MAINTENANCE_SINGLEPOINT }" primaryButtonLabel="Ok"
+                                        secondaryButtonLabel="Cancel" showHeader="true" showFooter="false"
+                                        showClose="false" showModal="{! v.changeLocation }">
+                            <div>{! $Label.c.OB_MAINTENANCE_CHANGE_SIGN }</div>
+                            <div class="slds-form-element__row">
+                                <div>
+                                    <!--12/06/2019 giovanni spinelli change onclick with onchange and C in c of checked-->
+                                    <lightning:input type="checkbox" name="ShopSignCheck"
+                                                     label="" aura:id="ShopSignCheck"
+                                                     class="slds-p-vertical_small checkboxAlign"
+                                                     checked="{! v.isCheckedCheckboxInsegna }"
+                                                     onchange="{! c.saveCheckboxInsegnaStatus }"/>
+                                    <!-- //NEXI-110 24.06.2019 <damian.krzyzaniak@accenture.com> Deleted onClick method, created onchange method  changed 'checked' condition to attribute -->
+                                    <!--12/06/2019 giovanni spinelli change onclick with onchange and C in c of checked-->
+                                </div>
+                                <div class="slds-form-element slds-size_1-of-2">
+                                    <lightning:input value="{! v.objectDataMap.esm.OB_ShopSign__c }"
+                                                     label="{! $Label.c.OB_ShopSign }" aura:id="OB_ShopSign"
+                                                     disabled="true" onblur="{!c.formalCheck}"/>
+                                    <aura:if isTrue="{! v.objectDataMap.errorFamily.ErrorNameSign }">
+                                        <div class="error-input-message">
+                                            {! v.objectDataMap.errorFamilyMessage.ErrorMessageName }
+                                        </div>
+                                    </aura:if>
+                                </div>
+                            </div>
+                            <div class="slds-form-element__row">
+                                <div>
+                                    <!--12/06/2019 giovanni spinelli change onclick with onchange and C in c of checked-->
+                                    <lightning:input type="checkbox" name="ShopSignHeaderCheck"
+                                    label="" aura:id="ShopSignHeaderCheck"
+                                    class="slds-p-vertical_small checkboxAlign"
+                                    checked="{! v.isCheckedCheckboxInsegnaScontrino }"
+                                    onchange="{! c.saveCheckboxInsegnaScontrinoStatus }"/>
+                                    <!-- //NEXI-110 24.06.2019 <damian.krzyzaniak@accenture.com> Deleted onClick method, created onchange method, changed 'checked' condition to attribute -->
+                                    <!--12/06/2019 giovanni spinelli change onclick with onchange and C in c of checked-->
+                                </div>
+                                <div class="slds-form-element slds-size_1-of-2">
+                                    <lightning:input value="{! v.objectDataMap.esm.OB_ReceiptHeader__c }"
+                                                     label="{! $Label.c.OB_MAINTENANCE_RECEIPTHEADER }"
+                                                     aura:id="OB_ReceiptHeader__c" disabled="true"
+                                                     onblur="{! c.formalCheck }"/>
+                                    <aura:if isTrue="{! v.objectDataMap.errorFamily.ErrorNameHeaderReceipt }">
+                                        <div class="error-input-message">
+                                            {! v.objectDataMap.errorFamilyMessage.ErrorMessageName }
+                                        </div>
+                                    </aura:if>
+                                </div>
+                            </div>
+                            <div class="slds-form-element__row">
+                                <div>
+                                    <!--12/06/2019 giovanni spinelli change onclick with onchange and C in c of checked-->
+                                    <lightning:input type="checkbox" name="ShopSignCityCheck" label=""
+                                                     aura:id="ShopSignCityCheck"
+                                                     class="slds-p-vertical_small checkboxAlign"
+                                                     checked="{! v.isCheckedCheckboxLocalitaScontrino }"
+                                                     onchange="{! c.saveCheckboxLocalitaScontrinoStatus }"/>
+                                    <!-- //NEXI-110 24.06.2019 <damian.krzyzaniak@accenture.com> Deleted onClick method, created onchange method, changed 'checked' condition to attribute -->
+                                    <!--12/06/2019 giovanni spinelli change onclick with onchange and C in c of checked-->
+                                </div>
+                                <div class="slds-form-element slds-size_1-of-2">
+                                    <lightning:input value="{! v.objectDataMap.esm.OB_ReceiptCity__c }"
+                                                     label="{! $Label.c.OB_MAINTENANCE_RECEIPTCITY }"
+                                                     aura:id="OB_ReceiptCity__c" disabled="true"
+                                                     onblur="{! c.formalCheck }"/>
+                                    <aura:if isTrue="{! v.objectDataMap.errorFamily.ErrorNameCityReceipt }">
+                                        <div class="error-input-message">
+                                            {! v.objectDataMap.errorFamilyMessage.ErrorMessageName }
+                                        </div>
+                                    </aura:if>
+                                </div>
+                            </div>
+                            <!-- NEXI-180 Wojciech Szuba <wojciech.szuba@accenture.com>, 10/07/2019 START -->
+                            <aura:if isTrue="{!v.fromShortCutSP}">
+                                <div class="slds-form-element__row">
+                                    <div>
+                                        <lightning:input type="checkbox" name="InternationalSettlementMethodCheck" label=""
+                                                         aura:id="InternationalSettlementMethodCheck"
+                                                         class="slds-p-vertical_small checkboxAlign"
+                                                         checked="{! v.isCheckedCheckboxSettlementMethod }"
+                                                         onchange="{! c.saveCheckboxSettlementMethodStatus }"/>
+                                    </div>
+                                    <div class="slds-form-element slds-size_1-of-2">
+                                        <lightning:select aura:id="OB_InternationalSettlementMethod__c"
+                                                         value="{! v.objectDataMap.esm.OB_InternationalSettlementMethod__c }"
+                                                         label="{! $Label.c.OB_SettlementMethod}"
+                                                         disabled="true" required="true"
+                                                         onblur="{! c.formalCheck }"
+                                                         onchange="{! c.saveSettlementMethodStatus }">
+                                            <option value=""></option>
+                                            <option value="{! $Label.c.OB_PostpaidSettlmentMethodGrossValue }">Accredito al lordo delle commissioni</option>
+                                            <option value="{! $Label.c.OB_PostpaidSettlmentMethodNetValue }">Accredito al netto delle commissioni</option>
+                                        </lightning:select>
+                                        <aura:if isTrue="{! v.objectDataMap.errorFamily.ErrorNameCityReceipt }">
+                                            <div class="error-input-message">
+                                                {! v.objectDataMap.errorFamilyMessage.ErrorMessageName }
+                                            </div>
+                                        </aura:if>
+                                    </div>
+                                </div>
+                            </aura:if>
+                            <!-- NEXI-180 Wojciech Szuba <wojciech.szuba@accenture.com>, 10/07/2019 STOP -->
+                            <!-- NEXI-81 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 24/05/2019 START -->
+                            <c:OB_LCP006_MCCSearch isMCCDisabled = "{! v.isMCCDisabled }"
+                                                   isMCCModalOpen = "{! v.isMCCModalOpen }"
+                                                   isChecked = "{! v.isChecked }"
+                                                   MCCL2input = "{! v.MCCL2input }"
+                                                   MCCL3input = "{! v.MCCL3input }"
+                                                   level = "{! v.level }"
+                            />
+                            <!-- NEXI-81 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 24/05/2019 STOP -->
+                            <div class="slds-align_absolute-center buttons">
+                                <!-- NEXI-81 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 12/06/2019 START added attribute to disabled -->
+                                <lightning:button variant="brand" aura:id="closeModalConfirm"
+                                                  label="{! $Label.c.OB_MAINTENANCE_CONFIRM }"
+                                                  title="{! $Label.c.OB_MAINTENANCE_CONFIRM }"
+                                                  onclick="{! c.closeModalConfirm }" disabled="{! v.isDisabled }"/>
+                                <!-- NEXI-81 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 12/06/2019 STOP -->
+                                <lightning:button variant="neutral" aura:id="closeModalCancel"
+                                                  label="{! $Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON }"
+                                                  title="{! $Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON }"
+                                                  onclick="{! c.closeModalCancel }"/>
+                            </div>
+                        </c:strike_modal>
+                    </aura:if>
+                    <!-- NEXI-180 Wojciech Szuba <wojciech.szuba@accenture.com>, 11/07/2019 START -->
+                    <aura:if isTrue="{! v.isAnyAssetRelated }">
+                        <c:OB_LCP000_GenericModal headerName = "{! $Label.c.OB_Warning }"
+                                                  headerContent = "{! $Label.c.OB_AssetUpdateFromPrepagatoMessage }"
+                                                  saveOrProceedButtonName = "{! $Label.c.OB_Yes }"
+                                                  cancelButtonName = "{! $Label.c.OB_No }"
+                                                  isInvertedButtonOrder = "true"
+                                                  isFooterVisible = "true"
+                                                  isOkVisible = "true"
+                        />
+                    </aura:if>
+                    <!-- NEXI-180 Wojciech Szuba <wojciech.szuba@accenture.com>, 11/07/2019 STOP -->
+                    <!-- NEXI-81 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 28/05/2019 START-->
+                    <aura:if isTrue="{! v.isMCCModalOpen }">
+                        <c:OB_LCP006_MCCModal changeLocation = "{! v.changeLocation }"
+                                              isDisabled = "{! v.isDisabled }"
+                                              isMCCModalOpen = "{! v.isMCCModalOpen }"
+                                              level = "{! v.level }"
+                                              MCCL2input = "{! v.MCCL2input }"
+                                              MCCL3input = "{! v.MCCL3input }"
+                                              selectedMCCL2 = "{! v.selectedMCCL2 }"
+                                              selectedMCCL3 = "{! v.selectedMCCL3 }"
+                                              mccL2 = "{! v.mccL2 }"
+                                              mccL3 = "{! v.mccL3 }"
+                                              mccL3response = "{! v.mccL3response }"
+                        />
+                    </aura:if>
+                    <!-- NEXI-81 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 28/05/2019 STOP-->
+                </lightning:accordionSection>
+
+                <lightning:accordionSection name="C" label="{! $Label.c.OB_MAINTENANCE_SERVICEPOINTEDIT_SECTION2 }">
+                    <aura:if isTrue="{! v.status == 'VIEW' }">
+                        <div class="slds-form-element__row">
+                            <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                <lightning:input value="{! v.objectDataMap.pv.NE__Country__c }"
+                                                 label="{! $Label.c.OB_Address_Country }" aura:id="NE__Country__c"
+                                                 disabled="true"/>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__row">
+                            <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                <lightning:input value="{! v.objectDataMap.pv.NE__Province__c }"
+                                                 label="{! $Label.c.OB_Address_Province }" aura:id="NE__Province__c"
+                                                 disabled="true"/>
+                            </div>
+                            <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                <lightning:input value="{! v.objectDataMap.pv.NE__City__c }"
+                                                 label="{! $Label.c.OB_Address_City }" aura:id="    NE__City__c"
+                                                 disabled="true"/>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__row">
+                            <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                <lightning:input value="{! v.objectDataMap.pv.OB_District__c }"
+                                                 label="{! $Label.c.OB_Address_District }" aura:id="OB_District__c"
+                                                 disabled="true"/>
+                            </div>
+                            <div class="slds-form-element slds-size_1-of-3 slds-p-around_xx-small">
+                                <lightning:input value="{! v.objectDataMap.pv.NE__Street__c }"
+                                                 label="{! $Label.c.OB_Address_Street }" aura:id="NE__Street__c"
+                                                 disabled="true"/>
+                            </div>
+                            <div class="slds-form-element slds-size_1-of-6 slds-p-around_xx-small">
+                                <lightning:input value="{! v.objectDataMap.pv.OB_Street_Number__c }"
+                                                 label="{! $Label.c.OB_Address_Street_Number }"
+                                                 aura:id="OB_Street_Number__c" disabled="true"/>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__row">
+                            <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                <lightning:input value="{! v.objectDataMap.pv.NE__Postal_Code__c }"
+                                                 label="{! $Label.c.OB_Address_PostalCode }" aura:id="NE__Postal_Code__c"
+                                                 disabled="true"/>
+                            </div>
+                            <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                <lightning:input value="{! v.objectDataMap.pv.OB_Address_Detail__c }"
+                                                 label="{! $Label.c.Location }" aura:id="OB_Address_Detail__c"
+                                                 disabled="true"/>
+                            </div>
+                        </div>
+                    </aura:if>
+                    <aura:if isTrue="{!v.status == 'EDIT'}">
+                        <aura:if isTrue="{!v.isLoaded == true}">
+                            <!-- START gianluigi.virga 08/11/2019 - PROD-57 -->
+                            <!-- <c:AutoCompleteComponentPostel objectDataMap="{! v.objectDataMap }"
+                                                           addressMapping="{! v.postelcomponentparams }"
+                                                           aura:id="AutoCompleteComponentPostelCCIAA"/> -->
+                            <c:OB_FreeInputAddress  objectDataMap="{!v.objectDataMap}"
+                                                           addressMapping="{!v.postelcomponentparams}"
+                                                           aura:id="AutoCompleteComponentPostelCCIAA"
+                                                           changeLayout="true"/>
+                            <!-- END gianluigi.virga 08/11/2019 - PROD-57 -->
+                        </aura:if>
+                    </aura:if>
+                </lightning:accordionSection>
+
+                <lightning:accordionSection name="D" label="{! $Label.c.OB_MAINTENANCE_SERVICEPOINTEDIT_SECTION3 }">
+                    <div class="slds-form-element__row">
+                        <!--START francesca.ribezzi 12/11/19 - PROD-72 - picklist instaed of input for start and end season fields -->
+                        <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                            <lightning:select   value="{!v.objectDataMap.pv.OB_Start_Seasonal__c}"
+                                                label="{!$Label.c.OB_MAINTENANCE_STARTSEASONAL}"
+                                                aura:id="OB_Start_Seasonal__c">
+                                <aura:iteration items="{!v.seasonValues}" var="item">
+                                    <option text="{!item}" value="{!item}" selected="{!item.selected}"/>
+                                </aura:iteration>
+                            </lightning:select>
+                        </div>
+                        <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                            <lightning:select   value="{!v.objectDataMap.pv.OB_End_Seasonal__c}"
+                                                label="{!$Label.c.OB_MAINTENANCE_ENDSEASONAL}"
+                                                aura:id="OB_End_Seasonal__c">
+                               <aura:iteration items="{!v.seasonValues}" var="item">
+                                   <option text="{!item}" value="{!item}" selected="{!item.selected}"/>
+                               </aura:iteration>
+                           </lightning:select>
+                        </div>
+                         <!--END francesca.ribezzi 12/11/19 - PROD-72 - -->
+                    </div>
+                    <aura:if isTrue="{! v.status == 'VIEW' }">
+                        <div class="flow-section-separator-container">
+                            <form class="slds-size_1-of-1 slds-form">
+                                <legend class="slds-form-element__label">{! $Label.c.OB_OpeningDays }</legend>
+                                <fieldset class="bit2flowFormSectionCmp" name="flagsection"
+                                          data-aura-class="bit2flowFormSectionCmp"/>
+                            </form>
+                        </div>
+                        <div class="sectionColsContainer flow-section-separator"/>
+                        <div class="slds-grid slds-size--1-of-1">
+                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                <div class="slds-p-around--medium slds-form-element">
+                                    <!-- Table Flag -->
+                                    <table class="slds-table slds-table_cell-buffer slds-table_border">
+                                        <thead>
+                                        <tr class="slds-line-height_reset">
+                                            <th class="slds-text-title_caps" scope="col">
+                                                <div class="slds-truncate" title="period"></div>
+                                            </th>
+                                            <aura:iteration items="{! v.days }" var="day">
+                                                <th class="slds-text-title_caps" scope="col">
+                                                    <div class="slds-truncate" title="day">{! day }</div>
+                                                </th>
+                                            </aura:iteration>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr class="slds-hint-parent">
+                                            <th data-label="Morning" scope="row">
+                                                <div class="slds-truncate"
+                                                     title="Cloudhub">{! $Label.c.OB_Opening_Times_Morning }</div>
+                                            </th>
+                                            <td data-label="Opening_Monday_Morning">
+                                                <div class="slds-truncate" title="Opening_Monday_Morning">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Monday_Morning__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td data-label="Opening_Tuesday_Morning">
+                                                <div class="slds-truncate" title="Opening_Tuesday_Morning">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Tuesday_Morning__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td data-label="Opening_Thursday_Morning">
+                                                <div class="slds-truncate" title="Opening_Thursday_Morning">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Thursday_Morning__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td data-label="Opening_Wednesday_Morning">
+                                                <div class="slds-truncate" title="Opening_Wednesday_Morning">
+                                                    <aura:if
+                                                            isTrue="{! v.objectDataMap.pv.OB_Opening_Wednesday_Morning__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td data-label="Opening_Friday_Morning">
+                                                <div class="slds-truncate" title="Opening_Friday_Morning">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Friday_Morning__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td data-label="Opening_Saturday_Morning">
+                                                <div class="slds-truncate" title="Opening_Saturday_Morning">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Saturday_Morning__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td data-label="Opening_Sunday_Morning">
+                                                <div class="slds-truncate" title="Opening_Sunday_Morning">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Sunday_Morning__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="slds-hint-parent">
+                                            <th data-label="Afternoon" scope="row">
+                                                <div class="slds-truncate"
+                                                     title="Opening_Times_Afternoon">{! $Label.c.OB_Opening_Times_Afternoon }</div>
+                                            </th>
+                                            <td data-label="Opening_Monday_Afternoon">
+                                                <div class="slds-truncate" title="Opening_Monday_Afternoon">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Monday_Afternoon__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td data-label="Opening_Tuesday_Afternoon">
+                                                <div class="slds-truncate" title="Opening_Tuesday_Afternoon">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Tuesday_Afternoon__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td data-label="Opening_Thursday_Afternoon">
+                                                <div class="slds-truncate" title="Opening_Thursday_Afternoon">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Thursday_Afternoon__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td data-label="Opening_Wednesday_Afternoon">
+                                                <div class="slds-truncate" title="Opening_Wednesday_Afternoon">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Wednesday_Afternoon__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td data-label="Opening_Friday_Afternoon">
+                                                <div class="slds-truncate" title="Opening_Friday_Afternoon">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Friday_Afternoon__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td data-label="Opening_Saturday_Afternoon">
+                                                <div class="slds-truncate" title="Opening_Saturday_Afternoon">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Saturday_Afternoon__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td data-label="Opening_Sunday_Afternoon">
+                                                <div class="slds-truncate" title="Opening_Sunday_Afternoon">
+                                                    <aura:if isTrue="{! v.objectDataMap.pv.OB_Opening_Sunday_Afternoon__c }">
+                                                        {! $Label.c.OB_Opening_Times_Open }
+                                                        <aura:set attribute="else">
+                                                            {! $Label.c.OB_Opening_Times_Closed }
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <aura:if isTrue="{! v.isFromMaintenance == true }">
+                            <div class="slds-form-element__row">
+                                <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                    <lightning:input value="{! v.finalOpenTime }" label="{! $Label.c.OB_OpeningTimeLabel }"
+                                                     aura:id="OB_Opening_Time__c" disabled="true"/>
+                                </div>
+                                <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                    <lightning:input value="{! v.finalClosingTime }" label="{! $Label.c.OB_ClosingTime }"
+                                                     aura:id="OB_Ending_Time__c" disabled="true"/>
+                                </div>
+                            </div>
+                            <div class="slds-form-element__row">
+                                <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                    <lightning:input value="{! v.finalBreakStartTime }"
+                                                     label="{! $Label.c.OB_BreakStartTimeLabel }"
+                                                     aura:id="OB_Break_Start_Time__c" disabled="true"/>
+                                </div>
+                                <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                    <lightning:input value="{! v.finalBreakEndTime }" label="{! $Label.c.OB_BreakEndTime }"
+                                                     aura:id="OB_Break_End_Time__c" disabled="true"/>
+                                </div>
+                            </div>
+                        </aura:if>
+                    </aura:if>
+                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                        <aura:if isTrue="{! v.isLoaded == true }">
+                            <c:OB_OpeningTimesTable objectDataMap="{! v.objectDataMap }" isFromMaintenance="true"/>
+                            <c:OB_MaintenanceInputTime objectDataMap="{! v.objectDataMap }"
+                                                       openingTimeValue="{! v.openingTimeValue }"
+                                                       closingTimeValue="{! v.closingTimeValue }"
+                                                       breakStartTimeValue="{! v.breakStartTimeValue }"
+                                                       breakEndTimeValue="{! v.breakEndTimeValue }"
+                                                       timesHaveError="{! v.timesHaveError }"/>
+                        </aura:if>
+                    </aura:if>
+                </lightning:accordionSection>
+            </aura:if>
+            <!-- Start antonio.vatrano 04/04/2019 shortcut servicePoint -->
+            <aura:if isTrue="{! or(!v.fromShortCutSP, v.fromShortCutReferents) }">
+                <lightning:accordionSection name="E" label="{! $Label.c.OB_MAINTENANCE_SERVICEPOINTEDIT_REFERENTS }">
+                    <!--NEXI-77 z.urban@accenture.com 24/05/2019 add a message START -->
+                    <aura:if isTrue="{! and( and( not( v.adminResp ), not( v.servPointResp )), not( v.techRef ) ) }">
+                        	{! $Label.c.OB_MAINTENANCE_NOREFERENTI }
+                    </aura:if>
+                    <!--NEXI-77 z.urban@accenture.com 24/05/2019 add a message STOP -->
+                    <aura:if isTrue="{! v.servPointResp == true }">
+                        <div class=" slds-text-align_left ">{! $Label.c.OB_MAINTENANCE_SERVICEPOINT_REFERENT }</div>
+                        <div class="slds-form-element__row ">
+                            <div class="slds-form-element slds-size_1-of-2">
+                                <label class="slds-form-element__label" for="OB_ServicePointResponsibleFirstName"
+                                       style="margin-top: -4px; position: absolute;">
+                                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                    </aura:if>
+                                    {! $Label.c.OB_MAINTENANCE_REFERENTNAME }
+                                </label>
+                                <lightning:input value="{! v.objectDataMap.servicePointResponsible.FirstName }"
+                                                 label="" aura:id="OB_ServicePointResponsibleFirstName"
+                                                 onblur="{! c.formalCheck }"/> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Change logic for lookup -->
+                                <aura:if isTrue="{! v.objectDataMap.errorFamily.ErrorNameRespPv }">
+                                    <div class="error-input-message">
+                                        {! v.objectDataMap.errorFamilyMessage.ErrorMessageNameResp }
+                                    </div>
+                                </aura:if>
+                            </div>
+                            <div class="slds-form-element slds-size_1-of-2">
+                                <label class="slds-form-element__label" for="OB_ServicePointResponsibleLastName"
+                                       style="margin-top: -4px; position: absolute;">
+                                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                    </aura:if>
+                                    {! $Label.c.OB_MAINTENANCE_REFERENTSURNAME }
+                                </label>
+                                <lightning:input value="{! v.objectDataMap.servicePointResponsible.LastName }"
+                                                 label="" aura:id="OB_ServicePointResponsibleLastName"
+                                                 onblur="{! c.formalCheck }"/> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Change logic for lookup -->
+                                <aura:if isTrue="{! v.objectDataMap.errorFamily.ErrorLastNameRespPv }">
+                                    <div class="error-input-message">
+                                        {! v.objectDataMap.errorFamilyMessage.ErrorMessageLastNameResp }
+                                    </div>
+                                </aura:if>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__row ">
+                            <div class="slds-form-element slds-size_1-of-2">
+                                <label class="slds-form-element__label" for="OB_ServicePointResponsibleEmail"
+                                       style="margin-top: -4px; position: absolute;">
+                                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                    </aura:if>
+                                    {! $Label.c.OB_MAINTENANCE_REFERENTEMAIL }
+                                </label>
+                                <lightning:input value="{! v.objectDataMap.servicePointResponsible.Email }"
+                                                 label="" aura:id="OB_ServicePointResponsibleEmail"
+                                                 onblur="{! c.formalCheck }"/> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Change logic for lookup -->
+                                <aura:if isTrue="{! v.objectDataMap.errorFamily.errorEmailRespPv }">
+                                    <div class="error-input-message">
+                                        {! v.objectDataMap.errorFamilyMessage.ErrorMessageEmailResp }
+                                    </div>
+                                </aura:if>
+                            </div>
+                            <div class="slds-form-element slds-size_1-of-2">
+                                <label class="slds-form-element__label" for="OB_ServicePointResponsibleMobile"
+                                       style="margin-top: -4px; position: absolute;">
+                                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                    </aura:if>
+                                    {! $Label.c.OB_MAINTENANCE_REFERENTPHONE }
+                                </label>
+                                <lightning:input value="{! v.objectDataMap.servicePointResponsible.MobilePhone }"
+                                                 label="" aura:id="OB_ServicePointResponsibleMobile"
+                                                 onblur="{! c.formalCheck }"/> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Change logic for lookup -->
+                                <aura:if isTrue="{! v.objectDataMap.errorFamily.errorPhoneRespPv }">
+                                    <div class="error-input-message">
+                                        {! v.objectDataMap.errorFamilyMessage.ErrorMessagePhoneResp }
+                                    </div>
+                                </aura:if>
+                            </div>
+                        </div>
+                        <aura:if isTrue="{! v.cancelToShowRespPv }">
+                            <div>
+                                <lightning:button variant="neutral" aura:id="cancelRespPv"
+                                                  label="{! $Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON }"
+                                                  title="Annulla Responsabile Punto Vendita"
+                                                  onclick="{! c.cancelRespPv }"/>
+                            </div>
+                        </aura:if>
+                        <aura:set attribute="else">
+                            <aura:if isTrue="{! !v.fromShortCutReferents }">
+                                <!--antonio.vatrano 16/04/2019 hide button ADDCONTACT if from shortcut referents -->
+                                <div class="buttons">
+                                    <lightning:button variant="brand" aura:id="addRespPuntoVend"
+                                                      label="{! $Label.c.OB_MAINTENANCE_ADD_SALESPOINT }"
+                                                      title="{! $Label.c.OB_MAINTENANCE_ADD_SALESPOINT }"
+                                                      onclick="{! c.addRespPv }" disabled="true"/>
+                                </div>
+                            </aura:if>
+                        </aura:set>
+                    </aura:if>
+                    <!-- DG Control added on error message on fields onblur -->
+                    <aura:if isTrue="{! v.adminResp == true }">
+                        <div class=" slds-text-align_left">{! $Label.c.OB_MAINTENANCE_ADMINISTRATIVE_OFFICER }</div>
+                        <div class="slds-form-element__row ">
+                            <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                <label class="slds-form-element__label" for="OB_ServicePointAdminResponsibleFirstName"
+                                       style="margin-top: -4px; position: absolute;">
+                                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                    </aura:if>
+                                    {! $Label.c.OB_MAINTENANCE_REFERENTNAME }
+                                </label>
+                                <lightning:input
+                                        value="{! v.objectDataMap.administrativeResponsible.FirstName }"
+                                        label="" aura:id="OB_ServicePointAdminResponsibleFirstName"
+                                        onblur="{! c.formalCheck }"/> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Change logic for lookup -->
+                                <aura:if isTrue="{! v.objectDataMap.errorFamily.ErrorNameRespAmmName }"> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Fix add ! -->
+                                    <div class="error-input-message">
+                                        {! v.objectDataMap.errorFamilyMessage.ErrorMessageNameAdminResp }
+                                    </div>
+                                </aura:if>
+                            </div>
+                            <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                <label class="slds-form-element__label" for="OB_ServicePointAdminResponsibleLastName"
+                                       style="margin-top: -4px; position: absolute;">
+                                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                    </aura:if>
+                                    {! $Label.c.OB_MAINTENANCE_REFERENTSURNAME }
+                                </label>
+                                <lightning:input
+                                        value="{! v.objectDataMap.administrativeResponsible.LastName }"
+                                        label="" aura:id="OB_ServicePointAdminResponsibleLastName"
+                                        onblur="{! c.formalCheck }"/> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Change logic for lookup -->
+                                <aura:if isTrue="{! v.objectDataMap.errorFamily.ErrorNameRespAmmLast }">
+                                    <div class="error-input-message">
+                                        {! v.objectDataMap.errorFamilyMessage.ErrorMessageLastNameAdminResp }
+                                    </div>
+                                </aura:if>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__row ">
+                            <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                <label class="slds-form-element__label" for="OB_ServicePointAdminResponsibleEmail"
+                                       style="margin-top: -4px; position: absolute;">
+                                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                    </aura:if>
+                                    {! $Label.c.OB_MAINTENANCE_REFERENTEMAIL }
+                                </label>
+                                <lightning:input value="{! v.objectDataMap.administrativeResponsible.Email }"
+                                                 label="" aura:id="OB_ServicePointAdminResponsibleEmail"
+                                                 onblur="{! c.formalCheck }"/> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Change logic for lookup -->
+                                <aura:if isTrue="{! v.objectDataMap.errorFamily.errorEmailRespAmm }">
+                                    <div class="error-input-message">
+                                        {! v.objectDataMap.errorFamilyMessage.ErrorMessageEmailAdminResp }
+                                    </div>
+                                </aura:if>
+                            </div>
+                            <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+                                <label class="slds-form-element__label" for="OB_ServicePointAdminResponsibleMobile"
+                                       style="margin-top: -4px; position: absolute;">
+                                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                    </aura:if>
+                                    {! $Label.c.OB_MAINTENANCE_REFERENTPHONE }
+                                </label>
+                                <lightning:input
+                                        value="{! v.objectDataMap.administrativeResponsible.MobilePhone }"
+                                        label="" aura:id="OB_ServicePointAdminResponsibleMobile"
+                                        onblur="{! c.formalCheck }"/> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Change logic for lookup -->
+                                <aura:if isTrue="{! v.objectDataMap.errorFamily.errorPhoneRespAmm }">
+                                    <div class="error-input-message">
+                                        {! v.objectDataMap.errorFamilyMessage.ErrorMessagePhoneAdminResp }
+                                    </div>
+                                </aura:if>
+                            </div>
+                        </div>
+                        <aura:if isTrue="{! v.cancelToShowAdminResp }">
+                            <div>
+                                <lightning:button variant="neutral" aura:id="cancelRespAmm"
+                                                  label="{! $Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON }"
+                                                  title="Annulla Responsabile Amministrativo"
+                                                  onclick="{! c.cancelRespAmm }"/>
+                            </div>
+                        </aura:if>
+                        <aura:set attribute="else">
+                            <aura:if isTrue="{! !v.fromShortCutReferents }">
+                                <!--antonio.vatrano 16/04/2019 hide button ADDCONTACT if from shortcut referents -->
+                                <div class="buttons">
+                                    <lightning:button variant="brand" aura:id="addRespAmm"
+                                                      label="{! $Label.c.OB_MAINTENANCE_ADDADMINRESP }"
+                                                      title="{! $Label.c.OB_MAINTENANCE_ADDADMINRESP }"
+                                                      onclick="{! c.addRespAmm }" disabled="true"/>
+                                </div>
+                            </aura:if>
+                        </aura:set>
+                    </aura:if>
+                    <!-- DG - Control added on error message on fields onblur -->
+
+                    <aura:if isTrue="{! v.techRef == true }">
+                        <div class=" slds-text-align_left ">{! $Label.c.OB_MAINTENANCE_TECHNICAL_REFERENT }</div>
+                        <div class="slds-form-element__row ">
+                            <div class="slds-form-element slds-size_1-of-2">
+                                <label class="slds-form-element__label" for="OB_TechnicalReferentFirstName"
+                                       style="margin-top: -4px; position: absolute;">
+                                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                    </aura:if>
+                                    {! $Label.c.OB_MAINTENANCE_REFERENTNAME }
+                                </label>
+                                <lightning:input value="{! v.objectDataMap.technicalReferent.FirstName }"
+                                                 label="" aura:id="OB_TechnicalReferentFirstName"
+                                                 onblur="{! c.formalCheck }"/> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Change logic for lookup -->
+                                <aura:if isTrue="{! v.objectDataMap.errorFamily.ErrorNameTechRefName }">
+                                    <div class="error-input-message">
+                                        {! v.objectDataMap.errorFamilyMessage.ErrorMessageNameTechRef }
+                                    </div>
+                                </aura:if>
+                            </div>
+
+                            <div class="slds-form-element slds-size_1-of-2">
+                                <label class="slds-form-element__label" for="OB_TechnicalReferentLastName"
+                                       style="margin-top: -4px; position: absolute;">
+                                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                    </aura:if>
+                                    {! $Label.c.OB_MAINTENANCE_REFERENTSURNAME }
+                                </label>
+                                <lightning:input value="{! v.objectDataMap.technicalReferent.LastName }" label=""
+                                                 aura:id="OB_TechnicalReferentLastName"
+                                                 onblur="{! c.formalCheck }"/> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Change logic for lookup -->
+                                <aura:if isTrue="{! v.objectDataMap.errorFamily.ErrorNameTechRefLast }">
+                                    <div class="error-input-message">
+                                        {! v.objectDataMap.errorFamilyMessage.ErrorMessageLastNameTechRef }
+                                    </div>
+                                </aura:if>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__row ">
+                            <div class="slds-form-element slds-size_1-of-2">
+                                <label class="slds-form-element__label" for="OB_TechnicalReferentEmail"
+                                       style="margin-top: -4px; position: absolute;">
+                                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                    </aura:if>
+                                    {! $Label.c.OB_MAINTENANCE_REFERENTEMAIL }
+                                </label>
+                                <lightning:input value="{! v.objectDataMap.technicalReferent.Email }" label=""
+                                                 aura:id="OB_TechnicalReferentEmail"
+                                                 onblur="{!c.formalCheck}"/> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Change logic for lookup -->
+                                <aura:if isTrue="{! v.objectDataMap.errorFamily.errorEmailTechRef }">
+                                    <div class="error-input-message">
+                                        {! v.objectDataMap.errorFamilyMessage.ErrorMessageEmailTechRef }
+                                    </div>
+                                </aura:if>
+                            </div>
+
+                            <div class="slds-form-element slds-size_1-of-2">
+                                <label class="slds-form-element__label" for="OB_TechnicalReferentMobile"
+                                       style="margin-top: -4px; position: absolute;">
+                                    <aura:if isTrue="{! v.status == 'EDIT' }">
+                                        <abbr class="slds-required" title="required">*</abbr>
+                                    </aura:if>
+                                    {! $Label.c.OB_MAINTENANCE_REFERENTPHONE }
+                                </label>
+                                <lightning:input value="{! v.objectDataMap.technicalReferent.MobilePhone }"
+                                                 label="" aura:id="OB_TechnicalReferentMobile"
+                                                 onblur="{! c.formalCheck }"/> <!--NEXI-105 z.urban@accenture.com 05/06/2019 Change logic for lookup -->
+                                <aura:if isTrue="{! v.objectDataMap.errorFamily.errorPhoneTechRef }">
+                                    <div class="error-input-message">
+                                        {! v.objectDataMap.errorFamilyMessage.ErrorMessagePhoneTechRef }
+                                    </div>
+                                </aura:if>
+                            </div>
+                        </div>
+                        <aura:if isTrue="{! v.cancelToShowRefTech }">
+                            <div>
+                                <lightning:button variant="neutral" aura:id="cancelRefTech"
+                                                  label="{! $Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON }"
+                                                  title="Annulla Referente Tecnico" onclick="{! c.cancelRefTech }"/>
+                            </div>
+                        </aura:if>
+
+                        <aura:set attribute="else">
+                            <aura:if isTrue="{! !v.fromShortCutReferents }">
+                                <!--antonio.vatrano 16/04/2019 hide button ADDCONTACT if from shortcut referents -->
+                                <div class="buttons">
+                                    <lightning:button variant="brand" aura:id="addRefTech"
+                                                      label="{! $Label.c.OB_MAINTENANCE_ADDTECHREF }"
+                                                      title="{! $Label.c.OB_MAINTENANCE_ADDTECHREF }"
+                                                      onclick="{! c.addRefTech }" disabled="true"/>
+                                </div>
+                            </aura:if>
+                        </aura:set>
+                    </aura:if>
+                </lightning:accordionSection>
+            </aura:if>
+            <!-- end antonio.vatrano 04/04/2019 shortcut servicePoint -->
+
+        </lightning:accordion>
+        <div class="slds-align_absolute-center">
+            <aura:if isTrue="{! v.isToSave }">
+                <div class="slds-p-around_xx-small">
+                    <lightning:button variant="neutral" aura:id="cancelModify"
+                                      label="{! $Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON }"
+                                      title="{! $Label.c.OB_MAINTENANCE_BUTTON_CANCELBUTTON }" onclick="{! c.cancelModify }"/>
+                </div>
+                <div class="slds-p-around_xx-small">
+                    <lightning:button variant="brand" aura:id="save"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_SAVEBUTTON}" onclick="{! c.save }"  />
+                </div>
+            </aura:if>
+            <!--NEXI-65 Wojciech Kucharek <wojciech.kucharek@accenture.com> 29/05/2019 START-->
+            <aura:if isTrue="{! v.isDocumentUploadOpen}">
+                <c:strike_modal
+                        title="Document Upload"
+                        showHeader="true"
+                        showFooter="false"
+                        showClose="false"
+                        showModal="{!v.isDocumentUploadOpen}"
+                        primaryButtonLabel="Ok"
+                        secondaryButtonLabel="Cancel"
+                        size="large"
+                >
+                    <c:OB_Maintenance_AttachedDocumentations  logRequests = "{!v.logRequestsRequiringDocumentation}" recordId="{!v.saveLogRequest}" isDraftModal="true" showSaveButton="{!v.showConfirmButton}" listIsEmpty="true"/>             <!-- NEXI-298 Marta Stempien <marta.stempien@accenture.com> 10/09/2019 Added logRequests param-->
+
+                    <lightning:buttonGroup class="slds-align_absolute-center">
+                        <div>
+                            <lightning:button class="draft" variant="neutral" aura:id="CancelUpload" label="{!$Label.c.OB_MAINTENANCE_SAVEASDRAFT}" title="{!$Label.c.OB_MAINTENANCE_SAVEASDRAFT}" onclick="{!c.saveAsDraft}" /><!--elena.preteni 13/07/2019 wn 101 salva in bozza-->
+                            <!-- antonio.vatrano wn_121 correct method name -->
+                        </div>
+                        <aura:if isTrue="{!v.showConfirmButton}">
+                            <div>
+                                <lightning:button variant="brand" aura:id="closeModal" label="{! $Label.c.OB_MAINTENANCE_CONFIRM}" title="{! $Label.c.OB_MAINTENANCE_CONFIRM}" onclick="{!c.closeModal }" />
+                            </div>
+                            <aura:set attribute="else">
+                                <lightning:button variant="brand" disabled="true" label="{! $Label.c.OB_MAINTENANCE_CONFIRM}" title="{! $Label.c.OB_MAINTENANCE_CONFIRM}"/>
+                            </aura:set>
+                        </aura:if>
+                    </lightning:buttonGroup>
+                    <c:OB_ContinuationBrokerComponent/>
+                </c:strike_modal>
+            </aura:if>
+            <!--NEXI-65 Wojciech Kucharek <wojciech.kucharek@accenture.com> 29/05/2019 STOP-->
+        </div>
+    </div>
+</aura:component>

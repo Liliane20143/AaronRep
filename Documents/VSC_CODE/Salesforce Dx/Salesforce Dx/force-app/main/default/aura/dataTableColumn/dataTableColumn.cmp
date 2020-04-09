@@ -1,0 +1,43 @@
+<aura:component >
+    
+    <aura:attribute name="textVariant" type="String" default="base" /> 
+    <aura:attribute name="truncateText" type="Boolean" default="true" />
+    <aura:attribute name="title" type="String" />
+    <aura:attribute name="rowspan" type="Integer" default="1" />
+    <aura:attribute name="colspan" type="Integer" default="1" />
+    <aura:attribute name="buffer" type="String" />
+    <aura:attribute name="cellVariant" type="String" default="base" />
+    <aura:attribute name="leftButtonIcon" type="String" />
+    <aura:attribute name="leftButtonAlternativeText" type="String" />
+    <aura:attribute name="rightButtonIcon" type="String" />
+    <aura:attribute name="rightButtonAlternativeText" type="String" />
+    <aura:attribute name="align" type="String" default="left" />
+    <aura:attribute name="focusable" type="Boolean" default="false" />
+    <aura:attribute name="focused" type="Boolean" default="false" access="private" />
+    <aura:attribute name="highlighted" type="Boolean" default="false" />
+    <aura:attribute name="class" type="String" default="" />
+    <aura:attribute name="tdStyleBColor" type="String" default="" />
+    <aura:attribute name="rendered" type="Boolean" default="true" />
+    
+    <aura:if isTrue="{!v.rendered}">
+        <td class="{!(v.focused ? 'slds-has-focus ' : '' ) + (v.textVariant == 'caps' ? 'slds-text-title_caps ' : '') + (v.buffer == 'left' ? 'slds-cell-buffer_left ' : v.buffer == 'right' ? 'slds-cell-buffer_right ' : v.buffer == 'both' ? 'slds-cell-buffer_left slds-cell-buffer_right ' : '') + (v.cellVariant == 'edit' ? 'slds-cell-edit ' : '') + (v.align == 'left' ? 'halign-left ' : v.align == 'center' ? 'halign-center ' : v.align == 'right' ? 'halign-right ' : '') + (v.highlighted ? 'cell-higlighted ' : '') + v.class}" scope="col" colspan="{!v.colspan}" rowspan="{!v.rowspan}" role="gridcell" style="{!not(empty(v.tdStyleBColor))? 'background-color: ' +v.tdStyleBColor+';' : ''}" >
+            <aura:if isTrue="{!v.cellVariant == 'edit'}">
+                <span class="slds-grid">
+                    <aura:if isTrue="{!not(empty(v.leftButtonIcon))}">
+                        <lightning:buttonIcon iconName="{!v.leftButtonIcon}" variant="bare" alternativeText="{!v.leftButtonAlternativeText}" class="slds-cell-edit__button" iconClass="slds-button__icon slds-button__icon_hint slds-button__icon_edit"/>
+                    </aura:if>
+                    <span class="{!v.truncateText ? 'slds-truncate' : ''}" title="{!v.title}">{!v.body}</span>
+                    <aura:if isTrue="{!and(not(empty(v.rightButtonIcon)), not(empty(v.rightButtonAlternativeText)))}">
+                        <lightning:buttonIcon iconName="{!v.rightButtonIcon}" variant="bare" alternativeText="{!v.rightButtonAlternativeText}" class="slds-cell-edit__button" iconClass="slds-button__icon slds-button__icon_hint slds-button__icon_edit"/>
+                    </aura:if>
+                </span>
+                <aura:set attribute="else">
+                    <div class="{!v.truncateText ? 'slds-truncate' : ''}" title="{!v.title}">
+                        {!v.body}
+                    </div>
+                </aura:set>
+            </aura:if>
+
+        </td>
+    </aura:if>
+</aura:component>

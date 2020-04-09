@@ -1,0 +1,8 @@
+.THIS #modal-fill-report .combobox-container{
+    max-height: 200px !important;
+}
+
+.THIS #modal-fill-report .slds-dropdown-trigger .slds-dropdown {
+    max-height: 200px;
+    overflow: auto;
+}

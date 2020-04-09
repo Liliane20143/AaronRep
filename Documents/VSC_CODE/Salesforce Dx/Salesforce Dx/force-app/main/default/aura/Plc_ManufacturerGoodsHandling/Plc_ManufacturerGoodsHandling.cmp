@@ -1,0 +1,369 @@
+<aura:component description="Plc_ManufacturerGoodsHandling" controller="Plc_ManufacturerGoodsHandlingCnt"
+                extends="c:Plc_BaseGoodsManagement">
+
+    <!-- Handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.handleInit}"/>
+    <aura:handler event="c:Plc_FilterEvt" action="{!c.handleFilterComponent}"/>
+    <aura:handler name="change" value="{!v.dliQuantityList}" action="{!c.handleChangeDliQuantityList}"/>
+
+    <aura:handler name="change" value="{!v.transferDetailSelected}" action="{!c.handleChangePicklistSelection}"/>
+    <aura:handler name="change" value="{!v.originDealerSelected}" action="{!c.handleChangePicklistSelection}"/>
+    <aura:handler name="change" value="{!v.originWarehouseSelected}" action="{!c.handleChangePicklistSelection}"/>
+    <aura:handler name="change" value="{!v.destinationDealerSelected}" action="{!c.handleChangePicklistSelection}"/>
+    <aura:handler name="change" value="{!v.destinationWarehouseSelected}" action="{!c.handleChangePicklistSelection}"/>
+
+    <!-- Transfer Detail Filters -->
+    <aura:attribute access="private" name="filterDestinationDealer" type="String"/>
+    <aura:attribute access="private" name="filterOriginWarehouse" type="String"/>
+    <aura:attribute access="private" name="filterOriginDealer" type="String"/>
+    <aura:attribute access="private" name="filterDestinationWarehouse" type="String"/>
+
+    <!-- Management attributes -->
+    <aura:attribute access="private" name="distributionListId" type="String"/>
+    <aura:attribute name="distributionListName" type="String"/>
+    <aura:attribute access="private" name="stockOrderId" type="String"/>
+
+    <aura:attribute access="private" name="columnsDliQuantity" type="List"/>
+    <aura:attribute access="private" name="columnsDliSerial" type="List"/>
+    <aura:attribute access="private" name="columnsStockSerial" type="List"/>
+
+    <aura:attribute access="private" name="dliIdList" type="List" description="dliIdList"/>
+    <aura:attribute access="private" name="transferDetailsList" type="List" description="transfer details list"/>
+    <aura:attribute access="private" name="transferDetailSelected" type="String"/>
+
+    <aura:attribute access="private" name="shipmentTab" type="Boolean" default="false"/>
+    <aura:attribute access="private" name="summaryTab_1" type="Boolean" default="true"/>
+    <aura:attribute access="private" name="summaryTab_2" type="Boolean" default="false"/>
+    <aura:attribute access="private" name="summaryTab_3" type="Boolean" default="false"/>
+    <aura:attribute access="private" name="editWizard" type="Boolean" description="false"/>
+
+    <aura:attribute access="private" name="originDealerList" type="List"/>
+    <aura:attribute access="private" name="originWarehouseList" type="List"/>
+    <aura:attribute access="private" name="destinationDealerList" type="List"/>
+    <aura:attribute access="private" name="destinationWarehouseList" type="List"/>
+
+    <aura:attribute access="private" name="originDealerSelected" type="String"/>
+    <aura:attribute access="private" name="originalTransferDetailSelected" type="String"/>
+    <aura:attribute access="private" name="originWarehouseSelected" type="String"/>
+    <aura:attribute access="private" name="destinationDealerSelected" type="String"/>
+    <aura:attribute access="private" name="destinationWarehouseSelected" type="String"/>
+
+    <aura:attribute access="private" name="originDealerSelectedId" type="String"/>
+    <aura:attribute access="private" name="originWarehouseSelectedId" type="String"/>
+    <aura:attribute access="private" name="destinationDealerSelectedId" type="String"/>
+    <aura:attribute access="private" name="destinationWarehouseSelectedId" type="String"/>
+
+    <aura:attribute access="private" name="dliSerialList" type="List"/>
+    <aura:attribute access="private" name="dliQuantityList" type="List"/>
+
+    <!-- Base Wizard attributes -->
+    <aura:set attribute="isNextVisible" value="true"/>
+    <aura:set attribute="isBackVisible" value="false"/>
+    <aura:set attribute="isSaveVisible" value="false"/>
+    <aura:set attribute="uploadCsvIsVisible" value="true"/>
+    <aura:set attribute="serialStatusFilterIsVisible" value="false"/>
+    <aura:set attribute="rangeSerialA_DA_AreVisible" value="false"/>
+    <aura:set attribute="manufacturerFilterIsVisible" value="false"/>
+    <aura:set attribute="showRemoveFilterButton" value="false"/>
+    <aura:set attribute="isSaveEnabled" value="false"/>
+    <aura:set attribute="isNextEnabled" value="false"/>
+    <aura:set attribute="isFilterVisible" value="false"/>
+    <aura:set attribute="showButtonsUpOrDown" value="up"/>
+    <aura:set attribute="showRemoveFilterButton" value="false"/>
+    <aura:set attribute="stockSerialStatus" value="New;Repaired"/>
+
+    <aura:attribute access="private" name="showQuantityPopup" type="Boolean" default="false"/>
+    <aura:attribute access="private" name="selectedQuantity" type="Decimal" default="0"/>
+    <aura:attribute access="private" name="popupMessage" type="String" default="Select quantity."/>
+    <aura:attribute access="private" name="selectedRow" type="Object"/>
+    <aura:attribute access="private" name="showModal" type="Boolean" default="false"/>
+    <aura:attribute access="private" name="modalType" type="String" default="warning"/>
+    <aura:attribute access="private" name="modalMessage" type="String"/>
+    <aura:attribute access="private" name="arraysList" type="List"/>
+    <aura:attribute access="private" name="filterResult" type="List"/>
+    <aura:attribute access="private" name="stockSerialWrapperList" type="List"/>
+    <aura:attribute access="private" name="isExpanded" type="Boolean" default="true"/>
+    <aura:attribute name="inputSearch" type="String" access="public" description="Contains the string to search" default=""/>
+
+    <!-- START Info/error Message Popup -->
+    <div role="alertdialog" tabindex="-1"
+         class="{!v.showQuantityPopup ? 'slds-modal slds-fade-in-open slds-modal--prompt' : 'slds-hide'}"
+         aria-labelledby="header43">
+        <div class="slds-modal__container">
+            <div class="slds-modal__header slds-theme--info slds-theme--alert-texture">
+                <h2 id="header43" class="slds-text-heading--medium">{!$Label.c.Plc_QuantitySelection}</h2>
+            </div>
+            <div class="slds-modal__content slds-p-around--medium slds-text-align--center">
+                <div class="slds-text-align--center">
+                    <div class="slds-size--1-of-4" style="margin-left: 38%">
+                        <ui:inputText aura:id="qtSelectionInput" class="slds-m-right--small"
+                                      label="{!v.popupMessage}"
+                                      value="{!v.selectedQuantity}"/>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-modal__footer slds-theme--default">
+                <button class="slds-button slds-button--neutral'"
+                        onclick="{!c.handleClosePopupByCancel}">{!$Label.c.Plc_Cancel}
+                </button>
+                <button class="slds-button slds-button--neutral"
+                        onclick="{!c.handleClosePopUpByOk}">{!$Label.c.Plc_OK}</button>
+            </div>
+        </div>
+    </div>
+    <div class="{!v.viewPopUp ? 'slds-backdrop slds-backdrop--open' : 'slds-hide'}"></div>
+    <!-- END Info/error Message Popup -->
+
+    <!--*******************POP-UP - errore in data entry*************************-->
+    <div role="alertdialog" tabindex="-1"
+         class="{!v.showModal ? 'slds-modal slds-fade-in-open slds-modal--prompt' : 'slds-hide'}"
+         aria-labelledby="header43">
+        <div class="slds-modal__container">
+            <div class="{!v.modalType == 'success' ? 'slds-modal__header slds-theme--success slds-theme--alert-texture' : 'slds-modal__header slds-theme--info slds-theme--alert-texture'}">
+                <aura:if isTrue="{!v.modalType == 'success'}">
+                    <h2 id="header43" class="slds-text-heading--medium">{!$Label.c.Plc_Success}</h2>
+                </aura:if>
+                <aura:if isTrue="{!v.modalType != 'success'}">
+                    <h2 id="header43" class="slds-text-heading--medium">{!$Label.c.Plc_Attention}</h2>
+                </aura:if>
+            </div>
+            <div class="slds-modal__content slds-p-around--medium">
+                <div class="slds-text-align--center">
+                    <ui:outputRichText value="{!v.modalMessage}"/>
+                </div>
+            </div>
+            <div class="slds-modal__footer slds-theme--default">
+                <button class="slds-button slds-button--neutral" onclick="{!c.handleCloseModal}">{!$Label.c.Plc_OK}</button>
+            </div>
+        </div>
+    </div>
+    <div class="{!v.showModal ? 'slds-backdrop slds-backdrop--open' : 'slds-hide'}"></div>
+    <!--*******************POP-UP - errore in data entry*************************-->
+
+    <div class="{!v.showModal ? 'slds-backdrop slds-backdrop_open' : 'slds-hide'}"></div>
+
+    <!-- [START] Summary Section -->
+    <aura:if isTrue="{!v.summaryTab_1}">
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-size_1-of-3">
+                <span>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-1">
+                            <span>
+                                <p class="{!v.shipmentTab ? 'slds-hide' : 'slds-text-title--caps slds-line-height--reset'}">{!$Label.c.Plc_TransferType}</p>
+                            </span>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1">
+                            <lightning:select class="slds-m-top--small slds-m-right--medium" aura:id='orderTypePicklist'
+                                              label="{!$Label.c.Plc_Transfer}" disabled="true">
+                                <option value="Transfer">Transfer</option>
+                            </lightning:select>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1">
+                             <lightning:select class="slds-m-top--small slds-m-right--medium"
+                                               aura:id='transferDetailsPicklist'
+                                               label="{!$Label.c.Plc_TransferDetails}"
+                                               onchange="{!c.handleChangeTransferDetail}"
+                                               value="{!v.transferDetailSelected}" disabled="{!v.shipmentTab}">
+                                <option label="{!v.editWizard ? v.transferDetailSelected : ''}"
+                                        value="{!v.editWizard ? v.transferDetailSelected : ''}">
+                                    {!v.editWizard ? v.originalTransferDetailSelected : ''}
+                                </option>
+                                <aura:iteration items="{!v.transferDetailsList}" var="transferDetail">
+                                <!-- [START MOD 24/02/2019 09:50]@Author:marco.lebellini@/webresults.it -->
+                                    <!-- <option label="{!transferDetail.Name}"
+                                            value="{!transferDetail.Name}"/> -->
+                                    <option label="{!transferDetail.Name}"
+                                            value="{!transferDetail.Bit2Shop__Code__c}">{!transferDetail.Name}</option>
+                                <!-- [END MOD 24/02/2019 09:50]@Author:marco.lebellini@/webresults.it -->
+                                </aura:iteration>
+                            </lightning:select>
+                        </div>
+                    </div>
+                </span>
+            </div>
+
+            <aura:if isTrue="{!v.summaryTab_2}">
+                <div class="slds-col slds-size_1-of-3">
+                    <span>
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_1-of-1">
+                                <span>
+                                    <p class="{!v.shipmentTab ? 'slds-hide' : 'slds-text-title--caps slds-line-height--reset'}">{!$Label.c.Plc_SelectOrigin}</p>
+                                </span>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 ">
+                                <lightning:select class="slds-m-top--small slds-m-right--medium"
+                                                  aura:id='originDealerPicklist'
+                                                  label="{!$Label.c.Plc_OriginDealer}" value="{!v.originDealerSelected}"
+                                                  onchange="{!c.handleChangeOriginDealer}" disabled="{!v.shipmentTab}">
+                                <option label="{!v.editWizard ? v.originDealerSelected : ''}"
+                                        value="{!v.editWizard ? v.originDealerSelected : ''}">
+                                    {!v.editWizard ? v.originDealerSelected : ''}            
+                                </option>
+                                <aura:iteration items="{!v.originDealerList}" var="originDealer">
+                                    <option label="{!originDealer.Name}" value="{!originDealer.Id}">{!originDealer.Name}</option>
+                                </aura:iteration>
+                                </lightning:select>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1">
+
+                                <lightning:select class="slds-m-top--small slds-m-right--medium"
+                                                  aura:id='originWarehousePicklist'
+                                                  label="{!$Label.c.Plc_OriginWarehouse}"
+                                                  value="{!v.originWarehouseSelected}"
+                                                  onchange="{!c.handleChangeOriginWarehouse}"
+                                                  disabled="{!or(v.shipmentTab, and(v.originDealerSelected == null, v.originDealerSelected == ''))}">
+                                <option label="{!v.editWizard ? v.originWarehouseSelected : ''}"
+                                        value="{!v.editWizard ? v.originWarehouseSelected : ''}">
+                                    {!v.editWizard ? v.originWarehouseSelected : ''}
+                                </option>
+                                <aura:iteration items="{!v.originWarehouseList}" var="originWarehouse">
+                                    <option label="{!originWarehouse.Name}" value="{!originWarehouse.Id}">{!originWarehouse.Name}</option>
+                                </aura:iteration>
+                                </lightning:select>
+                            </div>
+                        </div>
+                    </span>
+                </div>
+            </aura:if>
+
+            <aura:if isTrue="{!v.summaryTab_3}">
+                <div class="slds-col slds-size_1-of-3">
+                    <span>
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_1-of-1">
+                                <span>
+                                    <p class="{!v.shipmentTab ? 'slds-hide' : 'slds-text-title--caps slds-line-height--reset'}">{!$Label.c.Plc_SelectDestination}</p>
+                                </span>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning:select class="slds-m-top--small" aura:id='destinationDealerPicklist'
+                                                  label="{!$Label.c.Plc_DestinationDealer}"
+                                                  value="{!v.destinationDealerSelected}"
+                                                  onchange="{!c.handleChangeDestinationDealer}"
+                                                  disabled="{!v.shipmentTab}">
+                                <option label="{!v.editWizard ? v.destinationDealerSelected : ''}"
+                                        value="{!v.editWizard ? v.destinationDealerSelected : ''}">
+                                    {!v.editWizard ? v.destinationDealerSelected : ''}
+                                </option>
+                                <aura:iteration items="{!v.destinationDealerList}" var="destinationDealer">
+                                    <option label="{!destinationDealer.Name}" value="{!destinationDealer.Id}">{!destinationDealer.Name}</option>
+                                </aura:iteration>
+                                </lightning:select>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning:select class="slds-m-top--small" aura:id='destinationWarehousePicklist'
+                                                  label="{!$Label.c.Plc_DestinationWarehouse}"
+                                                  value="{!v.destinationWarehouseSelected}"
+                                                  onchange="{!c.handleChangeDestinationWarehouse}"
+                                                  disabled="{!or(v.shipmentTab, and(v.destinationDealerSelected == null, v.destinationDealerSelected == ''))}">
+                                <option label="{!v.editWizard ? v.destinationWarehouseSelected : ''}"
+                                        value="{!v.editWizard ? v.destinationWarehouseSelected : ''}">
+                                    {!v.editWizard ? v.destinationWarehouseSelected : ''}
+                                </option>
+                                <aura:iteration items="{!v.destinationWarehouseList}" var="destinationWarehouse">
+                                    <option label="{!destinationWarehouse.Name}" value="{!destinationWarehouse.Id}">{!destinationWarehouse.Name}</option>
+                                </aura:iteration>
+                                </lightning:select>
+                            </div>
+                        </div>
+                    </span>
+                </div>
+            </aura:if>
+
+            <div class="slds-col slds-size_1-of-1 slds-m-top--medium">
+                <span>
+                    <div class="{!v.shipmentTab ? 'slds-hide' : 'row'}">
+                        <lightning:textarea label="Note"/>
+                    </div>
+                </span>
+            </div>
+        </div>
+    </aura:if>
+    <!-- [END] Summary Section -->
+    <aura:if isTrue="{!v.shipmentTab}">
+        <div class="slds-grid slds-wrap slds-m-top--medium">
+            <div class="slds-col slds-size_12-of-12">
+                <c:Plc_FilterCmp configuationMap="{!v.searchConfigurationMap}"
+                                 inputSearchIsVisible="{!v.inputSearchIsVisible}"
+                                 inputSearch="{!v.inputSearch}"
+                                 rangeSerialA_DA_AreVisible="{!v.rangeSerialA_DA_AreVisible}"
+                                 manufacturerFilterIsVisible="{!v.manufacturerFilterIsVisible}"
+                                 serialStatusFilterIsVisible="{!v.serialStatusFilterIsVisible}"
+                                 uploadCsvIsVisible="{!v.uploadCsvIsVisible}"
+                                 showButtonsUpOrDown="{!v.showButtonsUpOrDown}"
+                                 disableRemoveFilterButton="{!v.disableRemoveFilterButton}"
+                                 disableApplyFilterButton="{!v.disableApplyFilterButton}"
+                                 searchOnLoad="{!v.searchOnLoad}"
+                                 warehouseId="{!v.editWizard ? v.originWarehouseSelectedId : v.originWarehouseSelected}"
+                                 stockSerialStatus="{!v.stockSerialStatus}"
+                                 distributionListItemModels="{!v.distributionListItemModels}"/>
+            </div>
+
+            <!-- [START] Title first table -->
+            <div class="slds-col slds-size--12-of-12 slds-m-top--large">
+                <p class="slds-text-title--caps slds-line-height--reset slds-text-title_bold">{!$Label.c.Plc_QuantityProductsToBeSent}</p>
+            </div>
+            <!-- [END] Title first table -->
+
+            <!-- [START] First table -->
+            <div class="slds-col slds-m-top--medium slds-m-bottom--small slds-scrollable slds-box_border"
+                 style="height:200px;">
+                <lightning:datatable keyField="id" aura:id="dliQuantityTable"
+                                     data="{!v.dliQuantityList}"
+                                     columns="{!v.columnsDliQuantity}" onrowaction="{!c.handleQuantitySelection}"
+                                     hideCheckboxColumn="true"/>
+            </div>
+            <!-- [END] First table -->
+
+            <!-- [START] Title second table -->
+            <div class="slds-col slds-size--12-of-12 slds-m-top--x-large">
+                <p class="slds-text-title--caps slds-line-height--reset slds-text-title_bold">{!$Label.c.Plc_SerialProductsToBeShipped}</p>
+            </div>
+            <!-- [END] Title second table -->
+
+            <!-- [START] Second table -->
+            <aura:iteration items="{!v.arraysList}" var="arList" indexVar="index">
+                <div class="slds-m-top--medium">
+                    <div class="slds-col slds-scrollable slds-box_border">
+                        <lightning:datatable keyField="id"
+                                             data="{!arList}"
+                                             columns="{!v.columnsDliSerial}"
+                                             hideCheckboxColumn="true"
+                                             resizeColumnDisabled="true"
+                        />
+                    </div>
+
+                    <div class="{! 'slds-section' + (and(arList[0].isExpanded, arList[0].stockSerialWrapperList.length > 0) ? ' slds-is-open' : '')}"
+                         style="margin-top: -0.18%;">
+                        <h3 class="slds-section__title slds-size--12-of-12">
+
+                            <lightning:button
+                                    iconName="{! 'utility:' + (and(arList[0].isExpanded, arList[0].stockSerialWrapperList.length > 0) ? 'chevrondown' : 'chevronright')}"
+                                    onclick="{!c.handleChangeVisibility}" value="{!arList[0].id}"
+                                    class="slds-button slds-section__title-action">
+                            <span class="slds-truncate"
+                                  title="Related Stock Serials List">{!$Label.c.Plc_RelatedStockSerialsList}</span>
+                            </lightning:button>
+                        </h3>
+                        <div class="slds-section__content"
+                             aria-hidden="{!!and(arList[0].isExpanded, arList[0].stockSerialWrapperList.length > 0)}"
+                             id="divContent" style="margin-top: -0.55%;">
+                            <div class="slds-col slds-scrollable slds-box_border">
+                                <lightning:datatable keyField="id"
+                                                     data="{!arList[0].stockSerialWrapperList}"
+                                                     columns="{!v.columnsStockSerial}"
+                                                     onrowaction="{!c.handleRemoveStockSerial}"
+                                                     hideCheckboxColumn="true"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </aura:iteration>
+            <!-- [END] Second table -->
+        </div>
+    </aura:if>
+
+</aura:component>

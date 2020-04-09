@@ -1,0 +1,5 @@
+<aura:event type="COMPONENT" description="Raised when a new simulation is started">
+    <aura:attribute name="annualParam" type="String" />
+    <aura:attribute name="geoParam" type="String" />
+    <aura:attribute name="mode" type="String" />
+</aura:event>

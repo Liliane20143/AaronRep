@@ -1,0 +1,68 @@
+<!--
+ - Created by adrian.dlugolecki on 23.05.2019. Modified by Joanna Mielczarek <joanna.mielczarek@accenture.com>, 17/06/2019 NEXI-60
+ -->
+
+<aura:component description="OB_LCP006_ContactDataTable" controller="OB_LCC006_ContactDataTable">
+
+    <aura:attribute name="tableData"            type="List"     access="global"  description="List of data to be shown in table" />
+    <aura:attribute name="accountId"            type="String"   access="global"  description="Id of merchant" required="true" />
+    <aura:attribute name="isLoading"            type="Boolean"  access="global"  default="false" description="Control showing tab" />
+    <aura:attribute name="isTEDeletePossible"   type="Boolean"  access="global"  description = "Set to true if there is 2 or more TE contact that can be deleted" default ="false"/>
+    <aura:attribute name="isTEInsertPossible"   type="Boolean"  access="global"  description = "Set to false if there is 6 TE contact [Output]" />
+
+    <!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 START-->
+    <aura:attribute name="fiscalCodes"          type="List"     access="global"  default="[]" description="List of fiscal codes" />
+    <!--NEXI-59 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 22.06.2019 STOP-->
+
+    <aura:attribute name="logRequestNoExists"   type="Boolean"  access="private" default="true" description="Control showing buttons" />
+    <aura:attribute name="logRequestName"       type="String"   access="private" description="Log request name" />
+
+    <aura:registerEvent name="rowTableActionEvent" type="c:OB_LEV006_ContactDataTableEvent" />
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+
+    <aura:if isTrue="{! v.isLoading }">
+        <lightning:spinner variant="brand" size="large" class="slds-show" alternativeText=" " style="position: fixed;"/>
+
+        <aura:set attribute="else">
+            <aura:if isTrue="{! empty( v.tableData )}">
+                <div class="slds-p-around--xx-large slds-text-align_center slds-text-heading_small">
+                        {! $Label.c.OB_NoActualOwners }
+                </div>
+                <aura:set attribute="else">
+                    <aura:if isTrue="{!!v.logRequestNoExists}">
+                        {!$Label.c.OB_MAINTENANCE_LOGALREADYEXIST + ' '+ v.logRequestName}
+                    </aura:if>
+                    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-var-p-around_x-large slds-m-vertical_medium " >
+                        <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="{! $Label.c.OBFiscalCodeContact }">{! $Label.c.OBFiscalCodeContact }</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="{! $Label.c.OB_Surname }">{! $Label.c.OB_Surname }</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="{! $Label.c.OB_MAINTENANCE_REFERENTNAME }">{! $Label.c.OB_MAINTENANCE_REFERENTNAME }</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="{! $Label.c.OB_Validity_start_date }">{! $Label.c.OB_Validity_start_date }</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="{! $Label.c.OB_Validity_End_Date }">{! $Label.c.OB_Validity_End_Date }</div>
+                            </th>
+                            <th class="" scope="col">
+
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <aura:iteration var="tableRowObject" items="{! v.tableData }" >
+                            <c:OB_LCP006_ContactDataTableActionColumn tableRow="{! tableRowObject }" logRequestNoExists="{! v.logRequestNoExists }" isTEDeletePossible="{!v.isTEDeletePossible}"/>
+                        </aura:iteration>
+                        </tbody>
+                    </table>
+                </aura:set>
+            </aura:if>
+        </aura:set>
+    </aura:if>
+</aura:component>

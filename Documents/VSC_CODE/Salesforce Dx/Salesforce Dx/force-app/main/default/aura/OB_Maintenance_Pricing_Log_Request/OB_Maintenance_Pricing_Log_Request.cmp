@@ -1,0 +1,83 @@
+<aura:component controller="OB_Maintenance_Pricing_Log_Request_CC" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" extends="forceCommunity:navigationMenuBase"
+ access="global">
+
+	<aura:attribute name="responseLogRequest" type="Object"/>
+	<aura:attribute name="startDatePos" type="Datetime"/>
+	<aura:attribute name="startDateAcquiring" type="Datetime"/>
+	<aura:attribute name="recordId" type="String" /> 
+	<aura:attribute name="hasPos" type="Boolean" default="false"/>
+	<aura:attribute name="hasAcquiring" type="Boolean" default="false"/>
+	<aura:attribute name="isApprovingProfilePos" type="Boolean" default="false"/>
+	<aura:attribute name="isApprovingProfileAcquiring" type="Boolean" default="false"/>
+	<aura:attribute name="orderId" type="string"/>
+	<aura:handler name="init" value="{! this }" action="{! c.init }"/> 
+
+<div class="  slds-form slds-form_compound slds-p-around--medium " style=" background:white ;border-radius:1% ;" aura:id="MainDiv">
+	
+	<aura:if isTrue = "{!v.hasPos}" >
+		<div class="slds-size--1-of-2 slds-grid ">
+			{!$Label.c.OB_Pos}
+		</div>
+		<div class="slds-form-element__row  ">
+			
+				<div class="slds-form-element slds-small-size--1-of-3 slds-large-size--1-of-3">
+					<div class="slds-p-around--medium slds-form-element">
+						<label class="slds-form-element__label" for="" value="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.OB_MAINTENANCE_PRICING_DATE}
+						</label>
+						<lightning:input type="date" aura:id="startDatePos" label="" value="{!v.startDatePos}" format="dd/MM/yyyy" displayDatePicker="true" disabled = "false"/>         
+					</div>
+				</div>
+			<aura:if isTrue = "{!v.isApprovingProfilePos}">
+				
+					<div class="slds-form-element slds-small-size--1-of-12 slds-large-size--1-of-12">
+						<div class="slds-p-around--medium slds-form-element buttonOkPosAcq">
+							 <lightning:button aura:id = "savePos" label="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_BUTTON_APPROVE}" onclick="{!c.saveButtonPos}" variant="success" />   
+						</div>
+					</div>
+					<!-- <div class="slds-form-element ">
+						<div class=" slds-form-element buttonOkPosAcq">
+							 <lightning:button aura:id = "rejectPos" label="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_BUTTON_REJECT}" onclick="{!c.rejectPos}" variant="destructive" />   
+						</div>
+					</div> -->
+			
+			</aura:if>
+		</div>
+	</aura:if>
+<div class="separatorPricingMain"/>
+
+	<aura:if isTrue = "{!v.hasAcquiring}" >
+		<div class="slds-size--1-of-2 slds-grid ">
+			{!$Label.c.OB_Acquiring}
+		</div>
+		<div class="slds-form-element__row ">
+			
+				<div class="slds-form-element slds-small-size--1-of-3 slds-large-size--1-of-3">
+					<div class="slds-p-around--medium slds-form-element">
+						<label class="slds-form-element__label" for="" value="">
+							<abbr class="slds-required" title="required">*</abbr>
+							{!$Label.c.OB_MAINTENANCE_PRICING_DATE}
+						</label>
+						<lightning:input type="date" aura:id = "startDateAcquiring" label="" value="{!v.startDateAcquiring}" format="dd/MM/yyyy" displayDatePicker="true" disabled = "false"/>         
+					</div>
+				</div>
+			<aura:if isTrue = "{!v.isApprovingProfileAcquiring}">
+				
+					<div class="slds-form-element slds-small-size--1-of-12 slds-large-size--1-of-12 ">
+						<div class="slds-p-around--medium slds-form-element buttonOkPosAcq">
+							 <lightning:button aura:id="saveAcquiring" label="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_BUTTON_APPROVE}" onclick="{!c.saveButtonAcquiring}" variant="success" />   
+						</div>
+					</div>
+					<!-- <div class="slds-form-element  ">
+						<div class=" slds-form-element buttonOkPosAcq">
+							 <lightning:button aura:id="rejectAcquiring" label="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_BUTTON_REJECT}" onclick="{!c.rejectAcquiring}" variant="destructive" />   
+						</div>
+					</div> -->
+				
+			</aura:if>
+		</div>
+	</aura:if>
+</div>
+	
+</aura:component>

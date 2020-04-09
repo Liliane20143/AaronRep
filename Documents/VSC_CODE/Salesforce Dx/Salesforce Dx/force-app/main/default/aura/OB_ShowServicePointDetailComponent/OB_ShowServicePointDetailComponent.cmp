@@ -1,0 +1,634 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" controller="OB_ShowServicePointDetails_CC">
+
+    <!-- CONSTANTS ATTRIBUTES -->
+    <aura:attribute name="days" type="String[]" access="global" />
+
+    <aura:attribute name="mapIdOptionOpeningTime" 	type="Map" />
+    <aura:attribute name="listOpenAfternoon" type="Boolean[]" access="global"/>
+	<aura:attribute name="listOpenMorning" type="Boolean[]" access="global"/>
+    
+	<aura:attribute name="showSpinner" type="Boolean" default="false" access="global" />
+    <aura:attribute name="servicePointResult" 	type="Object" default="{}" access="global" />
+    <aura:attribute name="contactResult" 	    type="Object" default="{}" access="global" />
+    <aura:attribute name="orderHeaderId" 	        type="String" default="" access="global" />
+    <aura:attribute name="objectsLabel" 	    type="Map"      access="global" />
+
+    <aura:attribute name="showServicePointModal" type="Boolean" default="false" access="global" />
+
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+
+    <!-- SPINNER -->
+    <div >
+        <lightning:spinner aura:id="spinnerSP" alternativeText="Loading" size="medium" variant="brand" /> 
+    </div>
+    <!-- / SPINNER -->
+
+    <!-- ANDREA MORITTU END 09-Oct-2019 - EVO_PRODOB_450 -->
+    <aura:if isTrue="{!and(not(empty(v.servicePointResult)), v.showServicePointModal )}">
+    <div aura:id="containerServicePointModal">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <!-- MODAL LOCATION DETAILS-->
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon 	iconName="utility:close"
+                                                name="{!$Label.c.OB_Cancel}"
+                                                onclick="{!c.servicePointModalAction}"
+                                                alternativeText="{!$Label.c.Close}"
+                                                variant="bare-inverse"
+                                                class="slds-modal__close"/>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!join(' ',$Label.c.OB_Details, $Label.c.OB_LocationLabel)}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <lightning:accordion allowMultipleSectionsOpen="true" activeSectionName="contextServicePoint">
+                            <!-- LOCATION DETAILS -->
+                            <lightning:accordionSection name="contextServicePoint" label="{!join(' ',$Label.c.OB_Details, $Label.c.OB_LocationLabel)}">
+                                <aura:set attribute="body" /> 
+                                <div class="slds-grid slds-size--1-of-1" >
+                                    <div class="slds-size--1-of-2 slds-grid">
+                                        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                            <div class="slds-p-around--medium slds-form-element">
+                                                <label class="slds-form-element__label"> {!$Label.c.OB_MAINTENANCE_LOCATION}</label>
+                                                <lightning:input    value="{!v.servicePointResult.Name}"
+                                                                    disabled="true"
+                                                                    variant="label-hidden"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-size--1-of-2 slds-grid">
+                                        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                            <div class="slds-p-around--medium slds-form-element">
+                                                
+                                                <label class="slds-form-element__label"> {!$Label.c.OB_Typology} </label>
+                                                
+                                                <lightning:input value="{!v.servicePointResult.OB_Typology__c}"
+                                                                    disabled="true"
+                                                                    variant="label-hidden"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="slds-grid slds-size--1-of-1" >
+                                    <div class="slds-size--1-of-2 slds-grid">
+                                        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                            <div class="slds-p-around--medium slds-form-element">
+                                                <label class="slds-form-element__label">{!$Label.c.Phone}</label>
+                                                <lightning:input value="{!v.servicePointResult.OB_Mobile_Phone_Number__c}"
+                                                                    disabled="true"
+                                                                    variant="label-hidden"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-size--1-of-2 slds-grid">
+                                        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                            <div class="slds-p-around--medium slds-form-element">
+                                                <label class="slds-form-element__label">{!$Label.c.OB_MAINTENANCE_REFERENTPHONE}  </label>
+                                                <lightning:input    value="{!v.servicePointResult.OB_Phone_Number__c}"
+                                                                    disabled="true"
+                                                                    variant="label-hidden"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="slds-grid slds-size--1-of-1" >
+                                        <div class="slds-size--1-of-2 slds-grid">
+                                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                <div class="slds-p-around--medium slds-form-element">
+                                                    <label class="slds-form-element__label">{!$Label.c.OB_MAINTENANCE_REFERENTEMAIL} </label>
+                                                    <lightning:input value="{!v.servicePointResult.OB_Email__c}"
+                                                                        disabled="true"
+                                                                        variant="label-hidden"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </lightning:accordionSection>
+                            <!-- ADDRESS SERVICE POINT -->
+                            <lightning:accordionSection name="addressServicePoint" label="{!join(' ', $Label.c.OB_Address, $Label.c.OB_LocationLabel)}">
+                                    <div class="slds-grid slds-size--1-of-1" >
+                                        <div class="slds-size--1-of-2 slds-grid">
+                                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                <div class="slds-p-around--medium slds-form-element">
+                                                    <label class="slds-form-element__label">{!$Label.c.OB_Address_Country}</label>
+                                                    <lightning:input   value="{!v.servicePointResult.NE__Country__c}"
+                                                                        disabled="true"
+                                                                        variant="label-hidden"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-grid slds-size--1-of-1" >
+                                        <div class="slds-size--1-of-2 slds-grid">
+                                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                <div class="slds-p-around--medium slds-form-element">
+                                                    <label class="slds-form-element__label"> {!$Label.c.OB_Address_Province} </label>
+                                                    <lightning:input    value="{!v.servicePointResult.NE__Province__c}"
+                                                                        disabled="true"
+                                                                        variant="label-hidden"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-size--1-of-2 slds-grid">
+                                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                <div class="slds-p-around--medium slds-form-element">
+                                                    <label class="slds-form-element__label">{!$Label.c.OB_Address_City}</label>
+                                                    <lightning:input    value="{!v.servicePointResult.NE__City__c}"
+                                                                        disabled="true"
+                                                                        variant="label-hidden"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-grid slds-size--1-of-1" >
+                                        <div class="slds-size--1-of-2 slds-grid">
+                                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                <div class="slds-p-around--medium slds-form-element">
+                                                    <label class="slds-form-element__label">{!$Label.c.OB_Address_District}</label>
+                                                    <lightning:input   value="{!v.servicePointResult.OB_District__c}"
+                                                                        disabled="true"
+                                                                        variant="label-hidden"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-size--1-of-2 slds-grid">
+                                            <div class="slds-size--3-of-4 slds-grid">
+                                                <div class="slds-p-around--medium slds-form-element">
+                                                    <label class="slds-form-element__label"> {!$Label.c.OB_Address_Street}</label>
+                                                    <lightning:input    class="customStreet"
+                                                                        value="{!v.servicePointResult.NE__Street__c}"
+                                                                        disabled="true"
+                                                                        variant="label-hidden"/>
+                                                </div>
+                                            </div>
+                                            <div class="slds-size--1-of-4 slds-grid">
+                                                <div class="slds-p-around--medium slds-form-element">
+                                                    <label class="slds-form-element__label"> {!$Label.c.OB_Address_Street_Number} </label>
+                                                    <lightning:input    value="{!v.servicePointResult.OB_Street_Number__c}"
+                                                                        disabled="true"
+                                                                        variant="label-hidden"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-grid slds-size--1-of-1" >
+                                        <div class="slds-size--1-of-2 slds-grid">
+                                                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                    <div class="slds-p-around--medium slds-form-element">
+                                                        <label class="slds-form-element__label"> {!$Label.c.OB_Address_Zip_Code} </label>
+                                                        <lightning:input    value="{!v.servicePointResult.NE__Zip_Code__c}"
+                                                                            disabled="true"
+                                                                            variant="label-hidden"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-size--1-of-2 slds-grid">
+                                                    <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                        <div class="slds-p-around--medium slds-form-element">
+                                                            <label class="slds-form-element__label">{!$Label.c.Location}</label>
+                                                            <lightning:input    value="{!v.servicePointResult.OB_Address_Detail__c}"
+                                                                                disabled="true"
+                                                                                variant="label-hidden"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            
+                                    </div>                                
+                            </lightning:accordionSection>
+                            <!-- SERVICE POINT TIMES -->
+                            <lightning:accordionSection name="timeServicePoint" label="{!join(' ',$Label.c.OB_TimesLabel, $Label.c.OB_LocationLabel)}">
+                                <!-- SEASONAL TIMES -->
+                                <div class="slds-grid slds-size--1-of-1" >
+                                    <div class="slds-size--1-of-2 slds-grid">
+                                        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                            <div class="slds-p-around--medium slds-form-element">
+                                                <label class="slds-form-element__label"> {!$Label.c.OB_MAINTENANCE_STARTSEASONAL} </label>
+                                                <lightning:input        type="text"
+                                                                        value="{!v.servicePointResult.OB_Start_Seasonal__c}" 
+                                                                        disabled="true"
+                                                                        variant="label-hidden"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-size--1-of-2 slds-grid">
+                                        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                            <div class="slds-p-around--medium slds-form-element">
+                                                <label class="slds-form-element__label">{!$Label.c.OB_End_SeasonalLabel}</label>
+                                                <lightning:input    type="text"
+                                                                    value="{!v.servicePointResult.OB_End_Seasonal__c}"
+                                                                    disabled="true"
+                                                                    variant="label-hidden"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- / SEASONAL TIMES -->
+                                <!-- DAYS  TIMES -->
+                                    <div class="slds-size--1-of-1 slds-grid slds-p-around--medium ">
+                                        <div class="slds-size_1-of-12">
+                                            <div class="slds-col tableHeaderContainer">
+                                                <span class="tableHeaderText">
+                                                    {!$Label.c.OB_Opening_Times_Morning}
+                                                </span>
+                                            </div>
+                                            <div class="tableHeaderContainer">
+                                                <span class="tableHeaderText">
+                                                    {!$Label.c.OB_Opening_Times_Afternoon}
+                                                </span>
+                                            </div>
+                                        </div>
+                                
+                                        <div class="slds-col slds-size_11-of-12">
+                                            <table
+                                                class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                                                <thead>
+                                                    <tr class="slds-text-title_caps">
+                                                        <aura:iteration items="{!v.days}" var="day">
+                                                            <th scope="col">
+                                                                <div class="slds-truncate" title="Days">{!day}</div>
+                                                            </th>
+                                                        </aura:iteration>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                <aura:iteration items="{!v.listOpenMorning}" var="item" indexVar="index">
+                                                    <td data-label="OpenClose">
+                                                        <div class="slds-truncate" title="OpenClose">
+                                                            <div>
+                                                                <div class="slds-form-element" >
+                                                                    <div class="slds-form-element__control">
+                                                                        <div class="slds-select_container">
+                                                                            <aura:if isTrue="{!item}">
+                                                                                <select class="slds-select" disabled="true" name="mySelect"
+                                                                                    id="{!index+'m'}" value="{!v.selectedValue}">
+                                                                                    <option aura:id="opened">{!$Label.c.OB_Opening_Times_Open}</option>
+                                                                                    <option aura:id="closed">{!$Label.c.OB_Opening_Times_Closed}</option>
+                                                                                </select>
+                                                                            <aura:set attribute="else">
+                                                                                <select class="slds-select" name="mySelect" disabled="true"
+                                                                                id="{!index+'m'}" value="{!v.selectedValue}" >
+                                                                                    <option aura:id="closed">{!$Label.c.OB_Opening_Times_Closed}</option>
+                                                                                    <option aura:id="opened">{!$Label.c.OB_Opening_Times_Open}</option>
+                                                                                </select>
+                                                                            </aura:set>
+                                                                        </aura:if>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </aura:iteration>
+                                                    </tr>
+                                                    <tr>
+                                                    <aura:iteration items="{!v.listOpenAfternoon}" var="item" indexVar="index">
+                                                        <td data-label="OpenClose">
+                                                            <div class="slds-truncate" title="OpenClose">
+                                                                <div >
+                                                                    <div class="slds-form-element" >
+                                                                        <div class="slds-form-element__control">
+                                                                            <div class="slds-select_container">
+                                                                                    <aura:if isTrue="{!item}">
+                                                                                            <select class="slds-select" name="mySelect"
+                                                                                                id="{!index+'p'}" value="{!v.selectedValue}" disabled="true"
+                                                                                                onchange="{!c.handleChangeOption}">
+                                                                                                <option aura:id="opened">{!$Label.c.OB_Opening_Times_Open}</option>
+                                                                                                <option aura:id="closed">{!$Label.c.OB_Opening_Times_Closed}</option>
+                                                                                            </select>
+                                                                                        <aura:set attribute="else">
+                                                                                            <select class="slds-select" name="mySelect"
+                                                                                            id="{!index+'p'}" value="{!v.selectedValue}" disabled="true"
+                                                                                            onchange="{!c.handleChangeOption}">
+                                                                                                <option aura:id="closed">{!$Label.c.OB_Opening_Times_Closed}</option>
+                                                                                                <option aura:id="opened">{!$Label.c.OB_Opening_Times_Open}</option>
+                                                                                            </select>
+                                                                                        </aura:set>
+                                                                                    </aura:if>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </aura:iteration>                                        
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <!-- OPENING - CLOSING  TIMES -->
+                                    <div class="slds-grid slds-size--1-of-1" >
+                                            <div class="slds-size--1-of-2 slds-grid">
+                                                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                    <div class="slds-p-around--medium slds-form-element">
+                                                        <label class="slds-form-element__label"> {!$Label.c.OB_OpeningTimeLabel} </label>
+                                                        <lightning:input    type="time"
+                                                        timezone='GMT'
+                                                                            value="{!v.servicePointResult.OB_Opening_Time__c}"
+                                                                            disabled="true"
+                                                                            variant="label-hidden"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-size--1-of-2 slds-grid">
+                                                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                    <div class="slds-p-around--medium slds-form-element">
+                                                        <label class="slds-form-element__label">{!$Label.c.OB_ClosingTime}</label>
+                                                        <!-- <ui:inputDate label="" value="{!v.docRelDate}" class="{!v.docRelDateId}"  change="{!c.changeValueDate}" blur="{!c.removeRedBorderDate}" format="dd/MM/yyyy" displayDatePicker="true"/> 	 -->
+                                                        <lightning:input    type="time"
+                                                        timezone='GMT'
+                                                                            value="{!v.servicePointResult.OB_Ending_Time__c}"
+                                                                            disabled="true"
+                                                                            variant="label-hidden"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </div>
+                                    <div class="slds-size--1-of-1 slds-grid">
+                                    <div class="slds-size_1-of-2" >
+                                            <div class="slds-p-around--medium slds-form-element">
+                                                <label class="slds-form-element__label"
+                                                                for="inputNameSample1"
+                                                                value="{!$Label.c.OB_BreakStartTimeLabel}" 
+                                                                style="margin-top: -4px; position: absolute;" > 
+                                                            <!-- <abbr class="slds-required" title="required">*</abbr> -->
+                                                            {!$Label.c.OB_BreakStartTimeLabel}
+                                                        </label>
+                                                <lightning:input aura:id="breakStartTime"
+                                                timezone='GMT'
+                                                                id= "breakStartTime"
+                                                                type="time"
+                                                                disabled="true"
+                                                                name="input4"
+                                                                onblur="{!c.setFormalMessage}"
+                                                                value="{!v.servicePointResult.OB_Break_Start_Time__c}" 
+                                                                
+                                                                />
+                                        </div>
+                                    </div>
+                                    <div class="slds-size_1-of-2" id="inputTimes">
+                                        <div class="slds-p-around--medium slds-form-element">
+                                            <label class="slds-form-element__label"
+                                            timezone='GMT'
+                                                                    for="inputNameSample1"
+                                                                    value="{!$Label.c.OB_BreakEndTime}" 
+                                                                    style="margin-top: -4px; position: absolute;" > 
+                                                                {!$Label.c.OB_BreakEndTime}
+                                            </label>
+
+
+                                            
+                                            <lightning:input    type="time" 
+                                                                aura:id="breakEndTime" 
+                                                                id="breakEndTime" 
+                                                                disabled="true"
+                                                                name="input4"
+                                                                value="{!v.servicePointResult.OB_Break_End_Time__c}" />
+                                        </div>
+                                    </div>
+                                    </div>
+                            </lightning:accordionSection>
+                                <aura:if isTrue="{!not(empty(v.contactResult))}" >
+                                        <!-- CONTACTS -->
+                                        <!-- REFERENTE PUNTO VENDITA -->
+                                        <lightning:accordionSection name="contextContacts" label="{!$Label.c.OB_MAINTENANCE_SERVICEPOINT_REFERENT}" >
+                                            <aura:if isTrue="{!v.contactResult.refPV.length > 0}" >
+                                                <aura:iteration items="{!v.contactResult.refPV}" var="singleContact" indexVar="i" end="6">
+                                                    <div class="slds-grid slds-size--1-of-1" >
+                                                        <div class="slds-size--1-of-2 slds-grid">
+                                                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                                <div class="slds-p-around--medium slds-form-element">
+                                                                    <label class="slds-form-element__label"> {!$Label.c.OB_MAINTENANCE_REFERENTNAME} </label>
+                                                                    <lightning:input   value="{!singleContact.FirstName}"
+                                                                                        disabled="true"
+                                                                                        variant="label-hidden"/>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="slds-size--1-of-2 slds-grid">
+                                                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                                <div class="slds-p-around--medium slds-form-element">
+                                                                    <label class="slds-form-element__label">{!$Label.c.OB_MAINTENANCE_REFERENTSURNAME}</label>
+                                                                    <lightning:input    value="{!singleContact.LastName}"
+                                                                                        disabled="true"
+                                                                                        variant="label-hidden"/>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-grid slds-size--1-of-1" >
+                                                        <div class="slds-size--1-of-2 slds-grid">
+                                                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                                <div class="slds-p-around--medium slds-form-element">
+                                                                    <label class="slds-form-element__label"> {!$Label.c.Phone} </label>
+                                                                    <lightning:input    value="{!singleContact.MobilePhone}"
+                                                                                        disabled="true"
+                                                                                        variant="label-hidden"/>
+                                                                </div>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                        <div class="slds-size--1-of-2 slds-grid">
+                                                                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                                    <div class="slds-p-around--medium slds-form-element">
+                                                                        <label class="slds-form-element__label"> {!$Label.c.OB_MAINTENANCE_REFERENTPHONE} </label>
+                                                                        <lightning:input   value="{!singleContact.Phone}"
+                                                                                            disabled="true"
+                                                                                            variant="label-hidden"/>
+                                                                    </div>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                    </div>
+                                                    <div class="slds-grid slds-size--1-of-1" >
+                                                            <div class="slds-size--1-of-2 slds-grid">
+                                                                <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                                    <div class="slds-p-around--medium slds-form-element">
+                                                                        <label class="slds-form-element__label"> {!$Label.c.OB_MAINTENANCE_REFERENTEMAIL} </label>
+                                                                        <lightning:input    value="{!singleContact.Email}"
+                                                                                            disabled="true"
+                                                                                            variant="label-hidden"/>
+                                                                    </div>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                </aura:iteration>
+                                            <aura:set attribute="else">
+                                                <div class="NoDataFound">
+                                                    {!$Label.c.OB_MAINTENANCE_LOGREQUEST_NODATA}
+                                                </div>
+                                            </aura:set>
+                                        </aura:if>
+                                        </lightning:accordionSection>
+                                        <!-- RESPONSABILE AMMINISTRATIVO -->
+                                        <lightning:accordionSection name="contextadministrativeContacts" label="{!$Label.c.OB_MAINTENANCE_ADMINISTRATIVE_OFFICER}" >
+                                            <aura:if isTrue="{!v.contactResult.respAmm.length > 0}" >
+                                            <aura:iteration items="{!v.contactResult.respAmm}" var="singleContact" indexVar="i">
+                                                <div class="slds-grid slds-size--1-of-1" >
+                                                    <div class="slds-size--1-of-2 slds-grid">
+                                                        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                            <div class="slds-p-around--medium slds-form-element">
+                                                                <label class="slds-form-element__label"> {!$Label.c.OB_MAINTENANCE_REFERENTNAME} </label>
+                                                                <lightning:input   value="{!singleContact.FirstName}"
+                                                                                    disabled="true"
+                                                                                    variant="label-hidden"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-size--1-of-2 slds-grid">
+                                                        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                            <div class="slds-p-around--medium slds-form-element">
+                                                                <label class="slds-form-element__label">{!$Label.c.OB_MAINTENANCE_REFERENTSURNAME}</label>
+                                                                <lightning:input    value="{!singleContact.LastName}"
+                                                                                    disabled="true"
+                                                                                    variant="label-hidden"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="slds-grid slds-size--1-of-1" >
+                                                    <div class="slds-size--1-of-2 slds-grid">
+                                                        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                            <div class="slds-p-around--medium slds-form-element">
+                                                                <label class="slds-form-element__label"> {!$Label.c.OB_MAINTENANCE_REFERENTPHONE}  </label>
+                                                                <lightning:input   value="{!singleContact.Phone}"
+                                                                                    disabled="true"
+                                                                                    variant="label-hidden"/>
+                                                            </div>
+                                                            
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-size--1-of-2 slds-grid">
+                                                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                                <div class="slds-p-around--medium slds-form-element">
+                                                                    <label class="slds-form-element__label"> {!$Label.c.Phone} </label>
+                                                                    <lightning:input   value="{!singleContact.MobilePhone}"
+                                                                                        disabled="true"
+                                                                                        variant="label-hidden"/>
+                                                                </div>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                </div> 
+                                                <div class="slds-grid slds-size--1-of-1" >
+                                                        <div class="slds-size--1-of-2 slds-grid">
+                                                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                                <div class="slds-p-around--medium slds-form-element">
+                                                                    <label class="slds-form-element__label"> {!$Label.c.OB_MAINTENANCE_REFERENTEMAIL}  </label>
+                                                                    <lightning:input   value="{!singleContact.Email}"
+                                                                                        disabled="true"
+                                                                                        variant="label-hidden"/>
+                                                                </div>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div> 
+                                            </aura:iteration>
+                                            <aura:set attribute="else" >
+                                                <div class="NoDataFound" >
+                                                    {!$Label.c.OB_MAINTENANCE_LOGREQUEST_NODATA}
+                                                </div>
+                                            </aura:set>
+                                        </aura:if>
+                                        </lightning:accordionSection>
+                                         <!-- REFERENTE TECNICO -->
+                                         <lightning:accordionSection name="contextContacts" label="{!$Label.c.OB_MAINTENANCE_TECHNICAL_REFERENT}" >
+                                        <aura:if isTrue="{!v.contactResult.refTec.length > 0}" >
+                                            <aura:iteration items="{!v.contactResult.refTec}" var="singleContact" indexVar="i">
+                                                <div class="slds-grid slds-size--1-of-1" >
+                                                    <div class="slds-size--1-of-2 slds-grid">
+                                                        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                            <div class="slds-p-around--medium slds-form-element">
+                                                                <label class="slds-form-element__label"> {!$Label.c.OB_MAINTENANCE_REFERENTNAME} </label>
+                                                                <lightning:input   value="{!singleContact.FirstName}"
+                                                                                    disabled="true"
+                                                                                    variant="label-hidden"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-size--1-of-2 slds-grid">
+                                                        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                            <div class="slds-p-around--medium slds-form-element">
+                                                                <label class="slds-form-element__label">{!$Label.c.OB_MAINTENANCE_REFERENTSURNAME} </label>
+                                                                <lightning:input    value="{!singleContact.LastName}"
+                                                                                    disabled="true"
+                                                                                    variant="label-hidden"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="slds-grid slds-size--1-of-1" >
+                                                    <div class="slds-size--1-of-2 slds-grid">
+                                                        <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                            <div class="slds-p-around--medium slds-form-element">
+                                                                <label class="slds-form-element__label"> {!$Label.c.OB_MAINTENANCE_REFERENTPHONE} </label>
+                                                                <lightning:input   value="{!singleContact.Phone}"
+                                                                                    disabled="true"
+                                                                                    variant="label-hidden"/>
+                                                            </div>
+                                                            
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-size--1-of-2 slds-grid">
+                                                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                                <div class="slds-p-around--medium slds-form-element">
+                                                                    <label class="slds-form-element__label"> {!$Label.c.Phone}</label>
+                                                                    <lightning:input   value="{!singleContact.MobilePhone}"
+                                                                                        disabled="true"
+                                                                                        variant="label-hidden"/>
+                                                                </div>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                </div>
+                                                <div class="slds-grid slds-size--1-of-1" >
+                                                        <div class="slds-size--1-of-2 slds-grid">
+                                                            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                                                                <div class="slds-p-around--medium slds-form-element">
+                                                                    <label class="slds-form-element__label"> {!$Label.c.OB_MAINTENANCE_REFERENTEMAIL}  </label>
+                                                                    <lightning:input   value="{!singleContact.Email}"
+                                                                                        disabled="true"
+                                                                                        variant="label-hidden"/>
+                                                                </div>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div> 
+                                            </aura:iteration>
+                                        <aura:set attribute="else">
+                                                <div class="NoDataFound" >
+                                                        {!$Label.c.OB_MAINTENANCE_LOGREQUEST_NODATA}
+                                                </div>
+                                                </aura:set>
+                                    </aura:if>
+                                        </lightning:accordionSection>
+                                </aura:if>
+                        </lightning:accordion>
+                    </div>   
+
+                    <footer class="slds-modal__footer">
+                        <!-- ANDREA MORITTU START 30-Sept-2019 - EVO_PRODOB_475 -->
+                        <div class="slds-grid slds-size_1-of-1">
+                            <div class="slds-grid slds-size_1-of-3">
+                                <lightning:button 	class="CTAStyle_BRAND"
+                                                    name="{!$Label.c.OB_Cancel}"
+                                                    variant="brand" 
+                                                    label="{!$Label.c.OB_Cancel}"
+                                                    title="{!$Label.c.OB_Cancel}"
+                                                    onclick="{!c.servicePointModalAction}"/>
+                            </div>
+                            <div class="slds-grid slds-size_1-of-3" />
+                            <div class="slds-grid slds-size_1-of-3" />
+                        </div>
+                        <!-- ANDREA MORITTU END 30-Sept-2019 - EVO_PRODOB_475 -->
+                        
+
+                    </footer>
+                </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+    </aura:if>
+</aura:component>

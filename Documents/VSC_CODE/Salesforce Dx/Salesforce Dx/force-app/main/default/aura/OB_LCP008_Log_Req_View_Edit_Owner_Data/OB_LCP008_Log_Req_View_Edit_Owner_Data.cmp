@@ -1,0 +1,22 @@
+<aura:component access="public">
+    <aura:attribute name="reducedData" type="Object[]" access="global" required="true" description="Object data to present"/>
+
+    <lightning:layout multipleRows="true" >
+        <aura:iteration items="{!v.reducedData}" var="reducedDataObject">
+            <lightning:layoutItem size="6" class="slds-section__title slds-p-around--xx-small">
+                {!$Label.c.OB_MAINTENANCE_BUTTON_PREVIOUS}&nbsp;{!reducedDataObject.objectName}:&nbsp;{!reducedDataObject.oldObjectLabel}
+            </lightning:layoutItem>
+            <lightning:layoutItem size="6" class="{!reducedDataObject.action == 'Remove' ? 'slds-hidden slds-section__title slds-p-around--xx-small' : 'slds-section__title slds-p-around--xx-small'}">
+                {!$Label.c.OB_MAINTENANCE_BUTTON_CURRENT}&nbsp;{!reducedDataObject.objectName}:&nbsp;{!reducedDataObject.newObjectLabel}
+            </lightning:layoutItem>
+            <lightning:layoutItem size="6" class="slds-p-around--xx-small">
+                <lightning:input value="{!reducedDataObject.action}" label ="Action" disabled="true"/>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="6" class="slds-p-around--xx-small">
+                <lightning:input value="" label ="" disabled="true" class="slds-hidden"/>
+            </lightning:layoutItem>
+            <c:OB_LCP008_Log_Request_View_Extract reducedData="{!reducedDataObject}"/>
+        </aura:iteration>
+    </lightning:layout>
+
+</aura:component>

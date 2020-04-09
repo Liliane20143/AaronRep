@@ -1,0 +1,287 @@
+<aura:component implements="flexipage:availableForAllPageTypes" 
+				access="global"
+				controller="OB_ConfigureActivePOS_CC">
+	
+	<aura:attribute name="listOfCartPOSActive" type="List" />
+	<aura:attribute name="listOfCartPOSToShow" type="List" />
+	<aura:attribute name="listOfCartPOSToShowSmall" type="List" />
+	<aura:attribute name="subsetNumber" type="Integer" default="5" />
+	<aura:attribute name="itemPricing" type="Object" />
+	
+	<aura:attribute name="moreToShow" type="Boolean" default="false" />
+	<aura:attribute name="spinner" type="Boolean" default="true"/>
+	<aura:attribute name="showAll" type="Boolean" default="true" />
+	<aura:attribute name="showPrices" type="Boolean" default="false" />
+	
+	<!-- readOnly? -->
+	<aura:attribute name="isReadOnly" type="Boolean" default="true" /> 
+	
+	<!-- 28/11/18 francesca.ribezzi - adding attributes for markup: -->
+	<aura:attribute name="posCategories" type="List" default="['IMPORTO','COMMISSIONE','GRATUITA','PERCENTUALE']"/>
+	<aura:attribute name="numOfCol" type="String" default="0"/>
+    <aura:attribute name="maxCol" type="String" default="0"/>
+    <aura:attribute name="commissionColSize" type="Integer" default='2'/>
+    <aura:attribute name="uniqueLabels" type="List" />
+	
+	<aura:attribute name="listOfItemsCart" type="List"/>
+	
+	<!-- CUSTOM LABELS   {!$Label.c.<nomeLabel>} -->
+	<aura:attribute name="LabelTitleChildPos" type="String" default="{!$Label.c.OB_MyTerminals}" />
+	<aura:attribute name="labelShowAll" type="String" default="{!$Label.c.OB_ShowAll}" />
+	<aura:attribute name="labelShowLess" type="String" default="{!$Label.c.OB_Close}" />
+	<!--     END       -->
+
+	<!-- Daniele Gandini <daniele.gandini@accenture.com> - 29/04/2019 - TerminalsReplacement - Added typologiesValue parameter to make logic with in FlowCart -> ConfigurePOS -> ConfigureActivePOS - START -->
+	<aura:attribute name="typologiesValue" type="String"/>
+	<aura:attribute name="isReplacement" type="Boolean" access="global"/>
+	<aura:attribute name="showModal" type="Boolean" default="false"/>
+	<aura:attribute name="terminalsId" type="List" />
+	<aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="selectedIdPos" type="String"/>
+	<!-- <aura:attribute name="clickedId" type="String"/> -->
+	<!-- Daniele Gandini <daniele.gandini@accenture.com> - 29/04/2019 - TerminalsReplacement - Added typologiesValue parameter to make logic with in FlowCart -> ConfigurePOS -> ConfigureActivePOS - END -->
+	<!-- <daniele.gandini@accenture.com> - 11/07/2019 - F2WAVE2-124 - start -->
+	<aura:attribute name="contextOutput" type="Object"/>
+	<aura:attribute name="newCartList" type="Object"/>
+	<!-- <daniele.gandini@accenture.com> - 11/07/2019 - F2WAVE2-124 - stop -->
+	<!-- ANDREA MORITTU START 2019.05.07 - Id_Stream_6_Subentro -->
+	<aura:attribute name="oldTerminalArePresent" type="Boolean" access="global" default="false"/>		
+	<!-- ANDREA MORITTU END 2019.05.07 - Id_Stream_6_Subentro -->
+    <!--  START Andrea Saracini 13/05/2019 Maintenance Terminal Removed -->
+	<aura:attribute name="showModalRemoveTerminal" type="Boolean" default="false"/>
+	<aura:attribute name="showModalLastTerminal" type="Boolean" default="false"/>
+	<!--  STOP Andrea Saracini 13/05/2019 Maintenance Terminal Removed -->
+
+	<!--21/06/19 francesca.ribezzi adding cartList attribute-->	
+	<aura:attribute name="test" type="string"/>
+	<aura:attribute name="cartList" type="Object"/> 
+	<!-- LUBRANO 16/01/2019 Libreria Log -->
+	<ltng:require scripts = "{!$Resource.utils}" afterScriptsLoaded =  "{!c.logInit}" />
+
+	
+	<!--  EVENT REGISTER + HANDLERS -->
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+	<aura:registerEvent name="ConfigureActivePOSEventRemove" type="c:OB_ConfigureActivePOSEventRemove"/>
+	<!--      END      -->
+
+	<!--21/06/19 francesca.ribezzi adding event -->
+	<aura:registerEvent name="configureActivePosEvent" type="c:OB_ConfigureActivePOSevent" />
+	
+	<!--  TITLE -->
+	<div class="slds-grid ">  
+	     <span class="slds-col slds-size_2-of-3">
+		    <div class="u116" data-label="page title">
+				<!-- ANDREA.MORITTU START 2019.05.08 - ID_Stream_6_Subentro -->
+				<div>
+					<span class="slds-align_absolute-center customSubtitle">
+						{!$Label.c.OB_ChoseYourTerminalsLabels}
+					</span>
+				</div>
+				<aura:if isTrue="{!v.oldTerminalArePresent}">
+					<span class="subtitle">
+						{!$Label.c.OB_OldTerminalsLabel} :
+					</span>
+					<span class="numLen">
+						{!v.listOfCartPOSActive.length}
+					</span>
+					<aura:set attribute="else">
+						<p><span class="subtitle">{!v.LabelTitleChildPos}</span> <span class="numLen">({!v.listOfCartPOSActive.length})</span></p>
+					</aura:set>
+				</aura:if>
+				<!-- ANDREA.MORITTU END 2019.05.08 - ID_Stream_6_Subentro -->
+		    </div>
+	    </span>
+    </div>
+    <!--  END TITLE -->
+    <!-- Simone Misani  06-12-2019 - perf21 -->
+	<div class="slds-grid slds-wrap ">
+		<aura:iteration items="{!v.listOfCartPOSToShow}" var="item" indexVar="index">
+			<div class="{!and(v.itemPricing == item.cartItem,v.showPrices == true)? 'slds-col slds-size_1-of-1 slds-medium-size_1-of-'+v.subsetNumber+' slds-small-size_1-of-1 activeItemStyle active': 'slds-col slds-size_1-of-1 slds-medium-size_1-of-'+v.subsetNumber+' slds-small-size_1-of-1 activeItemStyle '}" id="{!item.cartItem.fields.itemCode}" onclick="{!c.togglePrices}"> <!-- Simone Misani  06-12-2019 - perf21 -->
+			<!-- Daniele Gandini <daniele.gandini@accenture.com> - 30/04/2019 - TerminalsReplacement - Logic for delete icon visibility and usage - START -->
+				<div class="slds-grid slds-size_12-of-12">
+					<div class="slds-col slds-size_11-of-12">
+						<span>{!item.cartItem.fields.productname}</span>
+					</div>
+					<div class="slds-col slds-size_1-of-12">
+					<!--  trashcan to delete -->
+					<aura:if isTrue="{!v.isReplacement}">
+						<span> 
+							<lightning:buttonIcon aura:Id="deleteIconDisabled" name="{!item.cartItem.fields.itemCode}" iconName="utility:delete" size="large" variant="bare" alternativeText="Delete" iconClass="{!v.oldTerminalArePresent ? 'displayNone' : 'disabledIcon' }" onclick="{!c.deleteActiveItem}" disabled="{!v.isReplacement}" /><!-- Simone Misani  06-12-2019 - perf21 -->
+						</span>
+					</aura:if>
+					<!--  START Andrea Saracini 13/05/2019 Maintenance Terminal Removed -->
+					<aura:if isTrue="{!and(not(v.isReplacement), not(empty(item.cartItem.fields.startdate)))}">
+						<span> 
+							<lightning:buttonIcon aura:Id="deleteIcon" name="{!item.cartItem.fields.itemCode}" iconName="utility:delete" size="large" variant="bare" alternativeText="Delete" iconClass="{!v.oldTerminalArePresent ? 'displayNone' : 'redIcon' }" onclick="{!c.checkDeleteActiveItem}" disabled="{!v.isReplacement}" /><!-- Simone Misani  06-12-2019 - perf21 -->
+						</span>
+					</aura:if>
+					<!--  STOP Andrea Saracini 13/05/2019 Maintenance Terminal Removed -->
+					</div>
+				</div>
+				<div class="slds-grid slds-size_12-of-12">
+					<div class="slds-col slds-size_11-of-12">
+				<!-- Daniele Gandini <daniele.gandini@accenture.com> - 30/04/2019 - TerminalsReplacement - Logic for delete icon visibility and usage - END -->
+						<aura:iteration items="{!item.cartItem.listOfAttributes}" var="att" indexVar="indexAtt">
+							<aura:if isTrue="{!att.fields.name == 'Terminal Id'}">
+								<span class="terminal_text">
+									{!att.fields.name}: 
+									<span class="terminal_text-bold">
+										{!att.fields.value}<!-- debug -->
+									</span>
+								</span>
+								<span class="arrowDetailsPrice">
+									<aura:if isTrue="{!and(v.itemPricing == item.cartItem,v.showPrices == true)}">
+										<lightning:icon iconName="utility:up" size="x-small" alternativeText="hide details" onclick="{!c.hidePrices}" class="arrowHidePrice" />
+									<aura:set attribute="else"> 
+										<lightning:icon iconName="utility:down" size="x-small" alternativeText="open details"  />
+									</aura:set>
+									</aura:if>
+								</span>
+							</aura:if>
+						</aura:iteration>
+					<!--Daniele Gandini <daniele.gandini@accenture.com> - 03/05/2019 - TerminalsReplacement-Task3 - Info terminal Replacement Modal - START -->
+					</div>
+					<div class="slds-col slds-size_1-of-12">
+						<aura:if isTrue="{!v.isReplacement}">
+							<span> <!--francesca.ribezzi 17/12/19 - PERF-63 - using itemCode - id is empty -->  
+								<lightning:buttonIcon name="{!item.cartItem.fields.itemCode}" iconName="utility:rotate" size="large" variant="bare" alternativeText="{!$Label.c.OB_Replacement}" iconClass="bluIcon" onclick="{!c.openModal}"/>
+							</span>
+						</aura:if>
+					</div>
+					<aura:if isTrue="{!v.showModal}">
+						<c:strike_modal size="small" 
+										title = "{!$Label.c.OB_Terminal_Replacement_Confirmation}"
+										showHeader="true" 
+										showFooter="false" 
+										showClose="false" 
+										showModal="{!v.showModal}">
+						<div>
+							<div class="slds-text-heading_small slds-hyphenate">{!$Label.c.OB_Terminal_Replacement_Text}</div>
+						</div>
+						<footer class="slds-modal__footer">
+							<div class="slds-align_absolute-center buttons">
+								<lightning:button variant="neutral" label="{!$Label.c.OB_Cancel}" title="{!$Label.c.OB_Cancel}" onclick="{!c.backToTerminals}" />
+								<lightning:button variant="brand" name="{!item.cartItem.fields.itemCode}" label="{!$Label.c.OB_Confirm}" title="{!$Label.c.OB_Confirm}" onclick="{!c.deleteActiveItem}" /><!-- Simone Misani  06-12-2019 - perf21 -->
+							</div>
+						</footer>
+						</c:strike_modal>
+					</aura:if>
+					<!--Daniele Gandini <daniele.gandini@accenture.com> - 03/05/2019 - TerminalsReplacement-Task3 - Info terminal Replacement Modal - END -->
+                    <!--  START Andrea Saracini 13/05/2019 Maintenance Terminal Removed -->
+					<aura:if isTrue="{!v.showModalRemoveTerminal}">
+						<c:strike_modal size="small" 
+										title = "{!$Label.c.OB_Warning}"
+										showHeader="true" 
+										showFooter="false" 
+										showClose="false" 
+										showModal="{!v.showModalRemoveTerminal}">
+						<div>
+							<div class="slds-text-heading_small slds-hyphenate">{!$Label.c.OB_RemoveRequest}</div>
+						</div>
+						<footer class="slds-modal__footer">
+							<div class="slds-align_absolute-center buttons">
+								<lightning:button variant="neutral" label="{!$Label.c.OB_Cancel}" title="{!$Label.c.OB_Cancel}" onclick="{!c.backToTerminalsList}" />
+								<lightning:button variant="brand" name="{!item.cartItem.fields.itemCode}" label="{!$Label.c.OB_Confirm}" title="{!$Label.c.OB_Confirm}" onclick="{!c.deleteActiveItem}" /><!-- Simone Misani  06-12-2019 - perf21 -->
+							</div>
+						</footer>
+						</c:strike_modal>
+					</aura:if>
+					<aura:if isTrue="{!v.showModalLastTerminal}">
+						<c:strike_modal size="small" 
+										title = "{!$Label.c.OB_Warning}"
+										showHeader="true" 
+										showFooter="false" 
+										showClose="false" 
+										showModal="{!v.showModalLastTerminal}">
+						<div>
+							<div class="slds-text-heading_small slds-hyphenate">{!$Label.c.OB_LastTerminalStartOffer}</div>
+						</div>
+						<footer class="slds-modal__footer">
+							<div class="slds-align_absolute-center buttons">
+								<lightning:button variant="neutral" label="{!$Label.c.OB_Close}" title="{!$Label.c.OB_Close}" onclick="{!c.backToMerchant}" />
+							</div>
+						</footer>
+						</c:strike_modal>
+					</aura:if>						
+					<!--  START Andrea Saracini 13/05/2019 Maintenance Terminal Removed -->
+                    
+            <!-- Daniele Gandini <daniele.gandini@accenture.com> - 30/04/2019 - TerminalsReplacement - Logic for delete icon visibility and usage - END -->
+				</div>
+			<!--  START PRICES -->
+			<aura:if isTrue="{!and(v.showPrices == true, v.itemPricing == item.cartItem)}">
+			<div class="pricesContainerStyle" style="{!'width:'+v.subsetNumber+'00%;left:-'+mod(index,v.subsetNumber-1)+'03%'}">  
+	        	<div class="slds-grid  slds-gutters slds-wrap">
+	        		<div class="slds-col slds-size_1-of-4">
+				    	
+				    </div>  
+	            	<div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-small-size_1-of-1">
+		               	<div class="slds-grid  slds-gutters headerContainer">  
+							<aura:iteration items="{!v.uniqueLabels}" var="lab" > 
+								<div class="{!'slds-col slds-size_1-of-3 slds-medium-size_1-of-'+v.maxCol+' slds-small-size_1-of-3'}">
+									<span>
+										<div class="{!lab != 'Condizioni particolari/Mesi'?'slds-col headerLabel' : 'slds-col'}"> 
+											<span>  
+												<p class="{!lab == 'a'?'attributeNames' : 'attributeNames shortAttrName'}">{!lab}</p>
+											</span>
+										</div>
+									</span>
+								</div>
+							</aura:iteration> 
+						</div>
+				  </div>
+				  </div>
+				  <div class="topBorderItemDetail"></div>
+                  <aura:iteration items="{!v.listOfItemsCart}" var="childItem" indexVar="index3">
+                  <aura:if isTrue="{!and(childItem.item.fields.RecordTypeName =='Pricing', v.itemPricing.fields.catalogitemid == childItem.item.fields.productcatalogitem)}"> 
+                   
+                      <c:OB_childItem  childItem="{!childItem}" 
+                                     fatherItem="{!item.cartItem}" 
+                                     commissionColSize="{!v.commissionColSize}"
+                                     maxCol="{!v.maxCol}"
+                                     numOfCol="{!v.numOfCol}"
+                                     isReadOnly="{!v.isReadOnly}"
+                                     />                  
+                    </aura:if>
+                    <!-- END PRICES -->    
+                   </aura:iteration>			
+			</div>
+			</aura:if>
+			</div>
+		</aura:iteration>		
+	</div>
+	
+	<aura:if isTrue="{!v.moreToShow}">
+		<div name="footer" class="slds-grid">
+			<span class="slds-col slds-size_11-of-12">
+				<span>
+					<hr class="closingLine"/>
+				</span>
+			</span>
+			<aura:if isTrue="{!v.showAll == true}">
+				<span class="slds-col slds-size_1-of-12" onclick="{!c.showAll}">
+					<span class="arrow_text">{!v.labelShowAll}</span> 
+					<div class="showDetails" style="display: inline-block;">
+					       <span class="arrow_image" > 
+					           <div class="arrowCircleContainer">
+					           		<lightning:icon class="arrow" size="small" iconName="utility:down" alternativeText="open details" onclick="{!c.showAll}" />
+					           </div>
+					       </span>
+					</div>       
+				 </span>
+			 <aura:set attribute="else">	    
+				 <span class="slds-col slds-size_1-of-12"  onclick="{!c.showLess}">
+				 	 <span class="arrow_text">{!v.labelShowLess}</span>
+				 	 <div class="hideDetails" style="display: inline-block;">
+					     <span class="arrow_image">
+						     <div class="arrowCircleContainer">
+						     	<lightning:icon size="small" class="arrow" iconName="utility:up" alternativeText="hide details" onclick="{!c.showLess}" />
+						     </div>
+					     </span>
+					 </div>    
+				 </span>
+			</aura:set>
+			</aura:if>	  
+	    </div>
+	</aura:if>
+	
+</aura:component>

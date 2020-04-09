@@ -1,0 +1,74 @@
+.THIS input:disabled {
+    cursor: default !important;
+    /*background-color : rgb(255, 255, 255)!important;*/
+}
+
+.THIS .slds-modal__container{
+    max-width: 70rem !important;
+    width:80% !important;
+}
+
+.THIS .ohdp-showConfigurationDetails .flow-section-separator
+{
+	height: 1px !important;
+	width: 100% !important;
+	margin-left: -12px !important;
+	padding-right: 0px !important;
+}
+.THIS .ohdp-showConfigurationDetails .flow-section-separator-container
+{
+	margin-left: -12px !important;
+	margin-top: 20px !important;
+}
+.THIS .ohdp-showConfigurationDetails .bit2flowFormSectionCmp
+{
+	border-top: 1px solid rgb(212,212,212) !important;
+    padding-top: 2em !important;
+}
+.THIS .ohdp-showConfigurationDetails .orderitem-details-btn
+{
+	white-space: nowrap !important;
+}
+.THIS .slds-col1 {
+	text-align: center!important;
+}
+
+.THIS .slds-col2 {
+	text-align: center!important;
+}
+
+.THIS #titleMessage {
+	font-size: 200%;
+	text-decoration: solid!important;
+}
+.THIS .bodyMessage {
+	font-size: 110%;
+}
+/*ANDREA MORITTU START 30-Sept-2019 EVO_PRODOB_475 */
+.THIS .CTAStyle {
+	font-size: 1.2em!important;
+	text-transform: uppercase!important;
+	font-weight: 600!important;
+	border-color: rgb(48, 58, 178);
+	border-width: 0,5px;
+	border-width: 1px;
+	color: rgb(48, 58, 178);
+	font-family: arial;
+}
+
+.THIS .CTAStyle_BRAND {
+	font-size: 1.2em!important;
+	text-transform: uppercase!important;
+	font-weight: 600!important;
+	border-color: rgb(48, 58, 178);
+	border-width: 0.3125rem;
+	border-width: 0.0625rem; 
+	}
+
+/*ANDREA MORITTU END 30-Sept-2019 EVO_PRODOB_475 */
+/*ANDREA MORITTU START 11-OCt-2019 EVO_PRODOB_450 */
+.THIS .noWrap {
+	white-space: nowrap!important;
+	top: 38%!important;
+}
+/*ANDREA MORITTU END 11-OCt-2019 EVO_PRODOB_450 */

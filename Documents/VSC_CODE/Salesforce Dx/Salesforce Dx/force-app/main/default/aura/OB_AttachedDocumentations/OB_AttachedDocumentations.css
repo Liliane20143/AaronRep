@@ -1,0 +1,52 @@
+.THIS .submit{
+	
+	color: white;
+	text-align: center;
+	width: 110px;
+	height: 30px;
+	left:50%;
+	margin-top: 1%;
+	margin-bottom: 1%;
+
+
+}
+/*giovanni spinelli - style download buttons*/
+.THIS .button_download{
+	float: right;
+	margin-right: 8px;
+    margin-bottom: 8px;
+}
+/*giovanni spinelli - style helper text*/
+.THIS .helperClass{
+	float: right;
+	color: gray;
+}
+/* Start antonio.vatrano R1F3-97 24/09/2019 */
+
+.THIS .myRow
+{
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+
+}
+.THIS .GeneraButton
+{
+    color: #0099de;
+    text-align: center;
+    width: 110px;
+    height: 30px;
+
+}
+.THIS .myWord
+{
+    padding-left: 47px;
+    word-wrap: break-word;
+    width: 55%;
+    white-space: normal;
+
+}
+.THIS .myDivNameFile
+{
+    padding-left: 15.7rem;
+}
+/* End antonio.vatrano R1F3-97 24/09/2019 */

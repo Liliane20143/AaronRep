@@ -1,0 +1,99 @@
+<aura:component  implements="flexipage:availableForAllPageTypes" 
+                access="global"  
+                controller="SearchMerchantByFiscalCode" >
+    
+    <aura:attribute name="codiceFiscale"   type="String"  default="" access="global"/>
+    <aura:attribute name="objectDataMap"   type="Object"  default="{}" access="global"/>
+    <aura:attribute name="accountList"  type="Account[]" access="global"/>
+    <aura:attribute name="columns" type="List" access="global" />
+    <aura:attribute name="resetTab" type="boolean" default="true" access="global"/>
+    <aura:attribute name="isOpen" type="boolean" default="false" access="global"/>
+    
+    
+    <lightning:layout verticalAlign="end">
+        <lightning:layoutitem padding="around-small" size="6" >
+            <div class="slds-form-element">
+                <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left-right slds-input-has-icon_group-right">
+                    <lightning:input padding="around-small" 
+                                     size="6"
+                                     type="text" 
+                                     name="FiscalCode"
+                                     value="{!v.codiceFiscale}"
+                                     maxlength="16"
+                                     placeholder="Enter Fiscal Code" />
+                    
+                </div>
+            </div>
+        </lightning:layoutitem>
+        
+        <lightning:layoutitem padding="around-small" size="6" >
+            <lightning:button variant="neutral" 
+                              label="Show Accounts" 
+                              onclick="{! c.handleClick }" 
+                              iconName="utility:search"
+                              disabled="{!if(empty(v.codiceFiscale), true)}"/>
+        </lightning:layoutitem>
+    </lightning:layout>
+    
+    
+    
+    
+    <aura:if isTrue="{!v.isOpen}">
+        <div aura:id="modal" class="modalContainer" style="height: 800px;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" 
+                                              iconName="utility:close" 
+                                              size="large" 
+                                              alternativeText="Close" 
+                                              variant="bare" 
+                                              onclick="{!c.closeModel}"/>
+                        <h1 id="modal-heading-01" class="slds-modal__footer">SERVICE </h1>
+
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium slds-is-relative" style="height: 800px" id="modal-content-id-1">
+                        <aura:if isTrue="{!!empty(v.messageIsEmpty)}">
+                            <div class="slds-align_absolute-center" style="height: 1.5rem;">
+                                <p style="color:rgb(0, 95, 178)">{!v.messageIsEmpty}</p>
+                            </div> 
+                        </aura:if>
+                        <div class="slds-col" id= "dataTableId">
+                            <aura:if isTrue="{! !empty(v.accountList)}">
+                                <!-- <aura:if isTrue="{!v.resetTab}"> -->
+                                <lightning:dataTable data="{!v.accountList}"
+                                                     columns="{! v.columns }"
+                                                     keyField="id"
+                                                     onrowselection="{! c.getSelectedAccount }"
+                                                     hideCheckboxColumn="false"                             
+                                                     required="true"
+                                                     />
+                       
+                                
+                                
+                            </aura:if>
+    
+                                
+                           <!-- </aura:if> -->
+                            
+                            
+
+                        </div>
+                        
+                    </div>
+                    <div class="slds-modal__footer">
+                        <button class="slds-button slds-button--neutral" onclick="{!c.closeModel}" >Close</button>
+                        
+                    </div>
+                </div>
+                
+            </section>
+            
+            <div class="slds-backdrop slds-backdrop_open"></div>
+            
+        </div> 
+    </aura:if>
+    
+    
+    
+</aura:component>

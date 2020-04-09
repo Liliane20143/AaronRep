@@ -1,0 +1,34 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+
+    <div id="base" class="product_row_color containerMargin" > 
+        <div> 
+            <div class="commissioni_info" data-label="label"> 
+                <p class="u1730"><span class="upperCaseText">{!$Label.c.OB_Terminals_Removed}</span></p>		                          
+            </div>
+        </div>  
+        <aura:iteration items="{!v.objectDataMap.itemsInRemove}" var="terminal" indexVar="firstIndex">
+            <div>
+                <span class="productnamestyle">{!terminal.NE__ProdId__r.Name}</span>
+            </div>
+            <div>
+                <div class="slds-grid slds-gutters canone_dettaglio" style="width:98%; margin: 1%;">
+                    <div class="slds-col slds-size_1-of-1 tecnicalContainer" >
+                        <div class="slds-grid slds-gutters slds-wrap"> 
+                            <aura:iteration items="{!terminal.NE__Order_Item_Attributes__r}" var="item" indexVar="index">
+                                <aura:if isTrue="{!or(item.NE__FamPropId__r.NE__Hidden__c == 'false',item.NE__FamPropId__r.NE__Hidden__c == false)}">
+                                    <div class="slds-col slds-size_1-of-5 attributeNames" > 
+                                        <p class="attributeNameStyle">	
+                                            <label id="{!index+'_attName'}"  for="{!index}">{!item.Name}</label>
+                                        </p>  
+                                        <input id="{!index}" class="f217 inputReadonly inputAttValueFont" name="{!firstIndex+'_removed'}" label="" value="{!item.NE__Value__c}" readonly="true" />
+                                    </div>             
+                                </aura:if>
+                            </aura:iteration>
+                        </div>                    
+                    </div> 
+                </div>
+            </div>
+        </aura:iteration>
+    </div> 
+</aura:component>

@@ -1,0 +1,114 @@
+<!--
+ - Created by Joanna Mielczarek <joanna.mielczarek@accenture.com> on 27.05.2019.
+ -->
+
+<aura:component description="OB_LCP006_MCCModal" controller="ModalLookupController" implements="flexipage:availableForAllPageTypes" access="global" >
+
+    <aura:attribute type="Boolean" name="spinner" access="private" default="false" />
+    <aura:attribute type="Object" name="mcc" access="private" description="Current MCCs" />
+    <aura:attribute type="List" name="currentList" default="[]" access="private" description="Displayed records" />
+    <aura:attribute type="List" name="tabColumns" access="private" description="Table columns" />
+    <aura:attribute type="List" name="selectedRows" default="[]" access="private" description="Selected NE__Lov__c's" />
+    <aura:attribute type="Map" name="tabMap" access="private" description="Records to display, splitted into pages" />
+    <aura:attribute type="String" name="searchInput" access="private" default="" description="Search placeholder" />
+    <aura:attribute type="String" name="emptyMessage" access="private" default="" description="Error message if mcc list is empty" />
+    <aura:attribute type="String" name="input" access="private" description="Value of dynamic searching input" />
+    <aura:attribute type="Integer" name="recordsToDisplay" default="20" access="private" description="Quantity of records per page" />
+    <aura:attribute type="Integer" name="quantityOfPages" access="private" />
+    <aura:attribute type="Integer" name="currentPage" default="1" access="private" />
+
+    <aura:attribute type="Boolean" name="changeLocation" access="global" description="Controls opening and hiding modal Punto Vendita" />
+    <aura:attribute type="Boolean" name="isMCCModalOpen" access="global" description="Controls closing modal with MCC" />
+    <aura:attribute type="Boolean" name="isDisabled" access="global" description="Controls confirmation button" />
+    <aura:attribute type="Object" name="selectedMCCL2" access="global" description="NE__Value2__c or OB_Value4__c of MCC L2" />
+    <aura:attribute type="Object" name="selectedMCCL3" access="global" description="NE__Value2__c of MCC L3" />
+    <aura:attribute type="List" name="mccL2" access="global" description="L2 list - in" />
+    <aura:attribute type="List" name="mccL3" access="global" description="L3 list - in" />
+    <aura:attribute type="List" name="mccL3response" access="global" description="L3 list - after filtering" />
+    <aura:attribute type="String" name="MCCL2input" access="global" description="Name of MCC L2" />
+    <aura:attribute type="String" name="MCCL3input" access="global" description="Name of MCC L3" />
+    <aura:attribute type="String" name="level" access="global" description="Level of Lov" />
+
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+
+    <div aura:id="modal" style="height: 640px;">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                 aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container" style="width: 100%;">
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                          iconName="utility:close" size="large" alternativeText="{!$Label.c.Close}"
+                                          variant="bare" onclick="{! c.closeModal }"/>
+
+                    <lightning:layout >
+                        <lightning:layoutItem size="11" >
+                            <div>
+
+                            </div>
+                            <lightning:input   class="slds-listbox__option-text slds-listbox__option-text_entity"
+                                               label=""
+                                               placeholder = "{! v.searchInput }"
+                                               variant="label-hidden"
+                                               name="searchInput"
+                                               value="{! v.input }"
+                                               onchange="{! c.searchLovs }"
+                            />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="1">
+                            <lightning:buttonIcon iconName="utility:search"
+                                                  size="large"
+                                                  alternativeText="{! $Label.c.OB_Search }"
+                            />
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium slds-is-relative" id="modal-content-id-1">
+                    <aura:if isTrue="{! !empty( v.emptyMessage ) }">
+                        <div class="slds-align_absolute-center" style="height: 1.5rem;">
+                            <p class="emptyMessageColor">{! v.emptyMessage }</p>
+                        </div>
+                        <aura:set attribute="else">
+                            <lightning:datatable data="{! v.currentList }"
+                                                 columns="{! v.tabColumns }"
+                                                 keyField="id"
+                                                 onrowselection="{! c.getSelectedRow }"
+                                                 sortedBy="Name"
+                                                 sortedDirection="asc"
+                            />
+                        </aura:set>
+                    </aura:if>
+
+                    <aura:if isTrue="{! v.spinner }">
+                        <lightning:spinner variant="brand" size="large" class="slds-show" alternativeText=" " style="position: fixed;"/>
+                    </aura:if>
+                </div>
+
+                <footer class="slds-modal__footer slds-modal__footer_directional">
+                    <lightning:layout horizontalAlign="space" verticalAlign="center">
+                        <lightning:layoutItem size="1">
+                            <lightning:buttonIcon disabled="{! v.currentPage == 1 }"
+                                                  iconName="utility:chevronleft"
+                                                  variant="bare" size="large"
+                                                  onclick="{! c.navigate }"
+                                                  alternativeText="previous" />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="10">
+                            <span class="slds-align_absolute-center">{! $Label.c.OB_RecordPerPage } &nbsp; {! v.currentPage } / {! v.quantityOfPages }</span>
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="1" >
+                            <lightning:buttonIcon disabled="{! v.currentPage == v.quantityOfPages }"
+                                                  iconName="utility:chevronright"
+                                                  variant="bare" size="large"
+                                                  class="slds-float_right"
+                                                  onclick="{! c.navigate }"
+                                                  alternativeText="next" />
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open">
+        </div>
+    </div>
+
+</aura:component>

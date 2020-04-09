@@ -1,0 +1,65 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" >
+<ltng:require styles="{! $Resource.jqueryuiCSS}" scripts="{!join(',', $Resource.JQueryResourceCode ,  $Resource.jqueryuiJS) }"/>
+    <!-- Register event -->
+    <!--<aura:registerEvent name="cmpEvent" type="c:autoCompletComponentEvent"/>-->
+    
+    <!-- Fire event on button click -->
+    
+    <!--COMPONENT EVENT RECEIVER-->
+   
+    <aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+    
+    <aura:attribute name="city" type="String" default=""/>
+    <aura:attribute name="objectDataMap" type="Object"  access="global"/>
+    <aura:attribute name="province" type="String"  />
+    <aura:attribute name="comune" type="String"  />
+    <aura:attribute name="frazione" type="String" />
+    <aura:attribute name="caps" type="List" default="[]" access="global" />
+    <aura:attribute name="selectedValue" type="String"/>
+    <aura:attribute name="isDisabled" type="Boolean" default="true" />
+    
+    <aura:attribute name="provinceValue" type="String" default="{!v.objectDataMap.pv.NE__Province__c}"/>
+    <aura:attribute name="comuniList" type="String" default="{!v.objectDataMap.pv.NE__City__c}"/>
+      <aura:attribute name="provinceList" type="List" default="{}" access="global"/>
+    <aura:attribute name="responseProv" type="Object" default="{}" access="global"/>
+    <aura:attribute name="response" type="Object"  default="{}" access="global"/>
+     <aura:attribute name="valueProvince" type="String" default=""/>
+
+    <aura:attribute name="provinceValue2" type="String" default="" />
+
+     <div class="slds-medium-size_6-of-12 slds-p-around_small  slds-small-size_12-of-12" style="width: 51%;">
+        <div class="slds-form-element">
+            <label class="slds-form-element__label" for="inputNameSample1" > <abbr class="slds-required" title="required">*</abbr>{!$Label.c.Province}</label>
+                <div class="slds-form-element__control">
+                    <input 
+                            id="provincia"  
+                           class="flow_required" 
+                           label=""
+                           value="{!v.objectDataMap.pv.NE__Province__c}" 
+                           type="text" 
+                           onclick="{!c.callService}"
+                           onkeyup="{!c.provincia}"/>
+                           
+								
+                </div>
+        </div>
+    </div>
+         <div class="slds-medium-size_6-of-12 slds-p-around_small  slds-small-size_12-of-12" style="width: 51%;">
+        <div class="slds-form-element">
+            <label class="slds-form-element__label" for="inputNameSample1" > <abbr class="slds-required" title="required">*</abbr>{!$Label.c.City}</label>
+                <div class="slds-form-element__control">
+                    <input 
+                            id="comune"  
+                           class="flow_required" 
+                           label=""
+                           value="{!v.objectDataMap.pv.NE__City__c}" 
+                           type="text" 
+                           onclick="{!c.callService}"
+                           onkeyup="{!c.comune}"/>
+                           
+								
+                </div>
+        </div>
+    </div>
+
+</aura:component>

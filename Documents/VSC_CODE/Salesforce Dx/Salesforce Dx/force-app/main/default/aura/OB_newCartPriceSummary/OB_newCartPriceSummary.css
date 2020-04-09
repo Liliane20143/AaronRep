@@ -1,0 +1,509 @@
+.THIS {
+	
+}
+.THIS .tableContainer{
+	margin-top: 1%;
+	margin-bottom:1%; 
+	border-radius: 5px;
+	background-color: rgba(243, 245, 248, 1);
+}
+
+.THIS .product_row_color{
+    /*background-color: rgba(243, 245, 248, 1);*/
+}
+
+
+.THIS .u116{
+    /*font-family: "Salesforce Sans Light", "Salesforce Sans Regular", "Salesforce Sans";*/
+    font-weight: 300;
+    font-style: normal;
+    font-size: 28px;
+    line-height: 20px;
+    border-width: 0px;
+}
+
+.THIS .u120{
+   /* font-family: "Salesforce Sans";*/
+    font-weight: 410;
+    font-style: normal;
+    font-size: 20px;
+    color: rgb(79, 106, 146);
+    line-height: 28px;
+    border-width: 0px;
+}
+
+.THIS .u122{
+    width: 317px;
+    height: 34px; 
+   /* font-family: "Salesforce Sans Light", "Salesforce Sans Regular", "Salesforce Sans";*/
+    font-weight: 300;
+    font-style: normal;
+    font-size: 16px;
+    line-height: 28px;
+    border-width: 1px;
+
+}
+
+.THIS .comm_dettaglio{
+    border-width: 0px;
+    width: 285px;
+    height: 106px;
+   /* font-family: 'Salesforce Sans';*/
+    font-weight: 410;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 18px;
+}
+
+.THIS .detailsTextContainer{
+	width:80%;
+	text-align: right;
+	
+}
+.THIS .rowLine{
+	border-bottom: 1px solid;
+    border-color: #d8dde6;
+    margin-top: 1%;
+    margin-left: 0;
+    padding-bottom: 1%;
+}
+.THIS .categoryText{
+	text-align: center;
+    text-transform: uppercase;
+	font-weight: 400;
+    font-style: normal;
+    font-size: 0.90em;
+    color: #4f6a92;
+}
+
+.THIS .detailsContent{
+	    margin-left: 1%
+}
+.THIS .vasRecordsContainer{
+	padding-bottom: 1%;
+}
+
+.THIS .detailContainer{
+	 padding-top: 1%;
+	 margin-left: 1%;
+}
+
+.THIS .u1052 {
+    border-width: 0;
+    width: 361px; 
+    height: 3px; 
+}
+.THIS .commissioni_info{
+    height: 100%;
+    border-bottom: 3px solid;
+	border-color:#d8dde6; 
+	margin-left: 1%;
+	margin-right: 1%;
+}
+
+
+.THIS .u1049{
+    border-width: 0px;
+    word-wrap: break-word; 
+}
+.THIS .u1051{
+    border-width: 0px;
+    width: 80px;
+    word-wrap: break-word; 
+}
+
+.THIS .u1049a{
+    border-width: 0px;
+    width: 200px;
+    word-wrap: break-word; 
+}
+.THIS .u1051a{
+    border-width: 0px;
+    width: 80px;
+    word-wrap: break-word; 
+}
+.THIS .u1076{
+
+}
+.THIS .u1078{
+
+   /* font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 12px;
+    color: #4F6A92;
+    line-height: 18px;
+}
+.THIS .u1057 {
+    font-weight: 400;
+    font-style: italic;
+    border-width: 0px;
+    font-size:10px;
+    word-wrap: break-word;
+    color: #666666;
+    line-height: 12px;
+    font-size: 10px;
+
+}
+
+.THIS .u1730{
+	/*font-family: 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 22px;
+    color: #4F6A92;
+    /*line-height: 16px;*/
+    margin-top: 2%;
+	
+}
+
+.THIS .f216 {
+    border-width: 0px;
+    width: 44px;
+    height: 26px;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+
+}
+/*START CLASSES FOR PAGOBANCOMAT */
+
+.THIS .productName{
+	/*font-family: 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1em;
+    color: #4F6A92;
+    text-transform: uppercase;
+    text-align: left;
+    margin-top: 1%;
+	
+}
+.THIS .attributesWrapper{
+	border-top: 1px solid;
+    border-color: #d8dde6;
+    padding-left: 5%;
+    padding-top: 1%;
+    padding-bottom: 2%;
+	
+}
+
+.THIS .inputToEdit{
+    width: 44px;
+    height: 26px;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    text-align: center;
+    font-weight: 700;
+}
+.THIS .u187{
+	
+	margin-left:1%;
+}
+
+.THIS .f217{
+  /*  border-width: 0;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+     border-width: 1px; 
+     border-style: solid; 
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    box-shadow: none;
+    text-align: right;
+    width: 25%;   
+    EQUAL TO inputToEdit class*/
+    width: 44px;
+    height: 26px;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 1);
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 221, 230, 1);
+    border-radius: 6px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    text-align: center;
+    font-weight: 700;
+}
+/*END CLASSES FOR PAGOBANCOMAT */
+
+
+.THIS .productNameVAS_ACQ{
+    /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #000000;
+    padding-left: 0;
+
+}
+
+
+.THIS .itemAttributesContainer{
+	
+	
+}
+
+@media screen and (max-width: 1100px) {
+  .THIS .itemAttributesContainer{
+	  display: block !important;
+  }
+}   
+
+.THIS .inputContainer{
+	
+	margin-bottom: 5%;
+}
+
+.THIS .attributeNames{
+	text-transform: uppercase;
+	text-align: center;
+	font-weight: 400;
+    font-style: normal;
+    font-size: 0.90em;
+    color: #4f6a92;
+}
+
+.THIS .alignInput{
+	text-align: center;
+}
+
+.THIS .inputAttValueFont{
+	
+	/*font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+	font-weight:700;color:#000000;
+}
+
+.THIS .inputReadonly{
+	
+	border:none;
+	text-align:center;
+	
+}
+
+.THIS .inputReadOnlySelected{
+	
+	background-color: rgba(243, 245, 248, 1);
+	
+}
+
+.THIS .errMsg{
+	
+	color:rgb(194, 57, 52);
+	text-align: center;
+	font-size: 0.6rem;
+	
+}
+
+.THIS .hidden{
+    display:none;
+}
+
+.THIS.notFlowPadding{
+	
+	width:100%;
+	padding-top:1%;
+	padding-left: 1%;
+	padding-right: 1%;
+	min-height:300px; 
+}
+
+.THIS .uppercaseLabel{
+	text-transform: uppercase;	
+}
+
+.THIS .borderError{
+	border: 2px solid rgb(194, 57, 52);
+} 
+
+.THIS .borderWarning{
+	border: 2px solid rgb(255, 192, 0);
+}
+
+.THIS .shortAttrName{
+	    margin-right: 13%;
+}
+
+.THIS .headerContainer{
+	margin-bottom: 1%;
+    margin-top: 0.5%;
+	
+}
+
+.THIS .headerLabel{
+	margin-top: 15%;
+	
+}
+
+.THIS .rowDetail{
+    padding-bottom: 1%;
+    border-bottom: 1px solid;
+    border-color: #d8dde6;
+    padding-top: 1%;
+    padding-bottom: 1%;
+    margin-right: 0;
+    margin-left: 1%;
+	
+}
+.THIS .cartItemContainer{
+	
+	border-top: 1px solid;
+	border-color:#d8dde6;
+	padding-top: 1%;
+    padding-bottom: 1%; 
+    margin-right:0;
+    margin-left:0;
+}
+.THIS .tableText{
+	margin-top: 2%;
+}
+
+.THIS .inputReadonly {
+	background-color: transparent;
+    border: none;
+}
+
+.THIS .borderTransparent{
+    background-color: transparent;
+}
+
+.THIS .cartItemToEdit{
+	font-weight:700;
+	color:#4F6A92;
+	text-transform: uppercase;
+	font-size:0.90em;
+}
+
+.THIS .checkoutDiv{
+	float:right;
+	
+}
+
+/*Doris D .... 26/02/2019....START*/
+.THIS .yellow-checkbox
+{   
+    width:20px;
+    min-width: 20px;
+    height:20px;
+    margin-right:15px;
+    background-color: #FFC000!important; 
+}
+.THIS .red-checkbox
+{   
+    width:20px;
+    min-width: 20px;
+    height:20px;
+    margin-right:15px;
+    background-color: #C00000!important; 
+}
+.THIS .gray-checkbox
+{
+    width:20px;
+    min-width: 20px;
+    height:20px;
+    margin-right:15px;
+    background-color: #acdba6!important; 
+}
+
+/*Doris D .... 26/02/2019.....END*/
+
+.THIS .childItemStartDate{
+    text-transform: uppercase;
+    /* text-align: center; */
+    font-weight: 00;
+    font-style: normal;
+    font-size: 1em;
+     color: black; 
+    /* text-shadow: 0 0 black; */
+    font-weight: 600;
+    margin-top: 2%;
+}
+.THIS .bold {
+    font-weight: 800!important;
+}
+.THIS .headerCtm {
+    flex : auto!important;
+}
+
+/* ANDREA MORITTU START 27-Aug-2019 */
+/* CTA = CALL TO ACTION*/
+.THIS .headerModalStyle{
+    font-family     :   Arial!important;
+    font-weight     :   600!important;
+    text-transform  :   uppercase!important;
+    font-size       :   0.8em!important;
+    color           :   #666!important;
+}
+
+.THIS .inputStyle {
+    font-family     :   Arial!important;
+    font-size       :   1.2em!important;
+}
+
+.THIS .labelStyle {
+    font-size       :   1em!important;
+}
+
+.THIS .tytleStyle {
+    font-size       :   1.5em!important;
+    font-weight     :   600!important;
+}
+
+.THIS .CTAStyle {
+    font-size: 1.2em!important;
+	text-transform: uppercase!important;
+	font-weight: 600!important;
+	border-color: rgb(48, 58, 178);
+	border-width: 0,5px;
+	border-width: 1px;
+	color: rgb(48, 58, 178);
+}
+.THIS .CTAStyle_BRAND {
+    font-size: 1.2em!important;
+	text-transform: uppercase!important;
+	font-weight: 600!important;
+	border-color: rgb(48, 58, 178);
+	border-width: 0,5px;
+	border-width: 1px;
+}
+
+.THIS .slds-modal__content:last-child {
+    border-bottom-right-radius: 0!important;
+    border-bottom-left-radius:  0!important;
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
+}
+
+.THIS .CTAStyle_BRAND {
+    font-size: 1.2em!important;
+    text-transform: uppercase!important;
+    font-weight: 600!important;
+    border-color: rgb(48, 58, 178);
+    border-width: 0.3125rem;
+    border-width: 0.0625rem; 
+    }
+
+/* ANDREA MORITTU END 27-Aug-2019 */
+/*GIOVANNI SPINELLI 19/09/2019*/
+.THIS .borderCorrect{
+    border: 2px solid #acdba6;
+}
+/*GIOVANNI SPINELLI 19/09/2019*/

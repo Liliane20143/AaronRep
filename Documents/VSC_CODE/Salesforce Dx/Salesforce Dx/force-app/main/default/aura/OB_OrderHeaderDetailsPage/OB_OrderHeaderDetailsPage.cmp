@@ -1,0 +1,785 @@
+<aura:component implements="lightning:actionOverride,force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId"
+				controller="OB_OrderHeaderDetailsPage_CC">
+
+	<aura:attribute name="recordId" type="String" access="global"/>
+	<aura:attribute name="contextAccount"  type="Account" default="{}" access="global"/>
+	<aura:attribute name = "esecutore" type = "Contact" default ="{}" access = "global"/>
+	<!-- START andrea.morittu 23/01/2019 -->
+	<aura:attribute name = "orderHeader" type = "NE__Order_Header__c" access = "global"/>
+	<!-- END andrea.morittu 23/01/2019 -->
+	<aura:attribute name = "titolariEffettivi" type = "List" default ="[]" access = "global"/>
+	<aura:attribute name = "configurations" type = "List" default ="[]" access = "global"/>
+	<aura:attribute name="isOpen" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="activeSections" type="List" default="['contextAccount']"/>
+	<aura:attribute name="indexFromOne" type="List" default="[]" access="global"/>
+	<aura:attribute name="showConfigurationDetails" type="Boolean" default="true" access="global"/>
+	<aura:attribute name="confId" type="String" default="" access="global"/>
+	<aura:attribute name="loadchild" type="Boolean" default="false" access="global"/>
+	<!-- START 	micol.ferrari 28/12/2018 -->
+	<aura:attribute name = "historicwizardid" type = "String" access = "global"/>
+	<aura:attribute name = "showButtonFlow" type = "Boolean" access = "global" default = "false"/>
+	<aura:attribute name="historicWizard" type="Object" access="global"/>
+	<aura:attribute name="showResumeFlow" type="Boolean" access="global" default="false"/>
+	<!-- END 	micol.ferrari 28/12/2018 -->
+	<!-- START 	andrea.morittu 23/01/2019 -->
+	<aura:attribute name="showError" type="Boolean" access="global" default="false"/>
+	<aura:attribute name="showErrorMessage" type="String" access="global"/>
+	<aura:attribute name="showTitleErrorMessage" type="String" access="global"/>
+	<!-- END 	andrea.morittu 23/01/2019 -->
+	<aura:attribute name="afterLoadParentComponent" type="Boolean" default="false" access="global"/>
+	<!-- Start AV 21/02/2019 Show Component Documents [Stefano Montori] -->
+	<aura:attribute name="showComponentDocuments" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="rejectReasonBool" type="Boolean" default="false" access="global"/>
+	<!-- End AV 21/02/2019 Show Component Documents [Stefano Montori] -->
+	<!-- START 	andrea.saracini 25/02/2019 - Cancell Order -->
+	<aura:attribute name = "canBecancelled" type = "Boolean" default="false" access = "global"/>
+	<aura:attribute name = "asset" type = "Asset" access = "global"/>
+	<aura:attribute name="spinner" type="boolean" default="false"/>
+	<!-- END 	andrea.saracini 25/02/2019 -->	
+	<!-- START gianluigi.virga 18/09/2019 - Print quote -->
+	<aura:attribute name="alreadyClicked" type="Boolean" default="false" access="global" />
+	<aura:attribute name="historicWizardQuote" type="Object" access="global"/>
+	<aura:attribute name ="historicwizardidQuote" type = "String" access = "global"/>
+	<!-- END gianluigi.virga 18/09/2019 - Print quote -->
+
+	<!-- ANDREA MORITTU END 09-Oct-2019 - EVO_PRODOB_450 -->
+	<aura:attribute name="showServicePointModal" type="Boolean" default="false" access="global" />
+	<!-- ANDREA MORITTU END 09-Oct-2019 - EVO_PRODOB_450 -->
+
+	<!--START - elena.preteni 22/07/2019 F3 hide button setup from operation-->
+	<aura:attribute name = "isOperationSetup" type = "Boolean" default="false" access = "global"/>
+	<!--END - elena.preteni 22/07/2019 F3 hide button setup from operation-->
+	<aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+
+	<!-- START 	andrea.morittu 23/01/2019 -->
+	<aura:if isTrue="{!!v.showError}"> 
+	<!-- START 	micol.ferrari 28/12/2018 - RETURN TO THE FLOW -->
+	<aura:if isTrue="{!v.showResumeFlow}">
+		{!v.body}
+	</aura:if>
+	<!-- END 	micol.ferrari 28/12/2018 -->
+
+	<aura:if isTrue="{!!v.showResumeFlow}">
+		<div class="ohdp-showConfigurationDetails">
+			<aura:if isTrue="{!v.showConfigurationDetails}">
+				<!-- START 	andrea.saracini 25/02/2019 - Cancell Order -->
+				<aura:if isTrue="{!v.spinner}">
+					<div aura:id="spinnerId" class="slds-spinner_container">
+						<div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+							<span class="slds-assistive-text">Loading</span>
+							<div class="slds-spinner__dot-a"></div>
+							<div class="slds-spinner__dot-b"></div>
+						</div>
+					</div>
+				</aura:if> 
+				<!-- END 	andrea.saracini 25/02/2019 - Cancell Order -->
+				<!-- START 	micol.ferrari 28/12/2018 - RETURN TO THE FLOW -->				
+				<div class="slds-grid slds-size--1-of-1">
+					<aura:if isTrue="{!and(v.showButtonFlow,not(v.isOperationSetup))}">	
+						<!--gianluigi virga 24/09/2019 start resume flow from status preventivo-->
+						<aura:if isTrue="{!v.configurations[0].OB_Bank_OrderStatus__c == $Label.c.OB_PrintedQuoteStatus}">
+							<div class="slds-size--1-of-4 slds-grid">
+								<div class="slds-m-bottom_large">		
+									<!-- ANDREA MORITTU START 01-10-2019 - BUSINESS DESIGN (CSS BUTTON - ADDED CLASS) -->									
+									<lightning:button 	label="{!$Label.c.OB_ResumeFlow}"		
+														class="CTAStyle"
+														variant="neutral"
+														onclick="{!c.resumeQuote}"/>
+									<!-- ANDREA MORITTU END 01-10-2019 - BUSINESS DESIGN (CSS BUTTON - ADDED CLASS) -->									
+								</div>
+							</div>
+						<aura:set attribute="else">
+							<div class="slds-size--1-of-4 slds-grid">
+								<div class="slds-m-bottom_large">				
+								<!-- ANDREA MORITTU START 01-10-2019 - BUSINESS DESIGN (CSS BUTTON - ADDED CLASS) -->							
+									<lightning:button 	label="{!$Label.c.OB_ResumeFlow}"		
+														class="CTAStyle"																
+														variant="neutral"
+														onclick="{!c.resumeTheFlow}"/>
+								<!-- ANDREA MORITTU END 01-10-2019 - BUSINESS DESIGN (CSS BUTTON - ADDED CLASS) -->			
+								</div>
+							</div>
+						</aura:set>
+						</aura:if>
+						<!--gianluigi virga 24/09/2019 end resume flow from status preventivo-->
+					</aura:if>					
+					<!-- END 	micol.ferrari 28/12/2018 -->
+					<!-- START 	andrea.saracini 25/02/2019 - Cancell Order -->					
+					<aura:if isTrue="{!and(v.canBecancelled,not(v.isOperationSetup))}">
+						<div class="slds-size--1-of-4 slds-grid">	
+							<div class="slds-m-bottom_large">											
+								<!-- ANDREA MORITTU START 30-Sept-2019 - EVO_PRODOB_475 -->
+								<lightning:button 	label="{!$Label.c.OB_CancelRequest}"																		
+													variant="neutral"
+													class="CTAStyle"
+													onclick="{!c.callCancelOrderController}"/>
+								<!-- ANDREA MORITTU END 30-Sept-2019 - EVO_PRODOB_475 -->
+							</div>
+						</div>
+					</aura:if>
+				</div>
+				<!-- END andrea.saracini 25/02/2019 -->				
+					<div class="flow-section-separator-container">
+						<form class="slds-size_1-of-1 slds-form">
+							<legend class="slds-form-element__label">{!$Label.c.OB_Company}</legend>
+							<fieldset class="bit2flowFormSectionCmp" name="companysection" data-aura-class="bit2flowFormSectionCmp"/>
+						</form>
+					</div>
+					<div class="sectionColsContainer flow-section-separator"/>
+					<div class="slds-grid slds-size--1-of-1" >		
+						<div class="slds-size--1-of-2 slds-grid">
+							<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+								<div class="slds-p-around--medium slds-form-element">
+									<label class="slds-form-element__label">{!$Label.c.Merchant_Name}</label>
+									<lightning:input 	value="{!v.contextAccount.Name}"
+														disabled="true"
+														variant="label-hidden"/>
+								</div>
+							</div>
+						</div>
+						<div class="slds-size--1-of-2 slds-grid">
+							<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+								<div class="slds-p-around--medium slds-form-element">
+									<label class="slds-form-element__label">{!$Label.c.AccountStatus}</label>
+									<lightning:input 	value="{!v.contextAccount.NE__Status__c}"
+														disabled="true"
+														variant="label-hidden"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="slds-grid slds-size--1-of-1" >		
+						<div class="slds-size--1-of-2 slds-grid">
+							<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+								<div class="slds-p-around--medium slds-form-element">
+									<label class="slds-form-element__label">{!$Label.c.FiscalCode}</label>
+									<lightning:input 	value="{!v.contextAccount.NE__Fiscal_code__c}"
+														disabled="true"
+														variant="label-hidden"/>
+								</div>
+							</div>
+						</div>
+						<div class="slds-size_1-of-2 slds-grid">
+							<div class="slds-form-element slds-small-size_12-of-12 slds-large-size_12-of-12">
+								<div class="slds-p-around_medium slds-form-element">
+									<label class="slds-form-element__label">{!$Label.c.AccountVAT}</label>
+									<lightning:input 	value="{!v.contextAccount.NE__VAT__c}"
+														disabled="true"
+														variant="label-hidden"/>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				<div class="slds-grid slds-size--1-of-1" >		
+					<div class="slds-size--1-of-2 slds-grid">
+						<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+							<div class="slds-p-around--medium slds-form-element">
+								<!-- ANDREA MORITTU START 09-Oct-2019 - EVO_PRODOB_450 -->
+								<div class="slds-grid" >
+									<div class=" slds-size--1-of-2 slds-p-around--medium" >
+										<!-- ANDREA MORITTU START 30-Sept-2019 - EVO_PRODOB_475 -->
+											<lightning:button 	label="{!$Label.c.OB_Company_Details}" 
+																class="slds-m-top--medium CTAStyle"
+																onclick="{!c.openModal}"/>
+										<!-- ANDREA MORITTU END 30-Sept-2019 - EVO_PRODOB_475 -->
+									</div>
+									<!-- ANDREA MORITTU START 11-Oct-2019 - EVO_PRODOB_450 -->
+									<div class="slds-size-1-of-2 slds-p-around-medium" >
+										<lightning:button 	label="{!join(' ',$Label.c.OB_Details, $Label.c.OB_LocationLabel)}"
+															name="{!join(' ',$Label.c.OB_Details, $Label.c.OB_LocationLabel)}" 
+															class="slds-m-top-medium CTAStyle noWrap"
+															onclick="{!c.servicePointModalAction}"/>
+									</div>
+									<!-- ANDREA MORITTU END 11-Oct-2019 - EVO_PRODOB_450 -->
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<aura:if isTrue="{!v.isOpen}">
+					<!--###### MODAL BOX Start######--> 
+					<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+						<div class="slds-modal__container">
+							<!-- ###### MODAL BOX HEADER Start ######-->
+							<header class="slds-modal__header">
+								<lightning:buttonIcon 	iconName="utility:close"
+														onclick="{!c.closeModal}"
+														alternativeText="{!$Label.c.Close}"
+														variant="bare-inverse"
+														class="slds-modal__close"/>
+								<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!$Label.c.OB_ListOfContacts}</h2>
+							</header>   
+
+							<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+
+								<lightning:accordion allowMultipleSectionsOpen="true" activeSectionName="{! v.activeSections }">
+									<lightning:accordionSection name="contextAccount" label="{!$Label.c.OB_CompanyData}">
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.Merchant_Name}</label>
+															<lightning:input value="{!v.contextAccount.Name}"
+																			 disabled="true"
+																			 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_VAT_Not_Present}</label>
+														<lightning:input value="{!v.contextAccount.OB_VAT_Not_Present__c}"
+																		 disabled="true"
+																		 variant="label-hidden"
+																		 checked="{!v.contextAccount.OB_VAT_Not_Present__c}"
+																		 type="checkbox"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_DescriptionVATNotPresent}</label>
+														<lightning:input value="{!v.contextAccount.OB_DescriptionVATNotPresent__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.E_Mail}</label>
+														<lightning:input value="{!v.contextAccount.NE__E_mail__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.Phone}</label>
+														<lightning:input value="{!v.contextAccount.Phone}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Legal_Form}</label>
+														<lightning:input value="{!v.contextAccount.OB_Legal_Form__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Year_constitution_company}</label>
+														<lightning:input value="{!v.contextAccount.OB_Year_constitution_company__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_No_Profit_Class}</label>
+														<lightning:input value="{!v.contextAccount.OB_No_Profit_Class__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_No_Profit_Recipient_Class}</label>
+														<lightning:input value="{!v.contextAccount.OB_No_Profit_Recipient_Class__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_No_Profit_Recipient_Other}</label>
+														<lightning:input value="{!v.contextAccount.OB_No_Profit_Recipient_Other__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+									</lightning:accordionSection>
+
+									<lightning:accordionSection name="esecutore" label="{!$Label.c.OB_LegalRepresentative}">
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.FirstName}</label>
+														<lightning:input value="{!v.esecutore.FirstName}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.LastName}</label>
+														<lightning:input value="{!v.esecutore.LastName}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OBFiscalCodeContact}</label>
+														<lightning:input value="{!v.esecutore.OB_Fiscal_Code__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Sex}</label>
+														<lightning:input value="{!v.esecutore.OB_Sex__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Country_Birth}</label>
+														<lightning:input value="{!v.esecutore.OB_Country_Birth__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Birth_State}</label>
+														<lightning:input value="{!v.esecutore.OB_Birth_State__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Birth_City}</label>
+														<lightning:input value="{!v.esecutore.OB_Birth_City__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Citizenship}</label>
+														<lightning:input value="{!v.esecutore.OB_Citizenship__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<!-- ANDREA MORITTU START 30-Sept-2019 PRODOB_475 -->
+														<label class="slds-form-element__label slds-no-flex">{!$Label.c.OB_Birth_Date}</label>
+														<ui:inputDate aura:id="OB_Birth_Date__c" value="{!v.esecutore.OB_Birth_Date__c}" format="DD-MM-YYYY" displayDatePicker="false" disabled="true" />
+														<!-- ANDREA MORITTU END 30-Sept-2019 PRODOB_475 -->
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Document_Number}</label>
+														<lightning:input value="{!v.esecutore.OB_Document_Number__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Document_Type}</label>
+														<lightning:input value="{!v.esecutore.OB_Document_Type__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Document_Release_Authority}</label>
+														<lightning:input value="{!v.esecutore.OB_Document_Release_Authority__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<!-- ANDREA MORITTU START 30-Sept-2019 PRODOB_475 -->
+														<label class="slds-form-element__label slds-no-flex">{!$Label.c.OB_Document_Release_Date}</label>
+														<ui:inputDate aura:id="OB_Birth_Date__c" value="{!v.esecutore.OB_Document_Release_Date__c}" format="DD-MM-YYYY" displayDatePicker="false" disabled="true" />
+														<!-- ANDREA MORITTU END 30-Sept-2019 PRODOB_475 -->
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<!-- ANDREA MORITTU START 30-Sept-2019 PRODOB_475 -->
+														<label class="slds-form-element__label slds-no-flex">{!$Label.c.OB_Document_Expiration_Date}</label>
+														<ui:inputDate aura:id="OB_Birth_Date__c" value="{!v.esecutore.OB_Document_Expiration_Date__c}" format="DD-MM-YYYY" displayDatePicker="false" disabled="true" />
+														<!-- ANDREA MORITTU END 30-Sept-2019 PRODOB_475 -->
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Document_Release_State}</label>
+														<lightning:input value="{!v.esecutore.OB_Document_Release_State__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Document_Release_City}</label>
+														<lightning:input value="{!v.esecutore.OB_Document_Release_City__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_PEP}</label>
+														<!-- DG - 13/02/19 - 1362 - START -->
+														<!--			
+																		 <lightning:input value="{!v.esecutore.OB_PEP__c}"											
+																		 disabled="true"
+																		 variant="label-hidden"
+																		 type="checkbox"/>
+														 -->
+														 <ui:outputCheckbox value="{!v.esecutore.OB_PEP__c}"/>
+														 <!-- DG - 13/02/19 - 1362 - END -->
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Address_Country}</label>
+														<lightning:input value="{!v.esecutore.OB_Address_Country__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Address_State}</label>
+														<lightning:input value="{!v.esecutore.OB_Address_State__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Address_City}</label>
+														<lightning:input value="{!v.esecutore.OB_Address_City__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Address_Hamlet}</label>
+														<lightning:input value="{!v.esecutore.OB_Address_Hamlet__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Address_Street}</label>
+														<lightning:input value="{!v.esecutore.OB_Address_Street__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="slds-grid slds-size--1-of-1" >		
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Address_Street_Number}</label>
+														<lightning:input value="{!v.esecutore.OB_Address_Street_Number__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+											<div class="slds-size--1-of-2 slds-grid">
+												<div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+													<div class="slds-p-around--medium slds-form-element">
+														<label class="slds-form-element__label">{!$Label.c.OB_Address_PostalCode}</label>
+														<lightning:input value="{!v.esecutore.OB_Address_PostalCode__c}"
+																		 disabled="true"
+																		 variant="label-hidden"/>
+													</div>
+												</div>
+											</div>
+										</div>
+
+									</lightning:accordionSection>
+									
+									<aura:iteration items="{!v.titolariEffettivi}" var="titolareEffettivo" indexVar="index">
+										<c:OB_AccordionTitolariEffettivi titolareEffettivo = "{!titolareEffettivo}" iterationStep="{!index}"/>
+									</aura:iteration>
+								</lightning:accordion>
+
+							</div>   
+
+							<footer class="slds-modal__footer">
+								<!-- ANDREA MORITTU START 30-Sept-2019 - EVO_PRODOB_475 -->
+								<div class="slds-grid slds-size_1-of-1">
+									<div class="slds-grid slds-size_1-of-3">
+										<lightning:button 	class="CTAStyle_BRAND"
+															variant="brand" 
+															label="{!$Label.c.OB_Cancel}"
+															title="{!$Label.c.OB_Cancel}"
+															onclick="{!c.closeModal}"/>
+									</div>
+									<div class="slds-grid slds-size_1-of-3" />
+									<div class="slds-grid slds-size_1-of-3" />
+								</div>
+								<!-- ANDREA MORITTU END 30-Sept-2019 - EVO_PRODOB_475 -->
+								
+
+							</footer>
+						</div>
+					</section>
+					<div class="slds-backdrop slds-backdrop_open"></div>
+				</aura:if>
+
+				<div class="slds-m-top--xx-large flow-section-separator-container">
+					<form class="slds-size_1-of-1 slds-form">
+						<legend class="slds-form-element__label">{!$Label.c.OB_Requests}</legend>
+						<fieldset class="bit2flowFormSectionCmp" name="requestsection" data-aura-class="bit2flowFormSectionCmp"/>
+					</form>
+				</div>
+				<div class="sectionColsContainer flow-section-separator"/>
+
+				<lightning:layoutItem size="12" padding="around-small">   
+					<table class="slds-table slds-table_cell-buffer slds-table_bordered">
+						<thead>
+							<tr class="slds-line-height_reset">
+								<th class="slds-text-title_caps" scope="col">
+									<div class="slds-truncate" 
+									title="{!$Label.c.OB_Select}">{!$Label.c.OB_Select}</div>
+								</th>
+								<th class="slds-text-title_caps" scope="col">
+									<div class="slds-truncate" 
+									title="{!$Label.c.OB_OrderDate}">{!$Label.c.OB_OrderDate}</div>
+								</th>
+								<th class="slds-text-title_caps" scope="col">
+									<div class="slds-truncate" 
+									title="{!$Label.c.OB_Sign}">{!$Label.c.OB_Sign}</div>
+								</th>
+								<th class="slds-text-title_caps" scope="col">
+									<div class="slds-truncate" 
+									title="{!$Label.c.OB_Address}">{!$Label.c.OB_Address}</div>
+								</th>                        
+							</tr>
+						</thead>
+						<aura:iteration items="{!v.configurations}" var="configuration">           
+							<tbody>
+								<tr class="slds-hint-parent">
+									<td>
+										<div class="slds-form-element slds-small-size--1-of-12 slds-large-size--1-of-12" >
+											<div class="slds-p-around--medium slds-form-element" id="btnSearchContainer">
+												<span> 
+													<div class="slds-form-element">
+													<!-- ANDREA MORITTU START 30-Sept-2019 - EVO_PRODOB_475 -->
+														<lightning:button 	label="{!$Label.c.OB_RequestDetail}" 
+																			class="orderitem-details-btn"
+																			onclick = "{!c.openActionWindow}"
+																			name = "{!configuration.Id}"/>	
+													<!-- ANDREA MORITTU END 30-Sept-2019 - EVO_PRODOB_475 -->			
+													</div>
+												</span>
+											</div>
+										</div>
+									</td>
+								<td>
+									<div class="slds-truncate" title="Name">
+										<lightning:formattedDateTime value="{!configuration.NE__Order_date__c}" day="2-digit" year="numeric" month="2-digit" />
+									</div>
+								</td>
+
+								<td>
+									<aura:if isTrue="{! configuration.OB_Service_Point__r != null}">
+										<div class="slds-truncate" title="Name">{!configuration.OB_Service_Point__r.Name}</div>
+									</aura:if>
+								</td>
+								<td>
+									<aura:if isTrue="{! configuration.OB_Service_Point__r != null}">
+										<div class="slds-truncate" title="Name">
+											{!configuration.OB_Service_Point__r.NE__Street__c + ', ' + configuration.OB_Service_Point__r.OB_Street_Number__c + ', ' + 
+											configuration.OB_Service_Point__r.NE__City__c + ', ' + 
+											configuration.OB_Service_Point__r.NE__Zip_Code__c}
+										</div>
+									</aura:if>
+								</td>
+
+								</tr>            
+							</tbody>
+						</aura:iteration>
+					</table>
+				</lightning:layoutItem>
+
+				<aura:if isTrue="{!v.afterLoadParentComponent}">
+					<!-- Start AV 21/02/2019 Show Component Documents [Stefano Montori] -->
+					<aura:if isTrue="{!v.showComponentDocuments}">
+						<!--START - elena.preteni 22/07/2019 F3 hide button setup from operation added attribute isOperationSetup-->
+						<c:OB_AttachedDocumentations orderHeaderId = "{!v.recordId}" accountId = "{!v.contextAccount.Id}" rejectReasonBool = "{!v.rejectReasonBool}" isOperationSetup = "{!v.isOperationSetup}"/>
+						<!--END - elena.preteni 22/07/2019 F3 hide button setup from operation added attribute isOperationSetup-->
+						<c:OB_ContinuationBrokerComponent/> <!--antonio.vatrano r1f2-128 14/05/2019 add component to register event of button Visualize-->
+					</aura:if>
+					<!-- End AV 21/02/2019 Show Component Documents [Stefano Montori] -->
+				</aura:if>
+
+				<div class="sectionColsContainer flow-section-separator"/>
+			</aura:if>
+				
+			<aura:if isTrue="{!!v.showConfigurationDetails}">
+				<!-- ANDREA MORITTU START 30-Sept-2019 - EVO_PRODOB_475 -->
+				<lightning:button 	label="{!$Label.c.OB_Back}" 
+									class="slds-m-bottom--medium CTAStyle_BRAND"
+									variant="brand"
+									onclick = "{!c.backtopreviouspage}"/>
+				<!-- ANDREA MORITTU START 30-Sept-2019 - EVO_PRODOB_475 -->
+				
+				<c:OB_ConfigurationItemDetails confId = "{!v.confId}" loadme="{!v.loadchild}"/>
+
+			</aura:if>
+		</div>
+	</aura:if>
+		<aura:set attribute="else">
+			<div class="slds-grid slds-grid_vertical">
+				<div class="slds-col1">
+					<h1 id="titleMessage">
+						{!v.showTitleErrorMessage}
+					</h1>
+				</div>
+				<div class="slds-col WhiteSpace"/>
+				<div class="slds-col2">
+					<div class="slds-grid">
+						<div class="slds-col slds-p-horizontal_medium">
+							<lightning:icon iconName="utility:warning" alternativeText="Warning!" variant="warning" size="x-small"/>
+						</div>
+						<div class="slds-col slds-p-horizontal_medium">
+							<div class="bodyMessage">
+							{!v.showErrorMessage}
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</aura:set> 
+	</aura:if>
+	<!-- ANDREA MORITTU START 09-Oct-2019 - EVO_PRODOB_450 -->
+	<aura:if isTrue="{!v.showServicePointModal}">
+		<c:OB_ShowServicePointDetailComponent orderHeaderId="{!v.recordId}" showServicePointModal="{!v.showServicePointModal}" />
+	</aura:if>
+	<!-- ANDREA MORITTU END 09-Oct-2019 - EVO_PRODOB_450 -->
+</aura:component>

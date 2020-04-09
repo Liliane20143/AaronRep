@@ -1,0 +1,59 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" 
+				access="global"
+				controller="OB_IdentifyCompany_CC">
+    <aura:attribute name="merchantServiceList"      type="Object" default ="{}"   				/>
+    <aura:attribute name="selectedRows" 			type="List" 					 access="global"/>
+	<aura:attribute name="columnsMerchant" 					type="List" 					 access="global"/>
+    <aura:attribute name="responseMerchant"            type="Object"  default="{}" access="global" description="save the call service response"/>
+    <aura:attribute name="showMerchantModal"        type="Boolean"   default=""/>
+
+    <aura:attribute name="wizardWrapper"            type="Object"    default="{}"    access="global"/>
+	<aura:attribute name="objectDataMap"            type="Object"    default="{}"    access="global"/>
+	<aura:attribute name="accId"                    type="String"    default="{!v.objectDataMap.merchant.Id}" /> 
+	<aura:attribute name="nextCheckout"             type="String"    default="{!v.objectDataMap.unbind.nextCheckout}" />
+	<aura:attribute name="objectKey"                type="String"    default=""      access="global"/>
+	<aura:attribute name="identifier"               type="String"    default=""      access="global"/>
+	<aura:attribute name="field"                    type="Object"    default="{}"    access="global"/>
+	<aura:attribute name="showButtons"              type="Boolean"   default="{!v.objectDataMap.showButtons}" />
+	<aura:attribute name="showMerchantData"         type="Boolean"   default="{!v.objectDataMap.showMerchantData}" />
+	<aura:attribute name="hideFiscalCode"           type="Boolean"   default="false" access="global"/>
+	<aura:attribute name="hideVat"                  type="Boolean"   default="false" access="global"/>
+	<aura:attribute name="toggleSpinner"            type="boolean"   default=""				 description="set the spinner after the merchant search"      />
+	<aura:attribute name="showOtherInput"           type="boolean"   default="{!v.objectDataMap.showOtherInput}" description="show the service point input"                   />
+
+    <aura:handler name="init"           value="{!this}"              action="{!c.doInit}"/>
+   
+
+<!--###### MODAL BOX Start######--> 
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+            <!-- ###### MODAL BOX HEADER Start ######-->
+            <header class="slds-modal__header">
+                <lightning:buttonIcon iconName="utility:close"
+                                      onclick="{! c.closeModel }"
+                                      alternativeText="close"
+                                      variant="bare-inverse"
+                                      class="slds-modal__close"/>
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">SEARCH MERCHANT</h2>
+            </header>
+                    <!--###### MODAL BOX BODY Part Start######-->
+                    
+            <!--DATA TABLE START-->
+            <div class="slds-modal__content slds-p-around_medium slds-is-relative" style="height: 800px" id="modal-content-id-1"> 
+				<div class="slds-col" id= "dataTableId">
+        			<lightning:dataTable data="{!v.merchantServiceList}"
+                                 		 columns="{! v.columnsMerchant }"
+                                  		 keyField="id"
+                                  	     selectedRows="{!v.selectedRows}" 
+                                 		 onrowselection="{! c.getSelectedMerchant }"
+                                 		 hideCheckboxColumn="false"
+                                		 required="true"/>
+    			</div>
+            </div>
+            <!--DATA TABLE END-->
+                    
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+    <!--###### MODAL BOX Part END Here ######-->
+</aura:component>

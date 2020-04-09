@@ -1,0 +1,879 @@
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global" controller="OB_OperationalData_CC">
+    
+    <aura:attribute name="objectDataMap" type="Object" access="global"/>
+    <aura:attribute name="productCategories" type="Object"/>
+    <aura:attribute name="cartList" type="Object"/>
+    <aura:attribute name="offertaId" type="ID"/>
+    <aura:attribute name="listOfCategories" type="Object"/> <!--tutto-->
+    <aura:attribute name="contextOutput" type="Object"/>
+    <aura:attribute name="spinner" type="Boolean" default="true"/>
+    <aura:attribute name="listOfItems" type="List"/> 
+    <aura:attribute name="item" type="Object"/>
+    <aura:attribute name="listOfAttributes" type="List"/>
+    <aura:attribute name="bancomatItems" type="List"/>
+    <aura:attribute name="bundleElementName" type="String"  />
+    <aura:attribute name="bundleStep" type="Integer"/>
+    <aura:attribute name="configureBundle" type="Boolean" default="false"/>
+    <aura:attribute name="configuredItem" type="Boolean" default="false"/>
+    <aura:attribute name="itemToConfigure" type="Object"/>
+    
+    <!-- attribute added by francesca: -->
+    <aura:attribute name="cartCategory" type="Object"/>
+    <!-- 4 Lists of ChildItems divided by bundleElements name -->
+    <aura:attribute name="posList" type="List"/>
+    <aura:attribute name="vasList" type="List"/>
+    <aura:attribute name="acquiringList" type="List"/>
+    <aura:attribute name="pciList" type="List"/>
+    <aura:attribute name="bancomatList" type="List"/>
+    
+    <!-- label attributes -->
+    <aura:attribute name="uniqueLabelsPos" type="List"/>
+    <aura:attribute name="uniqueLabelsBancomat" type="List"/>
+    <aura:attribute name="uniqueLabelsVas" type="List"/>
+ 	<aura:attribute name="uniqueLabelsAcq" type="List" default="['PERCENTUALE','MAGGIORAZIONE EXTRA EA','RIDUZIONE']" description="acquiring categories to show in markup"/>
+    
+    <!-- francesca.ribezzi: attributes for markup: -->
+    <aura:attribute name="categoryCircuit" type="List" default="['PERCENTUALE','MAGGIORAZIONE','RIDUZIONE']" description="acquiring categories"/> 
+    <aura:attribute name="posCategories" type="List" default="['IMPORTO','COMMISSIONE','GRATUITA','PERCENTUALE']"/>
+    <aura:attribute name="pciCategories" type="List" default="['IMPORTO','-','CANONE']"/>
+    <aura:attribute name="vasCategories" type="List" default="['IMPORTO','COMMISSIONE','GRATUITA','PERCENTUALE']"/> 
+    <aura:attribute name="categoryCircuitMap" type="Object" default="{'PERCENTUALE': 0,'MAGGIORAZIONE': 1,'RIDUZIONE':2}"/>
+    <aura:attribute name="pciCategoriesMap" type="Object" default="{'IMPORTO':0,'CANONE':2}"/>
+    <aura:attribute name="numOfCol" type="String" default="0"/>
+    <aura:attribute name="maxCol" type="String" default="0"/>
+    <aura:attribute name="commissionColSize" type="Integer" default='2'/>
+    
+    <aura:attribute name="numOfColBancomat" type="String" default="0"/>
+    <aura:attribute name="maxColBancomat" type="String" default="0"/>
+    <aura:attribute name="commissionColSizeBancomat" type="Integer" default='2'/>
+    
+    <aura:attribute name="numOfColVas" type="String" default="0"/>
+    <aura:attribute name="maxColVas" type="String" default="0"/>
+    <aura:attribute name="commissionColSizeVas" type="Integer" default='2'/>
+    
+    <aura:attribute name="numOfColACQ" type="String" default="0"/>    
+        
+        
+    <aura:attribute name="itemToUpdate" type="Object"/>
+    
+    <aura:attribute name="qtyMax" type="Integer" default="900"/> 
+    <aura:attribute name="itemFakeToRemove" type="Object"/>
+    
+    <!--  Attributes to manage maintenance of orders -->
+	<aura:attribute name="isFlow" type="boolean" default="true"/>
+    <aura:attribute name="isReadOnly" type="boolean" default="false"/>
+    <aura:attribute name="orderParameter" type="String"/>
+    <aura:attribute name="isEditCommissionModel" type="Boolean" default="false"/>
+    <!-- ===== -->
+    
+    <aura:attribute name="errorMessagePOS" type="String" default="Input accept only numbers and [,]"/>  
+    <aura:attribute name="errorMessageBancomat" type="String" default="Input accept only numbers and [,]"/>
+    <aura:attribute name="errorMessageACQ" type="String" default="Input accept only numbers and [,]"/> 
+    <aura:attribute name="errorMessageVAS" type="String" default="Input accept only numbers and [,]"/>   
+    <aura:attribute name="errorMessagePCI" type="String" default="Input accept only numbers and [,]"/>   
+    
+    <aura:attribute name="checkAttributeRules" type="String"/> <!-- ok,warning,error  NEW-->
+    <aura:attribute name="childItemToFocus" type="String" /> <!--  NEW  -->
+    <!--  -->
+    <!-- new attributes for maintenance -->
+    <aura:attribute name="subProcess" type="String"/> 
+    <aura:attribute name="mainProcess" type="String"/> 
+    <aura:attribute name="isMaintenance" type="Boolean" default="false"/> 
+    <aura:attribute name="reloadData" type="Boolean" default="true" description="used to reload all tables in onUpdateContext"/>   
+    <aura:attribute name="variation" type="String"/>
+    <aura:attribute name="hasDowngrade" type="Boolean" default="false"/> 
+    <aura:attribute name="isMaintenanceOffer" type="Boolean" default="false"/>
+    <aura:attribute name="isMaintenancePricing" type="Boolean" default="false"/>
+
+    <aura:attribute name="approvalTypePricing" type="Boolean" default="false"/>
+
+    <!--22/02/19 francesca.ribezzi adding map to check Maggiorazione and Percentuale values for maintenance pricing-->	
+    <aura:attribute name="mapChildIdName" type="Map" default="{}"/> 
+
+    <!--10/04/2019 andrea.morittu attribute modal click show historic pricing modal -->	
+    <aura:attribute name="showHistoricPricingModalBoolean"  type="Boolean"  default="false" access="global"/> 
+    <aura:attribute name="nameItem"                         type="String"                   access="global"/> 
+    <aura:attribute name="productId"                        type="String"                   access="global"/> 
+    <aura:attribute name="currentUser"                      type="Object"                   access="global"/> 
+    
+
+    <aura:attribute name="approvalStatus" type="String" access="global"/> 
+    <!--18/03/19 francesca.ribezzi show terminal id next to pos name: -->
+    <aura:attribute name="showTerminalId" type="Boolean" access="global" default="false"/> 
+    <!--20/03/19 francesca.ribezzi adding asset id to retrive fake context output for assets pricing -->
+    <aura:attribute name="offerAssetId" type="String" access="global" default=""/> 
+    <!--21/03/19 francesca.ribezzi adding attribute for childItems start date -->
+    <aura:attribute name="showStartDate" type="Boolean" default="false" access="global"/>
+
+    <!-- 17/04/19   francesca.ribezzi adding new attributes to check perfomance -->
+    <aura:attribute name="initPerformance" type="Long" default="0"/>  
+    
+    <!-- LUBRANO 16/01/2019 Libreria Log -->
+    <ltng:require scripts = "{!$Resource.utils}" afterScriptsLoaded =  "{!c.logInit}" />
+    <!-- Start antonio.vatrano 08/05/2019 r1f2-106 -->
+	<aura:attribute name="userLicense" type="String"  default="" access="global"/>
+    <!-- End antonio.vatrano 08/05/2019 r1f2-106 -->
+    <!-- ANDREA MORITTU START - 18-Sept-2019 - EVO_PRODOB_452 -->
+    <aura:attribute     name="AccountData"                          type="Object"                                       access="global"             /> 	
+    <aura:attribute     name="showAssetPricing"                     type="Boolean"                                      access="global"             /> 	
+    <aura:attribute     name="ServicePointSelectedRow"              type="String"                                       access="global"             /> 	
+    <aura:attribute     name="step"                                 type="Integer"                                                      default="0" />
+    <aura:attribute     name="bankABI"                              type="String"                                       access="global"             />		
+    <aura:attribute     name="showChooseOperationModal"             type="Boolean"                                      access="global"             /> 	
+    <aura:attribute     name="offerAssetSelected"                   type="Asset"                                        access="global"             />
+    
+    <aura:registerEvent name="decideWhichMaintenanceOperation_Evt"  type="c:OB_DecideWhichMaintenanceOperation_Evt"                                 />
+    <aura:registerEvent name="maintenancePreloadEvent" type="c:OB_MaintenancePreLoadEvent"/>
+    <!-- ANDREA MORITTU END - 18-Sept-2019 - EVO_PRODOB_452 -->
+    <!-- ANDREA MORITTU START - 02-Oct-2019 - EVO_BACKLOG_245 -->
+    <aura:attribute     name="oldVMAttributes"                   type="Object"                                        access="global"             />
+    <!-- ANDREA MORITTU END - 02-Oct-2019 - EVO_BACKLOG_245 -->
+    
+    
+    <!-- 18/07/19 francesca.ribezzi adding orderId - - F2WAVE2-160 -->
+	<aura:attribute name="orderId" type="String"/>	
+
+    <aura:attribute name="priceApprovalLevel" type="String"  default="" access="global"/> <!--francesca.ribezzi 26/11/19 - performance - adding priceApprovalLevel -->   
+	<aura:attribute name="childApprovalLevelMap" type="Map"  access="global"/> <!--francesca.ribezzi 26/11/19 - performance - adding approvalLevelMap -->  
+    <aura:attribute name="approvalLevelMap" type="Map" default="{}" access="global"/> <!--francesca.ribezzi 26/11/19 - performance - adding approvalLevelMap -->  
+
+    <!--  NEW event to update attribute checkAttributeRules -->
+    <aura:handler action="{!c.onUpdateApprovalOrderRules}" event="c:OB_ApprovalOrderRulesEvent" /> 
+    <aura:handler action="{!c.onUpdateContext}" event="NE:Bit2win_Event_UpdateContext" />
+    
+    <!--  NEW Handler for "Consultazione Pratiche" -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.childApprovalLevelMap}" action="{!c.updateApprovalLevel}"/>  <!--francesca.ribezzi 26/11/19 - performance - adding onchange event-->   
+	
+
+  <!--   <aura:handler name="change" value="{!v.contextOutput.configuration.OB_JCBUPIAlert}" action="{!c.showInfoAlert}"/>   -->
+    <aura:registerEvent name="updateContextEvent" type="c:OB_CustomUpdateContextEvent"/> 
+    <aura:registerEvent name="approvalOrderRulesEvent" type="c:OB_ApprovalOrderRulesEvent"/> 
+    
+    <aura:registerEvent name="mainConfEvent" type="c:OB_maintenanceConfigEvent"/>
+    
+    <div name="componentWrapper" class="{!v.isFlow == false? 'slds-card notFlowPadding':''}" >
+    
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>  
+     
+    <!--  <aura:if isTrue="{!and(v.isMaintenance == true, v.contextOutput != undefined)}">
+     	<c:OB_ConfigurationInfo configuration="{!v.contextOutput.configuration}"/>
+     </aura:if> -->
+    <!--  {!v.body} -->
+     
+    <div class="slds-grid">
+        
+        
+       <!--   <aura:if isTrue="{!v.isFlow == false}">
+        	<NE:B2WGin_Core_Engine aura:id="lightning" parameters="{!v.orderParameter}" disableRedirect="true"/> 
+        </aura:if> -->
+   <!--  <aura:if isTrue="{!v.showConfDetail}">
+     	<c:OB_ConfigurationInfo configuration ="{!v.contextOutput.configuration}"  />  	
+     </aura:if> --> 	   
+        <div class="slds-col slds-size_6-of-6">
+            <!-- Andrea Morittu Start 11/04/2019 (HIDING LEGEND ON 'SHOW PRICES') --> 
+            <aura:if isTrue="{!!v.offerAssetId}" >
+                <div class="slds-grid ">               
+                    <!-- Doris D ... 26/02/2019 .... START -->
+                    <span class="slds-col slds-size_2-of-3">
+                            <div class="slds-box" style = "width : 60%" >
+                                <form>
+                                    <fieldset>
+                                        <legend><strong>{!$Label.c.OB_LegendTitle}</strong></legend>
+                                        
+                                        <div class="slds-grid slds-size_2-of-2" style = "margin-top: 3px;">
+                                            <div class= "gray-checkbox"/>
+                                            <div>{!$Label.c.OB_NotRequiredApproval}</div>
+                                        </div>
+                
+                                        <div class="slds-grid slds-size_2-of-2" style = "margin-top: 3px;">
+                                            <div class="yellow-checkbox"/>
+                                            <div>{!$Label.c.OB_ValueSubjectToApproval}</div>
+                                        </div>
+                
+                                        <div class="slds-grid slds-size_2-of-2" style = "margin-top: 3px;">
+                                                <div class="red-checkbox"/>
+                                                <div> {!$Label.c.ValueNotAllow}</div>
+                                        </div>    
+                                            
+                                    </fieldset>
+                                </form>
+                            </div>
+                    </span>        
+                    <!-- Doris D ... 26/02/2019 .... END   -->
+                </div>
+            </aura:if>   	
+            <!-- Andrea Morittu End 11/04/2019 (HIDING LEGEND ON 'SHOW PRICES') -->
+            <div class="slds-grid " style = "margin-top: 4em; margin-block-end: 4em;"> 
+                <span class="slds-col slds-size_2-of-4">  	
+                    <div class="u116" data-label="page title">
+                        <p><span>{!$Label.c.OB_PriceSummaryLabel}</span></p>
+                    </div>
+                </span>
+            </div>
+            <!-- ANDREA MORITTU START - 17-Sept-2019 - EVO_PRODOB_452 -->
+            <!-- ANDREA MORITTU START - 14-Oct-2019 - EVO_PRODOB_452 - Changed logic on shiw button (operation must see the button) -->
+            <aura:if isTrue="{!and(or(v.currentUser.isPartner, v.currentUser.isOperation ), v.showAssetPricing)}">
+            <!-- ANDREA MORITTU END - 14-Oct-2019 - EVO_PRODOB_452 - Changed logic on shiw button (operation must see the button) -->
+                <div class="slds-align_absolute-center">
+                    <lightning:button class="CTAStyle" label="{!$Label.c.OB_Edit}" title="Neutral action" onclick="{! c.openModalToChooseMaintenanceOperation }"/>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!v.showChooseOperationModal}">
+                <section role="dialog" aura:id="editButtonModal" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+                    <div class="slds-modal__container">
+                        <!-- BODY MODAL -->
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <div class="slds-grid slds-size-1-of-1 slds-p-around--medium">
+                                <div class="slds-align_absolute-center tytleStyle">
+                                    {!$Label.c.OB_DecideMaintenanceOperation_Label}
+                                </div>
+                            </div>
+                            <div class="slds-grid slds-size-1-of-1 slds-align_absolute-center">
+                                <div class="slds-size-2-of-2 slds-p-around--medium" >
+                                    <lightning:button class="CTAStyle" name="{!$Label.c.OB_EditPricing}" label="{!$Label.c.OB_EditPricing}" title="{!$Label.c.OB_EditPricing}" onclick="{!c.chooseMaintenanceOperation}" />
+                                </div>
+                                <div class="slds-size-1-of-2 slds-p-around--medium" >
+                                    <lightning:button class="CTAStyle" name="{!$Label.c.OB_EditCommissionModel}" label="{!$Label.c.OB_EditCommissionModel}" title="{!$Label.c.OB_EditCommissionModel}" onclick="{!c.chooseMaintenanceOperation}"  />
+                                </div>
+                            </div>
+                        </div>
+                        <!-- / BODY MODAL -->
+                        <footer class="slds-modal__footer">                                
+                                <lightning:button variant="brand" class="CTAStyle_BRAND" label="{!$Label.c.OB_Cancel}" title="Neutral action" onclick="{!c.closeChoseOperationModal}"  />
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </aura:if>
+            <!-- ANDREA MORITTU END - 17-Sept-2019 - EVO_PRODOB_452 -->
+            <div class="tableContainer">
+                <div>
+                    
+                    <!-- START PRICE SUMMARY FOR POS  -->
+                    <!-- <aura:if isTrue="{!and(!empty(v.posList), v.isEditCommissionModel == false)}"> -->
+                        <aura:iteration items="{!v.posList}" var="pos" indexVar="firstIndex">
+                            <div id="base" class="product_row_color" > 
+                                <!--productRow starts -->
+                                <div > <!-- id="{!item.id+'_prdRow'}" -->
+                                    <div class="commissioni_info" data-label="label"> <!-- class="u122" --> 
+                                        <aura:if isTrue="{!and(or(v.isMaintenance == true, v.showTerminalId == true),!empty(pos.fields.OB_TermId__c))}">
+                                                <div class="slds-col slds-size_2-of-10 slds-align_absolute-center"> 
+                                                    <p class="u1730 slds-align_absolute-center"><span>{!pos.fields.productname} - {!pos.fields.OB_TermId__c}</span></p> 
+                                                </div>
+                                            <aura:set attribute="else">
+                                                <div class="slds-col slds-size_2-of-10 slds-align_absolute-center"> 
+                                                    <p class="u1730"><span>{!pos.fields.productname}</span></p>
+                                                </div>
+                                            </aura:set>
+                                        </aura:if>
+                                        <!-- andrea.morittu START 2019/04/09 -> ADDING DETAILS OF ITEM PLUS SHOW HISTORIC BUTTON-->
+                                        <div class="slds-grid slds-size--1-of-1 slds-p-around--medium headerCtm">
+                                            <aura:if isTrue="{!and(not(empty(v.offerAssetId)), v.currentUser.isOperation )}">
+                                                <!--START VALIDATION DATE  -->
+                                                <div class="slds-size_2-of-10 slds-align_absolute-center"> 
+                                                    <p class="inputAttValueFont slds-align_absolute-center">{!$Label.c.OB_StartValidationDate} : 
+                                                        <aura:if isTrue="{!pos.fields.OB_StartValidationDate__c != null}">
+                                                            <lightning:formattedDateTime    value="{!pos.fields.OB_StartValidationDate__c}" 
+                                                                                            year="numeric" 
+                                                                                            month="numeric" 
+                                                                                            day="numeric"  />
+                                                            <aura:set attribute="else">
+                                                                N/a
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </p>
+                                                </div>
+                                                <!-- FIRST SUBSCRIPTION FLAG -->
+                                                <div class="slds-size_2-of-10 slds-align_absolute-center">
+                                                    <aura:if isTrue="{!pos.fields.OB_DataMigration__c}">
+                                                        {!$Label.c.OB_StartValidationDate} : N/a
+                                                        <!--IF(OB_DataMigration__c == FALSE) -->
+                                                        <aura:set attribute="else" > 
+                                                            <!-- Andrea.morittu start 2019.04.30 - #RI-29-->
+                                                            <lightning:input type="checkbox" 
+                                                            aura:id="firstSubscription"
+                                                            checked="{!pos.fields.firstSubcription}" 
+                                                            label="Prima Sottoscrizione"
+                                                            disabled="true" />  
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                                <!-- AGREED FLAG -->
+                                                <div class="slds-size_2-of-10 slds-align_absolute-center">
+                                                    <aura:if isTrue="{!pos.fields.OB_AgreedChanges__c != undefined}" >
+                                                        <lightning:input type="checkbox" 
+                                                                        aura:id="agreedChanges"
+                                                                        checked="{!pos.fields.OB_AgreedChanges__c}" 
+                                                                        label="{!$Label.c.OB_AgreededLabel}"
+                                                                        disabled="true" />
+                                                        <aura:set attribute="else" >
+                                                            {!$Label.c.OB_AgreededLabel} :  N/a
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                                <!-- ADMELIORATIVE FLAG -->
+                                                <!-- Start antonio.vatrano r1f2-96 08/05/2019 change field -->
+                                                <div class="slds-size_2-of-10 slds-align_absolute-center">
+                                                    <aura:if isTrue="{!pos.fields.OB_Variation__c != undefined}">
+                                                        <lightning:input type="checkbox" 
+                                                                        aura:id="agreedChanges"
+                                                                        checked="{!pos.fields.OB_Variation__c}" 
+                                                                        label="{!$Label.c.OB_AmeliorativeLabel}"
+                                                                        disabled="true" />
+                                                        <aura:set attribute="else"   >
+                                                            {!$Label.c.OB_AmeliorativeLabel} : N/a
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div> 
+                                                <!-- End antonio.vatrano r1f2-96 08/05/2019 change field -->                       
+                                                <!--SHOW HISTORIC BUTTON  -->               
+                                                <div class="slds-size_2-of-10 slds-align_absolute-center">
+                                                    <button     class="slds-button slds-button_neutral"
+                                                                id="{!pos.fields.productid+'_'+pos.fields.productname+' - '+pos.fields.OB_TermId__c+'_posModal'}" 
+                                                                        
+                                                                title="Neutral action" 
+                                                                onclick="{!c.showHistoricPricingModal }">
+                                                                <p class="">{!$Label.c.OB_ShowHistoricPricingLabel} </p>
+                                                    </button>                                                             
+                                                </div>
+                                            </aura:if>
+                                        </div>
+                                        <!-- andrea.morittu END 2019/04/09 -->     
+                                    </div>
+                                    
+                                </div> 
+                                <div > <!-- id="{!item.id+'_info'}" -->
+                                    <div class="slds-grid slds-gutters canone_dettaglio"  style="width:100%">
+                                        <div class="slds-col slds-size_1-of-1" > <!-- START DIV COL -->
+                                           <!-- POS LABELS -->
+								               <div class="slds-grid  slds-gutters">  
+								                	<div class="slds-col slds-size_1-of-4">
+								                		<!-- empty div -->
+								                	</div>
+								                	<div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-small-size_1-of-1">
+								                		<div class="slds-grid  slds-gutters headerContainer">  
+															<aura:iteration items="{!v.uniqueLabelsPos}" var="lab" > 
+																<div class="{!'slds-col slds-size_1-of-3 slds-medium-size_1-of-'+v.maxCol+' slds-small-size_1-of-3'}">
+																	<span>
+																		<div class="{!lab != 'Condizioni particolari/Mesi'?'slds-col headerLabel' : 'slds-col'}"> 
+																			<span>  
+																				<p class="{!lab == 'a'?'attributeNames' : 'attributeNames shortAttrName'}">{!lab}</p>
+																			</span>
+																		</div>
+																	</span>
+																</div>
+															</aura:iteration> 
+														</div>
+													</div>
+												</div>
+                                            <aura:iteration items="{!pos.listOfChildItems}" var="item" indexVar="index">
+	                                            <aura:if isTrue="{!item.item.fields.RecordTypeName =='Pricing'}">
+	                                              
+	                            			      
+	                                              <c:OB_childItem childItem="{!item}" 
+                                                                    fatherItem="{!pos}" 
+                                                                    commissionColSize="{!v.commissionColSize}"
+                                                                    maxCol="{!v.maxCol}"
+                                                                    numOfCol="{!v.numOfCol}"
+                                                                    approvalTypePricing="{!v.approvalTypePricing}"
+                                                                    isMaintenancePricing="{!v.isMaintenancePricing}"
+                                                                    approvalStatus="{!v.approvalStatus}"
+                                                                    showStartDate ="{!v.showStartDate}"
+                                                                    userLicense="{!v.userLicense}"
+                                                                    childApprovalLevelMap="{!v.childApprovalLevelMap}"
+                                                                    isReadOnly="{!pos.readOnly}"
+                                                    />    <!--francesca.ribezzi 21/03/19 adding showStartDate--> 
+                                                     <!--francesca.ribezzi 06/12/19 - PERF-17 adding isReadOnly--> 
+                                                                              <!--antonio.vatrano 08/05/2019 rif2-106 add attribute--> 
+	                                                  
+	                                            </aura:if>      
+                                            </aura:iteration> 
+                                        </div> <!-- END DIV COL -->
+                                    </div>
+                                </div>
+                                <!--   </aura:iteration> -->
+                            </div>
+                        </aura:iteration>
+                    <!-- </aura:if> -->
+                </div>
+                
+                <!-- START PRICE SUMMARY FOR BANCOMAT  -->
+                <aura:if isTrue="{!and(!empty(v.bancomatList), v.isEditCommissionModel == false)}"> 
+                    <div class="slds-grid slds-wrap">  
+                        <div class="slds-col slds-size_2-of-2">    
+                            <aura:iteration items="{!v.bancomatList}" var="bancomat" indexVar="firstIndex">
+                                <div> <!--  id="{!item.id+'_prdRow'}" -->
+                                    <div class="commissioni_info" data-label="label"> <!-- class="u122" -->
+                                        <p class="u1730"><span>{!bancomat.fields.productname} </span></p> 
+                                    </div>
+                                </div> 
+                                <!-- NEW PART TEST-->
+                                <div class="slds-grid  slds-gutters">  
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-1 slds-small-size_1-of-1">   
+                                    	<!-- BANCOMAT LABELS -->
+						               <div class="slds-grid  slds-gutters">  
+						                	<div class="slds-col slds-size_1-of-4">
+						                		<!-- empty div -->
+						                	</div>
+						                	<div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-small-size_1-of-1">
+						                		<div class="slds-grid  slds-gutters headerContainer">  
+													<aura:iteration items="{!v.uniqueLabelsBancomat}" var="lab" > 
+														<div class="{!'slds-col slds-size_1-of-3 slds-medium-size_1-of-'+v.maxColBancomat+' slds-small-size_1-of-3'}">
+															<span>
+																<div class="{!lab != 'Condizioni particolari/Mesi'?'slds-col headerLabel' : 'slds-col'}"> 
+																	<span>  
+																		<p class="{!lab == 'a'?'attributeNames' : 'attributeNames shortAttrName'}">{!lab}</p>
+																	</span>
+																</div>
+															</span>
+														</div>
+													</aura:iteration> 
+												</div>
+											</div>
+										</div>
+                                        <aura:iteration items="{!bancomat.listOfChildItems}" var="item" indexVar="index">
+                                        <aura:if isTrue="{!item.item.fields.RecordTypeName =='Pricing'}">
+                                    <!--          <div class="slds-col slds-grid slds-size_1-of-1 slds-medium-size_1-of-1 slds-small-size_1-of-1 itemAttributesContainer">
+                                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-small-size_1-of-1">
+                                                    <span><span><p class="productName">{!item.fields.productname}</p></span>
+                                                        {!item.fields.description} </span>
+                                                </div>
+                                                <div id="attributesDiv" class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3 slds-small-size_1-of-1 attributesWrapper">
+                                                    <div class="slds-grid slds-gutters slds-wrap">
+                                                        <aura:iteration items="{!item.listOfAttributes}" var="att" indexVar="index2"> 
+                                                            <aura:iteration items="{!item.listOfFamilies}" var="fam" indexVar="index3">
+                                                                <aura:if isTrue="{!and(att.fields.familyname ==fam.fields.name,att.fields.value != '',att.fields.value != null)}"> 
+                                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_1-of-3 slds-small-size_1-of-3">
+                                                                        <span>
+                                                                            <div class="slds-col"> 
+                                                                                <span>
+                                                                              
+                                                                                    <aura:if isTrue="{!and(att.fields.value != '',att.fields.value != null)}">    
+                                                                                        <p class="attributeNames">{!att.fields.name} </p>
+                                                                                    </aura:if>    
+                                                                                 
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="slds-col inputContainer">
+                                                                                <span>
+                                                                                    <p class="alignInput">
+                                                                                        <aura:if isTrue="{!att.fields.readonly == 'true' || att.fields.readonly == true || v.isReadOnly == true}">
+                                                                                        	 	<aura:if isTrue="{!and(att.fields.value != '',att.fields.value != null)}">
+                                                                                            		<input id="{!index2}" class="f217 inputAttValueFont inputReadonly inputReadOnlySelected" data-item="{!firstIndex}"  label="" value="{!att.fields.value}" readonly="readonly"/>
+                                                                                            	</aura:if>
+                                                                                            <aura:set attribute="else">
+                                                                                                <aura:if isTrue="{!and(att.fields.value != '',att.fields.value != null)}">
+                                                                                                	<input id="{!index+'_'+index2+'_Bancomat'}" aura:id="BancomatAuraId"  class="f217 inputAttValueFont" data-item="{!firstIndex}"  label="" value="{!att.fields.value}" onchange="{!c.onChangeAttributeValueBancomat}"/>
+                                                                                            	</aura:if>
+                                                                                            </aura:set>
+                                                                                        </aura:if>
+                                                                                        <aura:if isTrue="{!and(att.fields.value != '',att.fields.value != null)}">
+                                                                                        	<span>{!att.fields.description}</span>
+                                                                                        </aura:if>
+                                                                                    </p>  
+                                                                                </span>
+                                                                            </div>-->
+                                                                            <!--  error management -->
+                                                                  <!--            <div class="slds-col errMsg hidden" id="{!index+'_'+index2+'_Bancomat_errorBancomat'}" >
+                                                                                <span >
+                                                                                    {!v.errorMessageBancomat}
+                                                                                </span>
+                                                                            </div>                 
+                                                                        </span> 
+                                                                    </div>
+                                                                </aura:if> 
+                                                            </aura:iteration>
+                                                        </aura:iteration> 
+                                                    </div>
+                                                </div>         
+                                            </div>
+                                            
+                                            		            
+                                            </aura:if>     
+                                                
+                                                  
+                                            </aura:if>     -->
+                                              <c:OB_childItem childItem="{!item}" 
+                                    							fatherItem="{!bancomat}" 
+                                    							commissionColSize="{!v.commissionColSizeBancomat}"
+                                    							maxCol="{!v.maxColBancomat}"
+                                    							numOfCol="{!v.numOfColBancomat}"
+                                                                approvalTypePricing="{!v.approvalTypePricing}"
+                                                                isMaintenancePricing="{!v.isMaintenancePricing}"
+                                                                approvalStatus="{!v.approvalStatus}"
+                                                                showStartDate ="{!v.showStartDate}"
+                                                                userLicense="{!v.userLicense}" 
+                                                                childApprovalLevelMap="{!v.childApprovalLevelMap}" 
+                                                                isReadOnly="{!bancomat.readOnly}"
+                                                />   <!--francesca.ribezzi 21/03/19 adding showStartDate--> <!--antonio.vatrano 08/05/2019 rif2-106 add attribute-->   
+                                                    <!--francesca.ribezzi 06/12/19 - PERF-17 adding isReadOnly--> 
+                                        </aura:if>    
+                                        </aura:iteration>
+                                    </div>
+                                </div>          
+                                <!-- END NEW PART -->  
+                            </aura:iteration>
+                        </div>
+                    </div>     
+                </aura:if>
+                
+                <!-- START PRICE SUMMARY FOR ACQUIRING  -->
+                <aura:if isTrue="{!!empty(v.acquiringList)}"> 
+                    <div class="commissioni_info" data-label="label"> <!-- class="u122" -->
+                        <!-- <p><span>{!!empty(item.fields.cartDescription)?item.fields.cartDescription:item.fields.productname}</span></p> -->
+                        <p class="u1730"><span>ACQUIRING</span></p>
+                        <!-- ANDREA.MORITTU start 2019/04/12-->
+                        <div class="slds-grid slds-size--1-of-1 slds-align_absolute-center headerCtm">
+                            <aura:if isTrue="{!and(not(empty(v.offerAssetId)) , v.currentUser.isOperation)}">
+                                <div class="slds-col slds-size_1-of-3 slds-align_absolute-center"> 
+                                    <button class="slds-button slds-button_neutral"
+                                            id="VM"
+                                            title="Neutral action"
+                                            onclick="{!c.showAcquiring}" >
+                                            {!$Label.c.OB_ShowHistoricPricingVMLabel}
+                                    </button>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3 slds-align_absolute-center"> 
+                                    <button class="slds-button slds-button_neutral"
+                                            id="JCB"
+                                            title="Neutral action"
+                                            onclick="{!c.showAcquiring}" >
+                                            <!-- Andrea Morittu START 2019.05.02 - Fix RI-10 -->
+                                            {!$Label.c.OB_ShowHistoricPricingJCBLabel}
+                                            <!-- Andrea Morittu END 2019.05.02 - Fix RI-10 -->
+                                    </button>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3 slds-align_absolute-center"> 
+                                    <button class="slds-button slds-button_neutral"
+                                            id="UPI"
+                                            title="Neutral action"
+                                            onclick="{!c.showAcquiring}" >
+                                            <!-- Andrea Morittu START 2019.05.02 - Fix RI-10 -->
+                                            {!$Label.c.OB_ShowHistoricPricingUPILabel}
+                                            <!-- Andrea Morittu END 2019.05.02 - Fix RI-10 -->
+                                    </button>
+                                </div>
+                            </aura:if>
+                        </div>
+                        <!-- ANDREA.MORITTU end 2019/04/12-->
+                    </div>
+                    <!--productRow starts -->
+                    <div class="slds-col slds-size_2-of-3 slds-medium-size_3-of-5 slds-small-size_1-of-1 detailsContent">
+                        <!-- table header -->
+                        <div class="tableText slds-grid slds-gutters">  
+                            <span class="{!'productName slds-col slds-size_1-of-1 slds-medium-size_2-of-'+v.numOfColACQ+' slds-small-size_1-of-1 uppercaseLabel'}"><!-- {!$Label.c.OB_CardTypeLabel} --></span>
+                            <aura:iteration items="{!v.uniqueLabelsAcq}" var="categoryName" > 
+                                <span class="{!'productName valueN slds-col slds-size_1-of-1 slds-medium-size_1-of-'+v.numOfColACQ+' slds-small-size_1-of-1'}"><p class="categoryText">{!categoryName}</p></span>
+                            </aura:iteration>  
+                        </div>
+                        <!--  <div id="base" class="slds-col slds-size_2-of-3  product_row_color detailContainer" >    -->
+						<aura:iteration items="{!v.acquiringList}" var="acquiring" indexVar="firstIndex"> 
+							<aura:iteration items="{!acquiring.childItems}" var="item" indexVar="indx2">
+							<aura:if isTrue="{!item.fields.RecordTypeName =='Pricing'}">
+							<!-- <div class="slds-grid slds-gutters slds-wrap rowLine"> 
+									<span class="{!'productNameVAS_ACQ cartItemToEdit slds-col slds-size_1-of-1 slds-medium-size_2-of-'+v.maxCol+' slds-small-size_1-of-1'}">{!item.fields.productname}</span>
+										<aura:iteration items="{!item.listOfAttributes}" var="att" indexVar="indx3"> 
+											<div class="{!'slds-col slds-size_1-of-1 slds-medium-size_1-of-'+v.maxCol+' slds-small-size_1-of-'+v.maxCol+' slds-align_absolute-center'}">
+												<aura:if isTrue="{!att.fields.name != 'fake'}">
+													<span class="cartItemValuesToEdit">
+														<aura:if isTrue="{!att.fields.readonly == 'true' || att.fields.readonly == true || v.isReadOnly == true}">
+															<input id="{!indx2+'_'+indx3}" class="inputToEdit inputAttValueFont inputReadonly inputReadOnlySelected" name="{!firstIndex+'_ACQ'}" label="" value="{!att.fields.value}" readonly="readonly"/>
+															<aura:set attribute="else">
+																<input id="{!indx2+'_'+indx3+'_ACQ_'+firstIndex}" aura:id="ACQAuraId"  class="inputToEdit"  name="{!firstIndex}" label="" value="{!att.fields.value}" onchange="{!c.onChangeAttributeValueACQ}"/>
+															</aura:set>
+														</aura:if>
+													<span class="cartItemValuesToEditCurrency">{!att.fields.description}</span> -->
+														<!--  error management -->
+											<!-- 	<span class="errMsg hidden" id="{!indx2+'_'+indx3+'_ACQ_'+firstIndex+'_errorACQ'}" >
+															<p style="width:44px;">{!v.errorMessageACQ}</p>
+														</span>             
+													</span> 
+												
+												</aura:if>
+											</div>
+										</aura:iteration>
+									</div>-->
+									
+									<!-- ADDING HERE CHILD COMPONENT -->
+                                      <c:OB_childItemACQ_PCI    childItem="{!item}" 
+		                             							fatherItem="{!acquiring}" 
+		                             							numOfCol="{!v.numOfColACQ}"
+		                             							numOfColPrdName= "2"
+                                                                isMaintenancePricing = "{!v.isMaintenancePricing}"
+                                                                approvalTypePricing="{!v.approvalTypePricing}" 
+                                                                mapChildIdName="{!v.mapChildIdName}"
+                                                                approvalStatus="{!v.approvalStatus}"
+                                                                showStartDate ="{!v.showStartDate}"
+                                                                userLicense="{!v.userLicense}"
+                                                                childApprovalLevelMap="{!v.childApprovalLevelMap}"
+                                                                isReadOnly="{!acquiring.readOnly}"
+                                        />   <!--francesca.ribezzi 21/03/19 adding showStartDate-->   <!--antonio.vatrano 08/05/2019 rif2-106 add attribute userLicense-->
+                                              <!--francesca.ribezzi 06/12/19 - PERF-17 adding isReadOnly-->                   
+                                </aura:if>
+                                
+							</aura:iteration>
+                       </aura:iteration>
+                         
+                         <br> </br>
+                         <!-- PCI LIST: -->
+					<aura:if isTrue="{!and(!empty(v.pciList), v.isEditCommissionModel == false)}">
+                     	<div class="commissioni_info">
+                     	</div>
+                        <!-- table header -->
+                        <div class="tableText slds-grid slds-gutters">  
+                            <span class="{!'productName slds-col slds-size_1-of-1 slds-medium-size_2-of-'+v.numOfColACQ+' slds-small-size_1-of-1 uppercaseLabel'}"><!-- Commissioni --></span>
+                            <aura:iteration items="{!v.pciCategories}" var="categoryName" > 
+                                <span class="{!'productName valueN slds-col slds-size_1-of-1 slds-medium-size_1-of-'+v.numOfColACQ+' slds-small-size_1-of-1'}"><p class="categoryText">{!categoryName}</p></span>
+                            </aura:iteration>  
+                        </div>
+                        <aura:iteration items="{!v.pciList}" var="pci" indexVar="firstIndex"> 
+                            <aura:iteration items="{!pci.childItems}" var="item" indexVar="indx2">
+                            <!-- ADDING HERE CHILD COMPONENT -->
+                            <c:OB_childItemACQ_PCI  childItem="{!item}" 
+                                                    fatherItem="{!pci}" 
+                                                    numOfCol="{!v.numOfColACQ}"
+                                                    numOfColPrdName= "2"
+                                                    isMaintenancePCI="{!v.isMaintenance}"
+                                                    isMaintenancePricing="{!v.isMaintenancePricing}"
+                                                    approvalTypePricing="{!v.approvalTypePricing}"
+                                                    approvalStatus="{!v.approvalStatus}"
+                                                    showStartDate ="{!v.showStartDate}"
+                                                    userLicense="{!v.userLicense}"
+                                                    childApprovalLevelMap="{!v.childApprovalLevelMap}"
+                                                    isReadOnly="{!pci.readOnly}" 
+                                /> <!--antonio.vatrano 08/05/2019 rif2-106 add attribute  userLicense-->
+                                    <!--francesca.ribezzi 21/03/19 adding showStartDate-->   
+                                       <!--francesca.ribezzi 06/12/19 - PERF-17 adding isReadOnly-->   
+                        </aura:iteration> 
+                        </aura:iteration>
+                    </aura:if>
+	                </div>                    
+	            </aura:if>
+                
+                <!-- START PRICE SUMMARY FOR VAS  --> 
+	            <!-- OLD VAS HERE: -->
+	            <!--    <aura:if isTrue="{!!empty(v.vasList)}"> 
+	                    <div>
+	                        <div class="commissioni_info" data-label="label"> 
+	                            <p class="u1730"><span>{!v.vasList[0].fields.categoryname}</span></p>  
+	                        </div>
+	                    </div>     
+	                    <div class="vasRecordsContainer">        
+	                        <aura:iteration items="{!v.vasList}" var="item" >
+	                            <div id="base" class="slds-col slds-grid slds-size_2-of-3 product_row_color detailContainer rowLine" > 
+	                                <p class="productNameVAS_ACQ">{!item.fields.productname}</p> 
+	                            </div>
+	                        </aura:iteration>
+	                    </div>
+	                </aura:if>  --> 
+              <!-- END OLD VAS -->      
+                 <!-- START PRICE SUMMARY FOR VAS  -->
+                    <aura:if isTrue="{!and(!empty(v.vasList), v.isEditCommissionModel == false)}"> 
+                        <aura:iteration items="{!v.vasList}" var="vas" indexVar="firstIndex">
+                            <div id="base" class="product_row_color" > 
+                                <!--productRow starts -->
+                                <div > <!-- id="{!item.id+'_prdRow'}" -->
+                                    <div class="commissioni_info" data-label="label">
+                                        <p class="u1730"><span>{!vas.fields.productname}</span></p>
+                                        <!-- ANDREA.MORITTU START 2019/04/12 -> ADDING DETAILS OF ITEM PLUS SHOW HISTORIC BUTTON-->
+                                        <aura:if isTrue="{!and(not(empty(v.offerAssetId)), v.currentUser.isOperation )}">
+                                            <div class="slds-grid slds-p-around--medium" >
+                                                <div class="slds-size_2-of-10 slds-align_absolute-center"> 
+                                                    <p class="inputAttValueFont slds-align_absolute-center">{!$Label.c.OB_StartValidationDate} : 
+                                                        <aura:if isTrue="{!vas.fields.OB_StartValidationDate__c != null}">
+                                                            <lightning:formattedDateTime    value="{!vas.fields.OB_StartValidationDate__c}" 
+                                                                                                year="numeric" 
+                                                                                                month="numeric" 
+                                                                                                day="numeric"  />
+                                                            <aura:set attribute="else">
+                                                                N/a
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </p>
+                                                </div>
+                                                <div class="slds-size_2-of-10 slds-align_absolute-center">
+                                                    <!--    FIRST SUBSCRIPTION FLAG -->
+                                                    <aura:if isTrue="{!vas.fields.OB_DataMigration__c}">
+                                                        {!$Label.c.OB_StartValidationDate} : N/a
+                                                        <!--IF(OB_DataMigration__c == FALSE) -->
+                                                        <aura:set attribute="else" > 
+
+                                                            <lightning:input type="checkbox" 
+                                                            aura:id="firstSubscription"
+                                                            checked="{!vas.fields.firstSubcription == true ? false : true}" 
+                                                            label="Prima Sottoscrizione"
+                                                            disabled="true" />  
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                                <div class="slds-size_2-of-10 slds-align_absolute-center">
+                                                    <!--    AGREED FLAG -->
+                                                    <aura:if isTrue="{!vas.fields.OB_AgreedChanges__c != undefined}" >
+                                                        <lightning:input type="checkbox" 
+                                                                        aura:id="agreedChanges"
+                                                                        checked="{!vas.fields.OB_AgreedChanges__c}" 
+                                                                        label="{!$Label.c.OB_AgreededLabel}"
+                                                                        disabled="true" />
+                                                        <aura:set attribute="else" >
+                                                            {!$Label.c.OB_AgreededLabel} :  N/a
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>
+                                                <div class="slds-size_2-of-10 slds-align_absolute-center">
+                                                    <!--    ADMELIORATIVE FLAG -->
+                                                    <aura:if isTrue="{!vas.fields.OB_Sub_Process__c != undefined}">
+                                                        <lightning:input type="checkbox" 
+                                                                        aura:id="agreedChanges"
+                                                                        checked="{!vas.fields.OB_Sub_Process__c}" 
+                                                                        label="{!$Label.c.OB_AmeliorativeLabel}"
+                                                                        disabled="true" />
+                                                        <aura:set attribute="else"   >
+                                                            {!$Label.c.OB_AmeliorativeLabel} : N/a
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </div>                                       
+                                                <div class="slds-size_2-of-10 slds-align_absolute-center">
+                                                    <button             class="slds-button slds-button_neutral"
+                                                                        id="{!vas.fields.id+'_'+vas.fields.productname+' - '+vas.fields.OB_TermId__c+'_vasModal'}" 
+                                                                        
+                                                                        title="Neutral action" 
+                                                                        onclick="{!c.showHistoricPricingModal }">
+                                                                        <p class="">{!$Label.c.OB_ShowHistoricPricingLabel} </p>
+                                                    </button>                                                             
+                                                </div>
+                                            </div>
+                                        </aura:if>
+                                    <!-- ANDREA.MORITTU end 2019/04/12--> 
+                                    </div>
+                                </div>
+                                <div> <!-- id="{!item.id+'_info'}" -->
+                                    <div class="slds-grid slds-gutters canone_dettaglio"  style="width:100%">
+                                        <div class="slds-col slds-size_1-of-1" > <!-- START DIV COL -->
+                                        <!-- VAS LABELS -->
+						               <div class="slds-grid  slds-gutters">  
+						                	<div class="slds-col slds-size_1-of-4">
+						                		<!-- empty div -->
+						                	</div>
+						                	<div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-small-size_1-of-1">
+						                		<div class="slds-grid  slds-gutters headerContainer">  
+													<aura:iteration items="{!v.uniqueLabelsVas}" var="lab" > 
+														<div class="{!'slds-col slds-size_1-of-3 slds-medium-size_1-of-'+v.maxColVas+' slds-small-size_1-of-3'}">
+															<span>
+																<div class="{!lab != 'Condizioni particolari/Mesi'?'slds-col headerLabel' : 'slds-col'}"> 
+																	<span>  
+																		<p class="{!lab == 'a'?'attributeNames' : 'attributeNames shortAttrName'}">{!lab}</p>
+																	</span>
+																</div>
+															</span>
+														</div>
+													</aura:iteration> 
+												</div>
+											</div>
+                                        </div>
+                                            <aura:iteration items="{!vas.listOfChildItems}" var="item" indexVar="index">
+                                             <aura:if isTrue="{!item.item.fields.RecordTypeName =='Pricing'}"> 
+                                              <!--   <div class="slds-grid slds-gutters"> 
+                                                    <div class="slds-col detailsTextContainer" style="margin-top:1.5%"> 
+                                                        <span>
+                                                            <div> 
+                                                                <p style="font-size:14px;"> 
+                                                                    <span style="font-weight:700;color:#4F6A92;">{!item.fields.productname}</span>
+                                                                </p><p style="font-size:12px;"><span style="font-weight:700;color:#4F6A92;"></span>
+                                                                <span style="font-weight:400;"><aura:unescapedHtml value="{!item.fields.description}" /></span></p>
+                                                                
+                                                            </div>
+                                                        </span>
+                                                    </div> -->
+                                                    
+                                                    <!-- LIST OF ATTRIBUTES GO HERE --> 
+                                                 <!--    <div id="attributesDiv" class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3 slds-small-size_1-of-1">
+                                                        <div class="slds-grid slds-gutters slds-wrap">
+                                                            <aura:iteration items="{!item.listOfAttributes}" var="att" indexVar="index2">  
+                                                                <aura:iteration items="{!item.listOfFamilies}" var="fam" indexVar="index3">
+                                                                    <aura:if isTrue="{!and(att.fields.familyname ==fam.fields.name,att.fields.value != '',att.fields.value != null)}">
+                                                                        <div class="slds-col slds-size_1-of-3 slds-medium-size_1-of-3 slds-small-size_1-of-3">
+                                                                            <span>  
+                                                                                <div class="slds-col"> 
+                                                                                    <span>
+                                                                                    
+                                                                                        <p class="attributeNames">{!att.fields.name} </p>
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="slds-col inputContainer">
+                                                                                    <span>
+                                                                                        <p class="alignInput">
+                                                                                            <aura:if isTrue="{!att.fields.readonly==true || att.fields.readonly=='true' || v.isReadOnly == true}">
+                                                                                                <input id="{!att.fields.id}" class="f217 inputReadonly inputReadOnlySelected" name="input1" label="" style="font-weight:700;color:#000000;" value="{!att.fields.value}" readonly="readonly"/>  
+                                                                                                <aura:set attribute="else">
+                                                                                                    <input id="{!index+'_'+index2+'_VAS'}" class="f217" aura:id="VASAuraId" data-item="{!firstIndex}" label="" style="font-weight:700;color:#000000;" value="{!att.fields.value}" onchange="{!c.onChangeAttributeValueVAS}"/> 
+                                                                                                </aura:set>			                                     			
+                                                                                            </aura:if>     
+                                                                                            <aura:if isTrue="{!and(att.fields.value != '',att.fields.value != null)}">
+                                                                                            	<span>{!att.attribute.fields.description}</span>
+                                                                                            </aura:if>
+                                                                                        </p>
+                                                                                    </span>
+                                                                                </div> -->
+                                                                                <!--  error management -->
+                                                                         <!--        <div class="slds-col errMsg hidden" id="{!index+'_'+index2+'_VAS_'+firstIndex+'_errorVAS'}" >
+                                                                                    <span >
+                                                                                        {!v.errorMessageVAS}
+                                                                                    </span>
+                                                                                </div>  
+                                                                            </span> 
+                                                                        </div>
+                                                                    </aura:if>
+                                                                </aura:iteration>
+                                                            </aura:iteration> 
+                                                        </div>          -->  
+                                                        <!--  END OF LIST OF ATTRIBUTES -->
+                                              <!--       </div>
+                                                </div>-->
+                                                     <c:OB_childItem 		childItem="{!item}" 
+	                                              							fatherItem="{!vas}" 
+	                                              							commissionColSize="{!v.commissionColSizeVas}"
+	                                              							maxCol="{!v.maxColVas}"
+	                                              							numOfCol="{!v.numOfColVas}"
+                                                                            approvalTypePricing="{!v.approvalTypePricing}"
+                                                                            isMaintenancePricing="{!v.isMaintenancePricing}"
+                                                                            approvalStatus="{!v.approvalStatus}"
+                                                                            showStartDate ="{!v.showStartDate}"
+                                                                            userLicense="{!v.userLicense}"
+                                                                            childApprovalLevelMap="{!v.childApprovalLevelMap}"
+                                                                            isReadOnly="{!vas.readOnly}"
+                                                    />   <!--francesca.ribezzi 21/03/19 adding showStartDate--> <!--antonio.vatrano 08/05/2019 rif2-106 add attribute-->
+                                                           <!--francesca.ribezzi 06/12/19 - PERF-17 adding isReadOnly--> 
+                                                     </aura:if>        
+                                            </aura:iteration>  
+                                        </div> <!-- END DIV COL -->
+                                        
+                                    </div>
+                                </div> 
+                                <!--   </aura:iteration> -->
+                            </div>
+                        </aura:iteration>
+                    </aura:if>  
+            <!-- END PRICE SUMMARY -->	
+
+            </div> 
+        </div>
+    </div>
+    </div>
+    <!--START andrea.morittu@accenture.com  adding logic onclick of button 'Show historic Pricing'-->
+    <aura:if isTrue="{!v.showHistoricPricingModalBoolean}"> 
+        <c:strike_modal title="{!v.nameItem}" size="large" showHeader="true" showFooter="false" showClose="true" showModal="{!v.showHistoricPricingModalBoolean}"  >
+            <!-- Simone.misani@accenutre.com new attribute fore SHowHistoricProcingModal   06/05/2019 R1F2-91 -->
+            <c:OB_ShowHistoricPricingModal productId="{!v.productId}" offerAssetId ="{!v.offerAssetId}" showHistoricPricingModalBoolean="{!v.showHistoricPricingModalBoolean}" currentUser="{!v.currentUser}"/>
+        </c:strike_modal>
+    </aura:if>
+    <!--END andrea.morittu@accenture.com  -->
+</aura:component>

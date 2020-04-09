@@ -1,0 +1,385 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="OB_ConfigurazioniTableCABController" >
+
+<aura:attribute name="configurazioniList" type="NE__Matrix_Parameter__c[]"/>
+<aura:attribute name="configurazioneToDelete" type="NE__Matrix_Parameter__c"/>
+<aura:attribute name="page" type="Integer"/>
+<aura:attribute name="pages" type="Integer"/>
+<aura:attribute name="pagesList" type="List"/>
+<aura:attribute name="total" type="Integer"/>
+<aura:attribute name="pageSize" type="Integer" default="20"/>  
+<aura:attribute name="oldNumber" type="Integer" />
+<aura:attribute name="offerta" type="NE__Bundle__c" access="global" />
+<aura:attribute name="abiCabLov" type="sObject" access="global" /> <!-- default="{'sobjectType':'NE__Lov__c', 'Name':'11207', 'NE__Value1__c': '05116', 'NE__Value2__c': 'Banca Valsabbina'}" -->
+
+
+<aura:attribute name="configurazioniSchemaNoDuplicate" type="List"/>
+<aura:attribute name="configurazioniModelliNoDuplicate" type="List"/>
+
+<aura:attribute name="name" type="String" default=""/>
+<aura:attribute name="listino" type="String" default=""/>
+<aura:attribute name="schemaPrezzi" type="String[]"/>
+<aura:attribute name="modello" type="String[]" />
+<aura:attribute name="from" type="Date" />
+<aura:attribute name="to" type="Date"/>
+
+<aura:attribute name="Spinner" type="boolean"/>
+<aura:attribute name="resetForm" type="boolean" default="false"/>
+<aura:attribute name="Confirm" type="boolean" default="false"/>
+
+<!-- search lookup attributes -->
+
+<!-- 1 -->
+<aura:attribute name="selectedRecord" type="sObject" default="{}" description="Use,for store SELECTED sObject Record"/>
+<aura:attribute name="searchText" type="String" default=""/>
+<aura:attribute name="listOfSearchRecords" type="List" description="Use,for store the list of search records which returns from apex class"/>
+<aura:attribute name="SearchKeyWord" type="string"/>
+<aura:attribute name="IconName" type="string" default=""/>
+<aura:attribute name="Message" type="String" default=""/>
+
+<!-- 2 -->
+<aura:attribute name="selectedRecord2" type="sObject" default="{}" description="Use,for store SELECTED sObject Record"/>
+<aura:attribute name="searchText2" type="String" default=""/>
+<aura:attribute name="listOfSearchRecords2" type="List" description="Use,for store the list of search records which returns from apex class"/>
+<aura:attribute name="SearchKeyWord2" type="string"/>
+<aura:attribute name="IconName2" type="string" default=""/>
+<aura:attribute name="Message2" type="String" default=""/>
+
+<!--  modal stuff -->
+<aura:attribute name="modalHeader" type="String"/>
+<aura:attribute name="modalDesc" type="String" />
+<aura:attribute name="modalButton" type="String"/>
+
+<!--  error Attributes -->
+<aura:attribute name="errorMsg" type="List"/> 
+
+<!-- go to next component -->
+<aura:attribute name="goToConfigurationDetailsCAB" type="Boolean" access="global"  default="false"/>
+<aura:attribute name="selectedMatrix" type="NE__Matrix_Parameter__c" access="global" />
+<aura:attribute name="goBackToOfferCatalogCAB" type="Boolean" access="global"  default="false"/>
+<aura:attribute name="showConfigTableCAB" type="Boolean" access="global"  default="true"/>
+<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+ 
+<!-- START CMP -->
+
+
+
+<aura:if isTrue="{!v.goBackToOfferCatalogCAB == true}">
+	<c:OB_CAB_Offers  selectedRecord="{!v.abiCabLov}"
+							goToNextComponent="true"/>
+</aura:if>
+	
+<aura:if isTrue="{!v.showConfigTableCAB == true}">
+<lightning:card>
+	<!--  spinner for every occasion -->
+	<aura:if isTrue="{!v.Spinner}">
+		<div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99">
+			<div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+				<span class="slds-assistive-text">Loading</span>
+				<div class="slds-spinner__dot-a"></div>
+				<div class="slds-spinner__dot-b"></div>
+			</div>
+		</div>
+	</aura:if>
+	
+	<!-- modal for every occasion -->
+	<aura:if isTrue="{!v.Confirm}">
+	<div class="modalStyle">
+	  <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+	    <div class="slds-modal__container">
+	      <header class="slds-modal__header">
+                    <lightning:buttonIcon class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" iconName="utility:close" size="large" alternativeText="Close" variant="bare" onclick="{!c.handleModalCancel}"/>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                        {!v.modalHeader}
+                    </h2>                    
+                </header> 
+	      <div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
+	        <p class="centeredText">{!v.modalDesc}</p>
+	      </div>
+	      <footer class="slds-modal__footer slds-theme_default">
+	      <!-- insert aura if here to know which button label we want -->
+   		  	<lightning:button label="{!v.modalButton}" onclick="{!c.handleModalButton}" variant="brand" class="slds-m-top_medium"/>
+   		  	<lightning:button label="Cancel" onclick="{!c.handleModalCancel}" class="slds-m-top_medium" />
+	      </footer>
+	    </div>
+	  </section>
+	  <div class="slds-backdrop slds-backdrop_open"></div>
+	</div>
+	</aura:if>
+	
+	<div class="goBackBox">
+			<p><span onclick="{!c.goBackToOffertaTable}"><lightning:buttonIcon  iconName="utility:back" size="large" variant="bare" alternativeText="Back" iconClass="blueIcon" /><span class="goBackText"> {!$Label.c.OB_OffersCatalogNEXI}</span></span></p>
+	</div>
+	<div class="titleContainer">
+		<p><span class="supertitle">{!v.offerta.Name}</span></p>
+	<span class="title">{!$Label.c.OB_ConfigurationListLabel}</span>
+	</div>
+	
+	<!-- start form of search -->
+	<div class="formSearchStyle">
+		<div class="slds-grid slds-gutters slds-wrap">
+			<span class="slds-col slds-size_1-of-1 slds-medium-size_1-of-5 slds-small-size_1-of-4 formSearch" >	  
+				  <!-- 
+				  <lightning:select aura:id = "Componente" name="Componente" label="{!$Label.c.OB_ComponentLabel}" onchange="{!c.changeComponente}">
+							<option id="-1" name="Componente" value="" defaultSelected ="true">{!$Label.c.OB_SelectLabelOption}</option>
+						<aura:iteration items="{!v.configurazioniComponentNoDuplicate}" var="item" indexVar="newInd">
+				        	<option id="{!newInd}" name="Componente" value="{!item.OB_Componente__c}">{!item.OB_Componente__r.NE__Product_Name__c}</option>
+				        </aura:iteration> 
+				  </lightning:select>
+				   -->
+			      <!-- CUSTOM SEARCH INPUT: -->
+				  <div onmouseleave="{!c.onblur}" aura:id="searchRes" class="slds-form-element slds-lookup slds-is-close lookupSection" data-select="single">
+				        <label class="slds-form-element__label" for="">{!$Label.c.OB_ComponentLabel}</label>
+				        <!--This part is for display search bar for lookup-->  
+				        <div class="slds-form-element__control"> 
+				            <div class="slds-input-has-icon slds-input-has-icon--right">				            
+				              <lightning:icon aura:id="searchIconId" class="slds-input__icon slds-show searchIcon" iconName="utility:search" size="small" alternativeText="search"/> 
+				                <!-- This markup is for when an record is selected -->
+				               <div aura:id="lookup-pill" class="slds-pill-container slds-hide">
+			                     <lightning:pill class="pillSize" label="{!v.selectedRecord.NE__Product_Name__c}" name="{!v.selectedRecord.NE__Product_Name__c}" onremove="{! c.clear }" >
+			                          <!--  
+			                          <aura:set attribute="media"> 
+			                             <lightning:icon iconName="{!v.IconName}" size="x-small" alternativeText="{!v.IconName}"/>
+			                          </aura:set>
+			                          -->
+			                      </lightning:pill>
+				               </div>
+				                <div aura:id="lookupField" class="slds-show">
+				                    <ui:inputText click="{!c.onfocus}" aura:id="lookupCatalogInputId" updateOn="keyup" keyup="{!c.keyPressController}" class="slds-lookup__search-input slds-input searchInputClass" value="{!v.SearchKeyWord}" placeholder="{!$Label.c.OB_SelectProduct}"/>
+				                </div>   				
+				            </div>
+				        </div>
+				        <!--This part is for Display typehead lookup result List-->  
+				        <ul style="min-height:40px;margin-top:0px !important" class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-lookup__menu slds" role="listbox">
+				            <lightning:spinner class="slds-hide" variant="brand" size="small" aura:id="mySpinner"/>
+				            <center> {!v.Message}</center>
+				            <aura:iteration items="{!v.listOfSearchRecords}" var="singleRec" indexVar="ind">
+							    <li role="presentation" class="slds-listbox__item" onclick="{!c.selectRecord}">
+							        <span id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+						              <span class="slds-media__body">  
+						                  <span class="slds-listbox__option-text slds-listbox__option-text_entity"><p id="{!ind}">{!singleRec.NE__Product_Name__c}</p></span>
+						              </span>
+							        </span>
+							    </li>
+				            </aura:iteration>
+				        </ul>
+				    </div>   	 
+				  <aura:iteration items="{!v.errorMsg}" var="error" indexVar="index">
+				  		<aura:if isTrue="{!error.parameter == 'Nome'}">
+				  			<span class="errorMessageStyle">{!error.message}</span>
+				  		</aura:if>
+				  </aura:iteration>
+		    </span>
+	 <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-5 slds-small-size_1-of-4 formSearch"> 
+               	<div class="slds-grid slds-gutters">
+                	 <div class="slds-col">
+                	 	<span>
+				 			<lightning:input id="dateFromBANK" class="datesClass" type="date" name="inputStartDate" label="{!$Label.c.OB_ValidFrom}" value="" style="display:inline-block;"/>
+						</span>
+					</div>
+					<div class="slds-col">
+                	 	<span>
+							<lightning:input id="dateTo" class="datesClass"  type="date" name="inputEndDate" label="{!$Label.c.OB_ValidTO}" value="" style="display:inline-block;margin-left:3%;"/>	
+						</span>
+					</div>
+				</div>
+					<div class="slds-grid slds-gutters">
+					<aura:iteration items="{!v.errorMsg}" var="error" indexVar="index">
+				  		<aura:if isTrue="{!error.parameter == 'dateFrom'}">
+				  			<span class="slds-col slds-size_1-of-3 errorMessageStyle">{!error.message}</span>
+				  		</aura:if>
+				  		<aura:if isTrue="{!error.parameter == 'dateTo'}">
+				  			<span style="margin-left: 6%;" class="slds-col slds-size_1-of-3 errorMessageStyle">{!error.message}</span>
+				  		</aura:if>
+				 	 </aura:iteration>			  		
+				  	</div>
+		</div>
+			<div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-5 slds-small-size_1-of-4 formSearch">	  
+		        <div class="slds-grid slds-gutters marginButtonContainer">
+		        	<span class="slds-col slds-size_1-of-6">
+			        	<button id="cercaId" onclick="{! c.searchConfigurazioni}"  class="slds-button slds-button_neutral slds-button--brand " ><span class="upperCaseText">{!$Label.c.OB_Search}</span></button>
+					</span>
+					<!-- <span class="slds-col slds-size_2-of-6">
+						<button id="creaNuovaId" onclick="{! c.newConfigurazione}"  class="slds-button slds-button_neutral" ><span class="iconPlus">+</span><span class="upperCaseText">&nbsp;{!$Label.c.OB_New}</span></button>
+					</span> -->
+					<aura:if isTrue="{!v.resetForm}">
+						<span class="cleanFormContainer slds-col slds-size_2-of-6" onclick="{!c.cleanForms}" style="margin-left: 6%;">
+							<lightning:buttonIcon name="cleanFormIcon" iconName="utility:close" size="large" variant="bare" alternativeText="clean" iconClass="redIconCircle"/>
+							<span class="cleanFormText">{!$Label.c.OB_CleanForm}</span>
+						</span>
+					</aura:if>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!--  table of results -->
+	<div>
+		<div class="info slds-grid slds-gutters slds-wrap">
+			<!--  total number -->
+			<span aura:id="totListini" class="slds-col noPaddingLeft fontItalic"><span class="boldText">{!v.total}</span>&nbsp;{!$Label.c.OB_ConfigurationLabel}</span>
+			<!--  END -->
+			<aura:if isTrue="{!v.total != 0}">   
+				<span class="slds-col pageTxt noPaddingLeft fontItalic">{!$Label.c.OB_Page}</span>
+				<!-- Page Layout -->
+				<span class="pageTxt slds-col slds-align_absolute-center">
+					<aura:if isTrue="{!v.page == 1}">		
+						<span class="left greyIconLeft" ></span>
+					<aura:set attribute="else">
+						<span class="left " onclick="{!c.onPagePrevious}"></span>
+					</aura:set>
+					</aura:if>
+						<aura:iteration items="{!v.pagesList}" var="singlePage" indexVar="index">
+							<aura:if isTrue="{!singlePage == v.page}">
+								<span id="{!singlePage}" class="current fontItalic">{!singlePage}</span>
+							<aura:set attribute="else">
+								<span id="{!singlePage}" class="notCurrent fontItalic" onclick="{!c.onPageSelected}">{!singlePage}</span>
+							</aura:set>
+							</aura:if>
+						</aura:iteration>
+						<aura:if isTrue="{!v.page == v.pages}">		
+							<span class="right greyIconRight" ></span>
+						<aura:set attribute="else">
+							<span class="right" onclick="{!c.onPageNext}"></span>
+						</aura:set>
+						</aura:if>		
+				</span>
+				<!--  END -->
+			</aura:if>	
+		</div>
+		<table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal ">
+		  <thead>
+		    <tr class="slds-line-height_reset">
+		      
+		      <th class="slds-text-title_caps" scope="col">
+		        <div class="slds-truncate" title="Componente">{!$Label.c.OB_ComponentLabel}</div> 
+		      </th>
+		      <th class="slds-text-title_caps" scope="col">
+		        <div class="slds-truncate" title="Listino">{!$Label.c.OB_Catalog}</div> 
+		      </th>
+		      <th class="slds-text-title_caps" scope="col">
+		        <div class="slds-truncate" title="Schema Prezzi">{!$Label.c.OB_PricingSchemes}</div> 
+		      </th>
+		      <th class="slds-text-title_caps" scope="col">
+		        <div class="slds-truncate" title="Modello di business acquiring">{!$Label.c.OB_BusinessModel}</div> 
+		      </th>
+		      <th class="slds-text-title_caps" scope="col">
+		        <div class="slds-truncate" title="Validità">{!$Label.c.OB_Validity}</div>
+		      </th>
+		      <th class="slds-text-title_caps" scope="col">
+		        <div class="slds-truncate" title="Dettagli">{!$Label.c.OB_Details}</div>
+		      </th>
+		    <!--   <th class="slds-text-title_caps" scope="col">
+		        <div class="slds-truncate" title="Elimina">{!$Label.c.OB_Delete}</div>
+		      </th> -->
+		      <!-- 
+		      <th class="slds-text-title_caps" scope="col">
+		        <span class="slds-assistive-text" id="check-group-header">Choose a row to select</span>
+		        <div class="slds-checkbox">
+		          <input type="checkbox" name="options" id="checkbox-all" aria-labelledby="check-button-label-all check-group-header" value="checkbox-all" />
+		          <label class="slds-checkbox__label" for="checkbox-all" id="check-button-label-all">
+		            <span class="slds-checkbox_faux"></span>
+		            <span class="slds-form-element__label slds-assistive-text">Select all</span>
+		          </label>
+		        </div>
+		      </th>
+		       -->
+		    </tr>
+		</thead>
+		<tbody>
+			<aura:if isTrue="{! !empty(v.configurazioniList)}">
+				<aura:iteration items="{!v.configurazioniList}" var="item" indexVar="index">
+					
+				  <tr class="slds-hint-parent">
+				      
+				      <th data-label="Componente" scope="row">
+				        <div class="slds-truncate boldText" title="{!item.OB_Componente__r.NE__Product_Name__c}">{!item.OB_Componente__r.NE__Product_Name__c}</div>
+				      </th>
+				      <td data-label="Listino" scope="row">
+				        <div class="slds-truncate " title="{!item.OB_Listino__r.Name}">{!item.OB_Listino__r.Name}</div>
+				      </td>
+				      <td data-label="Schema Prezzi" scope="row">
+				        <div class="slds-truncate " title="{!item.OB_SchemaPrezzi__c}">{!item.OB_SchemaPrezzi__c}</div>
+				      </td>
+				      <td data-label="Modello di business acquiring" scope="row">
+				        <div class="slds-truncate " title="{!item.OB_ModelloAcquiring__c}">{!item.OB_ModelloAcquiring__c}</div>
+				      </td>
+				      <td data-label="Validità">
+				        <div class="slds-truncate" title="{!item.NE__Start_Date__c+'_'+item.NE__End_Date__c}">{!item.NE__Start_Date__c} → {!item.NE__End_Date__c}</div>
+				      </td>
+				       <td data-label="Dettagli">
+				        <div class="slds-truncate" title="">
+				        	<lightning:buttonIcon name="{!index}" iconName="utility:edit" size="large" variant="bare" alternativeText="Edit" iconClass="blueIcon" onclick="{!c.editConfigurazione}" />
+				        </div>
+				      </td>
+				     <!--   <td data-label="Elimina">
+				        <div class="slds-truncate" title="">
+				        	<lightning:buttonIcon name="{!index}" iconName="utility:delete" size="large" variant="bare" alternativeText="Delete" iconClass="redIcon" onclick="{!c.deleteConfigurazione}" />
+				        </div>
+				      </td> -->
+				      <!-- 
+				      <td data-label="Select Row">
+				        <div class="slds-checkbox">
+				          <input type="checkbox" name="options" id="{!index}" aria-labelledby="check-button-label-01 check-group-header" value="checkbox-01" />
+				          <label class="slds-checkbox__label" for="{!index}" id="check-button-label-01">
+				            <span class="slds-checkbox_faux"></span>
+				            <span class="slds-form-element__label slds-assistive-text">Select item {!index}</span>
+				          </label>
+				        </div>
+				      </td>
+				       -->
+				    </tr>
+				</aura:iteration>
+			<aura:set attribute="else">
+				<div>{!$Label.c.OB_NoConfigurationMsg}</div>
+			</aura:set>
+			</aura:if>
+		</tbody>
+		</table>
+		<div class="borderForFun"></div>
+		<div class="infoBottom slds-grid slds-gutters slds-wrap">
+			<!--  total number -->
+			<span aura:id="totListini2" class="slds-col noPaddingLeft fontItalic"></span> 
+			<!--  END -->
+			<aura:if isTrue="{!v.total != 0}"> 
+				<span class="slds-col pageTxt noPaddingLeft fontItalic">{!$Label.c.OB_Page}</span>
+				<!-- Page Layout -->
+				<span class="pageTxt slds-col slds-align_absolute-center">
+					<aura:if isTrue="{!v.page == 1}">		
+						<span class="left greyIconLeft" ></span>
+					<aura:set attribute="else">
+						<span class="left " onclick="{!c.onPagePrevious}"></span>
+					</aura:set>
+					</aura:if>
+						<aura:iteration items="{!v.pagesList}" var="singlePage" indexVar="index">
+							<aura:if isTrue="{!singlePage == v.page}">
+								<span id="{!singlePage}" class="current fontItalic">{!singlePage}</span>
+							<aura:set attribute="else">
+								<span id="{!singlePage}" class="notCurrent fontItalic" onclick="{!c.onPageSelected}">{!singlePage}</span>
+							</aura:set>
+							</aura:if>
+						</aura:iteration>
+						<aura:if isTrue="{!v.page == v.pages}">		
+							<span class="right greyIconRight" ></span>
+						<aura:set attribute="else">
+							<span class="right" onclick="{!c.onPageNext}"></span>
+						</aura:set>
+						</aura:if>
+				</span>
+			<!--  END -->
+			</aura:if>
+		</div>
+	</div>
+	<!--  END of Everything -->	
+</lightning:card>
+
+
+</aura:if>
+
+	<aura:if isTrue="{!v.goToConfigurationDetailsCAB == true}">
+		<c:OB_ConfigurationDetailsCAB matrixParameter="{!v.selectedMatrix}"
+										offer="{!v.offerta}"
+										abiCabLov="{!v.abiCabLov}"/>
+
+	</aura:if>
+
+</aura:component>

@@ -1,0 +1,26 @@
+.THIS .slds-popover.slds-popover_tooltip {
+    position: absolute;
+    transform: translateX(-40%) translateY(105%);
+}
+
+.THIS .slds-popover.slds-popover_tooltip .slds-popover__body {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.THIS lightning-icon.success lightning-primitive-icon svg use {
+    fill: rgb(94, 180, 255);
+}
+
+.THIS lightning-icon.error lightning-primitive-icon svg use {
+    fill: #c23934;
+}
+
+.THIS.slds-progress__item {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.THIS.slds-progress__item:not(.slds-is-completed) .slds-button.slds-progress__marker {
+    transform: translate(4px, 4px);
+}

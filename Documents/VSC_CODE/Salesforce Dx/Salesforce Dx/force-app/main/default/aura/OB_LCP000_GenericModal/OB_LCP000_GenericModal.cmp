@@ -1,0 +1,57 @@
+<aura:component description="OB_LCP000_GenericModal">
+
+    <aura:attribute name="headerName"               type="String"  access="global" description="Name of the modal header"/>
+    <aura:attribute name="headerContent"            type="String"  access="global" description="Text content of modal, if you want to overwrite it by component inside... leave it blank"/>
+    <aura:attribute name="saveOrProceedButtonName"  type="String"  access="global" default="Save"   description="Name of the first button, mostly used as 'Save' or 'Proceed' action"/>
+    <aura:attribute name="cancelButtonName"         type="String"  access="global" default="Cancel" description="Name of the second button, mostly used as 'Cancel' action" />
+    <aura:attribute name="isInvertedButtonOrder"    type="Boolean" access="global" default="false"  description="Defines if the button order should be normal or inverted"/>
+    <!--NEXI-60 Grzegorz Banach<grzegorz.banach@accenture.com>, 06/06/2019 START-->
+    <aura:attribute name="isFooterVisible"          type="Boolean" access="global" default="true"   description="Defines if modal footer is visible"/>
+    <aura:attribute name="isOkVisible"              type="Boolean" access="global" default="true"   description="Defines if Confirm button is visible"/>
+    <!--NEXI-60 Grzegorz Banach<grzegorz.banach@accenture.com>, 06/06/2019 STOP-->
+
+    <aura:registerEvent name="modalEvent" type="c:OB_LEV000_ModalEvent"/>
+
+    <!--NEXI-60 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 14/06/2019 START - added style attribute -->
+    <aura:attribute name="modalStyle" type="String" default="" description="Style of div" />
+
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1"
+             class="slds-modal slds-fade-in-open" style="{! v.modalStyle }">
+        <!--NEXI-60 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 14/06/2019 STOP-->
+        <div class="slds-modal__container">
+            <lightning:buttonIcon class="slds-text-align_right slds-m-vertical--small" onclick="{!c.clickCancel}"
+                            iconName="utility:close" variant="bare-inverse" alternativeText="Close" />
+            <header class="slds-modal__header">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!v.headerName}</h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                <aura:if isTrue="{!empty(v.headerContent)}">
+                    {!v.body}
+                    <aura:set attribute="else">
+                        {!v.headerContent}
+                    </aura:set>
+                </aura:if>
+            </div>
+            <aura:if isTrue="{!v.isFooterVisible}">
+                <footer class="slds-modal__footer">
+                    <div class="slds-align--absolute-center">
+                        <aura:if isTrue="{!v.isInvertedButtonOrder}">
+                            <aura:if isTrue="{!v.isOkVisible}"><!--NEXI-60 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 24/06/2019-->
+                                <lightning:button label="{!v.saveOrProceedButtonName}" variant="brand" onclick="{!c.clickSaveOrProceed}"/>
+                            </aura:if>
+                            <lightning:button label="{!v.cancelButtonName}" onclick="{!c.clickCancel}"/>
+                            <aura:set attribute="else">
+                                <lightning:button label="{!v.cancelButtonName}" onclick="{!c.clickCancel}"/>
+                                <aura:if isTrue="{!v.isOkVisible}"><!--NEXI-60 Adrian Dlugolecki<adrian.dlugolecki@accenture.com>, 24/06/2019-->
+                                    <lightning:button label="{!v.saveOrProceedButtonName}" variant="brand" onclick="{!c.clickSaveOrProceed}"/>
+                                </aura:if>
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </footer>
+            </aura:if>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+
+</aura:component>

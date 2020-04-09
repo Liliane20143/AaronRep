@@ -1,0 +1,128 @@
+<aura:component controller="OB_Maintenance_Consistenza_ConfItem_CC"
+				implements=
+				"flexipage:availableForRecordHome,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable" 
+				access="global">
+	<aura:attribute name="disconnectedVAS"					type="Object"						access="global" />
+	<aura:attribute name="configurationTerminalObject"		type="Object[]"						access="global" />
+	<!-- //START-Simone Misani Fix Tracking 20/07/2019 -->
+	<aura:attribute name="confId" 							type="String" 		default="" 			access="global" />
+	<!-- //END-Simone Misani Fix Tracking 20/07/2019 -->
+	<aura:attribute name="confItemId" 						type="String" 	default="" 			access="global" />
+	<aura:attribute name="circuitNameVas"					type="String" 	default="" 			access="global" />
+	<aura:attribute name="startDateVas" 					type="Datetime"	default=""			access="global" />
+	<aura:attribute name="endDateVas" 						type="Datetime"	default=""			access="global" />
+	<aura:attribute name="isNotOperation"					type="Boolean"	default="false"		access="global" />
+	<aura:attribute name="configuration"					type="Object"						access="global" />
+	<aura:attribute name="enstabilishmentSIACode"			type="String"						access="global" />
+	<aura:attribute name="progressiveSIACode"				type="String"						access="global" />
+	<aura:attribute name="SIACode"							type="String"						access="global" />
+	<aura:attribute name="terminalId" 						type="String" 						access="global" />
+	<aura:attribute name="model" 							type="String" 						access="global" />
+	<aura:attribute name="modelDesc" 						type="String" 						access="global" />
+	<aura:attribute name="releaseDesc" 						type="String" 						access="global" />
+	<aura:attribute name="connectionDescr" 					type="String" 						access="global" />
+	<aura:attribute name="release" 							type="String" 						access="global" />
+	<aura:attribute name="connectionType" 					type="String" 						access="global" />
+	<aura:attribute name="installationDate" 				type="Datetime"						access="global" />
+	<aura:attribute name="installationStatus"				type="String" 						access="global" />
+	<aura:attribute name="unistallationDate"				type="Datetime" 					access="global" />
+	<aura:attribute name="rejectionReason"					type="String"						access="global" />
+	<aura:attribute name="currentTerm"						type="Object"						access="global" />
+	<aura:attribute name="isFinalStatus"					type="Boolean"	default="false"		access="global" />
+	<aura:attribute name="isInApprovation"					type="Boolean"	default="false"		access="global" />
+	<!-- START elena.preteni  descoping consistenza -->
+	<aura:attribute name="hasRecOneClickVas" 				type="Boolean" 	default="false"		access="global"/>
+	<aura:attribute name="isNotIntegrated" 					type="Boolean" 	default="false"		access="global"/><!-- START elena.preteni  descoping consistenza 28/06/2019-->
+	<aura:attribute name="isdisabledVas" 					type="Boolean" 	default="false"		access="global"/>
+	<!--END elena.preteni  descoping consistenza -->
+	<aura:handler 	name="init" value="{!this}" action="{!c.doInit}" />
+	
+	<div class="slds-grid slds-wrap slds-box slds-m-top_large" aura:id="MainDiv">
+		<div class="slds-size_3-of-4 slds-grid slds-m-top_large slds-wrap">
+			<div class="slds-size_1-of-5 slds-p-horizontal_medium">	 <!--antonio.vatrano 03/10/2019 wn_557-->				
+				<div class="slds-m-top_x-large" style="font-size:16px;">
+				{!v.circuitNameVas}
+				</div>
+			</div>
+			<!-- Elena Preteni <Elena.Preteni@accenture.com> - 11/06/2019 - Start descoping consistenza -->
+			
+			<div class="slds-size_1-of-5 slds-p-horizontal_medium">		
+				<div class="slds-form-element ">
+					<lightning:input 	value="{!v.disconnectedVAS.NE__Action__c}" 
+										label ="{!$Label.c.Action}" 
+										aura:id="action" 
+										disabled="true" 
+										required="{!and(v.isNotOperation,!v.isFinalStatus)}"/>
+				</div>
+			</div>
+			<aura:if isTrue ="{!v.hasRecOneClickVas}">
+				<div class="slds-size_1-of-5 slds-p-horizontal_medium">		
+					<div class="slds-form-element ">
+						<lightning:input 	value="{!v.disconnectedVAS.OB_TermId__c}" 
+											label ="{!$Label.c.OB_MAINTENANCE_TERMINAL_ID}" 
+											aura:id="terminalId" 
+											disabled="true" 
+											required="{!and(v.isNotOperation,!v.isFinalStatus)}"/>
+					</div>
+				</div>
+				<!--Simone misani 19/12/2019 Perf-100-->
+				<aura:if isTrue ="{!v.disconnectedVAS.NE__Action__c=='Add'}">
+					<div class="slds-size_1-of-5 slds-p-horizontal_medium">		
+						<div class="slds-form-element ">
+							<lightning:input 	value="{!v.disconnectedVAS.OB_Conventioncode__c}" 
+												label ="Codice Convenzione" 
+												aura:id="conventionCode" 
+												disabled="{!v.isdisabledVas}" 
+												required="{!and(v.isNotOperation,!v.isFinalStatus)}"/>
+						</div><!--Simone misani 19/12/2019 Perf-100-->
+					</div>
+				</aura:if>
+			</aura:if>
+			<!-- Elena Preteni <Elena.Preteni@accenture.com> - 11/06/2019 - stop descoping consistenza-->
+			<aura:if isTrue ="{!v.disconnectedVAS.NE__Action__c=='Add'}">
+			<div class="slds-size_1-of-5 slds-p-horizontal_medium"> <!--antonio.vatrano 04/10/2019 wn_557-->
+				<div class="slds-form-element ">
+					<lightning:input 	value="{!v.disconnectedVAS.NE__StartDate__c}"
+										type="date"
+										label ="{!$Label.c.OB_MAINTENANCE_VALIDITYSTARTDATE}" 
+										aura:id="startDateVas"
+										format="dd/MM/yyyy" 
+										displayDatePicker="true"
+										disabled="{!or(or(!v.isNotOperation,v.disconnectedVAS.NE__Action__c=='Remove'),v.isFinalStatus,v.isInApprovation)}" 
+										required="{! and(and(v.disconnectedVAS.NE__Action__c=='Add',v.isNotOperation),!v.isFinalStatus)}"/>
+				</div>
+			</div>
+			</aura:if>
+			<aura:if isTrue ="{!v.disconnectedVAS.NE__Action__c=='Remove'}">
+			<div class="slds-size_1-of-5 slds-p-horizontal_medium"> <!--antonio.vatrano 03/10/2019 wn_557-->
+				<div class="slds-form-element ">
+					<lightning:input 	value="{!v.disconnectedVAS.NE__EndDate__c}"
+										type="date"
+										label ="{!$Label.c.OB_MAINTENANCE_VALIDITYENDDATE}" 
+										aura:id="endDateVas"
+										format="dd/MM/yyyy" 
+										displayDatePicker="true"
+										disabled="{!or(or(!v.isNotOperation,v.disconnectedVAS.NE__Action__c=='Add'),v.isFinalStatus,v.isInApprovation)}" 
+										required="{!and(and(v.disconnectedVAS.NE__Action__c=='Remove',v.isNotOperation),!v.isFinalStatus)}"/>
+				</div>
+			</div>
+			</aura:if>
+			<div class="slds-size_1-of-4 slds-p-horizontal_medium"/>
+			<div class="slds-size_1-of-4 slds-p-horizontal_medium"/>		
+		</div>
+		<aura:if isTrue="{!and(and(!v.isNotOperation,v.isInApprovation),v.isNotIntegrated)}"> <!-- ANDREA MORITTU START 17-Jul-19 - F2WAVE2-156 - Negation of 'isNotOperation' attribute --> 
+			<div class="slds-size_1-of-1 slds-grid slds-m-top_large">
+				<div class="slds-align_absolute-center">
+						<lightning:button 	label="{!$Label.c.OB_Save}" 
+											variant="brand" 	
+											onclick="{!c.save}"	
+											disabled ="{!v.isFinalStatus}"/>
+						<lightning:button 	label="{!$Label.c.OB_Cancel}" 	
+											variant="neutral" 	
+											onclick=""
+											disabled ="{!v.isFinalStatus}"/>
+				</div>
+			</div>
+		</aura:if>
+	</div>
+</aura:component>

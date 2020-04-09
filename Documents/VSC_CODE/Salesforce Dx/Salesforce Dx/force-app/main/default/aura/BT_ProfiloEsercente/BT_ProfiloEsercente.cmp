@@ -1,0 +1,92 @@
+<aura:component >
+    <aura:registerEvent name="recordChangedEvent" type="c:BT_recordChangedEvt" />
+    <aura:registerEvent name="simulationStartedEvent" type="c:BT_SimulationStarted" />
+
+
+    <aura:attribute name="isReferral" type="Boolean" default="false" />
+
+    <!-- Parametri economici -->
+    <aura:attribute name="annualParam" type="String" default="{#$Label.c.BT_NegoziatoAnnuo}" />
+
+    <!-- Parametri geografici -->
+    <aura:attribute name="geoParam" type="String" default="{#$Label.c.BT_Provincia}" />
+
+    <aura:attribute name="record" type="BT_Simulation__c" required="true"/>
+    <aura:attribute name="mode" type="String" />
+
+    <aura:attribute name="modeOptions" type="List" access="private" />
+
+    <aura:attribute name="step" type="String" required="true" />
+    <!--<aura:attribute name="onStartSimulationClick" type="Object" />-->
+
+    <aura:attribute name="startSimulationDisabled" type="Boolean" default="false" access="private" />
+    <aura:attribute name="isNegGtThreshold" type="Boolean" default="false" access="private" />
+    <aura:attribute name="negThreshold" type="Decimal" default="60000" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.record}" action="{!c.onRecordChange}" />
+	
+    <div data-step="{!v.step}">
+        <c:BT_SectionHeader iconName="standard:account" iconAlternativeText="{#$Label.c.BT_ProfiloEsercente}" title="{#$Label.c.BT_ProfiloEsercente}" />
+        <lightning:layout pullToBoundary="medium" class="section-container">
+            <lightning:layoutItem flexibility="auto" padding="around-small">
+                <div style="display: inline-flex;">
+                    <lightning:input type="radio" aura:id="annualNegotiated" name="annualParams" label="{!$Label.c.BT_NegoziatoAnnuo}" onchange="{!c.onAnnualParamsChange}" checked="true" />
+                    <lightning:helptext content="{#$Label.c.BT_PopTransatoAnnuo}" iconName="utility:info" />
+                </div>
+                <lightning:input type="number" value="{!v.record.BT_NegoziatoAnnuo__c}" formatter="currency" step="1" disabled="{!v.annualParam != $Label.c.BT_NegoziatoAnnuo}" messageWhenStepMismatch="{#$Label.c.BT_ErrorStepField}" onchange="{!c.onNegoziatoChange}"/>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="auto" padding="around-small">
+                <lightning:input type="radio" aura:id="annualRevenue" name="annualParams" label="{!$Label.c.BT_FatturatoAnnuo}" onchange="{!c.onAnnualParamsChange}"/>
+                <lightning:input type="number" value="{!v.record.BT_FatturatoAnnuo__c}" formatter="currency" step="1" disabled="{!v.annualParam != $Label.c.BT_FatturatoAnnuo}" messageWhenStepMismatch="{#$Label.c.BT_ErrorStepField}" onchange="{!c.onFatturatoChange}"/>
+            </lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout pullToBoundary="medium" class="section-container">
+            <lightning:layoutItem flexibility="auto" padding="around-small">
+                <c:picklistCmp searchBox="true" selectedValue="{!v.record.BT_MacroCatMerceologica__c}" label="{!$Label.c.BT_MacroCategoriaMerceologica}" sObjectType="BT_Simulation__c" fieldName="BT_MacroCatMerceologica__c" placeholder="{!$Label.c.BT_SelezionareMacroCategoria}" />
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="auto" padding="around-small">
+                <c:picklistCmp searchBox="true" selectedValue="{!v.record.BT_CatMerceologica__c}" controlledBy="{!v.record.BT_MacroCatMerceologica__c}" controlledByApiName="BT_MacroCatMerceologica__c" label="{!$Label.c.BT_CategoriaMerceologica}" sObjectType="BT_Simulation__c" fieldName="BT_CatMerceologica__c" placeholder="{!$Label.c.BT_SelezionareCategoria}" />
+            </lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout pullToBoundary="medium" class="section-container">
+            <lightning:layoutItem flexibility="auto" padding="around-small">
+                <lightning:input type="radio" aura:id="geoProvince" name="geoParams" label="{!$Label.c.BT_Provincia}" onchange="{!c.onGeoParamsChange}" checked="true"/>
+                <c:picklistCmp searchBox="true" selectedValue="{!v.record.BT_Provincia__c}" label="" sObjectType="BT_Simulation__c" fieldName="BT_Provincia__c" placeholder="{!$Label.c.BT_SelezionareProvincia}" disabled="{!v.geoParam != $Label.c.BT_Provincia}"/>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="auto" padding="around-small">
+                <lightning:input type="radio" aura:id="geoCap" name="geoParams" label="{!$Label.c.BT_CAP}" onchange="{!c.onGeoParamsChange}" />
+                <lightning:input pattern="[0-9]{5}" type="text" value="{!v.record.BT_CAP__c}" disabled="{!v.geoParam != $Label.c.BT_CAP}" messageWhenPatternMismatch="{#$Label.c.BT_ErrorFormatField}"/>
+            </lightning:layoutItem>
+        </lightning:layout>
+        <aura:if isTrue="{!v.isReferral}">
+            <lightning:layout pullToBoundary="medium" class="section-container">
+                <lightning:layoutItem flexibility="auto" padding="around-small">
+                    <div class="slds-is-relative" style="top: 50%;">
+                        <lightning:input disabled="{!v.isNegGtThreshold}" type="toggle" messageToggleActive="" messageToggleInactive="" name="{#$Label.c.BT_NuovoPuntoVenditaPIVA}" label="{#$Label.c.BT_NuovoPuntoVenditaPIVA}" checked="{!v.record.BT_NuovoPuntoVenditaPIVA__c}"/>
+                    </div>
+                </lightning:layoutItem>
+                <lightning:layoutItem flexibility="auto" padding="around-small">
+                    <div class="slds-is-relative">
+                        <c:picklistCmp disabled="{!not(v.isNegGtThreshold)}" searchBox="true" filter="['Nuovo punto vendita / partita IVA']" selectedValue="{!v.record.BT_TipologiaCliente__c}" label="{!$Label.c.BT_TipologiaCliente}" sObjectType="BT_Simulation__c" fieldName="BT_TipologiaCliente__c" placeholder="{!$Label.c.BT_SelezionareTipologia}" />
+                    </div>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </aura:if>
+        <lightning:layout pullToBoundary="medium" class="section-container">
+            <lightning:layoutItem flexibility="auto" padding="around-small">
+                <div class="slds-text-align_center slds-is-relative">
+                    <aura:if isTrue="{!not(v.isReferral)}">
+                        <lightning:helptext content="{#$Label.c.BT_PopModalita}" iconName="utility:info" class="popover"/>
+                    </aura:if>
+                    <lightning:radioGroup disabled="{!v.startSimulationDisabled}" name="radioButtonGroup" label="{#$Label.c.BT_Modalita}" options="{!v.modeOptions}" value="{!v.mode}" type="button" />
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="auto" padding="around-small" class="slds-is-relative">
+                <div class="slds-text-align_center">
+                    <lightning:button disabled="{!v.startSimulationDisabled}" class="slds-is-absolute align-bottom align-center" label="{#$Label.c.BT_Inizia}" iconName="utility:play" iconPosition="left" variant="brand" onclick="{!c.onStartSimulationClick}" />
+                </div>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+</aura:component>

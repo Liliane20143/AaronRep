@@ -1,0 +1,223 @@
+.THIS #FirstName {
+	padding-left: 3%;
+}
+
+.THIS .slds-p-around--medium.slds-form-element {
+	padding: 0;
+	padding-left: 2%;
+	padding-right: 2%;
+}
+
+.THIS .slds-form-element.slds-size_1-of-2.slds-p-around_xx-small.executor-gender-div {
+	padding: 0;
+	padding-left: 2%;
+	padding-top: 0.5%;
+}
+
+.THIS .slds-p-around--medium.slds-form-element {
+	padding: 0;
+	padding-left: 2%!important;
+	/*margin-left: 10%!important;*/
+}
+
+.THIS .slds-input__icon-group_right {
+	right: 0; 
+	top: 50%; 
+}
+
+.THIS .cAutoCompleteComponentPostel .countryinputsearch input {
+	border-top-right-radius: 0!important;
+	border-bottom-right-radius: 0!important;
+	/*max-width: 100%;*/
+}
+
+.THIS .cOB_FlowInputModal .flow_required input {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+	max-width: 95%;
+}
+
+/*.THIS .slds-size--1-of-12 {
+	position: absolute;
+	padding: 0;
+	padding-left: 85%;
+}*/
+
+/*.THIS .cOB_FlowInputModal .lens-search-mod-button {
+	width: 15%;
+	right: 0.14rem!important;
+}*/
+
+/*.THIS .cAutoCompleteComponentPostel .lens-search-country-button {
+	right: 2px;
+}
+
+.THIS .slds-button.slds-button_neutral	.lens-search-mod-button {
+	width: right;
+	max-width: 50%;
+	margin-left: -0.9rem;
+}*/
+
+/*.THIS button.slds-button.slds-button_neutral.lens-search-country-button {
+	max-width: 20%;
+}*/
+
+.THIS .slds-form-element.slds-small-size--1-of-2.slds-large-size--1-of-2.bit2flowAbstractFormElement {
+	padding:0!important;	
+}
+
+/*.THIS .lens-search-country-button svg {
+	margin-left: -6px!important;
+}
+
+.THIS .lens-search-mod-button svg {
+	margin-left: -6px!important;
+}*/
+.THIS .flow-section-separator
+{
+	margin-top: -1.4rem;
+	background-color: #ccc;
+	height: 1px!important;
+	width: 100%!important;
+	padding-right: 0!important;
+}
+.THIS .flow-section-separator-container
+{
+	margin-left: -12px !important;
+	margin-top: 20px !important;
+}
+
+.THIS .messageErrorprovincialegaleRappBirth
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorFirstNameModal
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorLastNameModal
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorOB_Sex__c
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorOB_Company_Link_Type__c
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorfiscalCodelegaleRapp
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorprovincialegaleRappresentante
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorcomunelegaleRappresentante
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorstradalegaleRappresentante
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorcivicolegaleRappresentante
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorprovincialegaleRappDoc
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorcomunelegaleRappDoc
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorprovincialegaleRappBirth
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorcomunelegaleRappBirth
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrordocumentTypelegaleRappDoc
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrorbirthDatelegaleRappDoc
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrordocumentNumberlegaleRappDoc
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrordocumentAuthlegaleRappDoc
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrordocumentReleaseDatelegaleRappDoc
+{
+	position: inherit !important;
+}
+
+.THIS .messageErrordocumentExpirationDatelegaleRappDoc
+{
+	position: inherit !important;
+}
+
+/*.THIS .cAutoCompleteComponentPostel .slds-size--1-of-12 {
+	position: absolute;
+	padding: 0;
+	padding-left: 85%;
+	border-top-right-radius: 0!important;
+    border-bottom-right-radius: 0!important;
+}
+
+.THIS .cOB_FlowInputModal .slds-size--1-of-12 {
+	position: absolute;
+	padding: 0;
+	padding-left: 85%;
+	border-top-right-radius: 0!important;
+    border-bottom-right-radius: 0!important;
+}*/
+
+.THIS .cOB_Maintenance_EditNewExecutor .cOB_FlowInputModal .flow_required {
+    border-top-right-radius: 0!important;
+    border-bottom-right-radius: 0!important;
+	max-width: max-content!important;
+}
+.THIS .cOB_Maintenance_EditAccount .cOB_FlowInputModal .lens-search-mod-button {
+    /* width: auto!important; */
+    right: 52%!important;
+    width: inherit!important;
+}
+
+.THIS button.slds-button.slds-button_neutral.lens-search-mod-button {
+    right: 52%;
+    max-width: 100%;
+}
+.THIS button.slds-button_neutral.lens-search-mod-button > svg{
+	right: 50%!important;
+}

@@ -1,0 +1,509 @@
+<aura:component >
+
+    <aura:registerEvent name="recordChangedEvent" type="c:BT_recordChangedEvt" />
+
+    <aura:attribute name="record" type="BT_Simulation__c" required="true"/>
+    <aura:attribute name="config" type="Object" />
+
+    <!-- Colors -->
+    <aura:attribute name="sectionCDPColor" type="String" default="" />
+    <aura:attribute name="sectionCDPColorExtraUE" type="String" default="" />
+    <aura:attribute name="sectionCommColor" type="String" default="" />
+    <aura:attribute name="sectionCommColorExtraUE" type="String" default="" />
+    <aura:attribute name="sectionBancomatColor" type="String" default="" />
+    <aura:attribute name="sectionAsianColor" type="String" default="" />
+    <aura:attribute name="tbBackGrey" type="String" default="rgb(224, 225, 221)" />
+
+    <!-- Sum Percent Cards -->
+    <aura:attribute name="sumPercentCDP" type="Decimal" />
+    <aura:attribute name="sumPercentCDPExtraUE" type="Decimal" />
+    <aura:attribute name="sumPercentComm" type="Decimal" />
+    <aura:attribute name="sumPercentCommExtraUE" type="Decimal" />
+    <aura:attribute name="sumPercentBancomat" type="Decimal" />
+    <aura:attribute name="sumPercentAsian" type="Decimal" />
+    <aura:attribute name="sumPercentEEA" type="Decimal" />
+
+    <aura:attribute name="commVisaMC" type="Double" default="0,011" /> 
+    <aura:attribute name="benchmarksOffset" type="Decimal" default="0.05" />
+    <aura:attribute name="redThreshold" type="Decimal" default="0.85" />
+
+    <aura:attribute name="canCompute" type="Boolean" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.record}" action="{!c.onRecordChange}"/>
+    
+    <!--<aura:handler name="change" value="{!v.commVisa}" action="{!c.propagateVisa}" />
+    <aura:handler name="change" value="{!v.commMC}" action="{!c.propagateMC}" />-->
+
+	<c:BT_Section title="{#$Label.c.BT_TipologiaCarteAccettate}" helptext="{#$Label.c.BT_PopCarteAccettate}">
+    <c:dataTable border="both" striped="true" hover="false" variant="inline-edit">
+        <aura:set attribute="header">
+            <c:dataTableRow>
+                <c:dataTableColumn title="{#$Label.c.BT_TipoProdotto}" rowspan="2">{#$Label.c.BT_TipoProdotto}</c:dataTableColumn>   
+                <c:dataTableColumn title="{#$Label.c.BT_MixMedioTransatoNexi + ' (' + $Label.c.BT_DatiDiMercatoNexi + ')'}" colspan="2" rowspan="1" align="center">{#$Label.c.BT_MixMedioTransatoNexi}<br/>({#$Label.c.BT_DatiDiMercatoNexi})</c:dataTableColumn> 
+            </c:dataTableRow>
+            <c:dataTableRow>
+                <c:dataTableColumn title="{#$Label.c.BT_AreaEuro}" align="center" class="half-size">{#$Label.c.BT_AreaEuro}</c:dataTableColumn>
+                <c:dataTableColumn title="{#$Label.c.BT_AreaNoEuro}" align="center" class="half-size">{#$Label.c.BT_AreaNoEuro}</c:dataTableColumn>
+            </c:dataTableRow>
+        </aura:set>
+        <c:dataTableRow highlighted="true">
+            <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_CreditoDebitoPrepagate}" textVariant="caps" colspan="3">{#$Label.c.BT_CreditoDebitoPrepagate}</c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISAConsumerCredit}" textVariant="caps">{#$Label.c.BT_VISAConsumerCredit}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negvisaconsumercredit}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negvisaconsumercrediteea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISAConsumerPrepaid}" textVariant="caps">{#$Label.c.BT_VISAConsumerPrepaid}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negvisaconsumerprepaid}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negvisaconsumerprepaideea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISAConsumerDebit}" textVariant="caps">{#$Label.c.BT_VISAConsumerDebit}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negvisaconsumerdebit}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negvisaconsumerdebiteea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VPAYConsumerDebit}" textVariant="caps">{#$Label.c.BT_VPAYConsumerDebit}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negvpayconsumerdebit}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negvpayconsumerdebiteea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VPAYConsumerPrepaid}" textVariant="caps">{#$Label.c.BT_VPAYConsumerPrepaid}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negvpayconsumerprepaid}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negvpayconsumerprepaideea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardConsumerCredit}" textVariant="caps">{#$Label.c.BT_MasterCardConsumerCredit}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmastercardconsumercredit}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmastercardconsumercrediteea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardConsumerCredit}" textVariant="caps">{#$Label.c.BT_MasterCardConsumerDebit}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmastercardconsumerdebit}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmastercardconsumerdebiteea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardConsumerPrepaid}" textVariant="caps">{#$Label.c.BT_MasterCardConsumerPrepaid}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmastercardconsumerprepaid}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmastercardconsumerprepaideea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MaestroConsumerDebit}" textVariant="caps">{#$Label.c.BT_MaestroConsumerDebit}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmaestroconsumerdebit}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmaestroconsumerdebiteea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MaestroConsumerPrepaid}" textVariant="caps">{#$Label.c.BT_MaestroConsumerPrepaid}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmaestroconsumerprepaid}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmaestroconsumerprepaideea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow highlighted="true">
+            <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_Commercial}" textVariant="caps" colspan="3">{#$Label.c.BT_Commercial}</c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISACommercial}" textVariant="caps">{#$Label.c.BT_VISACommercial}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negvisacommercial}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negvisacommercialeea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MaestroCommercial}" textVariant="caps">{#$Label.c.BT_MaestroCommercial}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmaestrocommercial}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmaestrocommercialeea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardCommercial}" textVariant="caps">{#$Label.c.BT_MasterCardCommercial}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmastercardcommercial}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negmastercardcommercialeea}" style="percent"/></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow highlighted="true">
+            <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_PagoBancomat}" textVariant="caps" colspan="3">{#$Label.c.BT_PagoBancomat}</c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_PagoBancomat}" textVariant="caps">{#$Label.c.BT_PagoBancomat}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negpagobancomat}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow highlighted="true">
+            <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_CircuitiAsiatici}" textVariant="caps" colspan="3">{#$Label.c.BT_CircuitiAsiatici}</c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_JCB}" textVariant="caps">{#$Label.c.BT_JCB}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negjcb}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_UPI}" textVariant="caps">{#$Label.c.BT_UPI}</c:dataTableColumn>
+            <c:dataTableColumn align="center"><lightning:formattedNumber minimumFractionDigits="2" value="{#v.config.negupi}" style="percent"/></c:dataTableColumn>
+            <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+        </c:dataTableRow>
+    </c:dataTable>
+    <div class="table-margin" />
+    <c:dataTable border="both" striped="true" hover="false" variant="inline-edit">
+        <aura:set attribute="header">
+            <c:dataTableRow>
+                <c:dataTableColumn title="{#$Label.c.BT_MixDiTransatoEsercente + '(' + $Label.c.BT_Esercente + ')'}" colspan="2" rowspan="1" align="center">{#$Label.c.BT_MixDiTransatoEsercente}<br/>({#$Label.c.BT_Esercente})</c:dataTableColumn>
+            </c:dataTableRow>
+            <c:dataTableRow>
+                <c:dataTableColumn title="{#$Label.c.BT_AreaEuro}" align="center" class="half-size">{#$Label.c.BT_AreaEuro}</c:dataTableColumn>
+                <c:dataTableColumn title="{#$Label.c.BT_AreaNoEuro}" align="center" class="half-size">{#$Label.c.BT_AreaNoEuro}</c:dataTableColumn>
+            </c:dataTableRow>
+        </aura:set>
+        <c:dataTableRow highlighted="true">
+            <c:dataTableColumn title="{#$Label.c.BT_CreditoDebitoPrepagate + ' ' + $Label.c.BT_AreaEuro}" textVariant="caps" align="center" tdStyleBColor="{!v.sectionCDPColor}">&nbsp;</c:dataTableColumn>
+            <c:dataTableColumn title="{#$Label.c.BT_CreditoDebitoPrepagate + ' ' + $Label.c.BT_AreaNoEuro}" textVariant="caps" align="center" tdStyleBColor="{!v.sectionCDPColorExtraUE}">&nbsp;</c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VisaConsumerCredit__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VisaConsumerCreditEEA__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VisaConsumerPrepaid__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VisaConsumerPrepaidEEA__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VisaConsumerDebit__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VisaConsumerDebitEEA__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VPayConsumerDebit__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VPayConsumerDebitEEA__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VPayConsumerPrepaid__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VPayConsumerPrepaidEEA__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MastercardConsumerCredit__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MastercardConsumerCreditEEA__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MastercardConsumerDebit__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MastercardConsumerDebitEEA__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MastercardConsumerPrepaid__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MastercardConsumerPrepaidEEA__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MaestroConsumerDebit__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MaestroConsumerDebitEEA__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MaestroConsumerPrepaid__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MaestroConsumerPrepaidEEA__c}" change="{!c.onInputCDPChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow highlighted="true">
+            <c:dataTableColumn title="{#$Label.c.BT_Commercial + ' ' + $Label.c.BT_AreaEuro}" textVariant="caps" align="center" tdStyleBColor="{!v.sectionCommColor}">&nbsp;</c:dataTableColumn>
+            <c:dataTableColumn title="{#$Label.c.BT_Commercial + ' ' + $Label.c.BT_AreaNoEuro}" textVariant="caps" align="center" tdStyleBColor="{!v.sectionCommColorExtraUE}">&nbsp;</c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VisaCommercial__c}" change="{!c.onInputCommChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VisaCommercialEEA__c}" change="{!c.onInputCommChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MaestroCommercial__c}" change="{!c.onInputCommChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MaestroCommercialEEA__c}" change="{!c.onInputCommChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MastercardCommercial__c}" change="{!c.onInputCommChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MastercardCommercialEEA__c}" change="{!c.onInputCommChange}" /></c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow highlighted="true">
+            <c:dataTableColumn title="{#$Label.c.BT_PagoBancomat}" textVariant="caps" colspan="2" align="center" tdStyleBColor="{!v.sectionBancomatColor}">&nbsp;</c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Pagobancomat__c}" change="{!c.onInputBancomatChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow highlighted="true">
+            <c:dataTableColumn title="{#$Label.c.BT_CircuitiAsiatici}" textVariant="caps" colspan="2" align="center" tdStyleBColor="{!v.sectionAsianColor}">&nbsp;</c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_JCB__c}" change="{!c.onInputAsianChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+        </c:dataTableRow>
+        <c:dataTableRow>
+            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_UPI__c}" change="{!c.onInputAsianChange}" /></c:dataTableColumn>
+            <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+        </c:dataTableRow>
+    </c:dataTable>
+    <c:BT_TipologiaCartePlot height="100%" record="{!v.record}" colorCDP="{!v.sectionCDPColor}" colorCDPExtraUE="{!v.sectionCDPColorExtraUE}" colorComm="{!v.sectionCommColor}" colorCommExtraUE="{!v.sectionCommColorExtraUE}" colorBancomat="{!v.sectionBancomatColor}" colorAsian="{!v.sectionAsianColor}" valueCDP="{!v.sumPercentCDP}" valueCDPExtraUE="{!v.sumPercentCDPExtraUE}" valueComm="{!v.sumPercentComm}" valueCommExtraUE="{!v.sumPercentCommExtraUE}" valueBancomat="{!v.sumPercentBancomat}" valueAsian="{!v.sumPercentAsian}" valueEEA="{!v.sumPercentEEA}" type="bar" tooltipMode="index" />
+    </c:BT_Section>
+    <c:BT_Section title="{#$Label.c.BT_Commissioni}">
+        <aura:set attribute="subTitle">
+            <div class="slds-m-bottom_large" style="width: 50%">
+                <c:picklistCmp selectedValue="{!v.record.BT_TipologiaCommissione__c}" label="{!$Label.c.BT_TipologiaCommissione}" sObjectType="BT_Simulation__c" fieldName="BT_TipologiaCommissione__c" placeholder="{!$Label.c.BT_SelezionareCommissione}" onPicklistChange="{!c.onTipologiaCommissioneChange}"/>
+            </div>
+        </aura:set>
+        <aura:if isTrue="{!v.record.BT_TipologiaCommissione__c == 'COMMISSIONE DIFFERENZIATA'}">
+            <!-- Sez. Acquiring tabella readonly - Commissione Differenziata -->
+            <c:dataTable border="both" striped="true" hover="false" variant="inline-edit">
+                <aura:set attribute="header">
+                    <c:dataTableRow>
+                        <c:dataTableColumn title="{#$Label.c.BT_TipoProdotto}" rowspan="2">{#$Label.c.BT_TipoProdotto}</c:dataTableColumn>   
+                        <c:dataTableColumn title="{#$Label.c.BT_Benchmark + ' ' + $Label.c.BT_CommissioneAcquiring}" colspan="2" rowspan="1" align="center">
+                            {#$Label.c.BT_Benchmark}<br/>{#$Label.c.BT_CommissioneAcquiring}
+                            <lightning:helptext content="{#$Label.c.BT_PopBenchAcq}" iconName="utility:info" class="popover"/>
+                        </c:dataTableColumn> 
+                    </c:dataTableRow>
+                    <c:dataTableRow>
+                        <c:dataTableColumn title="%" align="center" class="half-size">%</c:dataTableColumn>
+                        <c:dataTableColumn title="{#$Label.c.BT_Magg + ' ' + $Label.c.BT_ExtraEEA}" align="center" class="half-size">{#$Label.c.BT_Magg}<br/>{#$Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                    </c:dataTableRow>
+                </aura:set>
+                <c:dataTableRow highlighted="true">
+                    <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_CreditoDebitoPrepagate}" textVariant="caps" colspan="3">{#$Label.c.BT_CreditoDebitoPrepagate}</c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISAConsumerCredit}" textVariant="caps">{#$Label.c.BT_VISAConsumerCredit}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchvisaconsumercredit*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchvisaconsumercredit*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchvisaconsumercrediteea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISAConsumerPrepaid}" textVariant="caps">{#$Label.c.BT_VISAConsumerPrepaid}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchvisaconsumerprepaid*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchvisaconsumerprepaid*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchvisaconsumerprepaideea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISAConsumerDebit}" textVariant="caps">{#$Label.c.BT_VISAConsumerDebit}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchvisaconsumerdebit*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchvisaconsumerdebit*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchvisaconsumerdebiteea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VPAYConsumerDebit}" textVariant="caps">{#$Label.c.BT_VPAYConsumerDebit}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchvpayconsumerdebit*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchvpayconsumerdebit*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchvpayconsumerdebiteea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VPAYConsumerPrepaid}" textVariant="caps">{#$Label.c.BT_VPAYConsumerPrepaid}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchvpayconsumerprepaid*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchvpayconsumerprepaid*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchvpayconsumerprepaideea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardConsumerCredit}" textVariant="caps">{#$Label.c.BT_MasterCardConsumerCredit}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchmastercardconsumercredit*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchmastercardconsumercredit*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchmastercardconsumercrediteea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardConsumerCredit}" textVariant="caps">{#$Label.c.BT_MasterCardConsumerDebit}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchmastercardconsumerdebit*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchmastercardconsumerdebit*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchmastercardconsumerdebiteea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardConsumerPrepaid}" textVariant="caps">{#$Label.c.BT_MasterCardConsumerPrepaid}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchmastercardconsumerprepaid*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchmastercardconsumerprepaid*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchmastercardconsumerprepaideea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MaestroConsumerDebit}" textVariant="caps">{#$Label.c.BT_MaestroConsumerDebit}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchmaestroconsumerdebit*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchmaestroconsumerdebit*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchmaestroconsumerdebiteea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MaestroConsumerPrepaid}" textVariant="caps">{#$Label.c.BT_MaestroConsumerPrepaid}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchmaestroconsumerprepaid*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchmaestroconsumerprepaid*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchmaestroconsumerprepaideea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow highlighted="true">
+                    <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_Commercial}" textVariant="caps" colspan="3">{#$Label.c.BT_Commercial}</c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISACommercial}" textVariant="caps">{#$Label.c.BT_VISACommercial}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchvisacommercial*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchvisacommercial*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchvisacommercialeea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MaestroCommercial}" textVariant="caps">{#$Label.c.BT_MaestroCommercial}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchmaestrocommercial*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchmaestrocommercial*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchmaestrocommercialeea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardCommercial}" textVariant="caps">{#$Label.c.BT_MasterCardCommercial}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchmastercardcommercial*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchmastercardcommercial*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="+#####0.00%" value="{#v.config.deltabenchmaestrocommercialeea}"/></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow highlighted="true">
+                    <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_PagoBancomat}" textVariant="caps" colspan="3">{#$Label.c.BT_PagoBancomat}</c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_PagoBancomat}" textVariant="caps">{#$Label.c.BT_PagoBancomat}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchpagobancomat*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchpagobancomat*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow highlighted="true">
+                    <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_CircuitiAsiatici}" textVariant="caps" colspan="3">{#$Label.c.BT_CircuitiAsiatici}</c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_JCB}" textVariant="caps">{#$Label.c.BT_JCB}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchjcb*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchjcb*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn buffer="left" title="{#$Label.c.BT_UPI}" textVariant="caps">{#$Label.c.BT_UPI}</c:dataTableColumn>
+                    <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchupi*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchupi*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+                </c:dataTableRow>
+            </c:dataTable>
+            <div class="table-margin" />
+            <!-- Sez. Acquiring tabella editabile - Commissione Differenziata -->
+            <c:dataTable border="both" striped="true" hover="false" variant="inline-edit">
+                <aura:set attribute="header">
+                    <c:dataTableRow>
+                        <c:dataTableColumn title="{#$Label.c.BT_Commissione + ' ' + $Label.c.BT_DiAcquiring + ')'}" colspan="2" rowspan="1" align="center">
+                            {#$Label.c.BT_Commissione}<br/>{#$Label.c.BT_DiAcquiring}
+                        </c:dataTableColumn>
+                        <c:dataTableColumn title="{#$Label.c.BT_Marginalita}" rowspan="2">{#$Label.c.BT_Marginalita}
+                            <lightning:helptext content="{#$Label.c.BT_PopSemaphore}" iconName="utility:info" class="popover"/>
+                        </c:dataTableColumn>
+                    </c:dataTableRow>
+                    <c:dataTableRow>
+                        <c:dataTableColumn title="%" align="center" class="half-size">%</c:dataTableColumn>
+                        <c:dataTableColumn title="{#$Label.c.BT_Magg + ' ' + $Label.c.BT_ExtraEEA}" align="center" class="half-size">{#$Label.c.BT_Magg}<br/>{#$Label.c.BT_ExtraEEA}</c:dataTableColumn>
+
+                    </c:dataTableRow>
+                </aura:set>
+                <c:dataTableRow highlighted="true">
+                    <c:dataTableColumn title="{#$Label.c.BT_CreditoDebitoPrepagate}" textVariant="caps" colspan="3" align="center">&nbsp;</c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VisaConsumerCreditAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_VisaConsumerCreditAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_VisaConsumerCreditAcq__c, v.config.mfeevisaconsumercredit*v.redThreshold), greaterthanorequal(v.record.BT_VisaConsumerCreditAcq__c + v.record.BT_VisaConsumerCreditAcqEEA__c, v.config.mfeevisaconsumercrediteea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VisaConsumerPrepaidAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_VisaConsumerPrepaidAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_VisaConsumerPrepaidAcq__c, v.config.mfeevisaconsumerprepaid*v.redThreshold), greaterthanorequal(v.record.BT_VisaConsumerPrepaidAcq__c + v.record.BT_VisaConsumerPrepaidAcqEEA__c, v.config.mfeevisaconsumerprepaideea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VisaConsumerDebitAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_VisaConsumerDebitAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_VisaConsumerDebitAcq__c, v.config.mfeevisaconsumerdebit*v.redThreshold), greaterthanorequal(v.record.BT_VisaConsumerDebitAcq__c + v.record.BT_VisaConsumerDebitAcqEEA__c, v.config.mfeevisaconsumerdebiteea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VPayConsumerDebitAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_VPayConsumerDebitAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_VPayConsumerDebitAcq__c, v.config.mfeevpayconsumerdebit*v.redThreshold), greaterthanorequal(v.record.BT_VPayConsumerDebitAcq__c + v.record.BT_VPayConsumerDebitAcqEEA__c, v.config.mfeevpayconsumerdebiteea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VPayConsumerPrepaidAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_VPayConsumerPrepaidAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_VPayConsumerPrepaidAcq__c, v.config.mfeevpayconsumerprepaid*v.redThreshold), greaterthanorequal(v.record.BT_VPayConsumerPrepaidAcq__c + v.record.BT_VPayConsumerPrepaidAcqEEA__c, v.config.mfeevpayconsumerprepaideea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MastercardConsumerCreditAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_MastercardConsumerCreditAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_MastercardConsumerCreditAcq__c, v.config.mfeemastercardconsumercredit*v.redThreshold), greaterthanorequal(v.record.BT_MastercardConsumerCreditAcq__c + v.record.BT_MastercardConsumerCreditAcqEEA__c, v.config.mfeemastercardconsumercrediteea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MastercardConsumerDebitAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_MastercardConsumerDebitAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_MastercardConsumerDebitAcq__c, v.config.mfeemastercardconsumerdebit*v.redThreshold), greaterthanorequal(v.record.BT_MastercardConsumerDebitAcq__c + v.record.BT_MastercardConsumerDebitAcqEEA__c, v.config.mfeemastercardconsumerdebiteea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MastercardConsumerPrepaidAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_MastercardConsumerPrepaidAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_MastercardConsumerPrepaidAcq__c, v.config.mfeemastercardconsumerprepaid*v.redThreshold), greaterthanorequal(v.record.BT_MastercardConsumerPrepaidAcq__c + v.record.BT_MastercardConsumerPrepaidAcqEEA__c, v.config.mfeemastercardconsumerprepaideea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MaestroConsumerDebitAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_MaestroConsumerDebitAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_MaestroConsumerDebitAcq__c, v.config.mfeemaestroconsumerdebit*v.redThreshold), greaterthanorequal(v.record.BT_MaestroConsumerDebitAcq__c + v.record.BT_MaestroConsumerDebitAcqEEA__c, v.config.mfeemaestroconsumerdebiteea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MaestroConsumerPrepaidAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_MaestroConsumerPrepaidAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_MaestroConsumerPrepaidAcq__c, v.config.mfeemaestroconsumerprepaid*v.redThreshold), greaterthanorequal(v.record.BT_MaestroConsumerPrepaidAcq__c + v.record.BT_MaestroConsumerPrepaidAcqEEA__c, v.config.mfeemaestroconsumerprepaideea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow highlighted="true">
+                    <c:dataTableColumn title="{#$Label.c.BT_Commercial}" textVariant="caps" colspan="3" align="center">&nbsp;</c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_VisaCommercialAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_VisaCommercialAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_VisaCommercialAcq__c, v.config.mfeevisacommercial*v.redThreshold), greaterthanorequal(v.record.BT_VisaCommercialAcq__c + v.record.BT_VisaCommercialAcqEEA__c, v.config.mfeevisacommercialeea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MaestroCommercialAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_MaestroCommercialAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_MaestroCommercialAcq__c, v.config.mfeemaestrocommercial*v.redThreshold), greaterthanorequal(v.record.BT_MaestroCommercialAcq__c + v.record.BT_MaestroCommercialAcqEEA__c, v.config.mfeemaestrocommercialeea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_MastercardCommercialAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="+#####0.00%" value="{!v.record.BT_MastercardCommercialAcqEEA__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!and(greaterthanorequal(v.record.BT_MastercardCommercialAcq__c, v.config.mfeemastercardcommercial*v.redThreshold), greaterthanorequal(v.record.BT_MastercardCommercialAcq__c + v.record.BT_MastercardCommercialAcqEEA__c, v.config.mfeemastercardcommercialeea*v.redThreshold))}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow highlighted="true">
+                    <c:dataTableColumn title="{#$Label.c.BT_PagoBancomat}" textVariant="caps" colspan="3" align="center">&nbsp;</c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_PagobancomatAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_PagobancomatAcq__c, v.config.mfeepagobancomat*v.redThreshold)}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow highlighted="true">
+                    <c:dataTableColumn title="{#$Label.c.BT_CircuitiAsiatici}" textVariant="caps" colspan="3" align="center">&nbsp;</c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_JCBAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_JCBAcq__c, v.config.mfeejcb*v.redThreshold)}" size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+                <c:dataTableRow>
+                    <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_UPIAcq__c}"/></c:dataTableColumn>
+                    <c:dataTableColumn align="center">{#$Label.c.BT_nd}</c:dataTableColumn>
+                    <c:dataTableColumn><c:BT_Semaphore  value="{!greaterthanorequal(v.record.BT_UPIAcq__c, v.config.mfeeupi*v.redThreshold)}"  size="xx-small" /></c:dataTableColumn>
+                </c:dataTableRow>
+            </c:dataTable>
+            <aura:set attribute="else">
+                <aura:if isTrue="{!v.record.BT_TipologiaCommissione__c == 'COMMISSIONE UNICA'}">
+                    <c:dataTable border="both" striped="true" hover="false" variant="inline-edit">
+                        <aura:set attribute="header">
+                            <c:dataTableRow>
+                                <c:dataTableColumn title="{#$Label.c.BT_TipoProdotto}">{#$Label.c.BT_TipoProdotto}</c:dataTableColumn>   
+                                <c:dataTableColumn title="{#$Label.c.BT_Benchmark + ' ' + $Label.c.BT_CommissioneAcquiring}" align="center">
+                                    {#$Label.c.BT_Benchmark}<br/>{#$Label.c.BT_CommissioneAcquiring}
+                                    <lightning:helptext content="{#$Label.c.BT_PopBenchAcq}" iconName="utility:info" class="popover"/>
+                                </c:dataTableColumn> 
+                                <c:dataTableColumn title="{#$Label.c.BT_Commissione + ' ' + $Label.c.BT_DiAcquiring + ')'}" align="center">
+                                    {#$Label.c.BT_Commissione}<br/>{#$Label.c.BT_DiAcquiring}
+                                </c:dataTableColumn>
+                                <c:dataTableColumn title="{#$Label.c.BT_Marginalita}">{#$Label.c.BT_Marginalita}
+                                    <lightning:helptext content="{#$Label.c.BT_PopSemaphore}" iconName="utility:info" class="popover"/>
+                                </c:dataTableColumn>
+                            </c:dataTableRow>
+                        </aura:set>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_Visa + '/' + $Label.c.BT_Mastercard}" textVariant="caps">{#$Label.c.BT_Visa}/{#$Label.c.BT_Mastercard}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchvisamc*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchvisamc*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.commVisaMC}" change="{!c.propagateVisaMC}"/></c:dataTableColumn>
+                            <c:dataTableColumn><c:BT_Semaphore value="{!greaterthanorequal(v.commVisaMC, v.config.mfeevisamc*v.redThreshold)}" size="xx-small" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_PagoBancomat}" textVariant="caps">{#$Label.c.BT_PagoBancomat}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchpagobancomat*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchpagobancomat*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_PagobancomatAcq__c}"/></c:dataTableColumn>
+                            <c:dataTableColumn><c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_PagobancomatAcq__c, v.config.mfeepagobancomat*v.redThreshold)}" size="xx-small" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_JCB}" textVariant="caps">{#$Label.c.BT_JCB}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchjcb*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchjcb*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_JCBAcq__c}"/></c:dataTableColumn>
+                            <c:dataTableColumn><c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_JCBAcq__c, v.config.mfeejcb*v.redThreshold)}" size="xx-small" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_UPI}" textVariant="caps">{#$Label.c.BT_UPI}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#0.00%" value="{#v.config.benchupi*(1-v.benchmarksOffset)}"/>-<ui:outputNumber format="#0.00%" value="{#v.config.benchupi*(1+v.benchmarksOffset)}"/></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_UPIAcq__c}"/></c:dataTableColumn>
+                            <c:dataTableColumn><c:BT_Semaphore value="{!greaterthanorequal(v.record.BT_UPIAcq__c, v.config.mfeeupi*v.redThreshold)}" size="xx-small" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                    </c:dataTable>
+                </aura:if>
+            </aura:set>
+        </aura:if>
+    </c:BT_Section>
+
+</aura:component>

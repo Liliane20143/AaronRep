@@ -1,0 +1,23 @@
+<template>
+    <div class="slds-p-around_medium container">        
+        <div class="txt-title">{label.title}</div>
+        <div class="div-desc">
+            <template if:true={percentMap}>            
+                <template if:true={isValidPercent}>
+                        <div class="slds-text-heading--large slds-text-align--center">
+                            <span class="desc">{percentMap.percentage}</span>%</div>
+                </template>
+                <template if:false={isValidPercent}>
+                        <p class="slds-text-heading_large slds-text-align--center">{label.message}</p>
+                </template>
+            </template>
+        </div>
+        <template if:true={isValidLink}>
+            <div class=""> 
+                <span>
+                    <a class="txt-link" onclick={reportLink}>{label.reportLabel}</a>
+                </span>
+            </div>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,14 @@
+.THIS {
+}
+
+.THIS .slds-th__action.slds-th__action_form.slds-cell-fixed {
+    display:none;
+}
+
+.THIS .myCustomClass input { 
+    text-align: right;
+}
+
+.THIS.slds-button.slds-button_icon-border {
+    top: 20px;
+}

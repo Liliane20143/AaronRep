@@ -1,0 +1,177 @@
+{
+	"objectFieldListMap": [
+		{	
+			"parentField": "workOrderDetail",
+			"fieldList":[
+				"requestType",
+				"status",
+				"dealerAlias",
+				"abi",
+				"startDate",
+				"bankDescription",
+				"businessName",
+				"siaCode",
+				"accountLegacyId",
+				"shopLegacyId",
+				"signboard",
+				"address",
+				"postalCode",
+				"locality",
+				"province",
+				"prefix",
+				"phone"
+			]
+		},
+		{
+			"parentField": "workOrderLineItemDetail",
+			"fieldList":[
+				"operationType",
+				"status",
+				"generationDate"
+			]
+		}
+	],
+	"listFieldListMap": [
+		{
+			"parentField": "workOrderLineItem",
+			"fieldList":[
+				"workOrderLineItemLegacyId",
+				"workOrderLineItemDetail"
+			]
+		}
+	],
+	"fieldLengthList": [
+		{
+			"label": "requestType",
+			"maxLength": 80
+		},
+		{
+			"label": "status",
+			"maxLength": 30
+		},
+		{
+			"label": "dealerAlias",
+			"maxLength": 25
+		},
+		{
+			"label": "abi",
+			"maxLength": 5
+		},
+		{
+			"label": "bankDescription",
+			"maxLength": 250
+		},
+		{
+			"label": "businessName",
+			"maxLength": 80
+		},
+		{
+			"label": "siaCode",
+			"maxLength": 30
+		},
+		{
+			"label": "accountLegacyId",
+			"maxLength": 30
+		},
+		{
+			"label": "shopLegacyId",
+			"maxLength": 30
+		},
+		{
+			"label": "signboard",
+			"maxLength": 60
+		},
+		{
+			"label": "address",
+			"maxLength": 250
+		},
+		{
+			"label": "postalCode",
+			"maxLength": 5
+		},
+		{
+			"label": "locality",
+			"maxLength": 40
+		},
+		{
+			"label": "province",
+			"maxLength": 30
+		},
+		{
+			"label": "prefix",
+			"maxLength": 10
+		},
+		{
+			"label": "phone",
+			"maxLength": 15
+		},
+		{
+			"label": "mail",
+			"maxLength": 50
+		},
+		{
+			"label": "cti",
+			"maxLength": 50
+		},
+		{
+			"label": "supportPhoneNumber",
+			"maxLength": 50
+		},
+		{
+			"label": "operationType",
+			"maxLength": 18
+		},
+		{
+			"label": "generationDate",
+			"maxLength": 25
+		},
+		{
+			"label": "notes",
+			"maxLength": 250
+		},
+		{
+			"label": "resourceAlias",
+			"maxLength": 25
+		},
+		{
+			"label": "workOrderLineItemLegacyId",
+			"maxLength": 25
+		},
+		{
+			"label": "workOrderLegacyId",
+			"maxLength": 25
+		},
+		{
+			"label": "startDate",
+			"maxLength": 25
+		},
+		{
+			"label": "endDate",
+			"maxLength": 25
+		},
+		{
+			"label": "vatNumber",
+			"maxLength": 11
+		},
+		{
+			"label": "fiscalCode",
+			"maxLength": 16
+		},
+		{
+			"label": "ctiType",
+			"maxLength": 30
+		},
+		{
+			"label": "openingTime",
+			"maxLength": 250
+		},
+		{
+			"label": "referent",
+			"maxLength": 50
+		},
+		{
+			"label": "notes",
+			"maxLength": 250
+		}
+	]
+}

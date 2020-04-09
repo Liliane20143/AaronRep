@@ -1,0 +1,368 @@
+<!--
+ * *************************************************
+ *     * @Author nunzio.capasso@/webresults.it
+ *     * @date  29/01/2019 10:32
+ *     * @description
+ *     * @Modified by
+ *   ***********************************************
+ -->
+
+<aura:component description="Plc_FilterCmp" controller="Plc_FilterCmpCnt">
+
+    <!-- PUBLIC ATTRIBUTES-->
+    <aura:attribute name="configuationMap"
+                    type="Map"
+                    access="public"
+                    description="Map of Key/Value Pair to configure query target objects and optional additional query filters for them (Es. 'Bit2Shop__Stock_Serials2__c' => '(Bit2Shop__Shipment_Line_Item_Id__r.Bit2Shop__Shipment_Id__c = 'a1s1j0000004ElrAAE' )' "
+                    default="{'Bit2Shop__Stock_Serials2__c' : '' , 'Bit2Shop__Product_Stock__c' : ''}"/>
+
+    <aura:attribute name="searchOnLoad"
+                    type="Boolean"
+                    access="public"
+                    description="If true component run query on load without click on Search"
+                    default="false"/>
+
+    <aura:attribute name="stockSerialStatus"
+                    access="public"
+                    type="String"
+                    description="(BUTTON CSV)stockSerialStatus to filter on (to check if csv data are present in SFDC) "
+                    default=""/>
+
+    <aura:attribute name="warehouseId"
+                    access="public"
+                    type="String"
+                    description="(BUTTON CSV)arehouseId to filter on (to check if csv data are present in SFDC) "
+                    default=""/>
+
+    <aura:attribute name="distributionListItemModels"
+                    access="public"
+                    type="String"
+                    description="model to filter on (to check if csv data are present in SFDC) List separeted by ';' "
+                    default=""/>
+
+
+    <!-- HIDE OR SHOW INPUT FIELD (Attributes for filters visibility) -->
+    <aura:attribute name="inputSearchIsVisible"
+                    default="true"
+                    type="Boolean"
+                    access="public"
+                    description="hide\show inputSearch"/>
+
+    <aura:attribute name="rangeSerialA_DA_AreVisible"
+                    default="true"
+                    type="Boolean"
+                    access="public"
+                    description="hide\show rangeSerial Search"/>
+
+    <aura:attribute name="manufacturerFilterIsVisible"
+                    default="true"
+                    type="Boolean"
+                    access="public"
+                    description="hide\show manufacturerFilter Search"/>
+
+    <aura:attribute name="serialStatusFilterIsVisible"
+                    default="true"
+                    type="Boolean"
+                    access="public"
+                    description="hide\show serialStatusFilter Search"/>
+
+    <aura:attribute name="uploadCsvIsVisible"
+                    default="true"
+                    type="Boolean"
+                    access="public"
+                    description="hide\show uploadCsv Button"/>
+
+    <aura:attribute name="showButtonsUpOrDown"
+                    type="String"
+                    access="public"
+                    description="Attribute tha allows show buttons on the first or second row(up=first,down=second)"
+                    default="down"/>
+
+    <aura:attribute name="disableRemoveFilterButton"
+                    type="Boolean"
+                    access="public"
+                    description="Attribute that disables RemoveFilterButton"
+                    default="false"/>
+
+    <aura:attribute name="showRemoveFilterButton"
+                    type="Boolean"
+                    access="public"
+                    description="hide\show RemoveFilterButton"
+                    default="true"/>
+
+    <aura:attribute name="disableApplyFilterButton"
+                    type="Boolean"
+                    access="public"
+                    description="Attribute that disables ApplyFilterButton"
+                    default="false"/>
+
+    <aura:attribute name="disableSearchInput"
+                    type="Boolean"
+                    access="public"
+                    description="disableSearchInput"
+                    default="false"/>
+
+    <aura:attribute name="disableManufacturerInput"
+                    type="Boolean"
+                    access="public"
+                    description="disableManufacturerInput"
+                    default="false"/>
+
+    <aura:attribute name="resetInputsAfterSearching"
+                    type="Boolean"
+                    access="public"
+                    description="reset Inputs After Searching"
+                    default="false"/>
+    
+    <aura:attribute name="inputSearch"
+                    type="String"
+                    access="public"
+                    description="Contains the string to search"
+                    default=""/>
+                    
+    <!-- PRIVATE ATTRIBUTES-->
+
+    <aura:attribute name="rangeSerialDA"
+                    type="String"
+                    access="private"
+                    description="Contanis the value of 'DA' input field filter "
+                    default=""/>
+
+    <aura:attribute name="rangeSerialA"
+                    type="String"
+                    access="private"
+                    description="Contanis the value of 'A' input field filter "
+                    default=""/>
+
+    <aura:attribute name="manufacturerFilter"
+                    type="String"
+                    access="private"
+                    description="Contanis the constructor filter input field value "
+                    default=""/>
+
+    <aura:attribute name="serialStatusFilter"
+                    type="String"
+                    access="private"
+                    description="Contanis the serial status filter input field value "
+                    default=""/>
+
+
+    <aura:attribute name="picklistValues"
+                    type="Object[]"
+                    access="private"
+                    description="Attribute the contains the pick list value of serialStatusFilter"
+                    default="[]"/>
+
+    <aura:attribute name="showModal"
+                    type="Boolean"
+                    access="private"
+                    description="show\hide csv popup"
+                    default="false"/>
+
+    <aura:attribute name="showSpinner"
+                    type="Boolean"
+                    access="private"
+                    description="toggle spinner on\off"
+                    default="false"/>
+
+    <!--INIT HANDLER-->
+    <aura:handler name="init" value="{!this}" action="{!c.initComponent}"/>
+    <aura:handler name="change"
+                  value="{!v.resetInputsAfterSearching}"
+                  action="{!c.resetInputsAfterSearching}"/>
+
+    <aura:registerEvent name="Plc_FilterEvt" type="c:Plc_FilterEvt"
+                        description="The event fired  when user press 'filtra' "/>
+
+    <aura:handler event="c:Plc_FilterEvt"
+                  action="{!c.handleShowModal}"
+                  description="Used to reset 'showModal' attribute"/>
+    <aura:handler name="change" value="{!v.searchOnLoad}" action="{!c.handleChangeSearchOnLoad}"/>
+
+    <aura:method access="public" name="removeFilters" action="{!c.removeFiltersCmp}" />
+    <aura:method access="public" name="searchFilters" action="{!c.applyFiltersCmp}" />
+    
+
+
+    <!--SPINNER-->
+    <lightning:spinner aura:id="bwspinner" variant="brand" size="large"
+                       class="{!v.showSpinner ? 'spinnerlayer slds-is-fixed' : 'spinnerlayer slds-is-fixed slds-hide'}"/>
+
+    <!-- POPUP UPLOAD CSV-->
+    <aura:if isTrue="{!v.showModal}">
+        <div class="slds-modal_large">
+            <c:Plc_UploadCsvCmp
+                    warehouseId="{!v.warehouseId}"
+                    stockSerialStatus="{!v.stockSerialStatus}"
+                    distributionListItemModels="{!v.distributionListItemModels}"/>
+        </div>
+    </aura:if>
+    <!-- END POPUP UPLOAD CSV-->
+
+
+    <!-- FIRST GRID slds-m-around_small -->
+    <lightning:layout class="slds-wrap" multipleRows="true">
+        <!--CERCA PER SERIAL,MODELLO ,SKU  CON BOTTONI-->
+        <aura:if isTrue="{!v.inputSearchIsVisible}">
+            <lightning:layoutItem size="4">
+                <span onkeypress="{!c.keyCheck}" class="slds-size--11-of-12">
+                <lightning:input aura:id="inputSearch" label="{!$Label.c.Plc_InputSearch}"
+                                 placeholder="{!$Label.c.Plc_InputSearchPlaceHolder}" type="search"
+                                 variant="standard" pattern="[a-zA-Z0-9\-\s]+"
+                                 messageWhenPatternMismatch="{!$Label.c.Plc_MessageWhenPatternMismatch}"
+                                 disabled="{!v.disableSearchInput}"
+                                 value="{!v.inputSearch}"/>
+                    </span>
+            </lightning:layoutItem>
+        </aura:if>
+        <!--END CERCA PER SERIAL,MODELLO ,SKU -->
+
+
+        <!-- RANGE MATRICOLA-->
+        <aura:if isTrue="{!v.rangeSerialA_DA_AreVisible}">
+            <lightning:layoutItem size="2">
+                <lightning:input aura:id="rangeSerialDA" class="{!v.inputSearchIsVisible ? 'slds-m-left_large' :''}"
+                                 label="{!$Label.c.Plc_SerialNumberFrom}"
+                                 placeholder="{!$Label.c.Plc_SerialNumberFromPlaceHolder}"
+                                 type="text" variant="standard" value="{!v.rangeSerialDA}"
+                                 maxlength="10"
+                                 minlength="10"
+                                 onblur="{!c.validityCheck}"
+                                 pattern="[a-zA-Z0-9]+"
+                                 messageWhenTooShort="{!$Label.c.Plc_MessageWhenTooShort}"
+                                 messageWhenPatternMismatch="{!$Label.c.Plc_MessageWhenPatternMismatch}"/>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="2">
+                <lightning:input aura:id="rangeSerialA" class="slds-m-right_large slds-m-left_large"
+                                 label="{!$Label.c.Plc_SerialNumberTo}"
+                                 placeholder="{!$Label.c.Plc_SerialNumberToPlaceHolder}" type="text" variant="standard"
+                                 value="{!v.rangeSerialA}"
+                                 maxlength="10"
+                                 minlength="10"
+                                 onblur="{!c.validityCheck}"
+                                 pattern="[a-zA-Z0-9]+"
+                                 messageWhenTooShort="{!$Label.c.Plc_MessageWhenTooShort}"
+                                 messageWhenPatternMismatch="{!$Label.c.Plc_MessageWhenPatternMismatch}"/>
+            </lightning:layoutItem>
+        </aura:if>
+        <!-- END RANGE MATRICOLA-->
+
+
+        <!--FILTRO COSTRUTTORE up-->
+        <aura:if
+                isTrue="{!(!v.rangeSerialA_DA_AreVisible || !v.inputSearchIsVisible) &amp;&amp; (v.manufacturerFilterIsVisible &amp;&amp; v.showButtonsUpOrDown=='up')}">
+            <lightning:layoutItem size="2">
+                <lightning:input aura:id="manufacturerFilter" class="slds-m-left_large"
+                                 label="{!$Label.c.Plc_ConstructorsFilter}"
+                                 placeholder="{!$Label.c.Plc_ConstructorsFilterPlaceHolder}" type="text"
+                                 variant="standard"
+                                 value="{!v.manufacturerFilter}" pattern="[a-zA-Z0-9\s]+"
+                                 disabled="{!v.disableManufacturerInput}"
+                                 messageWhenPatternMismatch="{!$Label.c.Plc_MessageWhenPatternMismatch}"/>
+            </lightning:layoutItem>
+        </aura:if>
+        <!--END FILTRO COSTRUTTORE up-->
+
+
+        <!-- BOTTONI VISUALIZZATI SOLO IN CASO NN SIANO PRESENTI TROPPI CAMPI NELLA LINE SUPERIORE-->
+        <aura:if
+                isTrue="{!(!v.rangeSerialA_DA_AreVisible || !v.inputSearchIsVisible) &amp;&amp; v.showButtonsUpOrDown=='up'}">
+            <lightning:layoutItem size="5">
+                <lightning:button
+                        class="{!(!v.rangeSerialA_DA_AreVisible &amp;&amp; !v.inputSearchIsVisible) ? 'slds-m-top_large slds-m-right_large slds-theme_brand' :'slds-m-top_large slds-m-left_large slds-m-right_large slds-theme_brand'}"
+                        variant="brand"
+                        type="button" label="{!$Label.c.Plc_SearchButton}" onclick="{!c.applyFiltersCmp}"
+                        disabled="{!v.disableApplyFilterButton}"/>
+                <lightning:button class="{!v.showRemoveFilterButton
+                ? 'slds-m-top_large slds-m-right_large slds-m-left_medium slds-theme_neutral'
+                : 'slds-hide'}"
+                                  variant="neutral" label="{!$Label.c.Plc_RemoveFiltersButton}"
+                                  onclick="{!c.removeFiltersCmp}"
+                                  disabled="{!v.disableRemoveFilterButton}"/>
+
+                <!--BOTTONE CARICAMENTO CSV-->
+                <aura:if isTrue="{!v.uploadCsvIsVisible}">
+                    <lightning:button
+                            class="slds-m-top_large slds-m-right_x-small slds-m-left_medium slds-theme_neutral"
+                            iconPosition="left" variant="neutral" onclick="{!c.handleShowModal}" disabled="false"
+                            label="{!$Label.c.Plc_LoadFromCSVButton}"
+                            iconName="doctype:csv"/>
+                </aura:if>
+                <!-- END BOTTONE CARICAMENTO CSV-->
+            </lightning:layoutItem>
+        </aura:if>
+        <!--END BOTTONI VISUALIZZATI SOLO IN CASO NN SIANO PRESENTI TROPPI CAMPI NELLA LINE SUPERIORE-->
+
+
+        <lightning:layoutItem size="4"/>
+    </lightning:layout>
+    <!--END FIRST GRID-->
+
+
+    <!-- SECOND GRID-->
+    <lightning:layout class="slds-m-top_medium">
+
+        <!--FILTRO COSTRUTTORE down-->
+        <aura:if isTrue="{!v.manufacturerFilterIsVisible &amp;&amp; v.showButtonsUpOrDown=='down'}">
+            <lightning:layoutItem size="2">
+                <lightning:input aura:id="manufacturerFilter" class="slds-m-right_large"
+                                 label="{!$Label.c.Plc_ConstructorsFilter}"
+                                 placeholder="{!$Label.c.Plc_ConstructorsFilterPlaceHolder}" type="text"
+                                 variant="standard"
+                                 value="{!v.manufacturerFilter}" pattern="[a-zA-Z0-9\s]+"
+                                 disabled="{!v.disableManufacturerInput}"
+                                 messageWhenPatternMismatch="{!$Label.c.Plc_MessageWhenPatternMismatch}"/>
+            </lightning:layoutItem>
+        </aura:if>
+        <!--END FILTRO COSTRUTTORE down-->
+
+        <!-- FILTRO STATO SERIALE-->
+        <aura:if isTrue="{!v.serialStatusFilterIsVisible}">
+            <lightning:layoutItem size="2">
+                <lightning:select aura:id="serialStatusFilter" class="slds-m-right_large"
+                                  label="{!$Label.c.Plc_SerialStatusFilter}"
+                                  variant="standard"
+                                  value="{!v.serialStatusFilter}">
+                    <option value="">{!$Label.c.Plc_SerialStatusFilterPlaceHolder}</option>
+                    <aura:iteration var="item" items="{!v.picklistValues}">
+                        <option value="{!item.picklistLabel}">{!item.picklistValue}</option>
+                    </aura:iteration>
+
+                </lightning:select>
+            </lightning:layoutItem>
+        </aura:if>
+        <!--END FILTRO STATO SERIALE-->
+
+        <!--BOTTONI-->
+        <!-- SE CONDIZIONE VERA PUO VISUALIZZARE I PULSANTI SOTTO ALTRIMENTI LI METTE SOPRA-->
+        <aura:if
+                isTrue="{!v.showButtonsUpOrDown =='down'}">
+            <lightning:layoutItem size="5">
+                <lightning:button class="slds-m-top_large slds-m-right_large slds-theme_brand" variant="brand"
+                                  type="button" label="{!$Label.c.Plc_SearchButton}" onclick="{!c.applyFiltersCmp}"
+                                  disabled="{!v.disableApplyFilterButton}"/>
+                <lightning:button class="{!v.showRemoveFilterButton
+                ? 'slds-m-top_large slds-m-right_large slds-m-left_medium slds-theme_neutral'
+                : 'slds-hide'}"
+                                  variant="neutral" label="{!$Label.c.Plc_RemoveFiltersButton}"
+                                  onclick="{!c.removeFiltersCmp}"
+                                  disabled="{!v.disableRemoveFilterButton}"/>
+
+                <!--BOTTONE CARICAMENTO CSV-->
+                <aura:if isTrue="{!v.uploadCsvIsVisible}">
+                    <lightning:button
+                            class="slds-m-top_large slds-m-right_x-small slds-m-left_medium slds-theme_neutral"
+                            iconPosition="left" variant="neutral" onclick="{!c.handleShowModal}" disabled="false"
+                            label="{!$Label.c.Plc_LoadFromCSVButton}"
+                            iconName="doctype:csv"/>
+                </aura:if>
+                <!-- END BOTTONE CARICAMENTO CSV-->
+
+            </lightning:layoutItem>
+        </aura:if>
+        <!--END BOTTONI-->
+        <lightning:layoutItem size="3"/>
+    </lightning:layout>
+    <!--END SECOND GRID-->
+
+</aura:component>

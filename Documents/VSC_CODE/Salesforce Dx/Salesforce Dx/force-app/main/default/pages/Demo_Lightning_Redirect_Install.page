@@ -1,0 +1,9 @@
+<apex:page standardController="NE__Order_Header__c" showHeader="false" sidebar="false">
+    
+    <script>
+                                              
+     var url  = "../apex/DigitalSignature?Id={!NE__Order_Header__c}&orderId={!NE__Order_Header__c.NE__Configurations__r[0].Id}&depositType=install";                    
+     sforce.one.navigateToURL(url);//not used of param 'true' because lightning keep the popup context and not open in full page your VF    
+                 
+    </script>
+</apex:page>

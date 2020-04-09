@@ -1,0 +1,104 @@
+.THIS .uppercase input{
+text-transform: uppercase;
+}
+.THIS .lens-search-abicab-button
+{
+    display: block !important;
+    width: 51px;
+    height: 32px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0
+}
+.THIS #CABselected input{
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* ANDREA MORITTU START 27-Aug-2019 */
+/* CTA = CALL TO ACTION*/
+.THIS .headerModalStyle{
+    font-family     :   Arial!important;
+    font-weight     :   600!important;
+    text-transform  :   uppercase!important;
+    font-size       :   0.8em!important;
+    color           :   #666!important;
+}
+
+.THIS .inputStyle {
+    font-family     :   Arial!important;
+    font-size       :   1.2em!important;
+}
+
+.THIS .labelStyle {
+    font-size       :   1em!important;
+}
+
+.THIS .tytleStyle {
+    font-size       :   1.5em!important;
+    font-weight     :   600!important;
+}
+/*spinelli giovanni - 11/10/2019 - change style disabled button*/
+.THIS .CTAStyle[disabled] {
+    font-size: 1.2em!important;
+    text-transform: uppercase!important;
+    font-weight: 600!important;
+    border-color: rgb(212, 212, 212);
+    border-width: 0.3125rem;
+    border-width: 0.0625rem;    
+}
+/*spinelli giovanni - 11/10/2019 - change style disabled button*/
+.THIS #merchantNameSpan {
+    color: blue!important;
+    text-decoration: underline!important;
+    cursor: pointer!important;
+}
+
+.THIS .slds-modal__content:last-child {
+    border-bottom-right-radius: 0!important;
+    border-bottom-left-radius:  0!important;
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
+}
+
+.THIS .uiScrollerWrapper.scrollable {
+    overflow: unset!important;
+}
+/* ANDREA MORITTU END 27-Aug-2019 */
+/*giovanni spinelli start 27/09/2019*/
+.THIS .headerModalStyle{
+    font-family     :   Arial!important;
+    font-weight     :   600!important;
+    text-transform  :   uppercase!important;
+    font-size       :   1.2em!important;
+    color           :   #666!important;
+  }
+  .THIS .CTAStyle_2 {
+    font-size       :   1.2em!important;
+    text-transform  :   uppercase!important;
+    font-weight     :   600!important;
+    border-color: rgb(48, 58, 178);
+    border-width: 0.3125rem;
+    border-width: 0.0625rem;
+}
+.THIS .CTAStyle_BRAND {
+    font-size: 1.2em!important;
+    text-transform: uppercase!important;
+    font-weight: 600!important;
+    border-color: rgb(48, 58, 178);
+    border-width: 0.3125rem;
+    border-width: 0.0625rem; 
+    }
+.THIS .centeredText{
+    text-align: center;
+    font-family     :   Arial!important;
+}
+  /*giovanni spinelli end 27/09/2019*/
+  /*spinelli giovanni - 11/10/2019 - add style */
+  .THIS .CTAStyle{
+    font-size       :   1.2em!important;
+    text-transform  :   uppercase!important;
+    font-weight     :   600!important;
+    border-color: rgb(48, 58, 178);
+    border-width: 0.3125rem;
+    border-width: 0.0625rem;
+}
+/*spinelli giovanni - 11/10/2019 - add style */

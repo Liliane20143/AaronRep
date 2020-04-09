@@ -1,0 +1,81 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="server2serverList" type="List" access="global"/>
+    <aura:attribute name="contextOutput" type="Object" access="global"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+
+    <!--aura:handler name="init" value="{!this}" action="{!c.doInit}"/-->
+
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+
+    <div id="base" class="product_row_color containerMargin" > 
+        <div> 
+            <div class="commissioni_info" data-label="label"> 
+                <p class="u1730"><span class="upperCaseText">{!$Label.c.OB_Integration_Method}</span></p>		                          
+            </div>
+        </div>  
+        <aura:iteration items="{!v.server2serverList}" var="s2s" indexVar="firstIndex">
+                <div>
+                    <span class="productnamestyle">{!s2s.fields.productname}</span>
+         
+                </div>
+                <div >
+                    <div class="slds-grid slds-gutters canone_dettaglio" style="width:98%; margin: 1%;">
+                        <div class="slds-col slds-size_1-of-1 tecnicalContainer" >
+                            <div class="slds-grid slds-gutters slds-wrap"> 
+                                <aura:iteration items="{!s2s.listOfAttributes}" var="item" indexVar="index">
+                                    <aura:if isTrue="{!or(item.fields.hidden == 'false',item.fields.hidden == false)}">
+                                        <div class="slds-col slds-size_1-of-5 attributeNames" > 
+                                            <p class="attributeNameStyle">
+                                                <aura:if isTrue="{!item.fields.required == 'Yes'}">  
+                                                    <abbr class="slds-required" title="required">*</abbr>
+                                                </aura:if>	
+                                                <label id="{!index+'_attName'}"  for="{!index}">{!item.fields.name}</label>
+                                            </p>  
+                                            <aura:if isTrue="{!and((item.fields.readonly == 'true' || item.fields.readonly == true || v.isReadOnly == true), item.fields.name == 'Certificato PCI/DSS')}">	<!-- <daniele.gandini@accenture.com> - 08/07/2019 - F2WAVE2-88 - last condition added -->
+                                                <input id="{!index}" class="f217 inputReadonly inputAttValueFont" name="{!firstIndex+'_S2S'}" label="" value="{!item.fields.value}" readonly="readonly" />
+                                                <aura:set attribute="else">
+                                                    <aura:if isTrue="{!item.fields.type != 'Enumerated'}">                                                      
+                                                        <lightning:input 
+                                                            aura:id="{!item.fields.name}"
+                                                            type="text" 
+                                                            name="{!item.fields.name}" 
+                                                            variant="label-hidden"
+                                                            label="" 
+                                                            value="{!item.fields.value}" 
+                                                            onblur="{!c.onChangeAttributeValueS2S}">
+                                                        </lightning:input>
+                                                        <p><span id="{!firstIndex+'_'+index+'_S2SError'}" class="errorMsg"></span></p>	
+                                                    <aura:set attribute="else">
+                                                        <lightning:select class="selectClass" name="{!item.fields.name}" label="" onchange="{!c.onChangeAttributeValueS2S}">
+                                                            <aura:iteration items="{!item.listOfDomains}" var="picklist" indexVar="index2">
+                                                                <aura:if isTrue="{!picklist.fields.value == item.fields.value}">
+                                                                    <option selected="selected"  value="{!picklist.fields.value}">{!picklist.fields.value}</option>
+                                                                <aura:set attribute="else"> 
+                                                                    <option value="{!picklist.fields.value}">{!picklist.fields.value}</option>
+                                                                </aura:set>
+                                                                </aura:if>
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </aura:set> 
+                                                    </aura:if>
+                                                </aura:set>
+                                            </aura:if> 
+                                        </div>             
+                                    </aura:if>     
+                                </aura:iteration>
+                            </div>                    
+                        </div> 
+                    </div>
+                </div>
+        </aura:iteration>
+    </div> 
+</aura:component>

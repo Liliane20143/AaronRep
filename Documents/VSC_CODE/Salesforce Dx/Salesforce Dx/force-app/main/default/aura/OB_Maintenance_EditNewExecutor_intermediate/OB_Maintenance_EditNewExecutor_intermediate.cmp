@@ -1,0 +1,86 @@
+<aura:component controller="OB_Maintenance_EditNewExec_Interm_CC" >
+	<aura:attribute name="FlowData" type="string"  />
+    <aura:attribute name="FlowStep" type="string"  />
+    <aura:attribute name="newExecutor" type="boolean" default="false"  />
+    <aura:attribute name="status" type="string" default="VIEW"  />
+	<aura:Attribute name ="showModal"  type="Boolean" default="false" />
+ 	<aura:attribute name="editStep" type="string"   default ="EDIT"/>
+	<aura:Attribute name ="switchOnload"  type="Boolean" default="false" />
+	<aura:Attribute name ="showModalDocuments"        type="boolean" default="false" />
+	<aura:Attribute name ="logrequestid"              type="String" default="" access = "global" />
+	<aura:attribute name ="showAccordionEditExecutor" 	type="String" default="" />	
+	<aura:attribute name="showSaveButton"	type="Boolean" 	access="global" 	default="false"/>	
+	<aura:attribute name="listEmpty"	type="Boolean" 	access="global" 	default="false"/>	
+	<aura:attribute name="showMerchantDetails" type="boolean" default="true" />
+
+<!-- NEXI-94 Marta Stempien <marta.stempien@accenture.com> 21/06/2019 - Start -->
+	<aura:attribute name="isTrueShowExecutorInputs" type="Boolean" default="true" description="Attribute passed to OB_Maintenance_EditNewExecutor to show input fields" />
+<!-- NEXI-94 Marta Stempien <marta.stempien@accenture.com> 21/06/2019 - Stop -->
+	<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 START -->
+	<aura:attribute name="disabledFields"					type="Object"	default="{}"	access="global" 	description="Object containing info which fields should disabled"/>
+	<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 STOP -->
+
+
+
+	<c:OB_Maintenance_EditNewExecutor logrequestid="{!v.logrequestid}" FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}"
+									  status="VIEW" showModal="{!v.showModal}" switchOnload="{!v.switchOnload}" newExecutor ="{!v.newExecutor}"
+									  showMerchantDetails="{!v.showExeshowMerchantDetailscutorDetails}" disabledFields="{!v.disabledFields}" />
+	<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 added disabled fields parameter -->
+  	<aura:if isTrue="{!and(!v.showModalDocuments , v.showModal)}">
+	  		<c:strike_modal
+			    title="{!$Label.c.OB_MAINTENANCE_EXECUTOREDIT_MODALTITLE}"
+			    primaryButtonLabel="Ok"
+			    secondaryButtonLabel="Cancel"
+			    showHeader="true"
+			    showFooter="false"
+			    showClose="true"
+			    showModal="{!v.showModal}">
+			
+				<aura:if isTrue="{! v.switchOnload}" >
+					<c:OB_Maintenance_EditNewExecutor isTrueShowExecutorInputs="{!v.isTrueShowExecutorInputs}" showModalDocuments="{!v.showModalDocuments}" logrequestid="{!v.logrequestid}"
+													  FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}" status="EDIT" showModal="{!v.showModal}" switchOnload="{!v.switchOnload}"
+													  newExecutor ="{!v.newExecutor}" showAccordionEditExecutor = "{!v.showAccordionEditExecutor}" showMerchantDetails="{!v.showMerchantDetails}" disabledFields="{!v.disabledFields}"/>
+		         	<!-- NEXI-94 Marta Stempien <marta.stempien@accenture.com> pass isTrueExecutorExist attribute to c:OB_Maintenance_EditNewExecutor 18/06/2019 -->
+					<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 added disabled fields parameter -->
+				</aura:if>
+		        <aura:if isTrue="{!! v.switchOnload}" >
+		         	<c:OB_Maintenance_EditNewExecutor isTrueShowExecutorInputs="{!v.isTrueShowExecutorInputs}" showModalDocuments="{!v.showModalDocuments}" logrequestid="{!v.logrequestid}"
+													  FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}" status="EDIT" showModal="{!v.showModal}" switchOnload="{!v.switchOnload}"
+													  newExecutor ="{!v.newExecutor}" showAccordionEditExecutor = "{!v.showAccordionEditExecutor}" showMerchantDetails="{!v.showMerchantDetails}" disabledFields="{!v.disabledFields}"/>
+					<!-- NEXI-94 Marta Stempien <marta.stempien@accenture.com> pass isTrueExecutorExist attribute to c:OB_Maintenance_EditNewExecutor 18/06/2019 -->
+					<!-- NEXI-229 Grzegorz Banach <grzegorz.banach@accenture.com> 24/07/2019 added disabled fields parameter -->
+				</aura:if>
+	        	
+	       	
+	        </c:strike_modal>  
+	    <!--  </aura:if> -->
+	</aura:if> 
+     <!--DOCUMENTS MODAL EXECUTOR-->
+     <aura:if isTrue="{!v.showModalDocuments}" >
+     	
+  		<c:strike_modal
+		    title="{!$Label.c.OB_MAINTENANCE_DOCUMENTS}"
+		    primaryButtonLabel="Ok"
+		    secondaryButtonLabel="Cancel"
+		    showHeader="true"
+		    showFooter="false"
+		    showClose="false"
+		    showModal="{!v.showModalDocuments}"
+		    size="large"
+			>
+		
+		    <c:OB_Maintenance_AttachedDocumentations recordId="{!v.logrequestid}" isDraftModal="true" showSaveButton="{!v.showSaveButton}" listIsEmpty= "{!v.listEmpty}"/>
+		    <lightning:buttonGroup class="slds-align_absolute-center" >
+		    	<aura:if isTrue = "{!!v.listEmpty}">
+			    	<div>
+						<lightning:button class ="draft" variant="neutral" aura:id="SaveAsDraft"  label="{!$Label.c.OB_MAINTENANCE_SAVEASDRAFT}" title="{!$Label.c.OB_MAINTENANCE_SAVEASDRAFT}" onclick="{! c.saveAsDraft }" />
+					</div>
+				</aura:if>
+				<div>
+					<lightning:button class="closebtn" variant="brand" aura:id="closeModal"  label="{!$Label.c.OB_MAINTENANCE_CONFIRM}" title="{!$Label.c.OB_MAINTENANCE_CONFIRM}" onclick="{! c.closeModal }" /> 
+				</div>
+			</lightning:buttonGroup>
+		</c:strike_modal> 
+	</aura:if>
+
+</aura:component>

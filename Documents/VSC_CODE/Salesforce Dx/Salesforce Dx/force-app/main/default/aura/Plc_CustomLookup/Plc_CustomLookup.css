@@ -1,0 +1,46 @@
+/**
+ * Created by dilorenzo on 22/01/2019.
+ */
+.THIS .slds-pill__action{
+	height: 34px;
+	padding-top:7px;
+}
+
+.THIS .slds-pill__action:hover{
+	border-color: rgb(21, 137, 238);
+	box-shadow: 0 0 3px #0070d2;
+	background: white;
+	transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+.THIS .custom-top{
+    top:1rem !important;
+}
+
+.THIS .pill:focus{
+	box-shadow: 0 0 3px #d20d00;
+}
+
+.THIS .pillSize{
+ 	width:100%;
+}
+
+.THIS .leftPaddingClass {
+    padding-left: 2rem;
+}
+
+.THIS .disabled-pill {
+    background-color: rgb(236, 235, 234);
+    border-color: #a8b7c7;
+}
+
+.THIS .disabled-pill:hover {
+    cursor: not-allowed;
+    background-color: rgb(236, 235, 234) !important;
+    border-color: #a8b7c7 !important;
+}
+
+.THIS .result-list{
+	min-height:40px;
+	margin-top:0px !important;
+}

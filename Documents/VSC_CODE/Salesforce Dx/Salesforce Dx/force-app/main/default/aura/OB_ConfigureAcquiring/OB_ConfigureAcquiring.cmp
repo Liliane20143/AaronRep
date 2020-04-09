@@ -1,0 +1,138 @@
+<aura:component  implements="flexipage:availableForAllPageTypes" access="global">
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="lightningFromParam"       type="String"       access="global" default="lightningFromVF=false"/>
+    <aura:attribute name="accId" type="String" default="0019E00000bgFXtQAM" />
+    <aura:attribute name="opportunity" type="String" default="0069E0000087jluQAA" />
+    <aura:attribute name="bundleElementName" type="String"  />
+    <aura:attribute name="productCategories" type="Object"/>
+    <aura:attribute name="cartList" type="Object"/>
+    <aura:attribute name="offertaId" type="ID"/>
+    <aura:attribute name="configureItem" type="Boolean" default="false" />
+    <aura:attribute name="configureItemChild" type="Boolean" default="false" />
+    <aura:attribute name="offertaAddedToCart" type="Boolean" default="false" />
+    <aura:attribute name="itemAddedToCart" type="Boolean" default="false" />
+    <aura:attribute name="itemRemovedFromCart" type="Boolean" default="false" />
+    <aura:attribute name="itemEditedFromCart" type="Boolean" default="false" />
+    <aura:attribute name="listOfCategories" type="Object"/>
+    <aura:attribute name="offertChildList" type="Object"/>
+    <aura:attribute name="offertChildSubList" type="Object"/> <!-- figlio di figlio-->
+    <aura:attribute name="contextOutput" type="Object"/>
+    <aura:attribute name="spinner" type="Boolean" default="true"/>
+	<aura:attribute name="circuitiList" type="List" />
+    
+    <aura:attribute name="listOfItems" type="List"/>
+    <aura:attribute name="listOfAttributes" type="List"/> 
+    <aura:attribute name="configureBundle" type="Boolean" default="false"/>
+    <aura:attribute name="itemToConfigure" type="Object"/>
+    <aura:attribute name="needConfiguration" type="Boolean" default="false"/>
+    
+    <!--  Not used -->
+    <aura:attribute name="bundleStep" type="Integer"/>
+    <aura:attribute name="requestCheckout" type="Boolean" default="false"/>
+    <!-- ========= -->    
+    <aura:attribute name="isFirstAdd" type="Boolean" default="true"/>
+    <aura:attribute name="isCloseConf" type="Boolean" default="false" />
+    <aura:attribute name="oldItemId" type="String" />
+    <aura:attribute name="newItemId" type="String" />
+    
+    <aura:handler action="{!c.onUpdateContext}" event="NE:Bit2win_Event_UpdateContext" />
+    
+    <div class="u116" data-label="page title">
+        <p><span>Selezione Acquiring</span></p>
+    </div>
+    <!-- francesca.ribezzi 28/08/2018 show spinner -->
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if> 
+    <!-- cartDetails -->
+    
+    <div class="u172" data-label="title">
+        <p><span>La tua selezione</span></p>
+    </div>
+    
+    <div class="u170" data-label="title">
+        <img id="u1679_img" src="/resource/newCartImages/images/04_-_vas/u520.png"/>
+        <div id="u171" class="u171">
+            <aura:iteration items="{!v.cartList}" var="cartCategory" indexVar="indx">
+                
+                <p style="font-size:12px;"><span style="color:#999999;">{!cartCategory.categoryName}</span></p>
+               <aura:iteration items="{!cartCategory.items}" var="item" indexVar="indx2">
+                    <p style="font-size:20px;"><span style="font-size:12px;color:#4F6A92;"></span><span style="color:#4F6A92;">{!item}</span></p>
+                </aura:iteration>
+                
+                
+            </aura:iteration>
+        </div>
+    </div>
+    
+    <!-- cartDetails end-->
+    
+    <div id="base">
+        <aura:iteration items="{!v.productCategories}" var="productCategory" indexVar="indx">
+            
+            <div class="u120" data-label="title">
+                <div id="u121" class="text">
+                    <p><span>{!productCategory.categoryName}</span></p>
+                </div>
+            </div>
+            <div class="seleziona">
+                <p><span>SELEZIONA</span></p>
+            </div>
+            <div class="u124">
+                <img id="u124_img" class="line " src="/resource/newCartImages/images/01_-_pos/u132.png"/>
+            </div>
+            
+            
+            <div id="checkboxwrapper">
+                <aura:iteration items="{!productCategory.items}" var="item" indexVar="indx2">
+                    <!--productRow starts -->
+                    <div id="{!item.id+'_prdRow'}" style="margin-left:14px;margin-top: -34px;margin-bottom: 5px;width: 98.3%;height:66px">
+                        <div class="prd_img">
+                            {!item.thumbnailimage}
+                            <img class="thumbnailimage" src="{!'/servlet/servlet.FileDownload?file='+item.fields.thumbnailimage}" width="60" height="34"/>
+                        </div>
+                        <div class="u122" data-label="label">
+                            <p><span>{!!empty(item.fields.cartDescription)?item.fields.cartDescription:item.fields.productname}</span></p>
+                        </div>
+                        
+                        <div class="check_box" data-label="checkbox">
+                            <!--<input type="checkbox" id="{!item.id+'_chkbox'}" onclick="{!c.onCheck}"/>-->
+                            <lightning:input id="{!item.id}" onchange="{!c.onCheck}" type="checkbox" />
+                        </div>
+                        
+                    </div>
+                    
+                    <!--productRow ends -->
+                    <div class="u124">
+                        <img id="u124_img" class="line" src="/resource/newCartImages/images/01_-_pos/u132.png"/>
+                    </div>
+                </aura:iteration>
+            </div>
+        </aura:iteration>
+    </div>
+    <!--  Marco Ferri 29/08/2018 WIP -->
+    <div class="u187">
+        <span class="u187title">RIEPILOGO ACQUIRING CIRCUITI (%) </span>
+        <div id="u1450" class="tableline">
+      	</div>
+        <div class="tableText"> <!-- Da riempire tramite chiamata ad evento aura iteration? -->
+        	<span class="value1">BRAND/CIRCUITO</span>
+        	 
+        	<aura:iteration items="{!v.productCategories[0].items[0].listofAttributes}" var="childCat" > 
+        		<span class="valueN">{!childCat.fields.name}</span>
+        	</aura:iteration> 
+        </div>   
+        <aura:iteration items="{!v.circuitiList}" var="item" indexVar="indx3"> 
+        	<div class="cartItemContainer">
+        		<span class="cartItemToEdit">{!item}</span>
+        	</div>
+        </aura:iteration>
+    </div>
+    
+</aura:component>

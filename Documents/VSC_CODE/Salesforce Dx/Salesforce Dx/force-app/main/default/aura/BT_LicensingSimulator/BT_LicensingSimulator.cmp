@@ -1,0 +1,58 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes">
+	<aura:attribute name="useProgress" type="Boolean" default="false" />
+    <aura:attribute name="lastScrollY" type="Integer" default="-1" />
+    <aura:attribute name="ticking" type="Boolean" default="false" />
+    <aura:attribute name="simulationOK" type="Boolean" default="false" />
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+    <aura:attribute name="showSaveSpinner" type="Boolean" default="false" />
+
+    <aura:attribute name="config" type="Object" />
+
+    <aura:attribute name="simulationId" type="String" />
+    <aura:attribute name="canPrint" type="Boolean" />
+    <aura:attribute name="alreadySentEmail" type="Boolean" />
+    <aura:attribute name="canCompute" type="Boolean" default="true" />
+
+    <!-- Colors -->
+    <aura:attribute name="colorCDP" type="String" default="rgb(45, 50, 170)" />
+    <aura:attribute name="colorCDPExtraUE" type="String" default="rgb(0, 120, 179)" />
+    <aura:attribute name="colorComm" type="String" default="rgb(0, 184, 222)" />
+    <aura:attribute name="colorCommExtraUE" type="String" default="rgb(68, 84, 106)" />
+    <aura:attribute name="colorBancomat" type="String" default="rgb(163, 163, 179)" />
+    <aura:attribute name="colorAsian" type="String" default="rgb(125, 185, 163)" />
+
+    <aura:attribute name="record" type="BT_Simulation__c" required="true" />
+    <aura:attribute name="mode" type="String" default="" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="recordChangedEvent" event="c:BT_recordChangedEvt" action="{!c.handleRecordChangedEvent}" />
+
+    <aura:if isTrue="{!v.showSpinner}">
+    <lightning:spinner variant="brand" size="large" alternativeText="please wait" />
+    </aura:if>
+
+    <aura:if isTrue="{!v.showSaveSpinner}">
+    <lightning:spinner variant="brand" size="large" alternativeText="please wait" />
+    </aura:if>
+
+    <aura:if isTrue="{!not(or(empty(v.mode), v.showSpinner))}">
+        <c:progressIndicator aura:id="indicator" hasTooltips="true" position="sticky">
+            <c:horizontalProgressStep label="{!$Label.c.BT_ProfiloEsercente}" assistiveText="{!$Label.c.BT_ProfiloEsercente}" tooltip="{!$Label.c.BT_ProfiloEsercente}" value="step1" click="{!c.goToStep}"/>
+            <c:horizontalProgressStep label="{!$Label.c.BT_ConfigurazioneOfferta}" assistiveText="{!$Label.c.BT_ConfigurazioneOfferta}" tooltip="{!$Label.c.BT_ConfigurazioneOfferta}" value="step2" click="{!c.goToStep}" />
+            <c:horizontalProgressStep label="Completamento" assistiveText="Completamento" tooltip="Completamento" value="step3" click="{!c.goToStep}" />    
+        </c:progressIndicator>
+    </aura:if>
+
+    <div id="scroll_container" aura:id="scroll_container">
+        <c:BT_ProfiloEsercente aura:id="profilo_esercente" record="{!v.record}" step="step1" />
+        <aura:if isTrue="{!not(or(empty(v.mode), v.showSpinner))}">
+            <c:BT_ConfigurazioneOfferta emailButtonDisabled="{!v.alreadySentEmail}" printButtonEnabled="{!v.canPrint}" canCompute="{!v.canCompute}" simulationId="{!v.simulationId}" config="{!v.config}" mode="{!v.mode}" record="{!v.record}" showSimulationResult="{!v.simulationOK}" step="step2" sectionCDPColor="{!v.colorCDP}" sectionCDPColorExtraUE="{!v.colorCDPExtraUE}" sectionCommColor="{!v.colorComm}" sectionCommColorExtraUE="{!v.colorCommExtraUE}" sectionBancomatColor="{!v.colorBancomat}" sectionAsianColor="{!v.colorAsian}"/>
+        </aura:if>
+    </div>
+
+    <aura:if isTrue="{!not(or(empty(v.mode), v.showSpinner))}">
+        <div class="statusbar" >
+            <c:BT_IndicazioneFinale aura:id="indicazioneFinale" canCompute="{!v.canCompute}" simulationId="{!v.simulationId}" record="{!v.record}" showSimulationResult="{!v.simulationOK}" />
+        </div>
+    </aura:if>
+</aura:component>

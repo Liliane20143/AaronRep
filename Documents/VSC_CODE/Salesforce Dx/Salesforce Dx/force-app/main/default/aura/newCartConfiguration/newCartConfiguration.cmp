@@ -1,0 +1,278 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+    <aura:attribute name="objectDataMap" type="Object" access="global"/>
+    <aura:attribute name="lightningFromParam"       type="String"       access="global" default="lightningFromVF=false"/>
+    <aura:attribute name="accId" type="String" default="0019E00000bgFXtQAM" />
+    <aura:attribute name="opportunity" type="String" default="0069E0000087jluQAA" />
+    <aura:attribute name="productCategories" type="Object"/>
+    <aura:attribute name="cartList" type="Object"/>
+    <aura:attribute name="offertaId" type="ID"/>
+    <aura:attribute name="configureItem" type="Boolean" default="false" />
+    <aura:attribute name="configureItemChild" type="Boolean" default="false" />
+    <aura:attribute name="offertaAddedToCart" type="Boolean" default="false" />
+    <aura:attribute name="itemAddedToCart" type="Boolean" default="false" />
+    <aura:attribute name="itemRemovedFromCart" type="Boolean" default="false" />
+    <aura:attribute name="listOfCategories" type="Object"/> <!--tutto-->
+    <aura:attribute name="offertChildList" type="Object"/>
+    <aura:attribute name="offertChildSubList" type="Object"/> <!-- figlio di figlio-->
+    <aura:attribute name="contextOutput" type="Object"/>
+    <aura:attribute name="spinner" type="Boolean" default="true"/>
+    <aura:attribute name="listOfItems" type="List"/>
+    <!--<aura:handler name="change" value="{!v.listOfCategories}" action="{!c.onLoadingSpinner}"/>-->
+    <aura:handler action="{!c.onUpdateContext}" event="NE:Bit2win_Event_UpdateContext" />
+    <!--<aura:handler name="init" value="{!this}" action="{!c.doInit}" />-->
+    
+    <ltng:require styles="{! $Resource.jqueryuiCSS}" 
+                  scripts="{!join(',', 
+                           $Resource.JQueryResourceCode ,   
+                           $Resource.jqueryuiJS)
+                           }"/>
+    
+    <!-- francesca.ribezzi 28/08/2018 show spinner -->
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>  
+    
+
+        <div class="slds-col slds-size_2-of-3">
+            <div class="u116" data-label="page title">
+                <p><span>Scegli il terminale</span></p>
+            </div>
+        </div>
+        
+        <!-- cartDetails -->  
+        <div class="slds-grid_vertical slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-small-size_1-of-1 cartContainer">
+            <div class="u172" data-label="title">
+                La tua selezione
+            </div>
+            
+            <div class="u170" data-label="title">
+                <!--  <img id="u1679_img" src="/resource/newCartImages/images/04_-_vas/u520.png"/> -->
+                <div id="u171" class="u171">
+                    <aura:iteration items="{!v.cartList}" var="cartCategory" indexVar="indx">
+                        <div id="{!cartCategory.categoryName}">
+	                        <p style="font-size:12px;">
+	                        	<span style="color:#999999;">{!cartCategory.categoryName}</span>
+	                        </p>
+	                        
+	                        <aura:iteration items="{!cartCategory.items}" var="item" indexVar="indx2">
+	                            <p style="font-size:20px;">
+	                                <span style="font-size:12px;color:#4F6A92;"></span>
+	                                <span style="color:#4F6A92;">{!item.productName}</span>
+	                                <aura:if isTrue="{!item.qty != ''}">
+	                                    <span style="color:#4F6A92;margin-left: 20px;font-size: 14px;">n° {!item.qty}</span>
+	                                </aura:if>
+	                            </p>
+	                        </aura:iteration> 
+                        </div>
+                    </aura:iteration>
+                </div>
+            </div>
+        </div>
+  
+    <!-- cartDetails end-->
+      <!-- 3 of 5 -->
+    <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-5 slds-small-size_1-of-1" id="base">  
+        <aura:iteration items="{!v.productCategories}" var="productCategory" indexVar="indx">
+            
+            
+            <div class="tablelineSlim slds-grid slds-gutters rowHeader">       
+                <div class="u120 slds-col slds-size_2-of-5" data-label="title">
+                    <span>  <div id="u121" class="text">
+                        <span>{!productCategory.categoryName}</span>
+                        </div> </span> 
+                </div>
+                <div class="qty slds-col slds-size_1-of-5 slds-align_absolute-center">
+                    <span>QUANTITÁ</span>
+                </div>
+                <div class="dettagli slds-col slds-size_1-of-5 slds-align_absolute-center">
+                    <span>DETTAGLI E PREZZI</span>
+                </div>
+                <div class="seleziona slds-col slds-size_1-of-5 slds-align_absolute-center">
+                    <span>SELEZIONA</span>
+                </div>
+                <!--   <div class="u124 slds-col">
+              <span> <img id="u124_img" class="line " src="/resource/newCartImages/images/01_-_pos/u132.png"/> </span>  
+            </div> -->
+            </div> 
+            
+            <div id="checkboxwrapper">
+                <aura:iteration items="{!productCategory.items}" var="item" indexVar="indx2">
+                    <!--productRow starts -->
+                    <div class="qtyContainer tablelineSlim">
+                        <div class="slds-grid slds-gutters catalogItemWrapper" id="{!item.id+'_prdRow'}">
+                            <div class="slds-col slds-size_2-of-5" style="margin-top: 1%; margin-bottom: 1%; ">
+                                <span class="slds-grid slds-gutter"> 
+                                    <span class="prd_img slds-col">
+                                        {!item.thumbnailimage}
+                                        <img class="thumbnailimage" src="{!'/servlet/servlet.FileDownload?file='+item.fields.thumbnailimage}" width="60" height="34"/>
+                                    </span>
+                                    <span class="u122 slds-col" data-label="label">
+                                        {!!empty(item.fields.cartDescription)?item.fields.cartDescription:item.fields.productname}
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="slds-col slds-size_1-of-5 slds-align_absolute-center">
+                                <span>
+                                   <p style="text-align: center;"> <span class="u215" data-item="{!item.id}" onclick="{!c.decreaseQty}">
+                                        -
+                                    </span>
+                                    <span> <!-- class u216 deleted -->
+                                        <input class="qtyBox" id="{!item.id+'_qty'}" type="text" value="0"/>
+                                        <!--<p id="{!item.id+'_qty'}">1</p>-->
+                                    </span>
+                                    <span class="u219" data-item="{!item.id}" onclick="{!c.increaseQty}">
+                                        +
+                                    </span>
+                                    </p>
+                                </span>
+                            </div>
+                            <div class="slds-col slds-size_1-of-5 slds-align_absolute-center"> 
+                                <span>
+                                    <div class="showDetails" id="{!item.id+'_showDetails'}" data-item="{!item.id}" onclick="{!c.showDetails}"> 
+                                        <!--    <span class="circle">
+                                <img src="/resource/newCartImages/images/01_-_pos/u270.png"/>
+                            </span> -->
+                                        <span class="arrow_image"> 
+                                            <div class="arrowCircleContainer">
+                                            	<lightning:icon class="arrow" size="small" iconName="utility:down" alternativeText="open details" />
+                                            </div>
+                                            <!-- <img id="u985_img" class="img " src="/resource/newCartImages/images/01_-_pos/u272.png"/> -->
+                                        </span>
+                                    </div>
+                                    <div id="{!item.id+'_hideDetails'}" class="hideDetails hidden"  data-item="{!item.id}" onclick="{!c.hideDetails}"> 
+                                        <!--    <span class="circle">
+                                <img src="/resource/newCartImages/images/01_-_pos/u270.png"/>
+                            </span> -->
+                                        <span class="arrow_image">
+                                         <div class="arrowCircleContainer">
+                                            <lightning:icon size="small" class="arrow" iconName="utility:up" alternativeText="open details" />
+                                            <!-- <img id="u985_img" class="img " src="/resource/newCartImages/images/commissioni___info/u1091a.png"/> -->
+                                          </div>
+                                        </span>
+                                    </div> 
+                                </span> 
+                            </div>     
+                            
+                            <div class="check_box slds-col slds-size_1-of-5 slds-align_absolute-center" data-label="checkbox">
+                                <!--<input type="checkbox" id="{!item.id+'_chkbox'}" onclick="{!c.onCheck}"/>-->
+                                <!--    <lightning:input id="{!item.id}" onchange="{!c.onCheck}" type="checkbox" /> -->
+                                <span><lightning:input style="display: inline-block;" id="{!item.id}" onchange="{!c.onCheck}" type="checkbox" /></span>  
+                            </div>
+                        </div>
+              
+                    
+                    <div id="{!item.id+'_info'}" class="commissioni_info hidden">
+                        <div id="{!item.id+'_infoColor'}" class="slds-grid slds-gutters catalogItemWrapper wrapItemDetails">
+                        
+                            <div class="comm_dettaglio slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-small-size_1-of-1">    <!-- QUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII -->
+                                <span>  <aura:unescapedHtml value="{!item.fields.description}" /> </span>  
+                            </div>
+                           
+                            <div class="canone_dettaglio">
+                               
+                                    <div class="slds-grid slds-gutters rowDetail topBorderItemDetail">
+                                   
+                                        <div class="slds-col slds-size_3-of-4"> 
+                                            <span>
+                                                <div class="u1049">
+                                                    <p style="font-size:14px;">
+                                                        <span style="font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:700;color:#4F6A92;">CANONE DI LOCAZIONE</span>
+                                                    </p><p style="font-size:12px;"><span style="font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:700;color:#4F6A92;"></span>
+                                                    <span style="font-family:'Salesforce Sans';font-weight:400;">mensile per ogni terminale installato e attivato (indipendentemente dal numero di servizi attivati)</span></p>
+                                                    
+                                                </div>
+                                            </span>
+                                        </div>
+                                        <div class="slds-col"> 
+                                            <span> 
+                                                <div class="u1051">
+                                                    <!--    <p><span style="font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:700;color:#000000;">35,00</span>
+                                    <span style="font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:700;"> </span>
+                                    <span style="font-family:'Salesforce Sans Light', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:300;">€</span></p> -->
+                                                    
+                                                   <p class="priceInput"> <span><input id="{!item.id+'_itemPrice'+indx2}" class="f217" name="input1" label="" style="font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:700;color:#000000;" value="35,00" readonly="true"/></span>
+                                                        <span style="font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:700;"> </span>
+                                                        <span style="font-family:'Salesforce Sans Light', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:300;">€</span> </p>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+       							
+                                    <div class="slds-grid slds-gutters" style="margin-right: 0; margin-left=0;">
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-small-size_3-of-4"> 
+                                            <span>
+                                                <div class="u1049a">
+                                                    <p style="font-size:14px;"><span style="font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:700;color:#4F6A92;">INSTALLAZIONE POS</span></p>
+                                                    <p style="font-size:12px;"><span style="font-family:'Salesforce Sans';font-weight:400;">(una tantum)</span></p>
+                                                </div>
+                                            </span>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-small-size_1-of-4"> 
+                                            <span>
+                                                <div class="u1051a">
+                                                    
+                                                    <p class="priceInput"><span><input id="{!item.id+'_itemPrice'+indx2}" class="f217" name="input2" label="" style="font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:700;color:#000000;" value="150,00" readonly="true"/></span>
+                                                        <span style="font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:700;"> </span>
+                                                        <span style="font-family:'Salesforce Sans Light', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:300;">€</span></p>
+                                                </div>
+                                            </span>
+                                        </div>
+                                        <!--      <div class="u1076">
+                                <img src="/resource/newCartImages/images/commissioni___info/u1076.png"/>
+                            </div> -->
+                                </div>
+                                        <div class="slds-grid slds-gutters rowDetail economicConditionsGutters">
+                                            <div class="economicConditionsContainer slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-small-size_3-of-4"> 
+                                                <span> 
+                                                    <div class="u1078">
+                                                        <p><span>ALTRE CONDIZIONI ECONOMICHE</span></p>
+                                                    </div>
+                                                    <div class="u1057">
+                                                        <p><span>Attivazione carte di credito tardiva (richiesta dopo la firma del contratto):</span></p>
+                                                    </div>
+                                                </span>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-small-size_1-of-4"> 
+                                                <span>
+                                                    <div class="u1051a">
+                                                        <p class="priceInput"><span><input id="{!item.id+'_itemPrice'+indx2}" class="f217" name="input3" label="" style="font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:700;color:#000000;" value="55,50" readonly="true"/></span>
+                                                            <span style="font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:700;"> </span>
+                                                            <span style="font-family:'Salesforce Sans Light', 'Salesforce Sans Regular', 'Salesforce Sans';font-weight:300;">€</span></p>
+                                                    </div>
+                                                </span>
+                                            </div>
+                                        </div>
+                                 
+                        </div>
+                    </div>
+                    </div>
+                    <!--productRow ends -->
+                    
+                    </div>
+                    
+                    <!--<div id="comissionebtn" style="margin-left: 51px;cursor:pointer">
+                                            <div class="u212" data-label="btn">
+                                                <p><span>Vedi commissioni</span></p>
+                                            </div>
+                                            <div class="u221" data-label="ico CHEVRON-right">
+                                                <img src="/resource/newCartImages/images/rollover/ico_chevron-right_u221.png" width="12"/>
+                                            </div>
+                                        </div>-->
+                    <!--       <div class="u124">
+                        <img id="u124_img" class="line" src="/resource/newCartImages/images/01_-_pos/u132.png"/>
+                    </div> -->
+                </aura:iteration>
+            </div>
+        </aura:iteration>
+    </div>
+    <!--<div style="float:right;margin-top:40px">
+                <lightning:button variant="brand" label="Next" title="Next" onclick="{! c.nextStep }"/>
+            </div>-->
+    
+</aura:component>

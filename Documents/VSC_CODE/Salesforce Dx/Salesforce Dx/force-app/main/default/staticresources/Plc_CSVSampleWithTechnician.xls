@@ -1,0 +1,13 @@
+serialNumbers,manufacturerAlias,productSku,technician
+12345001,alias1,SKU001,Mario Rossi
+12345002,alias1,SKU001,Mario Rossi
+12345003,alias1,SKU001,Mario Rossi
+12345004,alias1,SKU001,Mario Rossi
+12345005,alias1,SKU001,Mario Rossi
+12345006,alias2,SKU002,Mario Rossi
+12345007,alias2,SKU002,12345
+12345008,alias2,SKU002,12345
+12345009,alias2,SKU002,12346
+12345010,alias3,SKU003,12347
+12345011,alias3,SKU003,12348
+12345012,alias3,SKU003,12349

@@ -1,0 +1,6 @@
+<aura:component controller="OB_ContinuationController" implements="flexipage:availableForAllPageTypes" access="global">
+    <aura:handler  event="c:OB_ContinuationRequest" action="{!c.onContinuationRequest}"/>
+    <c:OB_ContinuationComponentTest aura:id="proxy" />
+    <!--<c:continuationComponent aura:id="con" />-->
+
+</aura:component>

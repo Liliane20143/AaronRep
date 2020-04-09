@@ -1,0 +1,5 @@
+<aura:event type="APPLICATION" description="General Application Event" >
+  <aura:attribute name="type" default="DATA_CHANGE" type="string" description="could be anything"/>
+  <aura:attribute name="data" default="{}" type="Object" description="Object holding changed data"/>
+  <aura:attribute name="selectedABI" default="[]" type="Object[]" description="Used to store selected ABI"/>
+</aura:event>

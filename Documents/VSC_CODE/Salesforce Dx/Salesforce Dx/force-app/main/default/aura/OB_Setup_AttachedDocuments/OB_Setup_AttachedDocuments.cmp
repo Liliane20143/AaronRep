@@ -1,0 +1,72 @@
+<aura:component access="global" controller="OB_Setup_AttachedDocs_CC" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes">
+    <aura:attribute name="documentsListMerchant" type="String[]"/> 
+    <aura:attribute name="documentsListServicePoint" type="String[]"/> 
+    <aura:attribute name="documentsList" type="String[]"/> 
+    <aura:attribute name="response" type="Object"/> 
+    <aura:attribute name="commercialProducts" type="NE__Product__c[]"/>
+    <aura:attribute name="objectDataMap" type="Object"   access="global"/>
+    <aura:attribute name="myMap" type="Map" default="{}" access="global"/>
+    <aura:attribute name="isToUpdate" type="Boolean" default= "true" access="global"/>
+    <aura:attribute name="hasMessage" type="Boolean" default= "false" access="global"/>
+    <aura:attribute name="showSpinner" type="Boolean" default= "true" access="global"/>
+    
+    <aura:handler name="change" value="{!v.myMap}" action="{!c.checkAllTrue}"/>
+    <aura:handler name="change" value="{!v.objectDataMap.missingDocs}" action="{!c.showBanner}"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:if isTrue="{!v.hasMessage}">
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+            <span class="slds-assistive-text">{!$Label.c.OB_MAINTENANCE_TOASTERROR}</span>
+            <span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small" title="Description of icon when needed">
+
+            </span>
+            <h2>{!$Label.c.OB_missingDocs}</h2>&#160;&#160;
+            <lightning:icon class="icon" iconName="utility:close"  variant="inverse" size="x-small"/> 
+            <button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" onclic= "{!c.hideError}" title="{!$Label.c.OB_Close}">
+                <span class="slds-assistive-text">{!$Label.c.OB_Close}</span>
+            </button>
+        </div>
+    </aura:if>
+
+    <aura:if isTrue = "{!v.showSpinner}">
+            <div class="demo-only demo--inverse" style="height: 6rem;">
+                    <div class="slds-spinner_container">
+                    <div role="status" class="slds-spinner slds-spinner_medium">
+                    <span class="slds-assistive-text">Loading</span>
+                    <div class="slds-spinner__dot-a"></div>
+                    <div class="slds-spinner__dot-b"></div>
+                    </div>
+                    </div>
+                    </div>
+    </aura:if>
+    
+    <div class="slds-align_absolute-center" style="width:70%;">
+        <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal"> 
+            <tbody>
+                <aura:if isTrue = "{!!empty(v.documentsList)}">
+                    <aura:if isTrue="{!!empty(v.documentsListMerchant)}">
+                        <div class="slds-m-top--x-small flow-section-separator-container">
+                            <legend class="slds-form-element__label">MERCHANT</legend>
+                        </div>
+                        <aura:iteration items="{!v.documentsListMerchant}" var="docMerchant">
+                            <c:OB_Setup_singleAttachedDocumentations singleDoc="{!docMerchant}" />	
+                        </aura:iteration>
+                    </aura:if>
+                    <aura:if isTrue = "{!!empty(v.documentsListServicePoint)}">
+                        <div class="slds-m-top--x-small flow-section-separator-container">
+                            <legend class="slds-form-element__label">SERVICE POINT</legend>
+                        </div>
+                        <aura:iteration items="{!v.documentsListServicePoint}" var="docSP">
+                            <c:OB_Setup_singleAttachedDocumentations singleDoc="{!docSP}" />		 			
+                        </aura:iteration>
+                    </aura:if>
+                    <aura:set attribute = "else">
+                        <div class = "slds-align_absolute-center">
+                            {!$Label.c.OB_NoDocToLoad}
+                        </div>
+                    </aura:set>
+                </aura:if>
+            </tbody>		 
+        </table>
+    </div>  
+
+</aura:component>

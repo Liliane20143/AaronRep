@@ -1,0 +1,432 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes" controller="BT_AdminCnt">
+
+    <aura:attribute name="record" type="BT_ConfigSimulator__c" default="{'sObjectType': 'BT_ConfigSimulator__c'}" />
+    <aura:attribute name="showSpinner" type="Boolean" default="true" />
+
+    <aura:attribute name="saveButtonDisabled" type="Boolean" default="false" access="private" />
+    <aura:attribute name="hasMarginalitaError" type="Boolean" default="false" access="private" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.record}" action="{!c.onRecordChange}" />
+
+    <aura:if isTrue="{!v.showSpinner}">
+        <lightning:spinner variant="brand" size="large" alternativeText="please wait" />
+        <aura:set attribute="else">
+            <div style="margin-bottom: 20vh;">
+                <lightning:layout pullToBoundary="medium" class="section-container" horizontalAlign="center">
+                    <lightning:layoutItem flexibility="no-grow" padding="around-small" size="3" class="marginalita">
+                        <ui:inputNumber required="true" class="{!'slds-input ' + (v.hasMarginalitaError ? 'has-error' : '')}" format="#####0.00%" label="{#$Label.c.BT_MarginalitaDesiderata + ':'}" value="{!v.record.BT_MarginalitaDesiderataTOTPreventivo__c}" />
+                    </lightning:layoutItem>
+                    <lightning:layoutItem>
+                        <lightning:helptext content="{#$Label.c.BT_PopMarginalitaDesiderata}" iconName="utility:info" />
+                    </lightning:layoutItem>
+                </lightning:layout>
+                <lightning:layout pullToBoundary="medium" class="section-container" horizontalAlign="center">
+                    <lightning:layoutItem flexibility="no-grow" padding="around-small">
+                        <lightning:input type="toggle" messageToggleActive="" messageToggleInactive="" name="{#$Label.c.BT_StampaMarginalitaNegativaCommissioni}" label="{#$Label.c.BT_StampaMarginalitaNegativaCommissioni}" checked="{!v.record.BT_PermettiStampaMargNegCommissioni__c}" onchange="{!c.onPermettiMargNegChange}" />
+                    </lightning:layoutItem> 
+                    <lightning:layoutItem flexibility="no-grow">
+                        <lightning:helptext content="{#$Label.c.BT_PopMargNegCommissioni}" iconName="utility:info" />
+                    </lightning:layoutItem>
+                    <lightning:layoutItem flexibility="no-grow" padding="around-small">
+                        <lightning:input type="toggle" messageToggleActive="" messageToggleInactive="" name="{#$Label.c.BT_StampaMarginalitaNegativaPOS}" label="{#$Label.c.BT_StampaMarginalitaNegativaPOS}" checked="{!v.record.BT_PermettiStampaMargNegPOS__c}" onchange="{!c.onPermettiMargNegChange}"/>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem flexibility="no-grow" >
+                        <lightning:helptext content="{#$Label.c.BT_PopMargNegPOS}" iconName="utility:info" />
+                    </lightning:layoutItem>
+                    <lightning:layoutItem flexibility="no-grow" padding="around-small">
+                        <lightning:input disabled="{!or(v.record.BT_PermettiStampaMargNegCommissioni__c, v.record.BT_PermettiStampaMargNegPOS__c)}" type="toggle" messageToggleActive="" messageToggleInactive="" name="{#$Label.c.BT_PermettiInvioMailDeroga}" label="{#$Label.c.BT_PermettiInvioMailDeroga}" checked="{!v.record.BT_PermettiInvioMailDeroga__c}" />
+                    </lightning:layoutItem>
+                    <lightning:layoutItem flexibility="no-grow" >
+                        <lightning:helptext content="{#$Label.c.BT_PopConsentiMailDeroga}" iconName="utility:info" />
+                    </lightning:layoutItem>
+                </lightning:layout>
+                <c:BT_Section title="{#$Label.c.BT_Commissioni}" />
+                <div style="display: flex; justify-content: space-around;" class="slds-m-bottom_large">
+                    <c:dataTable border="both" striped="true" hover="false" variant="inline-edit"> 
+                        <aura:set attribute="header">
+                            <c:dataTableRow>
+                                <c:dataTableColumn title="{#$Label.c.BT_TipoProdotto}" align="center">{#$Label.c.BT_TipoProdotto}</c:dataTableColumn>
+                                <c:dataTableColumn textVariant="caps" title="{#$Label.c.BT_Commissione + ' ' + $Label.c.BT_Interbancaria + ' ' + $Label.c.BT_IF}" align="center"><span class="slds-text-title_caps">{#$Label.c.BT_Commissione}</span><br/><span class="slds-text-title_caps">{#$Label.c.BT_Interbancaria}</span><br/><span class="slds-text-title_caps">{#$Label.c.BT_IF}</span><lightning:helptext content="{#$Label.c.BT_PopIF}" iconName="utility:info"/></c:dataTableColumn>
+                                <c:dataTableColumn textVariant="caps" title="{#$Label.c.BT_OneriCircuito1 + ' ' + $Label.c.BT_OneriCircuito2}" align="center">{#$Label.c.BT_OneriCircuito1}<br/>{#$Label.c.BT_OneriCircuito2}<lightning:helptext content="{#$Label.c.BT_PopOneriCircuito}" iconName="utility:info"/></c:dataTableColumn>
+                                <c:dataTableColumn textVariant="caps" title="{#$Label.c.BT_CostoNexi1 + ' ' + $Label.c.BT_CostoNexi2}" align="center">{#$Label.c.BT_CostoNexi1}<br/>{#$Label.c.BT_CostoNexi2}</c:dataTableColumn>
+                                <c:dataTableColumn title="{#$Label.c.BT_AltriCosti1 + ' ' + $Label.c.BT_AltriCosti2 + ' ' + $Label.c.BT_AltriCosti3}" align="center"><span class="slds-text-title_caps">{#$Label.c.BT_AltriCosti1}</span><br/><span class="slds-text-title_caps">{#$Label.c.BT_AltriCosti2}</span><br/><span class="slds-text-title_caps">{#$Label.c.BT_AltriCosti3}</span></c:dataTableColumn>
+                                <c:dataTableColumn title="{#$Label.c.BT_CostoNexi1 + ' ' + $Label.c.BT_CostoMinimo2 + ' ' + $Label.c.BT_CostoMinimo3}" align="center"><span class="slds-text-title_caps">{#$Label.c.BT_CostoNexi1}</span><br/><span class="slds-text-title_caps">{#$Label.c.BT_CostoMinimo2}</span><br/><span class="slds-text-title_caps">{#$Label.c.BT_CostoMinimo3}</span></c:dataTableColumn>
+                                <c:dataTableColumn title="{#$Label.c.BT_Benchmark + ' ' + $Label.c.BT_PreImpostato}" align="center"><span class="slds-text-title_caps">{#$Label.c.BT_Benchmark}</span><br/><span class="slds-text-title_caps">{#$Label.c.BT_PreImpostato}</span><lightning:helptext content="{#$Label.c.BT_PopPreImpostato}" iconName="utility:info" /></c:dataTableColumn>
+                            </c:dataTableRow>
+                        </aura:set>
+                        <c:dataTableRow highlighted="true">
+                            <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_CreditoDebitoPrepagate}" textVariant="caps" colspan="7">{#$Label.c.BT_CreditoDebitoPrepagate}</c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISAConsumerCredit}" textVariant="caps">{#$Label.c.BT_VISAConsumerCredit}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VisaConsumerCredit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_VisaConsumerCredit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_VisaConsumerCredit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_VisaConsumerCredit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VisaConsumerCredit__c + v.record.BT_Oneri_VisaConsumerCredit__c + v.record.BT_Costo_VisaConsumerCredit__c + v.record.BT_Altri_VisaConsumerCredit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_VisaConsumerCredit__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISAConsumerCredit + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_VISAConsumerCredit + ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VisaConsumerCreditEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_VisaConsumerCreditEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_VisaConsumerCreditEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_VisaConsumerCreditEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VisaConsumerCreditEEA__c + v.record.BT_Oneri_VisaConsumerCreditEEA__c + v.record.BT_Costo_VisaConsumerCreditEEA__c + v.record.BT_Altri_VisaConsumerCreditEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_VisaConsumerCreditEEA__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISAConsumerPrepaid}" textVariant="caps">{#$Label.c.BT_VISAConsumerPrepaid}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VisaConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_VisaConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_VisaConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_VisaConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_VisaConsumerPrepaid__c + v.record.BT_Oneri_VisaConsumerPrepaid__c + v.record.BT_Costo_VisaConsumerPrepaid__c + v.record.BT_Altri_VisaConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_VisaConsumerPrepaid__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISAConsumerPrepaid + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_VISAConsumerPrepaid + ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VisaConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_VisaConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_VisaConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_VisaConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_VisaConsumerPrepaidEEA__c + v.record.BT_Oneri_VisaConsumerPrepaidEEA__c + v.record.BT_Costo_VisaConsumerPrepaidEEA__c + v.record.BT_Altri_VisaConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_VisaConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISAConsumerDebit}" textVariant="caps">{#$Label.c.BT_VISAConsumerDebit}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VisaConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_VisaConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_VisaConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_VisaConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_VisaConsumerDebit__c + v.record.BT_Oneri_VisaConsumerDebit__c + v.record.BT_Costo_VisaConsumerDebit__c + v.record.BT_Altri_VisaConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_VisaConsumerDebit__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISAConsumerDebit + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_VISAConsumerDebit + ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VisaConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_VisaConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_VisaConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_VisaConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_VisaConsumerDebitEEA__c + v.record.BT_Oneri_VisaConsumerDebitEEA__c + v.record.BT_Costo_VisaConsumerDebitEEA__c + v.record.BT_Altri_VisaConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_VisaConsumerDebitEEA__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VPAYConsumerDebit}" textVariant="caps">{#$Label.c.BT_VPAYConsumerDebit}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VPayConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_VPayConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_VPayConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_VPayConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_VPayConsumerDebit__c + v.record.BT_Oneri_VPayConsumerDebit__c + v.record.BT_Costo_VPayConsumerDebit__c + v.record.BT_Altri_VPayConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_VPayConsumerDebit__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VPAYConsumerDebit + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_VPAYConsumerDebit + ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VPayConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_VPayConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_VPayConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_VPayConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_VPayConsumerDebitEEA__c + v.record.BT_Oneri_VPayConsumerDebitEEA__c + v.record.BT_Costo_VPayConsumerDebitEEA__c + v.record.BT_Altri_VPayConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_VPayConsumerDebitEEA__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VPAYConsumerPrepaid}" textVariant="caps">{#$Label.c.BT_VPAYConsumerPrepaid}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VPayConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_VPayConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_VPayConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_VPayConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_VPayConsumerPrepaid__c + v.record.BT_Oneri_VPayConsumerPrepaid__c + v.record.BT_Costo_VPayConsumerPrepaid__c + v.record.BT_Altri_VPayConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_VPayConsumerPrepaid__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VPAYConsumerPrepaid + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_VPAYConsumerPrepaid+ ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VPayConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_VPayConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_VPayConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_VPayConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_VPayConsumerPrepaidEEA__c + v.record.BT_Oneri_VPayConsumerPrepaidEEA__c + v.record.BT_Costo_VPayConsumerPrepaidEEA__c + v.record.BT_Altri_VPayConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_VPayConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardConsumerCredit}" textVariant="caps">{#$Label.c.BT_MasterCardConsumerCredit}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MastercardConsumerCredit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MastercardConsumerCredit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MastercardConsumerCredit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MastercardConsumerCredit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MastercardConsumerCredit__c + v.record.BT_Oneri_MastercardConsumerCredit__c + v.record.BT_Costo_MastercardConsumerCredit__c + v.record.BT_Altri_MastercardConsumerCredit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MastercardConsumerCredit__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardConsumerCredit + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_MasterCardConsumerCredit + ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MastercardConsumerCreditEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MastercardConsumerCreditEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MastercardConsumerCreditEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MastercardConsumerCreditEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MastercardConsumerCreditEEA__c + v.record.BT_Oneri_MastercardConsumerCreditEEA__c + v.record.BT_Costo_MastercardConsumerCreditEEA__c + v.record.BT_Altri_MastercardConsumerCreditEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MastercardConsumerCreditEEA__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardConsumerDebit}" textVariant="caps">{#$Label.c.BT_MasterCardConsumerDebit}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MastercardConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MastercardConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MastercardConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MastercardConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MastercardConsumerDebit__c + v.record.BT_Oneri_MastercardConsumerDebit__c + v.record.BT_Costo_MastercardConsumerDebit__c + v.record.BT_Altri_MastercardConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MastercardConsumerDebit__c}" /></c:dataTableColumn>    
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardConsumerDebit + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_MasterCardConsumerDebit + ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MastercardConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MastercardConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MastercardConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MastercardConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MastercardConsumerDebitEEA__c + v.record.BT_Oneri_MastercardConsumerDebitEEA__c + v.record.BT_Costo_MastercardConsumerDebitEEA__c + v.record.BT_Altri_MastercardConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MastercardConsumerDebitEEA__c}" /></c:dataTableColumn>    
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardConsumerPrepaid}" textVariant="caps">{#$Label.c.BT_MasterCardConsumerPrepaid}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MastercardConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MastercardConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MastercardConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MastercardConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MastercardConsumerPrepaid__c + v.record.BT_Oneri_MastercardConsumerPrepaid__c + v.record.BT_Costo_MastercardConsumerPrepaid__c + v.record.BT_Altri_MastercardConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MastercardConsumerPrepaid__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardConsumerPrepaid + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_MasterCardConsumerPrepaid + ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MastercardConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MastercardConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MastercardConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MastercardConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MastercardConsumerPrepaidEEA__c + v.record.BT_Oneri_MastercardConsumerPrepaidEEA__c + v.record.BT_Costo_MastercardConsumerPrepaidEEA__c + v.record.BT_Altri_MastercardConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MastercardConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MaestroConsumerDebit}" textVariant="caps">{#$Label.c.BT_MaestroConsumerDebit}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MaestroConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MaestroConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MaestroConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MaestroConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MaestroConsumerDebit__c + v.record.BT_Oneri_MaestroConsumerDebit__c + v.record.BT_Costo_MaestroConsumerDebit__c + v.record.BT_Altri_MaestroConsumerDebit__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MaestroConsumerDebit__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MaestroConsumerDebit + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_MaestroConsumerDebit + ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MaestroConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MaestroConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MaestroConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MaestroConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MaestroConsumerDebitEEA__c + v.record.BT_Oneri_MaestroConsumerDebitEEA__c + v.record.BT_Costo_MaestroConsumerDebitEEA__c + v.record.BT_Altri_MaestroConsumerDebitEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MaestroConsumerDebitEEA__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MaestroConsumerPrepaid}" textVariant="caps">{#$Label.c.BT_MaestroConsumerPrepaid}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MaestroConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MaestroConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MaestroConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MaestroConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MaestroConsumerPrepaid__c + v.record.BT_Oneri_MaestroConsumerPrepaid__c + v.record.BT_Costo_MaestroConsumerPrepaid__c + v.record.BT_Altri_MaestroConsumerPrepaid__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MaestroConsumerPrepaid__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MaestroConsumerPrepaid + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_MaestroConsumerPrepaid + ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MaestroConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MaestroConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MaestroConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MaestroConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MaestroConsumerPrepaidEEA__c + v.record.BT_Oneri_MaestroConsumerPrepaidEEA__c + v.record.BT_Costo_MaestroConsumerPrepaidEEA__c + v.record.BT_Altri_MaestroConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MaestroConsumerPrepaidEEA__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow highlighted="true">
+                            <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_Commercial}" textVariant="caps" colspan="7">{#$Label.c.BT_Commercial}</c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISACommercial}" textVariant="caps">{#$Label.c.BT_VISACommercial}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VisaCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_VisaCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_VisaCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_VisaCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_VisaCommercial__c + v.record.BT_Oneri_VisaCommercial__c + v.record.BT_Costo_VisaCommercial__c + v.record.BT_Altri_VisaCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_VisaCommercial__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_VISACommercial + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_VISACommercial + ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_VisaCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_VisaCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_VisaCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_VisaCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_VisaCommercialEEA__c + v.record.BT_Oneri_VisaCommercialEEA__c + v.record.BT_Costo_VisaCommercialEEA__c + v.record.BT_Altri_VisaCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_VisaCommercialEEA__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MaestroCommercial}" textVariant="caps">{#$Label.c.BT_MaestroCommercial}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MaestroCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MaestroCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MaestroCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MaestroCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MaestroCommercial__c + v.record.BT_Oneri_MaestroCommercial__c + v.record.BT_Costo_MaestroCommercial__c + v.record.BT_Altri_MaestroCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MaestroCommercial__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MaestroCommercial + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_MaestroCommercial + ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MaestroCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MaestroCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MaestroCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MaestroCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MaestroCommercialEEA__c + v.record.BT_Oneri_MaestroCommercialEEA__c + v.record.BT_Costo_MaestroCommercialEEA__c + v.record.BT_Altri_MaestroCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MaestroCommercialEEA__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardCommercial}" textVariant="caps">{#$Label.c.BT_MasterCardCommercial}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MastercardCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MastercardCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MastercardCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MastercardCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MastercardCommercial__c + v.record.BT_Oneri_MastercardCommercial__c + v.record.BT_Costo_MastercardCommercial__c + v.record.BT_Altri_MastercardCommercial__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MastercardCommercial__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MasterCardCommercial + ' ' + $Label.c.BT_ExtraEEA}" textVariant="caps">{#$Label.c.BT_MasterCardCommercial + ' ' + $Label.c.BT_ExtraEEA}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_MastercardCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_MastercardCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_MastercardCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_MastercardCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_MastercardCommercialEEA__c + v.record.BT_Oneri_MastercardCommercialEEA__c + v.record.BT_Costo_MastercardCommercialEEA__c + v.record.BT_Altri_MastercardCommercialEEA__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_MastercardCommercialEEA__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow highlighted="true">
+                            <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_PagoBancomat}" textVariant="caps" colspan="7">{#$Label.c.BT_PagoBancomat}</c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_PagoBancomat}" textVariant="caps">{#$Label.c.BT_PagoBancomat}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_Pagobancomat__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_Pagobancomat__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_Pagobancomat__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_Pagobancomat__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_Pagobancomat__c + v.record.BT_Oneri_Pagobancomat__c + v.record.BT_Costo_Pagobancomat__c + v.record.BT_Altri_Pagobancomat__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_Pagobancomat__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow highlighted="true">
+                            <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_CircuitiAsiatici}" textVariant="caps" colspan="7">{#$Label.c.BT_CircuitiAsiatici}</c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_JCB}" textVariant="caps">{#$Label.c.BT_JCB}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_Jcb__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_Jcb__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_Jcb__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_Jcb__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_Jcb__c + v.record.BT_Oneri_Jcb__c + v.record.BT_Costo_Jcb__c + v.record.BT_Altri_Jcb__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_JCB__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow>
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_UPI}" textVariant="caps">{#$Label.c.BT_UPI}</c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_IF_Upi__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Oneri_Upi__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00%" value="{!v.record.BT_Costo_Upi__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Altri_Upi__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:outputNumber format="#####0.00%"  value="{!v.record.BT_IF_Upi__c + v.record.BT_Oneri_Upi__c + v.record.BT_Costo_Upi__c + v.record.BT_Altri_Upi__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input"><ui:inputNumber class="slds-input" format="#####0.00%" value="{!v.record.BT_Bench_Upi__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                    </c:dataTable>
+                </div>
+                <aura:if isTrue="{! or(v.record.BT_Enable_Smartpos__c, v.record.BT_Enable_SmartposCassa__c, v.record.BT_Enable_SmartposPremium__c, v.record.BT_Enable_SmartposCassaPremium__c, v.record.BT_Enable_PosTradSmartPstnEth__c, v.record.BT_Enable_PosCordSmartPstnEth__c, v.record.BT_Enable_PosPortatileGprsSmart__c, v.record.BT_Enable_MobilePosSmart__c, v.record.BT_Enable_PosTradizionalePremium__c, v.record.BT_Enable_PosCordlessWifiPremium__c, v.record.BT_Enable_PosPortatile3gPremium__c) }">
+                <c:BT_Section title="{#$Label.c.BT_SezPOSFisici}" />
+                <div style="display: flex; justify-content: space-around;" class="slds-m-bottom_large">
+                    <c:dataTable border="both" striped="true" hover="false" variant="inline-edit"> 
+                        <aura:set attribute="header">
+                            <c:dataTableRow>
+                                <c:dataTableColumn title="{#$Label.c.BT_TerminalePOS}" align="center">{#$Label.c.BT_TerminalePOS}</c:dataTableColumn>
+                                <c:dataTableColumn title="{#$Label.c.BT_Descrizione}" align="center">{#$Label.c.BT_Descrizione}</c:dataTableColumn>
+                                <c:dataTableColumn textVariant="caps" title="{#$Label.c.BT_CostoNexi1 + ' ' + $Label.c.BT_CostoMinimo2 + ' ' + $Label.c.BT_CostoMinimo3}" align="center">{#$Label.c.BT_CostoNexi1}<br/>{#$Label.c.BT_CostoMinimo2}<br/>{#$Label.c.BT_CostoMinimo3}</c:dataTableColumn>
+                                <c:dataTableColumn title="{#$Label.c.BT_CostoNexi1 + ' ' + $Label.c.BT_CostoNexi2}" align="center"><span class="slds-text-title_caps">{#$Label.c.BT_CostoNexi1}</span><br/><span class="slds-text-title_caps">{#$Label.c.BT_CostoNexi2}</span></c:dataTableColumn>
+                            </c:dataTableRow>
+                        </aura:set>
+                        <c:dataTableRow highlighted="true" rendered="{!or(v.record.BT_Enable_Smartpos__c, v.record.BT_Enable_SmartposCassa__c, v.record.BT_Enable_SmartposPremium__c, v.record.BT_Enable_SmartposCassaPremium__c)}">
+                            <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_TerminaliSmartPOS}" textVariant="caps" colspan="4" tdStyleBColor="{!v.tbBackGrey}">{#$Label.c.BT_TerminaliSmartPOS}</c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow rendered="{!v.record.BT_Enable_Smartpos__c}">
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_SmartPOS}" textVariant="caps">{#$Label.c.BT_SmartPOS}</c:dataTableColumn>
+                            <c:dataTableColumn title="{#$Label.c.BT_DescrSmartPOS}" class="pos-descr-column">{#$Label.c.BT_DescrSmartPOS}</c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_Min_Smartpos__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00€" value="{!v.record.BT_Consigliato_Smartpos__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow rendered="{!v.record.BT_Enable_SmartposCassa__c}">
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_SmartPOSCassa}" textVariant="caps">{#$Label.c.BT_SmartPOSCassa}</c:dataTableColumn>
+                            <c:dataTableColumn title="{#$Label.c.BT_DescrSmartPOSCassa}" class="pos-descr-column">{#$Label.c.BT_DescrSmartPOSCassa}</c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_Min_SmartposCassa__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00€" value="{!v.record.BT_Consigliato_SmartposCassa__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow rendered="{!v.record.BT_Enable_SmartposPremium__c}">
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_SmartPOSPremium}" textVariant="caps">{#$Label.c.BT_SmartPOSPremium}</c:dataTableColumn>
+                            <c:dataTableColumn title="{#$Label.c.BT_DescrSmartPOSPremium}" class="pos-descr-column">{#$Label.c.BT_DescrSmartPOSPremium}</c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_Min_SmartposPremium__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00€" value="{!v.record.BT_Consigliato_SmartposPremium__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow rendered="{!v.record.BT_Enable_SmartposCassaPremium__c}">
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_SmartPOSCassaPremium}" textVariant="caps">{#$Label.c.BT_SmartPOSCassaPremium}</c:dataTableColumn>
+                            <c:dataTableColumn title="{#$Label.c.BT_DescrSmartPOSCassaPremium}" class="pos-descr-column">{#$Label.c.BT_DescrSmartPOSCassaPremium}</c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_Min_SmartposCassaPremium__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00€" value="{!v.record.BT_Consigliato_SmartposCassaPremium__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow highlighted="true"  rendered="{!or(v.record.BT_Enable_PosTradSmartPstnEth__c, v.record.BT_Enable_PosCordSmartPstnEth__c, v.record.BT_Enable_PosPortatileGprsSmart__c, v.record.BT_Enable_MobilePosSmart__c, v.record.BT_Enable_PosTradizionalePremium__c, v.record.BT_Enable_PosCordlessWifiPremium__c, v.record.BT_Enable_PosPortatile3gPremium__c)}">
+                            <c:dataTableColumn class="text-bold" title="{#$Label.c.BT_TerminaliTradizionali}" textVariant="caps" colspan="4" tdStyleBColor="{!v.tbBackGrey}">{#$Label.c.BT_TerminaliTradizionali}</c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow rendered="{!v.record.BT_Enable_PosTradSmartPstnEth__c}">
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_POSTradizionaleSmart}" textVariant="caps">{#$Label.c.BT_POSTradizionaleSmart}</c:dataTableColumn>
+                            <c:dataTableColumn title="{#$Label.c.BT_DescrPOSTradizionaleSmart}" class="pos-descr-column">{#$Label.c.BT_DescrPOSTradizionaleSmart}</c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_Min_PosTradSmartPstnEth__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00€" value="{!v.record.BT_Consigliato_PosTradSmartPstnEth__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow rendered="{!v.record.BT_Enable_PosCordSmartPstnEth__c}">
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_POSCordlessSmart}" textVariant="caps">{#$Label.c.BT_POSCordlessSmart}</c:dataTableColumn>
+                            <c:dataTableColumn title="{#$Label.c.BT_DescrPOSCordlessSmart}" class="pos-descr-column">{#$Label.c.BT_DescrPOSCordlessSmart}</c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_Min_PosCordSmartPstnEth__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00€" value="{!v.record.BT_Consigliato_PosCordSmartPstnEth__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow rendered="{!v.record.BT_Enable_PosPortatileGprsSmart__c}">
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_POSPortatileGPRSSmart}" textVariant="caps">{#$Label.c.BT_POSPortatileGPRSSmart}</c:dataTableColumn>
+                            <c:dataTableColumn title="{#$Label.c.BT_DescrPOSPortatileGPRSSmart}" class="pos-descr-column">{#$Label.c.BT_DescrPOSPortatileGPRSSmart}</c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_Min_PosPortatileGprsSmart__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00€" value="{!v.record.BT_Consigliato_PosPortatileGprsSmart__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow rendered="{!v.record.BT_Enable_MobilePosSmart__c}">
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_MobilePOSSmart}" textVariant="caps">{#$Label.c.BT_MobilePOSSmart}</c:dataTableColumn>
+                            <c:dataTableColumn title="{#$Label.c.BT_DescrMobilePOSSmart}" class="pos-descr-column">{#$Label.c.BT_DescrMobilePOSSmart}</c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_Min_MobilePosSmart__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00€" value="{!v.record.BT_Consigliato_MobilePosSmart__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow rendered="{!v.record.BT_Enable_PosTradizionalePremium__c}">
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_POSTradizionalePremium}" textVariant="caps">{#$Label.c.BT_POSTradizionalePremium}</c:dataTableColumn>
+                            <c:dataTableColumn title="{#$Label.c.BT_DescrPOSTradizionalePremium}" class="pos-descr-column">{#$Label.c.BT_DescrPOSTradizionalePremium}</c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_Min_PosTradizionalePremium__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00€" value="{!v.record.BT_Consigliato_PosTradizionalePremium__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow rendered="{!v.record.BT_Enable_PosCordlessWifiPremium__c}">
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_POSCordlessWIFIPremium}" textVariant="caps">{#$Label.c.BT_POSCordlessWIFIPremium}</c:dataTableColumn>
+                            <c:dataTableColumn title="{#$Label.c.BT_DescrPOSCordlessWIFIPremium}" class="pos-descr-column">{#$Label.c.BT_DescrPOSCordlessWIFIPremium}</c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_Min_PosCordlessWifiPremium__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00€" value="{!v.record.BT_Consigliato_PosCordlessWifiPremium__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                        <c:dataTableRow rendered="{!v.record.BT_Enable_PosPortatile3gPremium__c}">
+                            <c:dataTableColumn buffer="left" title="{#$Label.c.BT_POSPortatile3GPremium}" textVariant="caps">{#$Label.c.BT_POSPortatile3GPremium}</c:dataTableColumn>
+                            <c:dataTableColumn title="{#$Label.c.BT_DescrPOSPortatile3GPremium}" class="pos-descr-column">{#$Label.c.BT_DescrPOSPortatile3GPremium}</c:dataTableColumn>
+                            <c:dataTableColumn align="center" class="has-input inline-flex"><ui:inputNumber class="slds-input" format="#####0.00 €" value="{!v.record.BT_Min_PosPortatile3gPremium__c}" /></c:dataTableColumn>
+                            <c:dataTableColumn align="center"><ui:outputNumber format="#####0.00€" value="{!v.record.BT_Consigliato_PosPortatile3gPremium__c}" /></c:dataTableColumn>
+                        </c:dataTableRow>
+                    </c:dataTable>
+                </div>
+                </aura:if>
+            </div>
+            <div class="statusbar">
+                <lightning:layout pullToBoundary="medium" horizontalAlign="center">
+                    <lightning:layoutItem flexibility="auto" class="slds-p-bottom_small slds-p-top_small">
+                        <div class="slds-text-align_center">   
+                            <lightning:button disabled="{!v.saveButtonDisabled}" label="{#$Label.c.BT_Salva}" iconName="utility:save" iconPosition="left"  variant="brand" onclick="{!c.doSave}" />
+                        </div>
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </div>
+        </aura:set>
+    </aura:if>
+</aura:component>

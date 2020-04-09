@@ -1,0 +1,95 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" 
+                access="global"
+                controller="OB_IdentifyCompany_CC">
+
+    <!--OBJECT DATA MAP-->
+    <aura:attribute name="objectDataMap"                    type="Object"       default="{}"            access="global"/>
+    <!-- ATTRIBUTE BOOLEAN ERRORS-->
+    <aura:attribute name= "ErrorBooleanannualRevenue"  		type="Boolean"      default="false"         access="global"/>
+    <aura:attribute name= "ErrorBooleanannualNegotiated"  	type="Boolean"      default="false"         access="global"/>
+    <!-- ATTRIBUTE CONTAINING PICKLIST VALUES-->
+    <aura:attribute name="valuePreviousEmplNumb"            type ="String"   	                                       />
+    <!-- ATTRIBUTE MESSAGE ERRORS-->
+    <aura:attribute name= "ErrorMessageannualNegotiated"  	type="String"       default=""              access="global"/>
+    <aura:attribute name= "ErrorMessageannualRevenue"  		type="String"       default=""              access="global"/>
+    <!--EMPLOYEES NUMBER-->
+    <aura:attribute name="employeesNumberList"              type="List"      default=""				    access="global"/>
+    
+
+    <aura:handler name="init"           value="{!this}"              action="{!c.doInit}"/>
+	
+	<div class="slds-grid slds-size--1-of-1" >
+        <!--START NEW RADIO BUTTON NOW PICKLSIT-->
+        <div class="slds-size--1-of-2 slds-grid">						
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label" for="inputNameSample1"><abbr class="slds-required" title="required">*</abbr>{!$Label.c.Annual_Revenue}</label>
+                    <lightning:input    id="annualRevenue"
+                                        aura:id="annualRevenue"
+                                        type="number"
+                                        name="name"
+                                        onkeydown = "{!c.removeRedBorder}"
+                                        variant="label-hidden"
+                                        value="{!v.objectDataMap.merchant.OB_Annual_Revenue__c}"
+                                        class="flow_required"
+                                        title="Merchant_annualRevenue"
+                                        onblur="{!c.validateAnnualRevenue}"
+                    />
+
+                    <aura:if isTrue="{!v.ErrorBooleanannualRevenue}">
+                        <div class="error-input-message">
+                            {!v.ErrorMessageannualRevenue}                      
+                        </div>
+                    </aura:if>
+                </div>
+            </div>					
+        </div>
+        <!--START NEGOZIATO ANNUO-->				
+        <div class="slds-size--1-of-2 slds-grid">						
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label" for="inputNameSample1" >{!$Label.c.AnnualNegotiated}</label>
+                    <lightning:input id="annualNegotiated"
+                        aura:id="annualNegotiated"
+                        type="number"
+                        name="Merchant_annualNegotiated"
+                        onkeydown = "{!c.removeRedBorder}"
+                        variant="label-hidden"
+                        value="{!v.objectDataMap.merchant.OB_Annual_Negotiated__c }"
+                        onblur="{! c.validateAnnualRevenue}"
+                        />
+                        <aura:if isTrue="{!v.ErrorBooleanannualNegotiated}">
+                            <div class="error-input-message">
+                                {!v.ErrorMessageannualNegotiated}                      
+                            </div>
+                        </aura:if>
+                </div>
+            </div>					
+        </div> 
+    </div>
+    <div class="slds-grid slds-size--1-of-1" >
+        <!--START NEW RADIO BUTTON NOW PICKLSIT-->
+        <div class="slds-size--1-of-2 slds-grid">						
+            <div class="slds-form-element slds-small-size--12-of-12 slds-large-size--12-of-12">
+                <div class="slds-p-around--medium slds-form-element">
+                    <label class="slds-form-element__label" for="inputNameSample1"  style="margin-top: -4px; position: absolute;"><abbr class="slds-required" title="required">*</abbr>{!$Label.c.employeesNumber}</label>
+                        <lightning:select   name="mySelect" 
+                                        aura:id="employeesNumber"
+                                        label=""  
+                                        value="{!v.objectDataMap.merchant.OB_Employees_Number__c}" 
+                                        disabled="{!v.hideField}"
+                                        onchange="{!c.setPickListValue}"
+                                        title="Merchant_mySelect">
+                            <!-- START shaghyegh.tofighian 20/05/2019 R1F2-63-->
+                            <option value="{!v.objectDataMap.merchant.OB_Employees_Number__c}" >{!v.objectDataMap.merchant.OB_Employees_Number__c}</option>
+                            <option value="" ></option>
+                            <!-- END shaghyegh.tofighian 20/05/2019 R1F2-63- -->
+                            <aura:iteration items="{!v.employeesNumberList}" var="item3">
+                                <option text="{!item3.value}" value="{!item3.key}" selected="{!item3.value == v.valuePreviousEmplNumb}"/>
+                        </aura:iteration>
+                    </lightning:select>
+                </div>
+            </div>
+        </div>
+    </div>
+</aura:component>

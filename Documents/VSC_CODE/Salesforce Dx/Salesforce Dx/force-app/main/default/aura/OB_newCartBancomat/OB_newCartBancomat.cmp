@@ -1,0 +1,272 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+    
+    <aura:attribute name="objectDataMap" type="Object" access="global"/>
+    <aura:attribute name="productCategories" type="Object"/>
+    <aura:attribute name="cartList" type="Object"/>
+    <aura:attribute name="cartListTotal" type="Integer" default="0"/>
+    <aura:attribute name="offertaId" type="ID"/>
+    <aura:attribute name="configureItem" type="Boolean" default="false" />
+    <aura:attribute name="configureItemChild" type="Boolean" default="false" />
+    <aura:attribute name="offertaAddedToCart" type="Boolean" default="true" />
+    <aura:attribute name="itemAddedToCart" type="Boolean" default="false" />
+    <aura:attribute name="itemRemovedFromCart" type="Boolean" default="false" />
+    <aura:attribute name="listOfCategories" type="Object"/> <!--tutto-->
+    <aura:attribute name="offertChildList" type="Object"/>
+    <aura:attribute name="contextOutput" type="Object"/>
+    <aura:attribute name="spinner" type="Boolean" default="true"/>
+    <aura:attribute name="listOfItems" type="List"/>
+    <aura:attribute name="item" type="Object"/>
+    <aura:attribute name="listOfAttributes" type="List"/>
+    <aura:attribute name="bancomatItems" type="List"/>
+    <aura:attribute name="bundleElementName" type="String"  />
+    <aura:attribute name="bundleStep" type="Integer"/>
+    <aura:attribute name="configureBundle" type="Boolean" default="false"/>
+    <aura:attribute name="configuredItem" type="Boolean" default="false"/>
+    <aura:attribute name="itemToConfigure" type="Object"/>
+    <aura:attribute name="itemToUpdate" type="Object"/>
+    
+    <aura:attribute name="qtyMax" type="Integer" default="900"/>
+    <aura:attribute name="itemFakeToRemove" type="Object"/>
+    <aura:attribute name="isItemFakeToRemove" type="Boolean" default="false"/>
+    <aura:attribute name="itemIsIntoCart" type="Boolean" default="false"/>
+    <aura:attribute name="endLoading" type="Boolean" default="false"/>
+
+    
+     <aura:attribute name="urlImages" type="String" /> 
+    
+    <aura:attribute name="bundleMaxQty" type="Integer" /> <!-- NEW-->
+    <aura:attribute name="bundleMinQty" type="Integer" /> <!-- NEW-->
+    <aura:attribute name="selectedBundle" type="Object" /> <!-- NEW-->
+    <aura:attribute name="listOfCartTotal" type="Object" /> <!--  NEW?  -->
+    
+    <aura:attribute name="errorMessageBancomat" type="String" default="Input accept only numbers and [,]"/> 
+    <aura:attribute name="checkAttributeRules" type="String"/> <!-- ok, warning, error -->
+    
+    <!-- 28/11/18 francesca.ribezzi - adding attributes for markup: -->
+	<aura:attribute name="posCategories" type="List" default="['IMPORTO','COMMISSIONE','GRATUITA']"/>
+	<aura:attribute name="numOfCol" type="String" default="0"/>
+    <aura:attribute name="maxCol" type="String" default="0"/>
+    <aura:attribute name="commissionColSize" type="Integer" default='2'/>
+    <aura:attribute name="uniqueLabels" type="List" />
+    <!--giovanni spinelli 19/09/2019 -  start-->
+    <aura:attribute name="listItemToreset" type="List"      default=""      access="global"/>
+    <aura:attribute name="indexReset"      type="Integer"   default="0"     access="global"/>
+    <aura:attribute name="isToreset"       type="Boolean"   default="false" access="global"/>
+    <!--giovanni spinelli 19/09/2019 -  end-->
+    <!-- LUBRANO 16/01/2019 Libreria Log -->
+    <ltng:require scripts = "{!$Resource.utils}" afterScriptsLoaded =  "{!c.logInit}" />
+    <!-- Start antonio.vatrano 08/05/2019 r1f2-106 -->
+	<aura:attribute name="userLicense" type="String"  default="" access="global"/>
+	<!-- End antonio.vatrano 08/05/2019 r1f2-106 -->
+    <!--  NEW event to update attribute checkAttributeRules -->
+    <aura:handler action="{!c.onUpdateApprovalOrderRules}" event="c:OB_ApprovalOrderRulesEvent" />
+    
+    <!--<aura:handler name="change" value="{!v.listOfCategories}" action="{!c.onLoadingSpinner}"/>-->
+    <aura:handler action="{!c.onUpdateContext}" event="NE:Bit2win_Event_UpdateContext" />
+    <!--<aura:handler name="init" value="{!this}" action="{!c.doInit}" /> -->
+    
+    <aura:registerEvent name="updateContextEvent" type="c:OB_CustomUpdateContextEvent"/> 
+    <aura:registerEvent name="approvalOrderRulesEvent" type="c:OB_ApprovalOrderRulesEvent"/> 
+    
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+            <div class="slds-spinner_brand  slds-spinner slds-spinner_large slds-is-relative" role="alert"> 
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if> 
+    
+    <div class="slds-grid">  
+	     
+        <!-- Doris D ... 26/02/2019 .... START -->
+        <span class="slds-col slds-size_2-of-3">
+                <div class="slds-box" style = "width : 60%" >
+                    <form>
+                        <fieldset>
+                            <legend><strong>{!$Label.c.OB_LegendTitle}</strong></legend>
+                            
+                            <div class="slds-grid slds-size_2-of-2" style = "margin-top: 3px;">
+                                <div class= "gray-checkbox"/>
+                                <div>{!$Label.c.OB_NotRequiredApproval}</div>
+                            </div>
+    
+                            <div class="slds-grid slds-size_2-of-2" style = "margin-top: 3px;">
+                                <div class="yellow-checkbox"/>
+                                <div>{!$Label.c.OB_ValueSubjectToApproval}</div>
+                            </div>
+    
+                            <div class="slds-grid slds-size_2-of-2" style = "margin-top: 3px;">
+                                    <div class="red-checkbox"/>
+                                    <div> {!$Label.c.ValueNotAllow}</div>
+                            </div>    
+                                  
+                        </fieldset>
+                    </form>
+                </div>
+        </span>        
+            <!-- Doris D ... 26/02/2019 .... END   -->
+
+    </div>
+
+     <!-- Doris D ... 04/03/2019 .... START -->
+     <div class="slds-grid " style = " margin-top: 2em;">
+           <!--26/03/19 francesca.ribezzi moving cart button below bundleElementName-->
+        <span class="slds-col slds-size_2-of-3">
+            <div class="u116" data-label="page title">
+                <p><span>{!v.bundleElementName}</span></p>
+            </div>
+        </span>
+        <span class="slds-col slds-size_1-of-3">
+            <div class="u116 cartWrapper" data-label="page title">
+                <lightning:buttonIcon iconName="utility:cart" size="large" variant="bare" alternativeText="Open Cart" iconClass="cart" onclick="{!c.openCart}" />
+                <!-- <span class="slds-badge customColorsBadge">{!v.cartListTotal}</span> --><!-- Doris D. 13/03/2019-->
+            </div>
+        </span>
+    </div>
+    <!-- Doris D ... 04/03/2019 .... END -->
+    
+    <!-- cartDetails --> 
+      <div aura:id="cartContainer" class="slds-grid_vertical">
+        <div id="listbox-unique-id" role="listbox">
+        	<ul aura:id="cartContainerUL" class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-small-size_1-of-1 cartContainer animationSlideHide animationSlideHideOpacity" role="presentation">
+		            <div class="u172" data-label="title">
+		                {!$Label.c.OB_CartListLabel}
+		            </div>
+                    <aura:iteration items="{!v.cartList}" var="cartCategory" indexVar="indx">
+                        <li role="presentation" class="slds-listbox__item " >
+	                        <div id="{!cartCategory.categoryName}">
+		                        <p style="font-size:12px;">
+		                        	<span style="color:#999999;">{!cartCategory.categoryName}</span>
+		                        </p>                      
+	                        <aura:iteration items="{!cartCategory.items}" var="item" indexVar="indx2">
+		                            <p style="font-size:20px;">
+		                                <span style="font-size:12px;color:#4F6A92;"></span>
+		                                <span style="color:#4F6A92;">{!item.productName}</span> 
+		                                <aura:if isTrue="{! and(item.qty != '',item.recordTypeName == 'Terminali')}">
+		                                    <span style="color:#4F6A92;margin-left: 1%;font-size: 1rem;">n° {!item.qty}</span>
+		                                    <aura:if isTrue="{!item.status != undefined}"> 
+		                                    	<span style="color:green;margin-left: 1%;font-size: 1rem;"> attivo</span>
+		                                    </aura:if>
+		                                </aura:if>
+		                            </p>   
+	                        </aura:iteration>  
+                        </div>
+                        </li> 
+                    </aura:iteration>
+        	</ul>
+    	</div>
+  	</div>
+    <!-- cartDetails end-->
+    
+    <aura:if isTrue="{!v.endLoading}">
+    <div  class="slds-col slds-size_1-of-1 slds-medium-size_5-of-5 slds-small-size_1-of-1 tableContainer" id="base">
+        <aura:iteration items="{!v.productCategories}" var="productCategory" indexVar="indx">
+            <div class="tableHeaderWrapper">
+                <aura:iteration items="{!productCategory.items}" var="item" indexVar="indx2">
+                    <img class="thumbnailimage" src="{!v.urlImages+item.fields.thumbnailimage}" width="60" height="34"/>
+                    <span class="productDescription"><aura:unescapedHtml value="{!item.fields.description}" /></span> 
+                </aura:iteration>
+            </div>
+        </aura:iteration>
+      
+        <div class="slds-grid  slds-gutters">  
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-1 slds-small-size_1-of-1">   
+              <!-- LABELS -->
+               <div class="slds-grid  slds-gutters">  
+                	<div class="slds-col slds-size_1-of-4">
+                		<!-- empty div -->
+                	</div>
+                	<div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-small-size_1-of-1">
+                		<div class="slds-grid  slds-gutters headerContainer">  
+							<aura:iteration items="{!v.uniqueLabels}" var="lab" > 
+								<div class="{!'slds-col slds-size_1-of-3 slds-medium-size_1-of-'+v.maxCol+' slds-small-size_1-of-3'}">
+									<span>
+                                        <!--25/03/19 francesca.ribezzi removing slds-col from class to add space between labels: -->
+										<div class="{!lab != 'Condizioni particolari/Mesi'?'headerLabel' : ''}">  <!--<div class="{!lab != 'Condizioni particolari/Mesi'?'slds-col headerLabel' : 'slds-col'}"> -->
+											<span>  
+												<p class="{!lab == 'a'?'attributeNames' : 'attributeNames shortAttrName'}">{!lab}</p>
+											</span>
+										</div>
+									</span>
+								</div>
+							</aura:iteration> 
+						</div>
+					</div>
+                </div>
+                <!--giovanni spinelli 24/09/2019 -  start-->
+                <!--Simone Misani Perf1 20/12/2019 def val button commented-->
+                <!--davide.franzini 07/01/2020 set def value button restored-->
+                <!-- <a onclick="{!c.resetValue}" class="reset_link" >{!$Label.c.OB_SetDefaultValue}</a>   -->
+                <lightning:button variant="Neutral" onclick="{!c.resetValue}" 
+                                        label="{!$Label.c.OB_SetDefaultValue}" class="CTAStyle_special" />
+                <!--giovanni spinelli 24/09/2019 -  end-->
+                <aura:iteration items="{!v.listOfItems}" var="item" indexVar="index">
+                <aura:if isTrue="{!item.item.fields.RecordTypeName =='Pricing'}">
+                    <!--     <div class="slds-col slds-grid slds-size_1-of-1 slds-medium-size_1-of-1 slds-small-size_1-of-1 itemAttributesContainer">
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-small-size_1-of-1">
+                            <span><span><p class="productName">{!item.productname}</p></span>
+                                <aura:unescapedHtml value="{!item.description}" /> </span>
+                        </div>   
+                        <div id="attributesDiv" class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3 slds-small-size_1-of-1 attributesWrapper">
+                            <div class="slds-grid slds-gutters slds-wrap">
+                                <aura:iteration items="{!item.listOfAttributes}" var="att" indexVar="index2"> 
+                                <aura:iteration items="{!item.listOfFamilies}" var="fam" indexVar="index3">
+                                          <aura:if isTrue="{!and(att.attribute.fields.familyname == fam.fields.name,att.attribute.fields.value != '') }"> 
+                                            <div class="slds-col slds-size_1-of-3 slds-medium-size_1-of-3 slds-small-size_1-of-3">
+                                                <span>
+                                                    <div class="slds-col"> 
+                                                        <span>
+                                                           
+                                                                <aura:if isTrue="{!att.attribute.fields.value != ''}">
+                                                                 	<p class="attributeNames">{!att.attribute.fields.name} </p>
+                                                                 </aura:if>
+                                                        
+                                                        </span>
+                                                    </div>
+                                                    <div class="slds-col inputContainer">
+                                                        <span>
+                                                            <p class="alignInput">
+                                                                <aura:if isTrue="{!att.attribute.fields.readonly == 'true' || att.attribute.fields.readonly == true}">
+                                                                    <input id="{!index2}" class="f217 inputAttValueFont" name="{!index}" label="" value="{!att.attribute.fields.value}" readonly="readonly"/>
+                                                                    <aura:set attribute="else">
+                                                                        <aura:if isTrue="{!att.attribute.fields.value != ''}">
+			                                     							 <input id="{!index+'_'+index2}" class="f217 inputAttValueFont" aura:id="BancomatAuraId" name="{!item.item.id}" label="" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}"/>
+			                                     						</aura:if>
+                                                                    </aura:set>
+                                                                </aura:if>
+                                                            
+                                             	 				<span>{!att.attribute.fields.description}</span>
+                                                            </p> 
+                                                        </span>
+                                                    </div>-->
+                                                    <!--  error management -->
+                                             	<!--  	<div class="slds-col errMsg hidden" id="{!index+'_'+index2+'_errorBancomat'}" >
+                                             	 		<span >
+                                             	 			{!v.errorMessageBancomat}
+                                             	 		</span>
+                                             	 	</div>                   
+                                                </span> 
+                                            </div>
+                                      </aura:if>
+                                    </aura:iteration> 
+                                </aura:iteration> 
+                            </div>
+                        </div>         
+                    </div> -->
+        
+                       	<!--  new CMP -->
+                     	
+           	                <c:OB_childItem 		childItem="{!item}" 
+                         							commissionColSize="{!v.commissionColSize}"
+                         							maxCol="{!v.maxCol}"
+                                                     numOfCol="{!v.numOfCol}"
+                                                     userLicense="{!v.userLicense}"/>   <!-- antonio.vatrano 08/05/2019 r1f2-106 -->
+                </aura:if>    
+                </aura:iteration>
+            </div>
+        </div>              
+    </div>
+    </aura:if>
+</aura:component>

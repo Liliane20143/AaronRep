@@ -1,0 +1,133 @@
+<!--
+* @author Elena Preteni <elena.preteni@accenture.com>
+* @date 06/06/2019
+* @description The component is used to view all the order items with RT INtegrazione
+* @history NEXI-06/06/2019 Created
+-->
+
+<aura:component controller="OB_Maintenance_Consistenza_ConfItem_CC" 
+    implements="flexipage:availableForRecordHome,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable" 
+    access="global">
+
+    <aura:attribute name="configuration"				type="Object"							access="global" />
+    <aura:attribute name="gatewaytItem"                 type="Object"      	  	           		access="global" />
+    <aura:attribute name="gatewaytItemAttribute"        type="List" 		access="global" />
+    <aura:attribute name="isNotOperation"				type="Boolean"		default="false"		access="global"	/>
+    <aura:attribute name="data"                         type="Object"                           access="global" />
+    <aura:attribute name="itemId"				        type="String"		                	access="global"	/>
+    <aura:attribute name="isInApprovation"				type="Boolean"		default="false"		access="global"	/>
+    <aura:attribute name="columns"                      type="List"         default="[{label: 'Name', fieldName: 'Name', type: 'text'},{label: 'Value', fieldName: 'NE__Value__c', type: 'text'}]"/>
+    <aura:attribute name="enablements"					type="Object[]"							access="global" />
+    <aura:attribute name="isNotIntegrated" 					type="Boolean" 	default="false"		access="global"/><!-- START elena.preteni  descoping consistenza 28/06/2019-->
+    <!--ANDREA MORITTU START 18-Jul-2019 - F2WAVE2 - 154 -->
+    <aura:attribute name="itemHasBeenUpdated" 			type="Boolean" 	    default="false"		access="global"/>
+    <!--ANDREA MORITTU END 18-Jul-2019 - F2WAVE2 - 154 -->
+    
+    <aura:handler 	name="init" value="{!this}" action="{!c.doInit}" />
+
+    <div class="slds-grid slds-wrap slds-box slds-m-top_large" aura:id="MainDiv">
+            <div class="slds-size_1-of-1 slds-grid slds-m-top_large slds-wrap">
+                <!--  NAME -->
+                <div class="slds-size_1-of-6 slds-p-horizontal_medium">					
+                    <div class="slds-m-top_x-large" style="font-size:16px;">
+                            {!v.gatewaytItem.NE__ProdId__r.Name}
+                    </div>
+                </div>
+                <!--  ACTION -->                    
+                <div class="slds-size_1-of-6 slds-p-horizontal_medium">		
+                    <div class="slds-form-element ">
+                        <lightning:input 	value="{!v.gatewaytItem.NE__Action__c}" 
+                                            label ="{!$Label.c.Action}" 
+                                            aura:id="actionGateway" 
+                                            disabled="true" 
+                                            />
+                    </div>
+                </div>
+                 <!--  TERMINAL ID -->
+                <div class="slds-size_1-of-6 slds-p-horizontal_medium">		
+                    <div class="slds-form-element ">
+                        <lightning:input 	value="{!v.gatewaytItem.OB_TermId__c}" 
+                                            label ="{!$Label.c.OB_MAINTENANCE_TERMINAL_ID}" 
+                                            aura:id="terminalId" 
+                                            disabled="true" 
+                                            />
+                    </div>
+                </div>
+              <!--  ATTRIBUTES --> 
+                <div class="slds-form-element slds-size_2-of-6  slds-align_absolute-center">
+                    <div class="slds-m-top_x-large  slds-p-horizontal_large" style="font-size:16px;">Attributi</div>
+                    <lightning:datatable
+                            keyField="id"
+                            data="{! v.gatewaytItemAttribute }"
+                            columns="{! v.columns }"
+                            hideCheckboxColumn="true"/>
+                </div>
+            </div>
+            <div class="slds-size_1-of-1 slds-grid bold slds-m-top_large">
+                {!$Label.c.OB_MAINTENANCE_ENABLEMENTS_MODAL_TITLE}
+            </div>
+            <aura:iteration items="{!v.enablements}" var="currentEnablement">
+                <aura:if isTrue="{!currentEnablement.showEnablement}">
+                    <div class="slds-size_3-of-4 slds-grid slds-m-top_large slds-wrap">
+                        <div class="slds-size_1-of-4 slds-p-horizontal_medium">					
+                            <div class="slds-m-top_x-large" style="font-size:16px;">
+                                {!currentEnablement.NE__ProdId__r.Name}
+                            </div>
+                        </div>
+
+                        <aura:if isTrue="{!currentEnablement.showStart}">
+                            <div class="slds-size_1-of-4 slds-p-horizontal_medium">
+                                <div class="slds-form-element">
+                                        <lightning:input 	value="{!currentEnablement.NE__StartDate__c}"
+                                                            type="date"
+                                                            label ="{!$Label.c.OB_MAINTENANCE_VALIDITYSTARTDATE}" 
+                                                            aura:id="{!currentEnablement.Id}"
+                                                            format="dd/MM/yyyy" 
+                                                            displayDatePicker="true"
+                                                            disabled="{!or(currentEnablement.disabledStart,v.isFinalStatus)}" 
+                                                            required="{!and( currentEnablement.isNexi,and(!currentEnablement.disabledStart,!v.isFinalStatus))}"/>
+                                </div>
+                            </div>
+                        </aura:if>
+
+                        <aura:if isTrue="{!currentEnablement.showEnd}">
+                            <div class="slds-size_1-of-4 slds-p-horizontal_medium">
+                                <div class="slds-form-element">
+                                    <lightning:input 	value="{!currentEnablement.NE__EndDate__c}"
+                                                        type="date"
+                                                        label ="{!$Label.c.OB_MAINTENANCE_VALIDITYENDDATE}" 
+                                                        aura:id="{!currentEnablement.Id}"												
+                                                        format="dd/MM/yyyy" 
+                                                        displayDatePicker="true"
+                                                        disabled="{!or(currentEnablement.disabledEnd,v.isFinalStatus)}" 
+                                                        required="{! and( currentEnablement.isNexi,and(!currentEnablement.disabledEnd,!v.isFinalStatus))}"/>
+                                </div>	
+                            </div>
+                        </aura:if>
+                        <div class="slds-size_1-of-4 slds-p-horizontal_medium" id="divmicol">
+                            <label>Attivo</label>
+                            <lightning:input type="checkbox" name="NAME" aura:id="AURAID"  checked="{! currentEnablement.disabledEnd}" 
+                            label="" variant="label-hidden" value = "" disabled ="true"/>
+                        </div>
+                    </div>
+                    <div class="slds-size_1-of-2"/>
+                </aura:if>
+            </aura:iteration>
+            <!-- </aura:if> -->
+            <!-- BUTTONS -->
+            <!-- ANDREA MORITTU START 19 - Jul-19 F2WAVE2 - 154  -->
+            <aura:if isTrue="{!!and(and(v.isNotOperation,v.isInApprovation),v.isNotIntegrated)}">
+                <div class="slds-size_1-of-1 slds-grid slds-m-top_large">
+                    <div class="slds-align_absolute-center">
+                        <lightning:button 	label="{!$Label.c.OB_Save}" 
+                                            variant="brand" 	
+                                            onclick="{!c.save}"	
+                                            disabled ="{!or(v.itemHasBeenUpdated , v.isNotOperation)}"
+                                            name="{!v.itemId}"
+                                            />
+                    </div>
+                </div>
+            </aura:if>
+            <!-- ANDREA MORITTU END 19 - Jul-19 F2WAVE2 - 154  -->
+    </div>
+</aura:component>

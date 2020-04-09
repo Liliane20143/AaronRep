@@ -1,0 +1,275 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+	
+<aura:attribute name="childItem" type="Object"/>
+<aura:attribute name="fatherItem" type="Object"/>
+<aura:attribute name="itemToUpdate" type="Object"/>
+<aura:attribute name="checkAttributeRules" type="String" default=""/> <!-- ok, warning, error -->	
+<aura:attribute name="Spinner" type="Boolean" default="true"/>
+<aura:attribute name="qtyMax" type="Integer" default="900"/>
+<aura:attribute name="MapAttributeItems" type="Object"/>
+<aura:attribute name="errorMessagePOS" type="String" default="{!$Label.c.OB_invalidValue}"/>
+<aura:attribute name="isMaintenancePricing" type="Boolean" default="false"/>
+
+
+<!-- francesca.ribezzi - adding attributes for markup: -->
+<aura:attribute name="maxCol" type="String" default="5"/>
+<aura:attribute name="firstList" type="List" />
+<aura:attribute name="secondList" type="List" />
+<aura:attribute name="thirdList" type="List" />
+<aura:attribute name="commissionColSize" type="String" default="1"/>
+<aura:attribute name="numOfCol" type="String" default="0"/>
+<aura:attribute name="isReadOnly" type="boolean" default="false"/>
+
+<aura:attribute name="approvalTypePricing" type="boolean" default="false"/>
+<!--28/02/19 francesca.ribezzi adding configuration approval status for operatore di filiale-->
+<aura:attribute name="approvalStatus" type="String" access="global"/>
+<!--21/03/19 francesca.ribezzi adding attribute for childItems start date -->
+<aura:attribute name="showStartDate" type="Boolean" default="false" access="global"/>
+
+<!-- LUBRANO 16/01/2019 Libreria Log -->
+<ltng:require scripts = "{!$Resource.utils}" afterScriptsLoaded =  "{!c.logInit}" />
+<!-- Start antonio.vatrano 08/05/2019 r1f2-106 -->
+<aura:attribute name="userLicense" type="String"  default="" access="global"/>
+<!-- End antonio.vatrano 08/05/2019 r1f2-106 --> 
+<aura:attribute name="childApprovalLevelMap" type="Map" default="{}" access="global"/>	 <!-- francesca.ribezzi 26/11/19 - performance adding map -->
+
+<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+<aura:registerEvent name="approvalOrderRulesEvent" type="c:OB_ApprovalOrderRulesEvent"/>   
+	<div class="slds-grid slds-gutters rowDetail ">
+
+           
+		<div class="slds-col slds-size_1-of-4 productDescBox">                             		
+			<span> 
+				<div class="u1049">
+					<p style="font-size:14px;">
+						<span style="font-weight:700;color:#4F6A92;text-transform: uppercase;">
+							{!v.childItem.productname} 
+						</span>
+					</p>
+					<p style="font-size:12px;">
+						<span style="font-weight:700;color:#4F6A92;">
+						</span>
+						<span style="font-weight:400;">
+							<aura:unescapedHtml value="{!v.childItem.description}" /> 
+						</span> 
+							<!--START francesca.ribezzi 21/03/19 adding start date: -->
+							<aura:if isTrue="{!and(v.showStartDate, v.childItem.item.fields.active)}"> 
+								<div class="childItemStartDate">
+										{!$Label.c.OB_validity_startDate}: {!v.childItem.item.fields.newStartDateFormat}
+								</div>
+							</aura:if>
+						<!--END -->
+					</p>                                                    
+				</div>
+			</span>                                         
+		</div>                                          
+		<div id="attributesDiv" class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-small-size_1-of-1">
+
+		
+			<div class="slds-grid slds-gutters slds-wrap">                        
+			<!-- francesca.ribezzi - ho commentato l'iteration delle listOfFamilies -->
+			<!-- 	<aura:iteration items="{!v.childItem.listOfFamilies}" var="fam" indexVar="index3"> -->
+
+				<aura:iteration items="{!v.firstList}" var="att" indexVar="index2">    
+				<!-- 	<aura:if isTrue="{! and(att.attribute.fields.familyname == fam.attribute.fields.name,att.attribute.fields.value != '')}"> -->
+						<div class="{!'slds-col slds-size_1-of-3 slds-medium-size_1-of-'+v.maxCol+' slds-small-size_1-of-3'}">
+							<span>
+								<div class="slds-col inputContainer">
+									<aura:if isTrue="{!and(att.attribute.fields.name != 'fake',att.attribute.commission == false)}">
+										<span>
+											<p class="alignInput">
+												<aura:if isTrue="{!v.childItem.qty == v.qtyMax || att.attribute.fields.readonly==true || att.attribute.fields.readonly=='true' || v.isReadOnly == true}">
+													<aura:if isTrue="{!v.childItem.qty == v.qtyMax}">
+														<input id="{!att.attribute.fields.id}" class="f217 inputReadonly" name="input1" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" readonly="readonly"/>  
+													<aura:set attribute="else">
+														<!--QUI-->
+													<!--	<aura:if isTrue="{!and(or(att.attribute.fields.value lt att.attribute.fields.OB_Min_Threshold__c, att.attribute.fields.value gt att.attribute.fields.OB_Max_Threshold__c), v.approvalTypePricing)}">-->
+													<!--	<aura:if isTrue="{!(att.attribute.fields.value lt att.attribute.fields.OB_Min_Threshold__c || att.attribute.fields.value gt att.attribute.fields.OB_Max_Threshold__c) &amp;&amp; v.approvalTypePricing &amp;&amp; ((att.attribute.fields.Old_Value__c != att.attribute.fields.value &amp;&amp; v.childItem.item.fields.action == 'Change') || v.childItem.item.fields.action == 'Add')}">
+															<input id="{!att.attribute.fields.id}" class="f217 borderTransparent inputReadOnlySelected borderWarning" name="input1" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" readonly="readonly"/>  
+															<aura:set attribute="else">-->
+																	<input id="{!att.attribute.fields.id}" class="{!att.attribute.isWarningApproval? 'f217 borderTransparent inputReadOnlySelected borderWarning':'f217 inputReadonly inputReadOnlySelected'}" name="input1" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" readonly="readonly"/>  
+														<!--	</aura:set>
+														</aura:if>-->
+													</aura:set>
+													</aura:if>	
+													<aura:set attribute="else"> <!--francesca.ribezzi 30/10/19 childItemId changed to childItem.ItemCode-->
+													<aura:if isTrue="{!and(att.attribute.fields.value != '', att.attribute.fields.value != null)}">
+														<aura:if isTrue="{! att.attribute.fields.status == 'error'}">
+															<input id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid}"  class="f217 borderError" name="{!v.childItem.item.id}" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}" title="{!v.childItem.productname +'_'+att.attribute.fields.name+'_Red'}" />
+														</aura:if>
+														<aura:if isTrue="{! att.attribute.fields.status == 'warning' }">
+															<input id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid}"  class="f217 borderWarning" name="{!v.childItem.item.id}" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}" title="{!v.childItem.productname +'_'+att.attribute.fields.name+'_Yellow'}"/>
+														</aura:if>
+														<!--giovanni spinelli-->
+														<aura:if isTrue="{! att.attribute.fields.status == 'ok_change' }">
+															<input id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid}"  class="f217 borderCorrect" name="{!v.childItem.item.id}" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}" title="{!v.childItem.productname +'_'+att.attribute.fields.name+'_Green'}"/>
+														</aura:if>
+														<!--giovanni spinelli-->
+														<aura:if isTrue="{! att.attribute.fields.status == 'ok' || att.attribute.fields.status == '' || att.attribute.fields.status == null }">
+															<input id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid}"  class="f217" name="{!v.childItem.item.id}" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}" title="{!v.childItem.productname +'_'+att.attribute.fields.name+'_Neutral'}"/>
+														</aura:if>
+													</aura:if>
+												</aura:set>			                                
+												</aura:if>
+												<aura:if isTrue="{!and(att.attribute.fields.value != '',att.attribute.fields.value != null)}">
+													<span class="attrDescription">{!att.attribute.fields.description}</span>
+												</aura:if>
+											</p> 
+										</span>
+									</aura:if>
+								</div>
+								
+								<div class="slds-col errMsg hidden" id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid+'_errorPOS'}" >
+								<span >
+									{!v.errorMessagePOS}
+								</span>
+								</div>  
+							</span> 
+						</div>
+		<!-- 		</aura:if>
+			</aura:iteration> -->
+      		</aura:iteration> 
+      		<div class="{!'slds-col slds-size_1-of-3 slds-medium-size_'+v.commissionColSize+'-of-'+v.maxCol+' slds-small-size_1-of-3'}">
+	      		<div class="slds-grid slds-wrap">
+		         	<aura:iteration items="{!v.secondList}" var="att" indexVar="index2">  
+		         	   	<div class="{!v.commissionColSize == 1? 'slds-col slds-size_1-of-1' : 'slds-col slds-size_1-of-3'}">
+		         	   		<aura:if isTrue="{!att.attribute.fields.name != 'fake'}">
+								<span>
+								<!--  	<div class="slds-col"> 
+										<span>  
+											<aura:if isTrue="{!and(att.attribute.fields.value != '', att.attribute.fields.value != null)}">
+												<p class="attributeNames">{!att.attribute.fields.name} 
+												</p>
+											</aura:if> 			
+										</span>
+									</div>-->
+									<div class="slds-col inputContainer">
+											<span>
+												<p class="alignInput">
+													<aura:if isTrue="{!v.childItem.qty == v.qtyMax || att.attribute.fields.readonly==true || att.attribute.fields.readonly=='true' || v.isReadOnly == true}">
+														<aura:if isTrue="{!v.childItem.qty == v.qtyMax}">
+															<input id="{!att.attribute.fields.id}" class="f217 inputReadonly" name="input1" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" readonly="readonly"/>  
+														<aura:set attribute="else">
+															<!--QUI warning-->
+														<!--	<aura:if isTrue="{!and(or(att.attribute.fields.value lt att.attribute.fields.OB_Min_Threshold__c, att.attribute.fields.value gt att.attribute.fields.OB_Max_Threshold__c), v.approvalTypePricing)}">-->
+														<!--	<aura:if isTrue="{!(att.attribute.fields.value lt att.attribute.fields.OB_Min_Threshold__c || att.attribute.fields.value gt att.attribute.fields.OB_Max_Threshold__c) &amp;&amp; v.approvalTypePricing &amp;&amp; att.attribute.fields.Old_Value__c != att.attribute.fields.value}">
+																<input id="{!att.attribute.fields.id}" class="f217 borderTransparent inputReadOnlySelected borderWarning" name="input1" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" readonly="readonly"/>  
+																<aura:set attribute="else">-->
+																		<input id="{!att.attribute.fields.id}" class="{!att.attribute.isWarningApproval? 'f217 borderTransparent inputReadOnlySelected borderWarning':'f217 inputReadonly inputReadOnlySelected'}"  name="input1" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" readonly="readonly"/>  
+														<!--		</aura:set>
+															</aura:if> -->
+														</aura:set>
+														</aura:if>	
+													<aura:set attribute="else">
+														<aura:if isTrue="{!and(att.attribute.fields.value != '', att.attribute.fields.value != null)}">
+															<aura:if isTrue="{! att.attribute.fields.status == 'error'}">
+																<!--francesca.ribezzi 30/10/19 childItemId changed to childItem.ItemCode-->
+																<input id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid}"  class="f217 borderError" name="{!v.childItem.item.id}" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}"  title="{!v.childItem.productname +'_'+att.attribute.fields.name+'_Red'}"/>
+															</aura:if>
+															<aura:if isTrue="{! att.attribute.fields.status == 'warning' }">
+																
+																<input id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid}"  class="f217 borderWarning" name="{!v.childItem.item.id}" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}"  title="{!v.childItem.productname +'_'+att.attribute.fields.name+'_Yellow'}"/>
+															</aura:if>
+															<!--giovanni spinelli-->
+															<aura:if isTrue="{! att.attribute.fields.status == 'ok_change' }">
+																<input id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid}"  class="f217 borderCorrect" name="{!v.childItem.item.id}" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}" title="{!v.childItem.productname +'_'+att.attribute.fields.name+'_Green'}"/>
+															</aura:if>
+															<!--giovanni spinelli-->
+															<aura:if isTrue="{! att.attribute.fields.status == 'ok' }">
+																
+																<input id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid}"  class="f217" name="{!v.childItem.item.id}" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}"  title="{!v.childItem.productname +'_'+att.attribute.fields.name+'_Neutral'}"/>
+															</aura:if>
+														</aura:if>
+													</aura:set>			                                
+													</aura:if>
+													<aura:if isTrue="{!and(att.attribute.fields.value != '',att.attribute.fields.value != null)}">
+														<span class="attrDescription">{!att.attribute.fields.description}</span>
+													</aura:if>
+												</p> 
+											</span>
+									</div>
+									
+									<div class="slds-col errMsg hidden" id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid+'_errorPOS'}" >
+									<span >
+										{!v.errorMessagePOS}
+									</span>
+									</div>
+		       				</span>
+		       				</aura:if>
+		       			</div>
+		             </aura:iteration>      
+					</div>
+				</div>
+			 <aura:iteration items="{!v.thirdList}" var="att" indexVar="index2">    
+				<!-- 	<aura:if isTrue="{! and(att.attribute.fields.familyname == fam.attribute.fields.name,att.attribute.fields.value != '')}"> -->
+						<div class="{!'slds-col slds-size_1-of-3 slds-medium-size_1-of-'+v.maxCol+' slds-small-size_1-of-3'}">
+							<span>
+							<!-- 	<div class="slds-col"> 
+									<span>  
+										<aura:if isTrue="{!and(att.attribute.fields.value != '', att.attribute.fields.value != null)}">
+											<p class="attributeNames">{!att.attribute.fields.name} 
+											</p>
+										</aura:if> 			
+									</span>
+								</div> -->
+								<div class="slds-col inputContainer">
+									<aura:if isTrue="{!and(att.attribute.fields.name != 'fake',att.attribute.commission == false)}">
+										<span>
+											<p class="alignInput">
+												<aura:if isTrue="{!v.childItem.qty == v.qtyMax || att.attribute.fields.readonly==true || att.attribute.fields.readonly=='true' || v.isReadOnly == true}">
+													<aura:if isTrue="{!v.childItem.qty == v.qtyMax}">
+														<input id="{!att.attribute.fields.id}" class="f217 inputReadonly" name="input1" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" readonly="readonly"/>  
+													<aura:set attribute="else">
+													<!--QUI warning-->
+												<!--	<aura:if isTrue="{!and(or(att.attribute.fields.value lt att.attribute.fields.OB_Min_Threshold__c, att.attribute.fields.value gt att.attribute.fields.OB_Max_Threshold__c), v.approvalTypePricing)}"> -->
+														<!--	<aura:if isTrue="{!(att.attribute.fields.value lt att.attribute.fields.OB_Min_Threshold__c || att.attribute.fields.value gt att.attribute.fields.OB_Max_Threshold__c) &amp;&amp; v.approvalTypePricing &amp;&amp; att.attribute.fields.Old_Value__c != att.attribute.fields.value}">
+															<input id="{!att.attribute.fields.id}" class="f217 borderTransparent inputReadOnlySelected borderWarning" name="input1" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" readonly="readonly"/>  
+															<aura:set attribute="else"> -->
+																<input id="{!att.attribute.fields.id}" class="{!att.attribute.isWarningApproval? 'f217 borderTransparent inputReadOnlySelected borderWarning':'f217 inputReadonly inputReadOnlySelected'}"  name="input1" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" readonly="readonly"/>  
+													<!--		</aura:set>
+														</aura:if>-->
+													</aura:set>
+													</aura:if>	
+												<aura:set attribute="else">
+													<aura:if isTrue="{!and(att.attribute.fields.value != '', att.attribute.fields.value != null)}">
+														<aura:if isTrue="{! att.attribute.fields.status == 'error'}"> <!--francesca.ribezzi 30/10/19 childItemId changed to childItem.ItemCode-->
+															<input id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid}"  class="f217 borderError" name="{!v.childItem.item.id}" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}" title="{!v.childItem.productname +'_'+att.attribute.fields.name+'_Red'}"/>
+														</aura:if>
+														<aura:if isTrue="{! att.attribute.fields.status == 'warning' }">
+															<input id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid}"  class="f217 borderWarning" name="{!v.childItem.item.id}" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}" title="{!v.childItem.productname +'_'+att.attribute.fields.name+'_Yellow'}"/>
+														</aura:if>
+														<!--giovanni spinelli-->
+														<aura:if isTrue="{! att.attribute.fields.status == 'ok_change' }">
+															<input id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid}"  class="f217 borderCorrect" name="{!v.childItem.item.id}" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}" title="{!v.childItem.productname +'_'+att.attribute.fields.name+'_Green'}"/>
+														</aura:if>
+														<!--giovanni spinelli-->
+														<aura:if isTrue="{! att.attribute.fields.status == 'ok' }">
+															<input id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid}"  class="f217" name="{!v.childItem.item.id}" label="" style="font-weight:700;color:#000000;" value="{!att.attribute.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}"  title="{!v.childItem.productname +'_'+att.attribute.fields.name+'_Neutral'}" />
+														</aura:if>
+													</aura:if>
+												</aura:set>			                                
+												</aura:if>
+												<aura:if isTrue="{!and(att.attribute.fields.value != '',att.attribute.fields.value != null)}">
+													<span class="attrDescription">{!att.attribute.fields.description}</span>
+												</aura:if>
+											</p> 
+										</span>
+									</aura:if>
+								</div>
+								
+								<div class="slds-col errMsg hidden" id="{!v.childItem.item.fields.itemCode+'_'+att.attribute.fields.idfamily+'_'+att.attribute.fields.propid+'_errorPOS'}" >
+								<span >
+									{!v.errorMessagePOS}
+								</span>
+								</div>  
+							</span> 
+						</div>
+		<!-- 		</aura:if>
+			</aura:iteration> -->
+      		</aura:iteration> 
+      		
+		</div>
+	</div>       
+</div>
+</aura:component>

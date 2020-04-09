@@ -1,0 +1,70 @@
+<!--
+*   Author      :      Morittu Andrea
+*   Date        :      20-Nov-2019
+*   Task        :      EVO_PRODOB_480
+*   Description :      Componnet used to stamp two checkboxes (OB_PEP__c AND OB_SkipCadastralCodeCheck__c on Contact Object)
+-->
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" 
+				access="global">
+    <!-- ATTRIBUTE SECTION --> 
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/> 
+    
+    <aura:attribute name="identifier" type="String" default="" access="global"/>
+    <aura:attribute name="field" type="Object" default="{}" access="global"/>
+    <aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+    <aura:attribute name="inputField" type="String" default="" />
+    <aura:attribute name="changeLayout" type="Boolean" default="false"/>
+    
+    <aura:attribute name="createEmptyDiv" type="Boolean"  default="false" access="global"/> 
+	
+    <!-- Andrea Morittu Start - adding do init just to read objectDataMap - fixOnPepAndSkip Checkbox -->
+    <!-- HANDLER SECTION --> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <!-- / HANDLER SECTION --> 
+    <!-- Andrea Morittu End - adding do init just to read objectDataMap - fixOnPepAndSkip Checkbox -->
+
+	<!-- ATTRIBUTE SECTION --> 
+    <!-- BODY SECTION -->
+    
+    <aura:if isTrue="{!or(v.field.addressMapping.createEmptyDiv eq true, v.field.addressMapping.createEmptyDiv eq 'true')}" >
+    <div class="slds-size--1-of-2 slds-grid slds-p-around--medium">						
+        <div class="slds-col slds-p-horizontal_xxx-small" />	
+    </div>
+    </aura:if>
+    <div class="slds-size--1-of-2 slds-grid slds-p-around--medium">						
+        <div class="slds-col slds-p-horizontal_xxx-small">
+            <label class="slds-form-element__label" for="inputNameSample1" >
+                {!$Label.c.OB_PoliticallyExposedPersonLabel}
+            </label>
+        </div>
+        <div class="slds-col slds-p-horizontal_xxx-small">
+            <lightning:input 	 aura:id="OB_PEP__c"
+                             type="checkbox"
+                             id="OB_PEP__c" 
+                             variant="label-hidden"
+                             checked="{!or(v.objectDataMap.legale_rappresentante.OB_PEP__c eq 'true' , v.objectDataMap.legale_rappresentante.OB_PEP__c eq true) ? true:false }"
+                             class="flow_required"
+                             name="" 
+                             onchange="{!c.onChangeCheckboxes}"/>
+        </div>			
+    </div>
+    <div class="slds-size--1-of-2 slds-grid slds-p-around--medium">						
+        <div class="slds-col slds-p-horizontal_xxx-small">
+            <label class="slds-form-element__label" for="inputNameSample1" >
+                {!$Label.c.OB_SkipCadastralCodeCheckLabel}
+            </label>
+        </div>
+        <div class="slds-col slds-p-horizontal_xxx-small">
+            <lightning:input 	 aura:id="OB_SkipCadastralCodeCheck__c"
+                             type="checkbox"
+                             id="OB_SkipCadastralCodeCheck__c" 
+                             variant="label-hidden"
+                             checked="{!or(v.objectDataMap.legale_rappresentante.OB_SkipCadastralCodeCheck__c eq 'true' , v.objectDataMap.legale_rappresentante.OB_SkipCadastralCodeCheck__c eq true) ? true : false}"
+                             class="flow_required"
+                             name=""
+                             onchange="{!c.onChangeCheckboxes}"
+                             />
+        </div>				
+    </div>
+    <!-- / BODY SECTION -->
+</aura:component>

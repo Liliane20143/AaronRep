@@ -1,0 +1,161 @@
+<aura:component  implements="flexipage:availableForAllPageTypes" access="global">
+    <aura:attribute name="objectDataMap" type="Object"  access="global"/>
+    <aura:attribute name="lightningFromParam"       type="String"       access="global" default="lightningFromVF=false"/>
+    <aura:attribute name="accId" type="String" default="0019E00000bgFXtQAM" />
+    <aura:attribute name="opportunity" type="String" default="0069E0000087jluQAA" />
+    <aura:handler action="{!c.onUpdateContext}" event="NE:Bit2win_Event_UpdateContext" />
+    <aura:attribute name="productCategories" type="Object"/>
+    <aura:attribute name="cartList" type="Object"/>
+    <aura:attribute name="offertaId" type="ID"/>
+    <aura:attribute name="listOfCategories" type="Object"/>
+    <aura:attribute name="configureItem" type="Boolean" default="false" />
+    <aura:attribute name="configureItemChild" type="Boolean" default="false" />
+    <aura:attribute name="offertaAddedToCart" type="Boolean" default="false" />
+    <aura:attribute name="itemAddedToCart" type="Boolean" default="false" />
+    <aura:attribute name="itemRemovedFromCart" type="Boolean" default="false" />
+    <aura:attribute name="offertChildList" type="Object"/>
+    <aura:attribute name="contextOutput" type="Object"/>
+    <aura:attribute name="spinner" type="Boolean" default="false"/>
+    
+    <aura:attribute name="circuitiList" type="List" />
+    <aura:attribute name="categoryCircuit" type="List" />
+    
+    
+    <aura:attribute name="bundleElementName" type="String"  />
+    
+    <!-- francesca.ribezzi 28/08/2018 show spinner -->
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if> 
+    
+    <div class="slds-col slds-size_2-of-3">
+	    <div class="u116" data-label="page title">
+	        <p><span>{!v.bundleElementName}</span></p>
+	    </div>
+    </div>
+    
+    <!-- cartDetails -->
+     <div class="slds-grid_vertical slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-small-size_1-of-1 cartContainer">
+            <div class="u172" data-label="title">
+                La tua selezione
+            </div>
+            
+            <div class="u170" data-label="title">
+                <!--  <img id="u1679_img" src="/resource/newCartImages/images/04_-_vas/u520.png"/> -->
+                <div id="u171" class="u171">
+                    <aura:iteration items="{!v.cartList}" var="cartCategory" indexVar="indx">
+                        <div id="{!cartCategory.step}">
+	                        <p style="font-size:12px;"><span style="color:#999999;">{!cartCategory.categoryName}</span></p>
+	                        
+	                        <aura:iteration items="{!cartCategory.items}" var="item" indexVar="indx2">
+	                            <p style="font-size:20px;">
+	                                <span style="font-size:12px;color:#4F6A92;"></span>
+	                                <span style="color:#4F6A92;">{!item.productName}</span>
+	                                <aura:if isTrue="{!item.qty != '' }">
+	                                    <span style="color:#4F6A92;margin-left: 20px;font-size: 14px;">n° {!item.qty}</span>
+	                                </aura:if>
+	                            </p>
+	                        </aura:iteration>  
+                     </div>   
+                    </aura:iteration>
+                </div>
+            </div>
+        </div>
+    <!-- cartDetails end-->
+    
+    <div  class="slds-col slds-size_1-of-1 slds-medium-size_3-of-5 slds-small-size_1-of-1" id="base">
+        <aura:iteration items="{!v.productCategories}" var="productCategory" indexVar="indx">
+            
+            <div class="tablelineSlim slds-grid slds-gutters rowHeader"> 
+            
+            <div class="u120 slds-col slds-size_2-of-5" data-label="title">
+                <div id="u121" class="text">
+                    <p><span>{!productCategory.categoryName}</span></p>
+                </div>
+            </div>
+             <div class="qty slds-col slds-size_1-of-5 slds-align_absolute-center">
+                    <span></span>
+                </div>
+                <div class="dettagli slds-col slds-size_1-of-5 slds-align_absolute-center">
+                    <span></span>
+                </div>
+                <div class="seleziona slds-col slds-size_1-of-5 slds-align_absolute-center">
+                    <span>SELEZIONA</span>
+                </div>
+
+            </div> 
+            
+            
+            <div id="checkboxwrapper">
+                <aura:iteration items="{!productCategory.items}" var="item" indexVar="indx2">
+                    <!--productRow starts -->
+                   <div class="qtyContainer tablelineSlim">
+                        <div class="slds-grid slds-gutters catalogItemWrapper" id="{!item.id+'_prdRow'}">
+                            <div class="slds-col slds-size_2-of-5" style="margin-top: 1%; margin-bottom: 1%; ">
+                                <span class="slds-grid slds-gutter"> 
+                                    <span class="prd_img slds-col">
+                                        {!item.thumbnailimage}
+                                        <img class="thumbnailimage" src="{!'/servlet/servlet.FileDownload?file='+item.fields.thumbnailimage}" width="60" height="34"/>
+                                    </span>
+                                    <span class="u122 slds-col" data-label="label">
+                                        {!!empty(item.fields.cartDescription)?item.fields.cartDescription:item.fields.productname}
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="slds-col slds-size_1-of-5 slds-align_absolute-center">
+                                <span>
+                                  
+                                </span>
+                            </div>
+                            <div class="slds-col slds-size_1-of-5 slds-align_absolute-center"> 
+                                <span>
+                                    
+                                </span> 
+                            </div>     
+                            
+                            <div class="check_box slds-col slds-size_1-of-5 slds-align_absolute-center" data-label="checkbox">
+                                <!--<input type="checkbox" id="{!item.id+'_chkbox'}" onclick="{!c.onCheck}"/>-->
+                                <!--    <lightning:input id="{!item.id}" onchange="{!c.onCheck}" type="checkbox" /> -->
+                                <span><lightning:input style="display: inline-block;" id="{!item.id}" onchange="{!c.onCheck}" type="checkbox" /></span>  
+                            </div>
+                        </div>
+                    </div>
+                    <!--productRow ends -->
+                </aura:iteration>
+            </div>
+        </aura:iteration>
+    </div>
+    <!--  Marco Ferri 29/08/2018 WIP -->
+    <aura:if isTrue="{! !empty(v.circuitiList)}">
+	    <div class="u187 slds-col slds-size_1-of-1 slds-medium-size_3-of-5 slds-small-size_1-of-1">
+	        <span class="u187title">RIEPILOGO ACQUIRING CIRCUITI (%) </span>
+	        <div id="u1450" class="tableline">
+	      	</div>
+	        <div class="tableText slds-grid slds-gutters slds-wrap"> <!-- Da riempire tramite chiamata ad evento aura iteration? -->
+	        	<span class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-small-size_1-of-4">BRAND/CIRCUITO</span>
+	        	 
+	        	<aura:iteration items="{!v.categoryCircuit}" var="childCat" > 
+	        		<span class=" valueN slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-small-size_1-of-4 slds-align_absolute-center">{!childCat}</span>
+	        	</aura:iteration> 
+	        </div>   
+	        <aura:iteration items="{!v.circuitiList}" var="item" indexVar="indx3"> 
+	        	<div class="cartItemContainer slds-grid slds-gutters slds-wrap">
+	        		<span class="cartItemToEdit slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-small-size_1-of-4">{!item.productName}</span>
+	        		<aura:iteration items="{!item.value}" var="value" indexVar="indx4">
+	        			<span class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-small-size_1-of-4 slds-align_absolute-center">
+		        			<span class="cartItemValuesToEdit"><input id="{!value.id}" class="inputToEdit"  name="input1" label="" value="{!value}" /></span>
+		                    <span class="cartItemValuesToEditCurrency">%</span>
+	                    </span>
+	        		</aura:iteration>
+	        	</div>
+	        </aura:iteration>    
+	    </div>
+	 </aura:if>   
+    
+</aura:component>

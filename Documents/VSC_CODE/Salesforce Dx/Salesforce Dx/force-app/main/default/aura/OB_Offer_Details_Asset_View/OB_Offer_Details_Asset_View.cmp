@@ -1,0 +1,53 @@
+<aura:component controller = "OB_Active_Asset_View" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global">
+                
+        <aura:attribute name="showOffer" type="Boolean" default="false"/>
+        <aura:attribute name="showPricing" type="Boolean" default="false"/>
+        <aura:attribute name="bundleId" type="String" />
+        <aura:attribute name="objectDataMap" type="Object" />
+        <aura:attribute name="orderParameter" type="String"/>
+        <aura:attribute name="isFlow" type="Boolean" default ="false"/>
+        <aura:attribute name="isReadOnly" type="Boolean" default ="true"/>
+        <aura:attribute name="switchOnload" type="Boolean" default ="false"/>
+        <aura:attribute name="fieldsToShow" type="List" default="['Name','OB_enablement__c','OB_TermId__c','OB_Model__c', 'OB_ModelDescription__c', 'InstallDate','NE__EndDate__c','OB_GT__c', 'NE__Status__c']" /> <!-- 'Owner.Name' -->
+	<aura:attribute name="fieldsToShowAcq" type="List" default="['Name','OB_ServicePointCode__c','InstallDate', 'NE__EndDate__c']" /> 
+	<aura:attribute name="fieldsToShowVas" type="List" default="['Name']" />
+        <aura:attribute name="proposerABI" type="String"/>
+        <aura:attribute name="offerid" type="String"/>
+        <aura:attribute name="recordId" type="String" /> 
+        <!-- <aura:attribute name="teminalid" type="String"/> -->
+        <div  class="slds-form slds-form_compound slds-clearfix" aura:id="MainDiv">
+                <div  class="slds-form-element__row slds-clearfix">
+                        <div class="slds-form-element slds-size_1-of-2 slds-clearfix">Dettagli Offerta</div>
+                        <div  class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small"> 
+                                <lightning:button onclick="{! c.openPricingModal }" label="Visualizza Pricing" class="slds-float_right  slds-button slds-button_neutral slds-button--brand"></lightning:button>
+                        </div>
+                        <!-- <div  class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small"> 
+                                <lightning:button onclick="{! c.closeModal }" label="Annulla" class=" slds-button slds-button_neutral "></lightning:button>
+                        </div> -->
+                </div>
+        </div>
+        <div>
+                <div > 
+                        <c:OB_Maintenance_DynamicTable_Tree fieldsToShow="{!v.fieldsToShow}" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}"   proposerABI="{!v.proposerABI}"/><!--selectedRow="{!v.teminalid}"-->
+                </div>
+
+                <div > 
+                        <c:OB_Maintenance_DynamicTable fieldsToShow="{!v.fieldsToShowAcq}" ObjectToShow="Asset" queryType="ACQUIRING" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}" selectedRow="{!v.recordId}"   MaxRowSelection="0" hideCheckboxColumn="true"  proposerABI="{!v.proposerABI}" />
+                </div> 
+                <div > 
+                        <c:OB_Maintenance_DynamicTable fieldsToShow="{!v.fieldsToShowVas}" ObjectToShow="Asset" queryType="VAS" switchOnload ="{!v.switchOnload}" recordparentid="{!v.offerid}" selectedRow="{!v.recordId}"   MaxRowSelection="0" hideCheckboxColumn="true"   proposerABI="{!v.proposerABI}"/>
+                </div> 
+        </div>
+        
+        <aura:if isTrue="{!v.showPricing}">
+                <c:strike_modal title="Condizioni Economiche" primaryButtonLabel="Ok" secondaryButtonLabel="Cancel" showHeader="true" showFooter="false" showClose="true" showModal="{!v.showPricing}" size="Large" >
+
+                        <c:OB_newCartPriceSummary orderParameter="{!v.orderParameter}" isFlow="{!v.isFlow}" isReadOnly="{!v.isReadOnly}" />
+	
+                        <!-- <div > 
+                                <lightning:button onclick="{! c.closeModalPricing }" label="Annulla" class="slds-button slds-button_neutral "></lightning:button>
+                        </div> -->
+                </c:strike_modal>
+        </aura:if>
+       
+</aura:component>

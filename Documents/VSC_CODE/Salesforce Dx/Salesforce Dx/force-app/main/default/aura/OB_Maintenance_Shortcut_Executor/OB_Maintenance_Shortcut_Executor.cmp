@@ -1,0 +1,42 @@
+<aura:component controller = "OB_Maintenance_Shortcut_Executor_CC" implements="flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:appHostable,force:hasSObjectName,force:hasRecordId">
+	<aura:attribute name="showModal" type="Boolean" access="global" default="false" />
+	<aura:attribute name="recordId" type="String" access="global" default="" />
+	<aura:attribute name="retrieveDone" type="Boolean" access= "global" default="false"/>
+	<aura:attribute name="FlowData" type="string" access="global" default="" />
+    <aura:attribute name="FlowStep" type="string" access="global" default="" />
+    <aura:attribute name="showMerchantDetails" type="boolean" access="global" default="true" />
+    <aura:attribute name="operation" type="boolean" access="global" default="false" />
+
+	<aura:handler name="init" value="{! this }" action="{! c.init }"/> 
+<!-- simone.misani@accenture.com add label -->
+    <aura:if isTrue="{!v.operation}"> 	
+        <lightning:button 	class = "slds-align_absolute-center" 
+                            variant="brand" 
+                            label="{!$Label.c.OB_ModifyExecutor}" 
+                            title="{!$Label.c.OB_ModifyExecutor}"
+                            onclick="{! c.showModalModify}" />
+    </aura:if>
+       <aura:if isTrue="{!v.showModal}">
+           <!-- simone.misani@accenture.com add label -->
+        <c:strike_modal title="{!$Label.c.OB_ModifyExecutor}" 
+                        primaryButtonLabel="Modifica" secondaryButtonLabel="Nuovo Esecutore"
+                        showHeader="true" showFooter="false" 
+                        showClose="true" 
+                        showModal="{!v.showModal}" 
+                        size="large">
+            <aura:if isTrue="{!v.retrieveDone}">
+                <aura:if isTrue = "{!v.showMerchantDetails}">
+               		<c:OB_Maintenance_EditNewExecutor_intermediate  FlowData="{!v.FlowData}" FlowStep="{!v.FlowStep}" showMerchantDetails="{!v.showMerchantDetails}"/>
+               		<c:OB_ContinuationBrokerComponent/>
+               	</aura:if>
+            </aura:if>
+        </c:strike_modal>
+    </aura:if>
+
+
+
+
+
+
+
+</aura:component>

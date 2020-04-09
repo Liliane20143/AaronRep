@@ -1,0 +1,58 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" 
+	access="global"
+	controller="OB_IdentifyCompany_CC">
+	<aura:attribute name="merchantServiceList"      type="Object" default ="{}"   				/>
+	<aura:attribute name="selectedRows" 			type="List" 					 access="global"/>
+	<aura:attribute name="columnsShopSign" 		    type="List" 					 access="global"/>
+	<aura:attribute name="responseMerchant"         type="Object"  default="{}" access="global" description="save the call service response"/>
+	
+
+	<aura:attribute name="wizardWrapper"            type="Object"    default="{}"    access="global"/>
+	<aura:attribute name="objectDataMap"            type="Object"    default="{}"    access="global"/>
+	<aura:attribute name="accId"                    type="String"    default="{!v.objectDataMap.merchant.Id}" /> 
+	<aura:attribute name="nextCheckout"             type="String"    default="{!v.objectDataMap.unbind.nextCheckout}" />
+	<aura:attribute name="objectKey"                type="String"    default=""      access="global"/>
+	<aura:attribute name="identifier"               type="String"    default=""      access="global"/>
+	<aura:attribute name="field"                    type="Object"    default="{}"    access="global"/>
+	<aura:attribute name="showButtons"              type="Boolean"   default="{!v.objectDataMap.showButtons}" />
+	<aura:attribute name="showDataTable"            type="Boolean"   default="false" />
+	<aura:attribute name="hideFiscalCode"           type="Boolean"   default="false" access="global"/>
+	<aura:attribute name="hideVat"                  type="Boolean"   default="false" access="global"/>
+	<aura:attribute name="toggleSpinner"            type="boolean"   default=""				 description="set the spinner after the merchant search"      />
+	<aura:attribute name="showOtherInput"           type="boolean"   default="{!v.objectDataMap.showOtherInput}" description="show the service point input"                   />
+	<aura:attribute name="shopSignList"     	    type="Object" 	 				 access="global" />
+	<aura:attribute name="shopSignList2"     	    type="List" 					default="" access="global" />
+	<aura:attribute name="openModalShopSign"     	type="boolean" 					default="" access="global" />
+	<aura:attribute name="valueShopSignWithModal"   type="String" 					default="" access="global" />
+	<aura:handler name="init"           value="{!this}"              action="{!c.doInit}"/> 
+
+
+	<!--###### MODAL BOX Start######--> 
+	
+	
+	
+	
+	<div class="slds-modal__content slds-p-around_medium slds-is-relative" style="height: 200px" id="modal-content-id-1">
+
+		<div class="slds-col" id= "dataTableId">
+			
+			
+
+			<lightning:dataTable data="{!v.shopSignList}"
+				columns="{! v.columnsShopSign }"
+				keyField="idKey"
+				selectedRows="{!v.selectedRows}" 
+				onrowselection="{! c.getSelectedShopSign }"
+				hideCheckboxColumn="false"
+				required="true"/>
+				
+			</div>
+
+		</div>
+		<!--DATA TABLE END-->
+
+		
+		<!-- <div class="slds-backdrop slds-backdrop_open"></div> -->
+
+
+	</aura:component>

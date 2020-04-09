@@ -1,0 +1,96 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+	
+<aura:attribute name="childItem" type="Object"/>
+<aura:attribute name="fatherItem" type="Object"/>
+<aura:attribute name="itemToUpdate" type="Object"/>
+<aura:attribute name="checkAttributeRules" type="String" default=""/> <!-- ok, warning, error -->	
+<aura:attribute name="Spinner" type="Boolean" default="true"/>
+<aura:attribute name="qtyMax" type="Integer" default="900"/>
+<aura:attribute name="MapAttributeItems" type="Object"/>
+<aura:attribute name="errorMessageACQ" type="String" default="{!$Label.c.OB_invalidValue}"/>
+<aura:attribute name="numOfCol" type="Integer" />
+<aura:attribute name="numOfColPrdName" type="Integer" />
+<aura:attribute name="isReadOnly" type="boolean" default="false"/>
+<aura:attribute name="isMaintenancePCI" type="boolean" default="false"/>
+<aura:attribute name="isMaintenancePricing" type="boolean" default="false"/>
+<aura:attribute name="isEditCommissionModel" type="boolean" default="false"/>
+
+<aura:attribute name="approvalTypePricing" type="boolean" default="false"/>
+
+<!--22/02/19 francesca.ribezzi adding map to check Maggiorazione and Percentuale values for maintenance pricing-->
+<aura:attribute name="mapChildIdName" type="Map"/>
+
+<!--28/02/19 francesca.ribezzi adding configuration approval status for operatore di filiale-->
+<aura:attribute name="approvalStatus" type="String" access="global"/>
+<!--21/03/19 francesca.ribezzi adding attribute for childItems start date -->
+<aura:attribute name="showStartDate" type="Boolean" default="false" access="global"/>
+
+<aura:registerEvent name="childItemAcqEvent" type="c:OB_childItemACQevent"/> 
+
+<!-- LUBRANO 16/01/2019 Libreria Log -->
+<ltng:require scripts = "{!$Resource.utils}" afterScriptsLoaded =  "{!c.logInit}" />
+<!-- Start antonio.vatrano 08/05/2019 r1f2-106 -->
+<aura:attribute name="userLicense" type="String"  default="" access="global"/>
+<!-- End antonio.vatrano 08/05/2019 r1f2-106 -->
+
+<aura:attribute name="childApprovalLevelMap" type="Map" default="{}" access="global"/>	 <!-- francesca.ribezzi 26/11/19 - performance adding map --> 
+
+<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+<aura:registerEvent name="approvalOrderRulesEvent" type="c:OB_ApprovalOrderRulesEvent"/> 
+	<div class="cartItemContainer slds-grid slds-gutters "> 
+		<span class="{!'cartItemToEdit slds-col slds-size_1-of-1 slds-medium-size_'+v.numOfColPrdName+'-of-'+v.numOfCol+' slds-small-size_1-of-1'}">{!v.childItem.fields.productname}
+		<!--START francesca.ribezzi 21/03/19 adding start date: -->
+			<aura:if isTrue="{!and(v.showStartDate, v.childItem.fields.active)}"> 
+				<br></br>
+				<div class="childItemStartDate">
+					{!$Label.c.OB_validity_startDate}: {!v.childItem.fields.newStartDateFormat}
+				</div>
+			</aura:if>
+		</span> 
+		<!--END -->
+	    <aura:iteration items="{!v.childItem.listOfAttributes}" var="att" indexVar="indx4">
+		<div class="{!'slds-col slds-size_1-of-1 slds-medium-size_1-of-'+v.numOfCol+' slds-small-size_1-of-1 slds-align_absolute-center'}"> 
+			<aura:if isTrue="{!and(att.fields.name != 'fake',att.commission == false)}">
+			    <span class="cartItemValuesToEdit">
+			  <!--   <aura:if isTrue="{!and(att.fields.value != null,att.fields.value != '')}">    -->
+			        <aura:if isTrue="{!att.fields.readonly == 'true' || att.fields.readonly == true || v.isReadOnly == true || v.isMaintenancePCI == true}">
+			        <!--  <aura:if isTrue="{!or(att.fields.readonly == 'true', att.fields.readonly == true, v.isReadOnly == true, v.isMaintenancePCI == true, and(att.fields.OB_Attribute_Code__c == 'RIDUZIONE', v.isMaintenancePricing))}">   -->
+					<!--QUI WARNING-->	
+				<!--	<aura:if isTrue="{!(att.fields.value lt att.fields.OB_Min_Threshold__c || att.fields.value gt att.fields.OB_Max_Threshold__c) &amp;&amp; v.approvalTypePricing &amp;&amp; ((att.fields.Old_Value__c != att.fields.value &amp;&amp; v.childItem.fields.action == 'Change') || v.childItem.fields.action == 'Add')}">
+						<input id="{!indx4}" class="inputToEdit borderTransparent borderWarning "  label="" value="{!att.fields.value}" readonly="readonly"/>
+						<aura:set attribute="else">-->
+							<!-- dynimac class here-->
+							<input id="{!indx4}" class="{!att.isWarningApproval? 'inputToEdit borderTransparent borderWarning' : 'inputToEdit inputReadonly'}"  label="" value="{!att.fields.value}" readonly="readonly" name ="{!v.childItem.fields.productname+'_'+att.fields.name}"/>
+					<!--	</aura:set>
+					</aura:if>	-->
+						<aura:set attribute="else">
+			            	<aura:if isTrue="{! att.fields.status == 'error'}"> 
+			                	<input id="{!v.childItem.fields.itemCode+'_'+att.fields.idfamily+'_'+att.fields.propid}" class="inputToEdit borderError" aura:id="ACQAuraId" label="" value="{!att.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}" name ="{!v.childItem.fields.productname+'_'+att.fields.name+'_Red'}"/> 
+			            	</aura:if>
+			            	<aura:if isTrue="{! att.fields.status == 'warning' }">
+			            		<input id="{!v.childItem.fields.itemCode+'_'+att.fields.idfamily+'_'+att.fields.propid}" class="inputToEdit borderWarning" aura:id="ACQAuraId" label="" value="{!att.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}" name ="{!v.childItem.fields.productname+'_'+att.fields.name+'_Yellow'}"/> 
+							</aura:if>
+							<!--giovanni spinelli-->
+							<aura:if isTrue="{! att.fields.status == 'ok_change' }">
+			            		<input id="{!v.childItem.fields.itemCode+'_'+att.fields.idfamily+'_'+att.fields.propid}" class="inputToEdit borderCorrect" aura:id="ACQAuraId" label="" value="{!att.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}" name ="{!v.childItem.fields.productname+'_'+att.fields.name+'_Green'}"/> 
+							</aura:if>
+							<!--giovanni spinelli-->
+			            	<aura:if isTrue="{! att.fields.status == 'ok' ||  att.fields.status == '' || att.fields.status == null }">
+			            		<input id="{!v.childItem.fields.itemCode+'_'+att.fields.idfamily+'_'+att.fields.propid}" class="inputToEdit" aura:id="ACQAuraId" label="" value="{!att.fields.value}" onchange="{!c.onChangeAttributeValue}" onkeypress="{!c.disableEnterOnPress}" name ="{!v.childItem.fields.productname+'_'+att.fields.name+'_Neutral'}"/> 
+			            	</aura:if>
+			            </aura:set>
+			        </aura:if>
+			        <span class="cartItemValuesToEditCurrency">{!att.fields.description}</span> <!-- change to % ....Doris D. 13/03/2019-->  
+			        <!--  error management --> 
+			        <span class="errMsg hidden" id="{!v.childItem.fields.itemCode+'_'+att.fields.idfamily+'_'+att.fields.propid+'_errorACQ'}" >
+			 			<p style="width:44px;">{!v.errorMessageACQ}</p> 
+					</span>
+					<!--  error management -->  
+				<!-- 	</aura:if>       -->
+			    </span>      
+			 </aura:if>   
+		</div>
+		</aura:iteration>
+	</div>
+              
+</aura:component>

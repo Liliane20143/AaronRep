@@ -1,0 +1,64 @@
+<aura:component controller="OB_ContinuationController" access="global" 
+	implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId">
+	<aura:attribute name="singleDocument" type="String"/>
+	<aura:attribute name="myMap" type="Map" default="{}" access="global"/>
+	<aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="mapRecordId" type="Map" default="{}" access="global"/>
+	<aura:attribute name="response" type="Object" default="{}" access="global"/>
+	<aura:attribute name="mapDocumentId" type="Map" default="{}" access="global"/>
+	<aura:attribute name="showMessage" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="showError" type="Boolean" default="false" access="global"/>
+	<aura:handler name="change" value="{!v.response}" action="{!c.changeResponse}"/>
+	<aura:attribute name="showFlag" type="Boolean" default="false" access="global"/>
+	<aura:attribute name="showSpinner" type="Boolean" default="false" access="global"/>
+	<!--giovanni spinelli start-->
+	<aura:attribute name="disableGenerateButton" type="Boolean" default="false" access="global"/>
+	<!--giovanni spinelli end-->
+	<aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+	<!-- LUBRANO 2019-04-09  SETUP-251- attribute with template,name and sfdc code -->
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:attribute name="documentParameters" type="String"/>
+	<!--  LUBRANO 2019-04-09  SETUP-251- end -->
+	<tr class="trow">
+		<th>
+			<div class="slds-grid slds-gutters myGrid slds-grid_vertical-align-center myRow">
+				<div class="slds-col slds-size_1-of-10">
+					<lightning:button label="{!$Label.c.OB_Generate}" title="Genera Documento" class="GeneraButton" onclick="{!c.callService}" disabled="{!v.disableGenerateButton}" /><!--giovanni spinelli 14/05/2019 add disabled attribute-->
+				</div>
+				<div class="slds-col slds-size_7-of-10 myWord">
+					{!v.singleDocument}
+				</div>
+				<aura:if isTrue="{!v.disableGenerateButton}">
+					<div class="slds-col slds-size_7-of-10 myWord_italic">
+						{!$Label.c.OB_GeneratingContract}
+					</div>
+				</aura:if>
+				<div class="slds-col slds-size_2-of-10 slds-col_bump-left adjustPaddingIcon"> <!-- gianluigi.virga 02/10/2019- add css adjustPadding class -->
+
+					<aura:if isTrue="{!v.showFlag}">
+						<lightning:icon aura:id="statusIcon" iconName="action:approval" size="xx-small"/>
+					</aura:if>
+
+					<aura:if isTrue="{!v.showError}">
+						<lightning:icon aura:id="errorIcon" iconName="action:close" size="xx-small"/>
+					</aura:if>
+
+					<aura:if isTrue="{!v.showSpinner}">
+						<div aura:id="spinner" role="status" class="mySpinner slds-spinner slds-spinner_x-small">
+							<div class="slds-spinner__dot-a"></div>
+							<div class="slds-spinner__dot-b"></div>
+						</div>
+					</aura:if>
+
+				</div>
+			</div>
+			<aura:if isTrue="{!v.showMessage}">
+				<div aura:id="loadErrorMessage" class="errorMessage">
+					{!$Label.c.OB_DocumentErrorMessage}
+				</div>
+			</aura:if>
+		</th>
+	</tr>
+
+
+</aura:component>

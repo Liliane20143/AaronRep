@@ -1,0 +1,8 @@
+<!--
+ - Created by adrian.dlugolecki on 18.06.2019.
+ -->
+
+<aura:event type="COMPONENT" description="OB_LEV006_TEContactEvent">
+    <aura:attribute type="String" name="inContactJson" access="public"/>
+    <aura:attribute type="String" name="logRequestType" access="public"/>
+</aura:event>

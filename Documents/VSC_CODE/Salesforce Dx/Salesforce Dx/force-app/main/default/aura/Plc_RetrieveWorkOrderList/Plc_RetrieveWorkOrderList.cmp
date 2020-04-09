@@ -1,0 +1,217 @@
+<aura:component controller="Plc_RetrieveWorkOrderListCnt"  implements="lightning:isUrlAddressable,force:hasRecordId">
+
+	<!-- Attributes that can be set while component calling-->
+    <aura:attribute name="objectName" type="string" default="" required="true" />
+	<aura:attribute name="fieldName" type="string" default="" required="true" />
+	<aura:attribute name="selectFields" type="string" default="" required="false" />
+    <aura:attribute name="value" type="String" default="" description="To pre-populate a value" />
+    <aura:attribute name="recordCount" type="string" default="5" description="Records visible at once"/>
+    <aura:attribute name="iconName" type="string" default="standard:drafts" description="complete icon name eg. standard:account" />
+    <aura:attribute name="label" type="string" default="" description="Label will be displayed above input Box" />
+	<aura:attribute name="placeholder" type="string" default="Search.." description="placeholder for input Box" />
+	<aura:attribute name="serialNumberLabel" type="string" default="" description="Serial Number Label" />
+	<aura:attribute name="workOrderAliasLabel" type="string" default="" description="Work Order Label" />
+	<aura:attribute name="showDataTable" type="Boolean" default="false" />
+	<aura:attribute name="showNoDataFound" type="Boolean" default="false" />
+	<aura:attribute name="showSpinner" type="Boolean" default="false" />
+
+    <!-- Internal Use Attributes -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="searchSerialNumber" type="string" default="" description="String to search"/>
+    <aura:attribute name="searchTermId" type="string" default="" description="String to search"/>
+    <aura:attribute name="searchWorkOrder" type="string" default="" description="String to search"/>
+    <aura:attribute name="selectedRecord" type="Object" default="" description="selected Record Details" />
+    <aura:attribute name="recordsList" type="List" description="List of Records having data" access="private" />
+    <aura:attribute name="message" type="String" default="" />
+	<aura:attribute name="checkboxValue" type="Boolean" default="" />
+	<aura:attribute name="picklistValue" type="String" default="all" />
+	<!-- <aura:attribute name="resultLength" type="integer" default="" /> -->
+	<aura:attribute name="mycolumns" type="List"/>
+	<aura:attribute name="data" type="List" />
+	<aura:attribute name="picklistOptions" type="List" default="[
+    {'label': 'All', 'value': 'all'},
+    {'label': 'Stock order present and open', 'value': 'stockOrderPresentOpen'},
+    {'label': 'Stock Order present and closed or with remaining lines', 'value': 'stockOrderPresentClosed'},
+    ]"/>
+
+    <!-- data table attributes -->
+    <aura:attribute name="columns" type="List" />
+    <aura:attribute name="filteredData" type="List" />
+
+    <!-- filter input -->
+    <aura:attribute name="filter" type="String" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+
+
+    <!-- Component "Lookup" Markup -->
+    <div class="slds-form-element">
+	<!--	<label class="slds-form-element__label" for="combobox-id-1">{!if(v.label != '',v.label,v.fieldName)}</label> -->
+		<div class="slds-form-element__control slds-card">
+			<!--
+         <div id="headerContainer" tabindex="0" role="heading" class="slds-page-header titleArea"> 
+            <lightning:icon iconName="standard:work_order" size="medium" /> &nbsp;  <h2 style="display: contents;">{!$Label.c.Plc_LightningComponentRetrieveWorkOrderListHeader}</h2>
+		 </div> -->
+		 
+
+		 <div class="slds-page-header slds-p-around_medium" data-aura-rendered-by="308:0"> <lightning:icon iconName="standard:work_order" size="medium" /> &nbsp; <h1 class="slds-page-header__title slds-text-heading--small slds-align-bottom slds-truncate" style="display: contents;" title="{!$Label.c.Plc_LightningComponentRetrieveWorkOrderListHeader}" data-aura-rendered-by="309:0">{!$Label.c.Plc_LightningComponentRetrieveWorkOrderListHeader}</h1></div>
+
+
+		    <div class="slds-combobox_container">
+			    <div class="slds-is-open" label="Result" aura:id="resultsDiv" aria-expanded="true" aria-haspopup="listbox" role="combobox">
+                    <div class="SearchContainer">
+                    <lightning:layout >
+                    <lightning:layoutItem padding="around-small">
+			        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+				        <div aura:id="lookup-pill" class="{! 'slds-pill-container ' + if(v.selectedRecord == '','slds-hide','') }">
+		                    <!-- Selected Value Pill -->
+		                    <lightning:pill class="fullWidth" label="{!v.selectedRecord.label}" name="{!v.selectedRecord.value}" onremove="{! c.removeItem }">
+		                        <aura:set attribute="media">
+		                            <lightning:icon iconName="{!v.iconName}" size="x-small" alternativeText="icon"/>
+		                        </aura:set>
+		                    </lightning:pill>
+		                </div>
+		                <div aura:id="lookupField" class="{! if(v.selectedRecord == '','slds-show','slds-hide') }">
+		                	<!-- Icon, Search Bar, Search Icon -->
+					        <span class="slds-icon_container slds-combobox__input-entity-icon inputIcon" title="record">
+		                        <lightning:icon class="slds-icon slds-icon_small slds-icon-text-default" iconName="custom:custom21" size="x-small" alternativeText="icon"/>
+							</span>
+							<span onkeypress="{!c.keyCheck}" class="slds-size--11-of-12">
+							<lightning:input label="{!$Label.c.Plc_LightningComponentRetrieveWorkOrderListSerialNumberLabel}" aura:id="inputLookup1" id="combobox-id-1" role="textbox" class="inputBox" placeholder="{!v.placeholder}" value="{!v.searchSerialNumber}"  onblur="{!c.blurEvent}" aria-controls="listbox-id-1" autoComplete="off" />
+							</span>
+					        <span class="slds-icon_container slds-icon-utility-down slds-input__icon slds-input__icon_right">
+					            <lightning:icon iconName="utility:search" size="x-small" alternativeText="search"/> 
+					        </span>
+					       
+					    </div>
+					</div>
+                    </lightning:layoutItem>
+                    
+                    <lightning:layoutItem padding="around-small">
+                    <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+				        <div aura:id="lookup-pill" class="{! 'slds-pill-container ' + if(v.selectedRecord == '','slds-hide','') }">
+		                    <!-- Selected Value Pill -->
+		                    <lightning:pill class="fullWidth" label="{!v.selectedRecord.label}" name="{!v.selectedRecord.value}" onremove="{! c.removeItem }">
+		                        <aura:set attribute="media">
+		                            <lightning:icon iconName="{!v.iconName}" size="x-small" alternativeText="icon"/>
+		                        </aura:set>
+		                    </lightning:pill>
+		                </div>
+		                <div aura:id="lookupField" class="{! if(v.selectedRecord == '','slds-show','slds-hide') }">
+		                	<!-- Icon, Search Bar, Search Icon -->
+					        <span class="slds-icon_container slds-combobox__input-entity-icon inputIcon" title="record">
+		                        <lightning:icon class="slds-icon slds-icon_small slds-icon-text-default" iconName="custom:custom45" size="x-small" alternativeText="icon"/>
+							</span>
+							<span onkeypress="{!c.keyCheck}" class="slds-size--11-of-12">
+							<lightning:input label="Termid" aura:id="inputLookup2" id="combobox-id-2" role="textbox" class="inputBox" placeholder="{!v.placeholder}"  value="{!v.searchTermId}" onblur="{!c.blurEvent}"  aria-controls="listbox-id-1" autoComplete="off" />
+							</span>
+					        <span class="slds-icon_container slds-icon-utility-down slds-input__icon slds-input__icon_right">
+					            <lightning:icon iconName="utility:search" size="x-small" alternativeText="search"/> 
+					        </span>
+					       
+					    </div>
+					</div>
+                    </lightning:layoutItem>
+                   
+                    <lightning:layoutItem padding="around-small">
+                    <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+				        <div aura:id="lookup-pill" class="{! 'slds-pill-container ' + if(v.selectedRecord == '','slds-hide','') }">
+		                    <!-- Selected Value Pill -->
+		                    <lightning:pill class="fullWidth" label="{!v.selectedRecord.label}" name="{!v.selectedRecord.value}" onremove="{! c.removeItem }">
+		                        <aura:set attribute="media">
+		                            <lightning:icon iconName="{!v.iconName}" size="x-small" alternativeText="icon"/>
+		                        </aura:set>
+		                    </lightning:pill>
+		                </div>
+		                <div aura:id="lookupField" class="{! if(v.selectedRecord == '','slds-show','slds-hide') }">
+		                	<!-- Icon, Search Bar, Search Icon -->
+					        <span class="slds-icon_container slds-combobox__input-entity-icon inputIcon" title="record">
+		                        <lightning:icon class="slds-icon slds-icon_small slds-icon-text-default" iconName="standard:work_order" size="x-small" alternativeText="icon"/>
+							</span>
+							<span onkeypress="{!c.keyCheck}" class="slds-size--11-of-12">
+							<lightning:input label="{!$Label.c.Plc_LightningComponentRetrieveWorkOrderListWorkOrderAliasLabel}" aura:id="inputLookup3" id="combobox-id-3" role="textbox" class="inputBox" placeholder="{!v.placeholder}" value="{!v.searchWorkOrder}" onblur="{!c.blurEvent}"  aria-controls="listbox-id-1" autoComplete="off" />
+							</span>
+					        <span class="slds-icon_container slds-icon-utility-down slds-input__icon slds-input__icon_right">
+					            <lightning:icon iconName="utility:search" size="x-small" alternativeText="search"/> 
+					        </span>
+					       
+					    </div>
+					</div>
+                    </lightning:layoutItem>
+
+                    <lightning:layoutItem padding="around-small">
+                        <div class="checkboxContainer">
+                            <div class="slds-form-element">
+                                    <div class="slds-form-element__control">
+                                      <div class="slds-checkbox">
+										<!--<input type="checkbox" name="options" id="checkbox-2" value="{!v.checkboxValue}" onchange="{!c.checkValueCheckbox}" /> -->
+										<lightning:combobox aura:id="comboboxListValue" class="comboboxValueAll" name="progress" label="Stock Order Status" value="{!v.picklistValue}" placeholder="Select Progress" options="{! v.picklistOptions }" onchange="{! c.handleChange }"/>
+                                        <label class="slds-checkbox__label" for="checkbox-2">
+                                        </label>
+                                      </div>
+                                    </div>
+                                  </div>
+                        </div>
+					</lightning:layoutItem>
+					<lightning:layoutItem padding="around-small">
+						<lightning:button label="{!$Label.c.Plc_AllAllSearchLabel}" title="Search Work Orders" onclick="{!c.searchRecords}" variant="brand" class="slds-m-left_x-small buttonSearch"/>
+					</lightning:layoutItem>
+                    </lightning:layout>
+                    </div>
+
+			    </div>
+			</div>
+		
+			<aura:renderIf isTrue="{!v.showSpinner}">
+					<div class="demo-only" style="height:14rem">
+							<div class="slds-spinner_container">
+							  <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_brand">
+								<span class="slds-assistive-text"></span>
+								<div class="slds-spinner__dot-a"></div>
+								<div class="slds-spinner__dot-b"></div>
+								<p style="transform: translate(-32%, -50%) rotate(-90deg);width: 320px;text-align: center;"> {!$Label.c.Plc_LightningComponentRetrieveWorkOrderListSearching} </p>
+							  </div>
+							</div>
+						  </div>
+			</aura:renderIf>
+
+			<aura:If isTrue="{!v.showDataTable}">
+				<div class="slds-m-around--small workOdersFoundLabel"><!-- Work Orders Found: {!v.resultLength} -->{!$Label.c.Plc_LightningComponentRetrieveWorkOrderListToolTip}</div>
+				<div class="slds-m-around--small slds-card_boundary slds-scrollable_y divOfTable slds-table--header-fixed">
+				<lightning:datatable class="tableStyle" keyField="value" onblur="{!c.blurEvent}" columns="{!v.columns}" data="{!v.filteredData}" hideCheckboxColumn="true" onrowaction="{!c.handleRedirect}"/>
+				</div>
+			</aura:If>
+
+				<aura:renderIf isTrue="{!v.showNoDataFound}">
+					<!--<div class="slds-illustration slds-illustration_large" aria-hidden="true">
+						<img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt=""/>
+						<div class="slds-text-color_weak">
+							<h3 class="slds-text-heading_medium">No Work Orders found</h3>
+						</div>
+					</div> -->
+
+					<div class="slds-illustration slds-illustration_small" aria-hidden="true">
+							<img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt=""/>
+							<div class="slds-text-color_weak">
+								<div class="slds-text-heading_small">
+								{!$Label.c.Plc_LightningComponentRetrieveWorkOrderListNoWorkOrderFound} 
+								</div>
+							</div>
+						</div>
+				</aura:renderIf>
+		</div>
+	</div>
+	
+	<!--
+	<lightning:datatable data="{! v.acctList }" 
+	columns="{! v.mycolumns }" 
+	keyField="id"
+	hideCheckboxColumn="true"
+	onchange="{!v.fetchAccounts}"/>
+
+	
+	-->
+
+	<!-- <lightning:input type="text" onchange="{!c.filter}" value="{!v.filter}" label="Filter" /> -->
+	
+</aura:component>

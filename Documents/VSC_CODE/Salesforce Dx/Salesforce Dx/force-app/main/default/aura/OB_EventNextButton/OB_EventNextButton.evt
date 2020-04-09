@@ -1,0 +1,7 @@
+<aura:event type="APPLICATION" description="Event to check required fields" >
+    <aura:attribute name="idStep" type="String" default=""/>
+    <aura:attribute name="showPvErrorMessage" type="Boolean" default=""/>
+    <aura:attribute name="showModal" type="Boolean" default=""/>
+   <!-- <aura:attribute name="objectDataMap"            type="Object"    default="{}"    access="global"/>-->
+
+</aura:event>

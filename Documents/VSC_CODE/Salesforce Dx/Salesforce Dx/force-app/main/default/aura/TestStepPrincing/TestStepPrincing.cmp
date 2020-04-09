@@ -1,0 +1,9 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" >
+    <aura:registerEvent name="appEvent" type="c:OB_EventNextButton"/>
+     <lightning:input aura:id="stepId" label="" name="testBoolean" class="slds-hide" value="step_getPrincing" />
+    
+     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+
+	
+</aura:component>

@@ -1,0 +1,86 @@
+<aura:component access="global" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable,force:hasRecordId" controller="OB_Maintenance_AttachedDocs_CC">
+	
+	<!-- AURA ATTRIBUTE -->
+	<aura:attribute name="recordId" 		type="String" 	access="global"/>
+	<aura:attribute name="isReadOnly" 		type="Boolean" 	access="global" 	default="false"/>
+	<aura:attribute name="logrequestid" 	type="String" 	access="global"/>
+	<aura:attribute name="documentsList" 	type="String[]" access="global" 	default="[]"/> 
+	<aura:attribute name="license"		type="String" 	access="global"/>
+	<aura:attribute name="response" 		type="Map" 		access="global"/> 
+	<aura:attribute name="mapFileNet" 		type="Map" 		access="global" 	default="{}"/>
+	<aura:attribute name="compareMap" 		type="Map" 		access="global" 	default="{}"/>
+	<aura:attribute name="listFields" 		type="String[]" access="global" 	default="[]"/>
+	<aura:attribute name="hideComponent"	type="Boolean" 	access="global" 	default="false"/>
+
+	<!-- AV 19_12_18 -->
+	<aura:attribute name="mapAllLoad" type="Map" default="{}" access="global"/>
+	<aura:handler name="change" value="{!v.mapAllLoad}" action="{!c.checkAllTrue}"/>
+	<aura:attribute name="showSaveButton"	type="Boolean" 	access="global" 	default="false"/>
+	<aura:attribute name="isDraft"	type="Boolean" 	access="global" 	default="false"/>
+	<aura:attribute name="isDraftModal"	type="Boolean" 	access="global" 	default="false"/>
+	<aura:attribute name="listIsEmpty"	type="Boolean" 	access="global" 	default="false"/>
+	<aura:attribute name="callFilnetGetDocs"	type="String" 	access="global" 	default=""/>
+	<aura:attribute name="fromLogDetail"	type="String" 	access="global" 	default=""/>
+	<!-- AV 19_12_18 -->
+	<!-- Libreria pe consoleLog -->  
+	<!-- <ltng:require scripts = "{!$Resource.utils}" afterScriptsLoaded =  "{!c.logInit}" /> -->
+	<!-- START AV 22/02/2019 -->
+	<aura:attribute name="isAdmin"	type="Boolean" 	access="global" 	default="false"/>
+	<!-- AURA HANDLER -->
+
+	<aura:handler name="init" 	value="{!this}" 			action="{!c.doInit}"/>
+	<aura:handler name="change" value="{!v.mapFileNet}" 	action="{!c.compareDocFilenetSalesForce}"/>
+
+	<!-- START AV 06/03/2019  SETUP 200 -->
+	<aura:attribute name="rejectReasonBool" type="Boolean" default="false" access="global"/> 
+	<!-- START AV 03/04/2019  SHORTCUTMAINTENANCE -->
+	<aura:attribute name="isOperation" type="Boolean" default="false" access="global"/>
+	<!-- NEXI-97 marta.stempien@accenture.com 10/06/2019 Start -->
+	<aura:attribute name = "saeAtecoHasChanged"     type="Boolean"  access = "global"  description = "Is set to true when SAE/ATECO values has been changed"   default ="false"/>
+	<!-- NEXI-97 marta.stempien@accenture.com 10/06/2019 Stop -->
+    <!-- NEXI-60 Adrian Dlugolecki<adrian.dlugolecki@accenture.com> 19/06/2019 Start -->
+    <aura:attribute name = "isTEEdit" type="Boolean"  access = "global"  description = "Set to true if there is modification on TE contact"   default ="false"/>
+    <!-- NEXI-60 Adrian Dlugolecki<adrian.dlugolecki@accenture.com> 19/06/2019 Stop -->
+	<!-- NEXI-259 Marta Stempien <marta.stempien@accenture.com> 08/08/2019 Start -->
+	<aura:attribute name = "uploadedDocuments" 	type="List"  	access = "private"  description = "ListOfUploadedDocuments"  							default ="[]"/>
+	<aura:attribute name = "isSaveAsDraft" 		type="Boolean"  access = "global"  	description = "Is set to true when OB_Save_as_Draft__c is true"   	default ="false"/>
+	<!-- NEXI-259 Marta Stempien <marta.stempien@accenture.com> 08/08/2019 Stop -->
+	<!-- NEXI-298 Marta Stempien <marta.stempien@accenture.com> 06/09/2019 Start -->
+	<aura:attribute name = "logRequests" 				type = "List"  		default = "[]"		description = "List of log requests that require documents" 		access = "global"/>
+	<aura:attribute name = "documentsByLogRequestId"	type = "Object"							description = "Map: lists of required documents by log requests id" access = "global" />
+	<!-- NEXI-298 Marta Stempien <marta.stempien@accenture.com> 06/09/2019 Stop -->
+	<aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+
+	<!-- NEXI-259 Marta Stempien <marta.stempien@accenture.com> 08/08/2019, Modification, Start -->
+	<aura:if isTrue="{!or(!v.isDraft,or(v.isDraftModal, v.isSaveAsDraft))}">
+		<aura:if isTrue="{!and(!v.hideComponent, or(and(!isDraftModal, !empty(v.uploadedDocuments)), and(v.isDraftModal, !empty(v.documentsList))))}">
+			<div class="slds-grid slds-size_1-of-1">
+				<table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal" style="border-top:none;">
+					<div class="slds-grid slds-size_1-of-1">
+						<form class="slds-form slds-grid slds-size_1-of-1">
+							<legend class="slds-form-element__label">{!$Label.c.OB_Documentation}</legend>
+							<fieldset class="maintenance-FormSectionCmp" name="attacheddocumentationsection" data-aura-class="maintenance-FormSectionCmp"/>
+						</form>
+					</div>
+					<div class="sectionColsContainer maintenance-section-separator"/>
+					<tbody>
+							<aura:iteration items="{!v.isDraftModal ? v.documentsList : v.uploadedDocuments}" indexVar="index" var="doc">
+								<!-- NEXI-298 Marta Stempien <marta.stempien@accenture.com 11/09/2019 added documentsByLogRequestId param -->
+								<c:OB_singleAttachedDocumentations  documentsByLogRequestId="{!v.documentsByLogRequestId}" documentsList="{!v.isDraftModal ? v.documentsList : v.uploadedDocuments}" documentType="{!v.response}" singleDoc="{!doc}" listFields="{!v.listFields}" license="{!v.license}" isAdmin = "{!v.isAdmin}" compareMap="{!v.compareMap}" isFromLogRequest="true" isDraftModal= "{!v.isDraftModal}" readonly="{!v.isReadOnly}" mapAllLoad="{!v.mapAllLoad}" rejectReasonBool = "{!v.rejectReasonBool}" isOperation="{!v.isOperation}"/>	<!--antonio.vatrano 07/05/2019 add isOperation-->
+							</aura:iteration>
+							<!-- NEXI-259 Marta Stempien <marta.stempien@accenture.com> 08/08/2019, Stop -->
+					</tbody>		 
+				</table>
+				<div aura:id="messageError" class="slds-hide messageEmp1">
+					{!$Label.c.OB_NoDocToLoad}
+				</div>	
+			</div>
+			<aura:set attribute="else">
+  				<div aura:id="messageError1" class="slds-hide slds-align_absolute-center">
+					{!$Label.c.OB_NoDocToLoad}
+				</div>	
+  			</aura:set>	
+		</aura:if>
+	</aura:if>
+
+</aura:component>

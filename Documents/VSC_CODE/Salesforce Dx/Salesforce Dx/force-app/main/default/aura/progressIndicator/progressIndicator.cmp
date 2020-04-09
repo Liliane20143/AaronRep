@@ -1,0 +1,31 @@
+<aura:component>
+
+    <aura:attribute name="orientation" type="String" default="horizontal" />
+    <aura:attribute name="progress" type="Decimal" default="0" />
+    <aura:attribute name="hasTooltips" type="Boolean" default="false"/>
+    <aura:attribute name="position" type="String" default="" />
+    <aura:attribute name="progressThreshold" type="Decimal" default="5" />
+
+    <aura:handler name="change" value="{!v.progress}" action="{!c.progressChanged}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <div style="{!(and(v.orientation == 'horizontal', v.hasTooltips) ? 'padding-top:.25rem; padding-left:1rem; padding-right:1rem;' : '')}" class="{!v.position}">
+        <div class="{!'slds-progress ' + (v.orientation == 'vertical' ? 'slds-progress_vertical' : '')}">
+            <ol class="slds-progress__list">
+                {!v.body}
+            </ol>
+            <aura:if isTrue="{!v.orientation == 'vertical'}">
+                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="{!v.progress}" role="progressbar">
+                    <span class="slds-assistive-text">Progress: {!v.progress}%</span>
+                </div>
+                <aura:set attribute="else">
+                    <div style="{!v.orientation == 'horizontal' ? 'width:calc(100% - 4px);' : ''}" class="slds-progress-bar slds-progress-bar_x-small" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{!v.progress}" role="progressbar">
+                        <span class="slds-progress-bar__value" style="{!'width:' + v.progress + '%'}">
+                            <span class="slds-assistive-text">Progress: {!v.progress}%</span>
+                        </span>  
+                    </div>  
+                </aura:set>
+            </aura:if>
+        </div>
+    </div>
+</aura:component>

@@ -1,0 +1,56 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+    
+    <aura:attribute name="leftFieldName" type="String" default="{!$Label.c.OB_AvailableABIlist}"/>
+    <aura:attribute name="rightFieldName" type="String" default="{!$Label.c.OB_SelectedOfferABI}"/>
+    <aura:attribute name="leftValues" type="Object[]" default="[]"/>
+    <aura:attribute name="rightValues" type="Object[]" default="[]"/>
+    <aura:attribute name="selectedABI" type="Object[]" access="global"/>
+    <aura:attribute name="activeABI" type="Object[]" access="global"/>
+    <aura:attribute name="searchText" type="String" default=""/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+    <div class="slds"> 
+           
+          <div class="slds-dueling-list slds-grid">
+          
+            <div class="slds-assistive-text" id="drag-live-region" aria-live="assertive"></div>
+ 
+            <c:OB_MatrixItemOrdList aura:id="left" fieldName="{!v.leftFieldName}" values="{!v.leftValues}" position="left" />   
+             
+            <div class="slds-dueling-list__column">
+                <button class="slds-button slds-button_icon-container slds-button_icon-small" title="Right" onclick="{!c.moveRightToLeft}">
+                    <lightning:icon iconName="utility:left" size="small" class="slds-button__icon slds-button__icon_large" />
+                    <span class="slds-assistive-text">Move Selection to Second Category</span>
+                </button>
+                <button class="slds-button slds-button_icon-container slds-button_icon-small" title="Left" onclick="{!c.moveLeftToRight}">
+                    <lightning:icon iconName="utility:right" size="small" class="slds-button__icon slds-button__icon_large" />
+                    <span class="slds-assistive-text">Move Selection to First Category</span>
+                </button>
+            </div>
+            
+            <c:OB_MatrixItemOrdList aura:id="right" fieldName="{!v.rightFieldName}" showUpDown="true" position="right"/>
+            
+            <div class="slds-dueling-list__column slds-p-horizontal_medium"></div>
+            <div class="slds-dueling-list__column">
+                <span class="slds-form-element__label" >{!$Label.c.OB_ActiveABI} </span>
+
+                <lightning:input value="{!v.searchText}" placeholder="Search" onchange="{!c.handleSearch}"/>
+                
+                <div class="slds-dueling-list__options">
+                    <div class="slds-form-element">                       
+                        <aura:iteration items="{!v.rightValues}" var="item">
+                            <div class="slds-listbox__option slds-listbox__option_plain slds-media slds-media_small slds-media_inline" aria-selected="{!item.selected}">
+                                <span class="slds-media__body">
+                                <span id="{!item.id}" class="slds-truncate">{!item.value}</span><br/>
+                                <span id="{!item.id}" class="slds-truncate" style="font-weight: bold;">{!item.label}</span>
+                                </span>
+                            </div>
+                        </aura:iteration>
+                    </div>
+                </div>
+            </div>            
+        </div>
+    </div>   
+
+</aura:component>

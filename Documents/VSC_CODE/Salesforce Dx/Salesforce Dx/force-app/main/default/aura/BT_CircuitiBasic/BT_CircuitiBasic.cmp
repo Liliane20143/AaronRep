@@ -1,0 +1,61 @@
+<aura:component >
+    <aura:registerEvent name="recordChangedEvent" type="c:BT_recordChangedEvt" />
+
+    <aura:attribute name="record" type="BT_Simulation__c" required="true"/>
+
+    <aura:attribute name="config" type="Object" />
+
+    <!-- Colors -->
+    <aura:attribute name="sectionCDPColor" type="String" default="" />
+    <aura:attribute name="sectionCDPColorExtraUE" type="String" default="" />
+    <aura:attribute name="sectionCommColor" type="String" default="" />
+    <aura:attribute name="sectionCommColorExtraUE" type="String" default="" />
+    <aura:attribute name="sectionBancomatColor" type="String" default="" />
+    <aura:attribute name="sectionAsianColor" type="String" default="" />
+    <aura:attribute name="tbBackGrey" type="String" default="rgb(224, 225, 221)" />
+
+    <!-- Sum Percent Cards -->
+    <aura:attribute name="sumPercentCDP" type="Decimal" default="49" />
+    <aura:attribute name="sumPercentCDPExtraUE" type="Decimal" default="14" />
+    <aura:attribute name="sumPercentComm" type="Decimal" default="22" />
+    <aura:attribute name="sumPercentCommExtraUE" type="Decimal" default="3" />
+    <aura:attribute name="sumPercentBancomat" type="Decimal" default="5" />
+    <aura:attribute name="sumPercentAsian" type="Decimal" default="7" />
+    <aura:attribute name="sumPercentEEA" type="Decimal" default="0.17" />
+
+    <aura:attribute name="sliderMax" type="Decimal" default="0,04" />
+    <aura:attribute name="sliderMin" type="Decimal" default="0,002" />
+
+    <aura:attribute name="yellowPercentageThreshold" type="Decimal" default="0.85" />
+    <aura:attribute name="benchmarksOffset" type="Decimal" default="0.1" />
+	
+    <aura:handler name="change" value="{!v.record}" action="{!c.onRecordChange}"/>
+    <aura:handler name="sliderValueChange" event="c:BT_SliderChange" action="{!c.onSliderChange}" />
+    
+
+    <c:BT_Section title="{#$Label.c.BT_TipologiaCarteAccettate}" helptext="{#$Label.c.BT_PopCarteAccettate}">
+        <c:BT_TipologiaCartePlot height="110px" width="100%" title="{#$Label.c.BT_MixDiTransatoEsercente}" record="{!v.record}" showLegend="true" colorCDP="{!v.sectionCDPColor}" colorCDPExtraUE="{!v.sectionCDPColorExtraUE}" colorComm="{!v.sectionCommColor}" colorCommExtraUE="{!v.sectionCommColorExtraUE}" colorBancomat="{!v.sectionBancomatColor}" colorAsian="{!v.sectionAsianColor}" valueCDP="{!v.sumPercentCDP}" valueCDPExtraUE="{!v.sumPercentCDPExtraUE}" valueComm="{!v.sumPercentComm}" valueCommExtraUE="{!v.sumPercentCommExtraUE}" valueBancomat="{!v.sumPercentBancomat}" valueAsian="{!v.sumPercentAsian}" valueEEA="{!v.sumPercentEEA}" type="horizontalBar" tooltipMode="point" />
+    </c:BT_Section>
+    <c:BT_Section title="{#$Label.c.BT_Commissioni}">
+        <lightning:layout horizontalAlign="space">
+            <lightning:layoutItem padding="around-x-small">
+                <c:BT_Slider name="cdp_eu" benchmarkHelptext="{#$Label.c.BT_BenchmarkInfo}" directInput="true" orientation="vertical" label="{#$Label.c.BT_CreditoDebitoPrepagate}" maximumFractionDigits="2" textVariant="caps" min="{#v.sliderMin}" max="{#v.sliderMax}" step="0,0001" benchmarkMin="{#v.config.benchcdp*(1-v.benchmarksOffset)}" benchmarkMax="{#v.config.benchcdp*(1+v.benchmarksOffset)}" value="{#v.config.mfeecdp}" yellowThresholdPercentage="{!v.yellowPercentageThreshold}" showRange="false" width="200" format="0.00%" onchange="{!c.onSliderChange}" />
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="around-x-small">
+                <c:BT_Slider name="comm_eu" directInput="true" orientation="vertical" label="{#$Label.c.BT_Commercial}" maximumFractionDigits="2" textVariant="caps" min="{#v.sliderMin}" max="{#v.sliderMax}" step="0,0001" benchmarkMin="{#v.config.benchcomm*(1-v.benchmarksOffset)}" benchmarkMax="{#v.config.benchcomm*(1+v.benchmarksOffset)}" value="{#v.config.mfeecomm}" yellowThresholdPercentage="{!v.yellowPercentageThreshold}" showRange="false" width="200" format="0.00%" onchange="{!c.onSliderChange}" />
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="around-x-small">
+                <c:BT_Slider name="pb" directInput="true" orientation="vertical" label="{#$Label.c.BT_PagoBancomat}" maximumFractionDigits="2" min="{#v.sliderMin}" textVariant="caps" max="{#v.sliderMax}" step="0,0001" benchmarkMin="{#v.config.benchpb*(1-v.benchmarksOffset)}" benchmarkMax="{#v.config.benchpb*(1+v.benchmarksOffset)}" value="{#v.config.mfeepb}" yellowThresholdPercentage="{!v.yellowPercentageThreshold}" width="200" showRange="false" format="0.00%" onchange="{!c.onSliderChange}" />
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="around-x-small">
+                <c:BT_Slider name="cdp_noeu" directInput="true" orientation="vertical" label="{#$Label.c.BT_AreaNoEuro + ' ' + $Label.c.BT_CreditoDebitoPrepagate}" maximumFractionDigits="2" textVariant="caps" min="{#v.sliderMin}" max="{#v.sliderMax}" step="0,0001" benchmarkMin="{#v.config.benchcdpeea*(1-v.benchmarksOffset)}" benchmarkMax="{#v.config.benchcdpeea*(1+v.benchmarksOffset)}" value="{#v.config.mfeecdpeea}" yellowThresholdPercentage="{!v.yellowPercentageThreshold}" showRange="false" width="200" format="0.00%" onchange="{!c.onSliderChange}" />
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="around-x-small">
+                <c:BT_Slider name="comm_noeu" directInput="true" orientation="vertical" label="{#$Label.c.BT_AreaNoEuro + ' ' + $Label.c.BT_Commercial}" maximumFractionDigits="2" textVariant="caps" min="{#v.sliderMin}" max="{#v.sliderMax}" step="0,0001" benchmarkMin="{#v.config.benchcommeea*(1-v.benchmarksOffset)}" benchmarkMax="{#v.config.benchcommeea*(1+v.benchmarksOffset)}" value="{#v.config.mfeecommeea}" yellowThresholdPercentage="{!v.yellowPercentageThreshold}" showRange="false" width="200" format="0.00%" onchange="{!c.onSliderChange}" />
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="around-x-small">
+                <c:BT_Slider name="asian" directInput="true" orientation="vertical" label="{#$Label.c.BT_CircuitiAsiatici}" maximumFractionDigits="2" textVariant="caps" min="{#v.sliderMin}" max="{#v.sliderMax}" step="0,0001" benchmarkMin="{#v.config.benchasian*(1-v.benchmarksOffset)}" benchmarkMax="{#v.config.benchasian*(1+v.benchmarksOffset)}" value="{#v.config.mfeeasian}" yellowThresholdPercentage="{!v.yellowPercentageThreshold}" width="200" showRange="false" format="0.00%" onchange="{!c.onSliderChange}" />
+            </lightning:layoutItem>
+        </lightning:layout>
+    </c:BT_Section>
+</aura:component>

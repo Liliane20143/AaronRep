@@ -1,0 +1,370 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="bundleElementName" type="String"  />
+    <aura:attribute name="productCategories" type="Object"/>
+    <aura:attribute name="cartList" type="Object"/>
+    <!-- ANDREA MORITTU START 19-Sept-2019 - EVO_PRODOB_452 -->
+    <aura:attribute name="cartCommission" type="Object" access="global"/>
+    <aura:attribute name="catalogItemCommission" type="Object" access="global"/>
+    <aura:attribute name="stopAutomationCheckInput" type="Boolean"  default="false" access="global"/>
+    <!-- ANDREA MORITTU END 19-Sept-2019 - EVO_PRODOB_452 -->
+    <!-- ANDREA MORITTU START - 02-Oct-2019 - EVO_BACKLOG_245 -->
+    <aura:attribute     name="oldVMAttributes"                   type="Object"                                        access="global"             />
+    <!-- ANDREA MORITTU END - 02-Oct-2019 - EVO_BACKLOG_245 -->
+    
+    <aura:attribute name="cartListTotal" type="Integer" default="0"/>
+    <aura:attribute name="offertaId" type="ID"/>
+    <aura:attribute name="configureItem" type="Boolean" default="false" />
+    <aura:attribute name="configureItemChild" type="Boolean" default="false" />
+    <aura:attribute name="offertaAddedToCart" type="Boolean" default="true" />
+    <aura:attribute name="itemAddedToCart" type="Boolean" default="false" />
+    <aura:attribute name="itemRemovedFromCart" type="Boolean" default="false" />
+    <aura:attribute name="itemEditedFromCart" type="Boolean" default="false" />
+    <aura:attribute name="listOfCategories" type="Object"/> <!--tutto-->
+    <aura:attribute name="offertChildList" type="Object"/>
+    <aura:attribute name="contextOutput" type="Object"/>
+    <aura:attribute name="spinner" type="Boolean" default="true"/>
+    
+    <aura:attribute name="urlImages" type="String" />
+    
+    <aura:attribute name="listOfItems" type="List"/>
+    <aura:attribute name="listOfAttributes" type="List"/> 
+    <aura:attribute name="configureBundle" type="Boolean" default="false"/>
+    <aura:attribute name="itemToConfigure" type="Object"/>
+    <aura:attribute name="needConfiguration" type="Boolean" default="false"/>
+    <aura:attribute name="isCheckNextRequired" type="Boolean" />
+    <aura:attribute name="isItemFakeToRemove" type="Boolean" default="false"/>
+    <aura:attribute name="itemFakeToRemove" type="Object"/>
+     <aura:attribute name="qtyMax" type="Integer" default="900"/> 
+    
+    <aura:attribute name="bundleStep" type="Integer"/>
+    <aura:attribute name="requestCheckout" type="Boolean" default="false"/>
+    
+    <aura:attribute name="isFirstAdd" type="Boolean" default="true"/>
+    <aura:attribute name="isCloseConf" type="Boolean" default="false" />
+    <aura:attribute name="oldItemId" type="String" />
+    <aura:attribute name="newItemId" type="String" />
+    <!-- ========= -->     
+    <!-- two? attributes for RIEPILOGO ACQUIRING CIRCUITI section -->
+    <aura:attribute name="circuitiList" type="List" />
+    <aura:attribute name="categoryCircuit" type="List" default="['PERCENTUALE','MAGGIORAZIONE','RIDUZIONE']" description="acquiring categories"/> 
+    <aura:attribute name="acquiringCart" type="List" />
+    <aura:attribute name="numOfCol" type="Integer" default="0"/>
+    <aura:attribute name="itemToUpdate" type="Object"/>
+    <aura:attribute name="numOfCheckedItems" type="Integer" default="0"/>
+    <aura:attribute name="acquiringChildItems" type="List" />
+    <aura:attribute name="errorMessageACQ" type="String" default="Input accept only numbers and [,]"/>
+    <aura:attribute name="maxCategoriesIndex" type="Integer" default="0"/>
+    
+    <!-- 28/11/18 francesca.ribezzi - adding attributes for markup: -->
+    <aura:attribute name="maxCol" type="String" default="0"/>
+    <aura:attribute name="uniqueLabelsAcq" type="List" default="['PERCENTUALE','MAGGIORAZIONE EXTRA EA','RIDUZIONE']" description="acquiring categories to show in markup"/>
+    
+    <aura:attribute name="checkAttributeRules" type="String"/> <!-- ok, warning, error -->
+
+    
+    <aura:attribute name="bundleMaxQty" type="Integer" /> 
+    <aura:attribute name="bundleMinQty" type="Integer" />
+    <aura:attribute name="selectedBundle" type="Object" /> 
+    <aura:attribute name="listOfCartTotal" type="Object" /> <!--  NEW  -->
+    
+    <aura:attribute name="childItemToFocus" type="String" /> <!--  NEW  -->
+
+    <!-- Doris D ... 13/03/2019 .... START -->
+    <aura:attribute name="showMessage" type="Boolean" default= "true"/>
+    <!-- Doris D ... 13/03/2019 .... START -->
+	<!-- isEditCommissionModel used to show pricing table: -->
+ 	<aura:attribute name="isEditCommissionModel" type="Boolean" default="false"/>
+    <!--31/01/19 item checked as landing on page-->
+     <aura:attribute name="originItem" type="Object"/>
+    <!-- LUBRANO 16/01/2019 Libreria Log -->
+    <ltng:require scripts = "{!$Resource.utils}" afterScriptsLoaded =  "{!c.logInit}" />
+    <!-- Start antonio.vatrano 08/05/2019 r1f2-106 -->
+	<aura:attribute name="userLicense" type="String"  default="" access="global"/>
+	<!-- End antonio.vatrano 08/05/2019 r1f2-106 -->
+    <!--giovanni spinelli-->
+    <aura:attribute name="listItemToreset" type="List"  default="" access="global"/>
+    <aura:attribute name="indexReset"      type="Integer"  default="0" access="global"/>
+    <aura:attribute name="isToreset"      type="Boolean"  default="false" access="global"/>
+    
+    <!--giovanni spinelli-->
+    <!-- ANDREA MORITTU START 03-Oct-2019 - EVO_BACKLOG_245 -->
+    <aura:attribute     name="listVISAtoReset" type="List"  default="[]" access="global"/>
+    <aura:handler       name="change" value="{!v.listVISAtoReset}" action="{!c.onchange_listVISAtoReset}"/>
+    <aura:attribute     name="index_VM"      type="Integer"  default="0" access="global"/>
+    <aura:attribute     name="isVIsaToReset" type="Integer"  default="0" access="global"/>
+    <aura:attribute     name="progress"      type="Integer" default="0"/>
+    <aura:attribute     name="showProgressBar"      type="Boolean"  default="false" access="global"/>
+    <aura:attribute     name="show_VM_Modal"      type="Boolean"  default="false" access="global"/>
+    
+    <aura:handler action="{!c.onUpdateContext}" event="NE:Bit2win_Event_UpdateContext" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <!--  NEW event to update attribute checkAttributeRules -->
+    <aura:handler action="{!c.onUpdateApprovalOrderRules}" event="c:OB_ApprovalOrderRulesEvent" />
+    
+    <!-- <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> -->
+    <aura:registerEvent name="updateContextEvent" type="c:OB_CustomUpdateContextEvent"/> 
+    <aura:registerEvent name="approvalOrderRulesEvent" type="c:OB_ApprovalOrderRulesEvent"/>
+    <aura:registerEvent name="updateParentAttributeEvent" type="c:OB_UpdateParentMapAttribute"/>  
+
+    <!-- francesca.ribezzi 28/08/2018 show spinner -->
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if> 
+    <!-- 31/01/19 adding concordata true and readonly for edit commissional model: -->
+    <aura:if isTrue="{!v.isEditCommissionModel}"> 
+        <c:OB_ConfigurationInfo isEditCommissionModel="true" hideValidityMessage="true"/>
+    </aura:if>
+
+
+    <div class="slds-grid ">  
+	     
+        <!-- Doris D ... 26/02/2019 .... START -->
+        <span class="slds-col slds-size_2-of-3">
+                <div class="slds-box" style = "width : 60%" >
+                    <form>
+                        <fieldset>
+                            <legend><strong>{!$Label.c.OB_LegendTitle}</strong></legend>
+                            
+                            <div class="slds-grid slds-size_2-of-2" style = "margin-top: 3px;">
+                                <div class= "gray-checkbox"/>
+                                <div>{!$Label.c.OB_NotRequiredApproval}</div>
+                            </div>
+    
+                            <div class="slds-grid slds-size_2-of-2" style = "margin-top: 3px;">
+                                <div class="yellow-checkbox"/>
+                                <div>{!$Label.c.OB_ValueSubjectToApproval}</div>
+                            </div>
+    
+                            <div class="slds-grid slds-size_2-of-2" style = "margin-top: 3px;">
+                                    <div class="red-checkbox"/>
+                                    <div> {!$Label.c.ValueNotAllow}</div>
+                            </div>    
+                                  
+                        </fieldset>
+                    </form>
+                </div>
+        </span>        
+            <!-- Doris D ... 26/02/2019 .... END   -->
+
+    </div>
+    
+
+     <!-- Doris D ... 04/03/2019 .... START -->
+     <div class="slds-grid " style = " margin-top: 2em;">
+        <!--26/03/19 francesca.ribezzi moving cart button below bundleElementName-->
+        <span class="slds-col slds-size_2-of-3">
+            <div class="u116" data-label="page title">
+                <p><span>{!v.bundleElementName}</span></p>
+            </div>
+        </span>
+        <span class="slds-col slds-size_1-of-3">
+            <div class="u116 cartWrapper" data-label="page title">
+                <lightning:buttonIcon iconName="utility:cart" size="large" variant="bare" alternativeText="Open Cart" iconClass="cart" onclick="{!c.openCart}" />
+                <!-- <span class="slds-badge customColorsBadge">{!v.cartListTotal}</span> --> <!--DD 13/03/2019-->
+            </div>
+        </span>
+    </div>
+        <!-- Doris D ... 04/03/2019 .... END -->
+
+     <!-- cartDetails --> 
+      <div aura:id="cartContainer" class="slds-grid_vertical">
+        <div id="listbox-unique-id" role="listbox">
+        	<ul aura:id="cartContainerUL" class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-small-size_1-of-1 cartContainer animationSlideHide animationSlideHideOpacity" role="presentation">
+		            <div class="u172" data-label="title">
+		                {!$Label.c.OB_CartListLabel}
+		            </div>
+                    <aura:iteration items="{!v.cartList}" var="cartCategory" indexVar="indx">
+                        <li role="presentation" class="slds-listbox__item " >
+	                        <div id="{!cartCategory.categoryName}">
+		                        <p style="font-size:12px;">
+		                        	<span style="color:#999999;">{!cartCategory.categoryName}</span>
+		                        </p>                      
+	                        <aura:iteration items="{!cartCategory.items}" var="item" indexVar="indx2">
+		                            <p style="font-size:20px;">
+		                                <span style="font-size:12px;color:#4F6A92;"></span>
+		                                <span style="color:#4F6A92;">{!item.productName}</span> 
+		                                <aura:if isTrue="{! and(item.qty != '',item.recordTypeName == 'Terminali')}">
+		                                    <span style="color:#4F6A92;margin-left: 1%;font-size: 1rem;">n° {!item.qty}</span>
+		                                    <aura:if isTrue="{!item.status != undefined}"> 
+		                                    	<span style="color:green;margin-left: 1%;font-size: 1rem;"> attivo</span>
+		                                    </aura:if>
+		                                </aura:if>
+		                            </p>   
+	                        </aura:iteration>  
+                        </div>
+                        </li> 
+                    </aura:iteration>
+        	</ul>
+    	</div>
+  	</div>
+    <!-- cartDetails end-->
+    
+    
+    <div  class="slds-col slds-size_1-of-1 slds-medium-size_5-of-5 slds-small-size_1-of-1" id="base">
+        <aura:iteration items="{!v.productCategories}" var="productCategory" indexVar="indx">
+            <div class="tablelineSlim slds-grid slds-gutters rowHeader"> 
+                <div class="seleziona slds-col slds-size_1-of-5 slds-align_absolute-center">
+                    <span class="uppercaseLabel">{!$Label.c.OB_SelectLabelCart}</span>
+                    </div>
+
+                <div class="u120 slds-col slds-size_2-of-5" data-label="title">
+                    <div id="u121" class="text">
+                        <p><span>{!productCategory.categoryName}</span></p>
+                    </div>
+                </div>
+                <div class="qty slds-col slds-size_1-of-5 slds-align_absolute-center">
+                        <span></span>
+                    </div>
+                    <div class="dettagli slds-col slds-size_1-of-5 slds-align_absolute-center">
+                        <span></span>
+                    </div>
+            </div> 
+            
+            <div id="checkboxwrapper">
+                <aura:iteration items="{!productCategory.items}" var="item" indexVar="indx2">   
+	                    <!--productRow starts -->
+	                    <div class="qtyContainer tablelineSlim">
+	                     <!--class="{!v.location == '/active' ? 'selected' : ''}"  -->
+	                    <div class="{!item.checked? 'slds-grid slds-gutters catalogItemWrapper product_row_color': 'slds-grid slds-gutters catalogItemWrapper'}" id="{!item.item.id+'_prdRow'}">
+	                        <!-- <div class="slds-grid slds-gutters catalogItemWrapper" id="{!item.item.id+'_prdRow'}"> --> 
+                                    <div class="check_box slds-col slds-size_1-of-5 slds-align_absolute-center" data-label="checkbox">
+                                            <aura:if isTrue="{!item.item.fields.OB_Ro__c == 'N'}">
+                                                <aura:if isTrue="{!v.numOfCheckedItems lt v.bundleMaxQty || item.checked == true}">
+                                                    <span class="checkSel"><lightning:input style="display: inline-block;" id="{!item.item.id}" onchange="{!c.onCheck}" type="checkbox" checked="{!item.checked}" name="{!item.item.fields.productname}"/></span>  
+                                                </aura:if>
+                                            </aura:if>
+                                            <aura:if isTrue="{!item.item.fields.OB_Ro__c == 'Y'}">
+                                                <span class="checkSel"><lightning:input style="display: inline-block;" id="{!item.item.id}"  type="checkbox" checked="{!item.checked}" disabled="true"/></span>  
+                                            </aura:if>
+                                        </div>
+  
+                                <div class="slds-col slds-size_2-of-5" style="margin-top: 1%; margin-bottom: 1%; ">
+                                        <span class="slds-grid slds-gutter"> 
+                                            <span class="prd_img slds-col">
+                                                {!item.item.thumbnailimage}
+                                                <img class="thumbnailimage" src="{!v.urlImages+item.item.fields.thumbnailimage}" width="60" height="34"/>
+                                            </span>
+                                            <span class="u122 slds-col" data-label="label">
+                                                {!!empty(item.item.fields.cartDescription)?item.item.fields.cartDescription:item.item.fields.productname}
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-5 slds-align_absolute-center">
+                                            <span>
+                                                
+                                            </span>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-5 slds-align_absolute-center"> 
+                                            <span>
+                                                
+                                            </span> 
+                                        </div>   
+	                        </div>
+	                    </div>
+	                    <!--productRow ends -->
+                </aura:iteration>
+            </div>
+        </aura:iteration>
+    </div> 
+    <!--  Marco Ferri 29/08/2018 -->
+    <!--<aura:if isTrue="{! and(!empty(v.acquiringChildItems), v.isEditCommissionModel == false)}"> -->
+    <!--  EP 30/01/2019 romosso is maintenance -->
+    <aura:if isTrue="{! !empty(v.acquiringChildItems)}">
+        <div class="u187 slds-col slds-size_1-of-1 slds-medium-size_5-of-5 slds-small-size_1-of-1">
+            <span class="u187title">{!$Label.c.OB_AcquiringSchemeSummaryLabel} </span>
+            <!-- ANDREA MORITTU START 08-Oct-2019 - EVO_BACKLOG_245 -->
+            <aura:if isTrue="{!and(v.isEditCommissionModel, not(empty(v.oldVMAttributes)))}">
+                <div class="slds-p-around_medium noPaddingLeft" >
+                    <lightning:button aura:id="importVasValues" variant="Neutral" onclick="{!c.actionModal_VM}" label="{!$Label.c.OB_Import_VISA_Values}" name="{!$Label.c.OB_Import_VISA_Values}" class="CTAStyle" />
+                </div>
+            </aura:if>
+            <!-- ANDREA MORITTU END 08-Oct-2019 - EVO_BACKLOG_245 -->
+
+            <div id="u1450" class="tableline">
+            </div>
+            <!--ANDREA MORITTU START 02/10/2019 - BACKLOG_245-->
+                <aura:if isTrue="{!and(v.showProgressBar, v.isEditCommissionModel)}">
+                    <c:OB_Progress_Bar_Component progress="{!v.progress}" />
+                </aura:if> 
+            <!--ANDREA MORITTU END 02/10/2019 - BACKLOG_245-->
+
+            <div class="tableText slds-grid slds-gutters ">  <!-- slds-wrap -->
+                <span class="{!'slds-col slds-size_1-of-1 slds-medium-size_1-of-'+v.maxCol+' slds-small-size_1-of-1'}">{!$Label.c.OB_Brand_SchemeLabel}</span> <!-- used to be _1-of-4 -->
+                <aura:iteration items="{!v.uniqueLabelsAcq}" var="childCat" > 
+                    <span class="{!'valueN slds-col slds-size_1-of-1 slds-medium-size_1-of-'+v.maxCol+' slds-small-size_1-of-1 slds-align_absolute-center'}">{!childCat}</span>
+                </aura:iteration> 
+            </div> 
+            <!--Simone Misani Perf1 20/12/2019 def val button commented-->
+            <!--davide.franzini 07/01/2020 set def value button restored-->
+            <!--giovanni spinelli 24/09/2019 add button reset - show only in flow - start-->
+            <aura:if isTrue="{!!v.isEditCommissionModel}">
+                    <lightning:button variant="Neutral" onclick="{!c.resetValue}" 
+                    label="{!$Label.c.OB_SetDefaultValue}" class="CTAStyle_special" />
+            </aura:if>
+            <!--giovanni spinelli 24/09/2019 add button reset end-->   
+            <aura:iteration items="{!v.acquiringChildItems}" var="item" indexVar="indx3"> <!-- acquiringChildItems instead of circuitiList -->
+            <aura:if isTrue="{!item.fields.RecordTypeName =='Pricing'}">    
+                <c:OB_childItemACQ_PCI childItem="{!item}" 
+                    numOfCol="{!v.maxCol}" 
+                    numOfColPrdName="1" 
+                    isEditCommissionModel="{!v.isEditCommissionModel}" 
+                    isReadOnly="{!item.readOnly}" 
+                />     <!--  francesca.ribezzi 06/12/19 - perf-27 - passing isReadOnly -->
+            </aura:if>    
+            </aura:iteration>    
+        </div>
+    </aura:if>
+
+    <!-- ANDREA MORITTU START 07-Oct-2019 - EVO_BACKLOG_245 -->
+    <aura:if isTrue="{!v.show_VM_Modal}" >
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_xx-small" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+            <div class="slds-modal__container">
+                <!-- BODY MODAL START -->
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <div class="slds-gutters slds-grid slds-size_1-of-1" >
+                        <div class="slds-size_1-of-3" />
+                        <div class="slds-size_1-of-3">
+                            <span class="slds-size_1-of-2 slds-p-around_medium">
+                                <lightning:icon iconName="utility:warning" alternativeText="Warning!" variant="warning"/>
+                            </span>
+                            <span class="slds-size_1-of-2 slds-p-around_medium sectionTitle">
+                                {!$Label.c.OB_WarningLabel}
+                            </span>
+                        </div>
+                        <div class="slds-size_1-of-3" />
+                    </div>
+                    <div class="slds-gutters slds-grid slds-size_1-of-1" >
+                        <div class="slds-size_1-of-3" />
+                        <div class="slds-size_1-of-3 slds-p-around_medium slds-align_absolute-center noWrap" >
+                            {!$Label.c.OB_HeavyOperationLabel}
+                        </div>
+                        <div class="slds-size_1-of-3" />
+                    </div>
+                </div>
+                <!-- / BODY MODAL END -->
+                <footer class="slds-modal__footer slds-grid slds-p-around_small">
+                        <div class="slds-size_1-of-3 slds-p-horizontal_medium" />
+                        <div class="slds-size_1-of-3 slds-grid" >
+                            <div class="slds-col slds-p-horizontal_xxx-small">
+                                <lightning:button variant="brand" onclick="{!c.actionModal_VM}"   name="{!$Label.c.OB_Cancel}"  label="{!$Label.c.OB_Cancel}" class="CTAStyle_BRAND" />
+                            </div>
+                            <div class="slds-col slds-p-horizontal_xxx-small">
+                                <lightning:button variant="Neutral" onclick="{!c.actionModal_VM}" name="{!$Label.c.OB_Confirm}" label="{!$Label.c.OB_Confirm}" class="CTAStyle" />
+                            </div>
+                        </div>
+                        <div class="slds-size_1-of-3 slds-p-horizontal_medium" />
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+    <!-- ANDREA MORITTU END 07-Oct-2019 - EVO_BACKLOG_245 -->
+</aura:component>

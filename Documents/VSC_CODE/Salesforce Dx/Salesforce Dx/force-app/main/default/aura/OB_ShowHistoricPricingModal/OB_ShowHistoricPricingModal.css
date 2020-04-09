@@ -1,0 +1,13 @@
+.THIS .agreedCheck {
+    text-align: center !important;
+    
+}
+
+.THIS .border{
+    border-bottom: 1px solid black;
+}
+/*Start Masoud Zaribaf 13/05/2019 modified to remove ^ */
+.THIS .hideArrows .slds-th__action .slds-button__icon {
+    display: none;
+}
+/*End Masoud Zaribaf 13/05/2019 modified to remove ^ */

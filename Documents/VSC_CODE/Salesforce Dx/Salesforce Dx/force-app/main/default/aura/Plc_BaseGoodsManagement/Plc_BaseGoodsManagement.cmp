@@ -1,0 +1,261 @@
+<!--
+    * @Giampaolo Mei
+    * @date 29/01/2019
+    * @description Component per l'implementazione della parte di header dei wizards di movimentazione merci
+-->
+
+<aura:component extensible="true"
+                abstract="true"
+                implements="lightning:isUrlAddressable">
+
+    <!-- Public attribute -->
+    <aura:attribute name="showSpinner" type="Boolean" default="false"/>
+    <aura:attribute name="isAnnullaEnabled" type="Boolean" default="true"
+                    description="When true, 'Annulla' button is enabled"/>
+    <aura:attribute name="isSaveEnabled" type="Boolean" default="true"
+                    description="When true, 'Conferma' button is enabled"/>
+    <aura:attribute name="isBackEnabled" type="Boolean" default="true"
+                    description="When true, 'Indietro' button is enabled"/>
+    <aura:attribute name="isNextEnabled" type="Boolean" default="true"
+                    description="When true, 'Avanti' button is enabled"/>
+    <aura:attribute name="isAnnullaVisible" type="Boolean" default="true"
+                    description="When true, 'Annulla' button is visible"/>
+    <aura:attribute name="isSaveVisible" type="Boolean" default="true"
+                    description="When true, 'Salva' button is visible"/>
+    <aura:attribute name="isBackVisible" type="Boolean" default="true"
+                    description="When true, 'Indietro' button is visible"/>
+    <aura:attribute name="isNextVisible" type="Boolean" default="true"
+                    description="When true, 'Avanti' button is visible"/>
+    <aura:attribute name="isFilterVisible" type="Boolean" default="true"
+                    description="When true, 'filter search' fields are visible"/>
+    <aura:attribute name="title" type="String" default="" description="title of the wizard header"/>
+    <aura:attribute name="isBodyVisible" type="Boolean" default="true"
+                    description="When false, the extending component content is hidden"/>
+    <aura:attribute name="objectToSearch" type="Map" default="{}"
+                    description="Object to query in the filter component"/>
+    <aura:attribute name="searchConfigurationMap" type="Map" default="{}"
+                    description="Configuration Map for Filter Component"/>
+    <aura:attribute name="filterToShow" type="Map" default="{}" description="Object to query in the filter component"/>
+    <aura:attribute name="filterResult" type="Map" description="Map of object returned from filter component query"/>
+    <aura:attribute name="actionType" type="String" description="action returned from filter component query"/>
+    <aura:attribute name="searchOnLoad" type="Boolean" access="public"
+                    description="If true component filterCmp run query on load without click on Search"
+                    default="false"/>
+    <aura:attribute name="objectId" type="String" access="public"
+                    description="id of object passed by url at initialize of base wizard"/>
+    <aura:attribute name="showCancelModal" type="Boolean" access="private"
+                    description="When true, show the cancel modal" default="false"/>
+
+
+    <!-- Plc_BaseGoodsManagementItems : additional header attributes-->
+
+    <aura:attribute name="showCustomHeaderBeforeFilter"
+                    type="Boolean"
+                    default="false"
+                    description="show header before the filter component" />
+
+    <aura:attribute name="showCustomHeaderAfterFilter"
+                    type="Boolean"
+                    default="false"
+                    description="show header after the filter component" />
+
+    <aura:attribute name="headerContext"
+                    type="Map"
+                    default=""
+                    description="Map of data to show in the header component" />
+
+    <aura:attribute name="headerToShow"
+                    type="String"
+                    default=""
+                    description="header To Show" />
+
+
+
+    <!-- filter component: visibility filter-->
+    <aura:attribute name="inputSearchIsVisible"
+                    default="true"
+                    type="Boolean"
+                    access="public"
+                    description="hide\show inputSearch"/>
+
+    <aura:attribute name="rangeSerialA_DA_AreVisible"
+                    default="true"
+                    type="Boolean"
+                    access="public"
+                    description="hide\show rangeSerial Search"/>
+
+    <aura:attribute name="manufacturerFilterIsVisible"
+                    default="true"
+                    type="Boolean"
+                    access="public"
+                    description="hide\show manufacturerFilter Search"/>
+
+    <aura:attribute name="serialStatusFilterIsVisible"
+                    default="true"
+                    type="Boolean"
+                    access="public"
+                    description="hide\show serialStatusFilter Search"/>
+
+    <aura:attribute name="uploadCsvIsVisible"
+                    default="true"
+                    type="Boolean"
+                    access="public"
+                    description="hide\show uploadCsv Button"/>
+
+    <aura:attribute name="showButtonsUpOrDown"
+                    type="String"
+                    access="public"
+                    description="Attribute tha allows show buttons on the first or second row(up=first,down=second)"
+                    default="down"/>
+
+    <aura:attribute name="disableRemoveFilterButton"
+                    type="Boolean"
+                    access="public"
+                    description="enable/disable Remove Filter button"
+                    default="false"/>
+
+    <aura:attribute name="showRemoveFilterButton"
+                    type="Boolean"
+                    access="public"
+                    description="hide\show RemoveFilterButton"
+                    default="true"/>
+
+    <aura:attribute name="disableApplyFilterButton"
+                    type="Boolean"
+                    access="public"
+                    description="enable/disable Search button"
+                    default="false"/>
+    <aura:attribute name="stockSerialStatus"
+                    access="public"
+                    type="String"
+                    description="(BUTTON CSV)stockSerialStatus to filter on (to check if csv data are present in SFDC) "
+                    default=""/>
+
+    <aura:attribute name="warehouseId"
+                    access="public"
+                    type="String"
+                    description="(BUTTON CSV)arehouseId to filter on (to check if csv data are present in SFDC) "
+                    default=""/>
+
+    <aura:attribute name="distributionListItemModels"
+                    access="public"
+                    type="String"
+                    description="models related to distribution list items (to check if stock serial model in csv match with list)"
+                    default=""/>
+    <!-- END filter component: visibility filter-->
+
+    <!-- End Public attribute -->
+
+    <!-- Event handler -->
+    <!--<aura:handler event="c:Plc_FilterEvt" action="{!c.handleFilterComponentInternal}"/> -->
+    <!--<aura:handler name="Plc_FilterEvt" event="c:Plc_FilterEvt" action="{!c.handleFilterComponentInternal}"/> -->
+    <!-- End Event handler -->
+
+    <aura:handler name="init" value="{!this}" action="{!c.handleInitialize}"/>
+
+    <aura:method name="handleSave" action="{!c.handleSave}"></aura:method>
+    <aura:method name="handleBack" action="{!c.handleBack}"></aura:method>
+    <aura:method name="handleNext" action="{!c.handleNext}"></aura:method>
+    <!-- <aura:method name="handleFilterComponent" action="{!c.handleFilterComponentInternal}"></aura:method> -->
+
+    <lightning:spinner aura:id="bwspinner" variant="brand" size="large"
+                       class="{!v.showSpinner ? 'spinnerlayer slds-is-fixed' : 'spinnerlayer slds-is-fixed slds-hide'}"/>
+
+    <div class="slds-is-relative slds-card">
+        <!-- PAGE HEADER -->
+        <div id="headerContainer" tabindex="0" role="heading" class="slds-page-header titleArea">
+            <div class="slds-grid">
+                <div class="slds-col slds-has-flexi-truncate">
+                    <div class="slds-media slds-no-space slds-grow">
+                        <h1 role="heading"
+                            class="slds-text-heading--large slds-m-right--small slds-align-middle slds-truncate">{!v.title}</h1>
+                    </div>
+                </div>
+                <div class="slds-col--padded slds-no-flex slds-align-bottom">
+                    <span>
+                        <aura:if isTrue="{!v.isAnnullaVisible}">
+                            <lightning:button variant="neutral" disabled="{!!v.isAnnullaEnabled}"
+                                              onclick="{!c.handleOpenCancelModal}">{!$Label.c.Plc_CancelButton}</lightning:button>
+                        </aura:if>
+                        <aura:if isTrue="{!v.isSaveVisible}">
+                            <lightning:button variant="brand" disabled="{!!v.isSaveEnabled}"
+                                              onclick="{!c.handleSaveInternal}">{!$Label.c.Plc_AllAllSave}</lightning:button>
+                        </aura:if>
+                        <aura:if isTrue="{!v.isBackVisible}">
+                            <lightning:button variant="brand" disabled="{!!v.isBackEnabled}"
+                                              onclick="{!c.handleBackInternal}">{!$Label.c.Plc_BackButton}</lightning:button>
+                        </aura:if>
+                        <aura:if isTrue="{!v.isNextVisible}">
+                            <lightning:button variant="brand" disabled="{!!v.isNextEnabled}"
+                                              onclick="{!c.handleNextInternal}">{!$Label.c.Plc_AllAllNextLabel}</lightning:button>
+                        </aura:if>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <!-- END PAGE HEADER -->
+
+        <!-- ERROR MODAL -->
+        <div role="alertdialog" tabindex="-1"
+             class="{!v.showCancelModal ? 'slds-modal slds-fade-in-open slds-modal_prompt' : 'slds-hide'}"
+             aria-labelledby="error modal">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header slds-theme_info">
+                    <h2 class="slds-text-heading_medium">{!$Label.c.Plc_Attention}</h2>
+                </div>
+
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-text-align_center">
+                        <ui:outputRichText value="{!$Label.c.Plc_CancelMessage}"/>
+                    </div>
+                </div>
+
+                <div class="slds-modal__footer slds-theme_default">
+                    <button class="slds-button slds-button_neutral" onclick="{!c.handleCloseCancelModal}"
+                            title="{!$Label.c.Plc_CancelButton}">{!$Label.c.Plc_CancelButton}</button>
+                    <button class="slds-button slds-button--brand" onclick="{!c.handleAnnulla}"
+                            title="{!$Label.c.Plc_Confirm}">{!$Label.c.Plc_Confirm}</button>
+                </div>
+            </div>
+        </div>
+        <div class="{!v.showErrorModal ? 'slds-backdrop slds-backdrop_open' : 'slds-hide'}"></div>
+        <!-- END ERROR MODAL -->
+
+
+
+
+        <!--<aura:if isTrue="{!v.showCustomHeaderBeforeFilter}">
+            <c:Plc_BaseGoodsManagementItems headerContext="{!v.headerContext}" headerToShow="{!v.headerToShow}"/>
+        </aura:if> -->
+
+        <!-- Filtri ricerca -->
+        <div class="{!v.isFilterVisible ? '' : 'slds-hide'}">
+            <c:Plc_FilterCmp configuationMap="{!v.searchConfigurationMap}"
+                             inputSearchIsVisible="{!v.inputSearchIsVisible}"
+                             rangeSerialA_DA_AreVisible="{!v.rangeSerialA_DA_AreVisible}"
+                             manufacturerFilterIsVisible="{!v.manufacturerFilterIsVisible}"
+                             serialStatusFilterIsVisible="{!v.serialStatusFilterIsVisible}"
+                             uploadCsvIsVisible="{!v.uploadCsvIsVisible}"
+                             showButtonsUpOrDown="{!v.showButtonsUpOrDown}"
+                             disableRemoveFilterButton="{!v.disableRemoveFilterButton}"
+                             showRemoveFilterButton = "{!v.showRemoveFilterButton}"
+                             disableApplyFilterButton="{!v.disableApplyFilterButton}"
+                             searchOnLoad="{!v.searchOnLoad}"
+                             warehouseId="{!v.warehouseId}"
+                             stockSerialStatus="{!v.stockSerialStatus}"
+                             distributionListItemModels = "{!v.distributionListItemModels}"/>
+
+        </div>
+
+        <!--<aura:if isTrue="{!v.showCustomHeaderAfterFilter}">
+            <c:Plc_BaseGoodsManagementItems headerContext="{!v.headerContext}" headerToShow="{!v.headerToShow}"/>
+        </aura:if>-->
+
+        <div class="slds-card slds-p-around--medium">
+            <div id="bodyContainer" class="{!v.isBodyVisible ? '' : 'slds-hide'}">
+                {!v.body}
+            </div>
+        </div>
+    </div>
+
+</aura:component>

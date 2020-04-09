@@ -1,0 +1,17 @@
+<aura:component implements="flexipage:availableForAllPageTypes" 
+                access="global"
+                >
+    
+   
+	<aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="nextCheckout" type="String" default="{!v.objectDataMap.unbind.nextCheckout}" />
+    <aura:attribute name="objectKey" type="String" default="" access="global"/>
+    <aura:attribute name="identifier" type="String" default="" access="global"/>
+    <aura:attribute name="field" type="Object" default="{}" access="global"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+ 
+    
+    
+</aura:component>

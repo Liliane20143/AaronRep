@@ -1,0 +1,884 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="OB_CatalogDetailsController">
+	<!-- <aura:attribute name="matrixParameterId" type="String" default="a0r9E000002ITfuQAG"/>  --><!-- NE__Matrix_Parameter__c -->
+    <aura:attribute name="matrixParameter" type="NE__Matrix_Parameter__c"/>
+	<aura:attribute name="rows" type="NE__Matrix_Parameter_Row__c[]"/> 
+	<!-- <aura:attribute name="catalogItems" type="NE__Catalog_Item__c[]"/>  -->
+	<aura:attribute name="catalogItems" type="List"/> 
+	<aura:attribute name="attributes" type="List"/> 
+	<aura:attribute name="spinner" type="Boolean" default="true"/>
+	<aura:attribute name="showEmptyCard" type="Boolean" default="false"/>
+	<aura:attribute name="newRow" type="NE__Matrix_Parameter_Row__c" default="{'sobjectType':'NE__Matrix_Parameter_Row__c', 'OB_Massimale__c':'', 'OB_Massimo__c':'','OB_Minimo__c':'', 'OB_Soglia_Max_Approvazione__c':'','OB_Soglia_Min_Approvazione__c' : '','OB_Valore_Default__c' :'', 'OB_SelfLookup__c' : '', 'OB_Product__c' : '', 'OB_Codici__c' : ''}"/>
+	<aura:attribute name="OB_Componente__c" type="String" default=""/>
+	<aura:attribute name="showAttributesCard" type="Boolean" default="false"/>
+	<aura:attribute name="attributesList" type="List"/>  <!-- new list to be used for attributes related to families and commercial product -->
+	<aura:attribute name="childrenRowsfamilies" type="NE__ProductFamily__c[]"/>
+	<aura:attribute name="attributeSpinner" type="Boolean" default="false"/>
+	<aura:attribute name="familyAttributesMap" type="Map" />
+	<aura:attribute name="newRows" type="NE__Matrix_Parameter_Row__c[]"/> 
+	<aura:attribute name="attributesAndNewRows" type="List"/> 
+	<aura:attribute name="tempRow" type="NE__Matrix_Parameter_Row__c" default="{'sobjectType':'NE__Matrix_Parameter_Row__c','OB_ReadOnly__c':'false', 'OB_Massimale__c':'', 'OB_Massimo__c':'','OB_Minimo__c':'', 'OB_Soglia_Max_Approvazione__c':'','OB_Soglia_Min_Approvazione__c' : '','OB_Valore_Default__c' :'', 'OB_SelfLookup__c' : '', 'OB_Product__c' : '', 'NE__Start_Date__c' : '', 'NE__End_Date__c' : '', 'NE__Active__c':'', 'OB_Codici__c' : ''}"/>
+	<aura:attribute name="searchText" type="String" default=""/>
+	<aura:attribute name="selectedRecord" type="sObject" default="{}" description="Use,for store SELECTED sObject Record"/>
+    <aura:attribute name="listOfSearchRecords" type="List" description="Use,for store the list of search records which returns from apex class"/>
+    <aura:attribute name="SearchKeyWord" type="string"/>
+    <aura:attribute name="objectAPIName" type="string" default=""/>
+    <aura:attribute name="IconName" type="string" default=""/>
+    <aura:attribute name="label" type="string" default=""/>
+    <aura:attribute name="Message" type="String" default=""/>
+    <aura:attribute name="oRecord" type="sObject" />
+	<aura:attribute name="parentChildrenRows" type="List" />
+	<aura:attribute name="tempParentChildrenRows" type="List" />
+	<aura:attribute name="errorMessageSequence" type="String" default="Input accept only numbers"/>
+	<aura:attribute name="disableNewCardBtn" type="Boolean" default="false"/>
+	<aura:attribute name="catalogItemsToClone" type="NE__Catalog_Item__c[]" />
+	<aura:attribute name="rowsFromServer" type="NE__Matrix_Parameter_Row__c[]"/> 
+	
+	<!--  modal stuff -->
+	<aura:attribute name="modalHeader" type="String"/>
+	<aura:attribute name="modalDesc" type="String" />
+	<aura:attribute name="modalButton" type="String"/>
+	<aura:attribute name="Confirm" type="Boolean" default="false"/>
+	<aura:attribute name="selectedRow" type="Object"/>
+	<aura:attribute name="indexRowToDelete" type="Integer"/>
+
+	
+	<!-- go to next component -->
+		<aura:attribute name="goToListiniTable" type="Boolean" default="false"/>
+	<!--  <aura:attribute name="rowToCloneList" type="List" /> 
+	 <aura:attribute name="parentsClone" type="List" /> 
+	 <aura:attribute name="childrenClone" type="List" />  -->
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+	
+<aura:if isTrue="{!!v.goToListiniTable}">
+	<div class="detailsCatalogContainer">
+		<aura:if isTrue="{!v.spinner}">
+	        <div aura:id="spinnerId" class="slds-spinner_container">
+	            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+	                <span class="slds-assistive-text">Loading</span>
+	                <div class="slds-spinner__dot-a"></div>
+	                <div class="slds-spinner__dot-b"></div>
+	            </div>
+	        </div>
+	   	</aura:if> 
+	
+	<!-- modal for every occasion -->
+	<aura:if isTrue="{!v.Confirm}">
+	<div class="modalStyle">
+	  <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+	    <div class="slds-modal__container">
+	      <header class="slds-modal__header">
+                    <lightning:buttonIcon class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" iconName="utility:close" size="large" alternativeText="Close" variant="bare" onclick="{!c.handleModalCancel}"/>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                        {!v.modalHeader}
+                       </h2>  
+                </header> 
+	      <div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
+	        <p class="centeredText">{!v.modalDesc}</p>
+	      </div>
+	      <footer class="slds-modal__footer slds-theme_default">
+	      <!-- insert aura if here to know which button label we want -->
+   		  	<lightning:button label="{!v.modalButton}" onclick="{!c.handleModalButton}" variant="brand" class="slds-m-top_medium"/>
+   		  	<lightning:button label="Cancel" onclick="{!c.handleModalCancel}" class="slds-m-top_medium" />
+	      </footer>
+	    </div>
+	  </section>
+	  <div class="slds-backdrop slds-backdrop_open"></div>
+	</div>
+	</aura:if>
+	
+	
+		<div class="goBackBox">
+			<p><span class="pointerClass" onclick="{!c.goBackToListiniTable}"><lightning:buttonIcon  iconName="utility:back" size="medium" variant="bare" alternativeText="Back" iconClass="blueIcon" /> <span class="goBackText"> {!$Label.c.OB_Catalogs}</span></span></p>
+		</div>
+		<div class="cardsContainer">
+			<div class="slds-grid slds-gutters">
+				<div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-small-size_1-of-1">
+				    <span>
+				    	<h1 class="title">{!$Label.c.OB_CatalogDetails}</h1>
+				    </span>
+				</div>
+				<div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-small-size_1-of-1">
+			   		<span>
+			   			<p class="saveCancelBtnsBox">
+							<button class="slds-button cancelBtn" label="cancel" onclick="{!c.reloadRowsList}">
+				               	<span class="createNewElement" >{!$Label.c.OB_Cancel}</span>
+				          	</button>
+							 <button class="slds-button slds-button_neutral slds-button--brand " label="save"  onclick="{!c.handleSaveChangedRows}">
+				               	<span class="saveBtnText" >{!$Label.c.OB_SaveChanges}</span>
+				          	</button> 
+				          	
+			          	</p>
+	          		</span>
+	          	</div>
+			</div>
+		
+			<div class="slds-grid slds-wrap slds-gutters matrixParameterBox">
+				<div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-small-size_1-of-1">
+			    	<span>
+			    		<div class="slds-grid slds-gutters">
+							<div class="slds-col">
+						    	<span>
+			    					<p class="matrixParameterFields">{!$Label.c.OB_Name}</p> 
+			    					<p class="matrixParameterValues">{!v.matrixParameter.Name}</p>
+			    				</span>
+			    			</div>
+			    			<div class="slds-col">
+			    				<span>
+			    					<p class="matrixParameterFields">{!$Label.c.OB_Validity}</p>
+			    					<p class="matrixParameterValues">{!v.matrixParameter.NE__Start_Date__c} → {!v.matrixParameter.NE__End_Date__c}</p>
+			    				</span>
+			    			</div>
+			    		</div>
+			    	</span> 
+				</div>    
+			</div>   	
+		
+		<!-- prezzi e commissioni + button  -->
+			<div class="slds-grid slds-gutters priceAndCommissionBox">
+				<div class="slds-col">
+				    <span>
+				    	<h1 class="cardsHeader">{!$Label.c.OB_PriceAndCommission}</h1>
+				    </span>
+				</div>	
+				<div class="slds-col">
+			   		<span>
+			   			<p class="newElBtnWrapper">
+							<button id="createNewRowBtn" class="slds-button slds-button_neutral newElementBtn" label="Create new element"  onclick="{!c.createNewMatrixRow}">
+				               		<p><span class="plusIcon">&#43;</span><span class="createNewElement" >{!$Label.c.OB_New}</span> </p>
+				          	</button>
+	          			</p>
+	          		</span>
+	          	</div>
+			</div>
+
+			<!-- EMPTY CARD GOES HERE -->
+				<aura:if isTrue="{!v.showEmptyCard}">
+					<article class="slds-card selectedCard">
+						<header class="slds-card__header slds-grid">	
+						</header>
+						<!-- Up Card goes here -->
+						<div class="slds-card__body upCard">
+							<div class="slds-grid slds-gutters">
+								<!-- catalog items picklist goes here: -->
+								<div class="slds-col slds-size_1-of-1  slds-medium-size_1-of-2 slds-small-size_1-of-1">
+									<span>
+										<div class="slds-col slds-size_1-of-1  slds-medium-size_1-of-2 slds-small-size_1-of-1 selectCatalogItem">
+										      <!-- CUSTOM SEARCH INPUT: -->
+											   	<div onmouseleave="{!c.onblur}" aura:id="searchRes" class="slds-form-element slds-lookup slds-is-close lookupSection" data-select="single">
+											        <label class="slds-form-element__label" for="lookup-348">{!v.label}</label>
+											        <!--This part is for display search bar for lookup-->  
+											        <div class="slds-form-element__control">
+											            
+											            <div class="slds-input-has-icon slds-input-has-icon--right">
+											            
+											              <lightning:icon aura:id="searchIconId" class="slds-input__icon slds-show searchIcon" iconName="utility:search" size="small" alternativeText="search"/> 
+											                <!-- This markup is for when an record is selected -->
+											               <div aura:id="lookup-pill" class="slds-pill-container slds-hide">
+										                     <lightning:pill class="pillSize" label="{!v.selectedRecord.Name}" name="{!v.selectedRecord.Name}" onremove="{! c.clear }">
+										                        <!--   <aura:set attribute="media">
+										                             <lightning:icon iconName="{!v.IconName}" size="x-small" alternativeText="{!v.IconName}"/>
+										                          </aura:set> -->
+										                      </lightning:pill>
+											               </div>
+											                <div aura:id="lookupField" class="slds-show">
+											                    <ui:inputText click="{!c.onfocus}" updateOn="keyup" keyup="{!c.keyPressController}" class="slds-lookup__search-input slds-input searchInputClass" value="{!v.SearchKeyWord}" placeholder="{!$Label.c.OB_SelectProduct}"/>
+											                </div>   				
+											            </div>
+											        </div>
+											        <!--This part is for Display typehead lookup result List-->  
+											        <ul style="min-height:40px;margin-top:0px !important" class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-lookup__menu slds" role="listbox">
+											            <lightning:spinner class="slds-hide" variant="brand" size="small" aura:id="mySpinner"/>
+											            <center> {!v.Message}</center>
+											            <aura:iteration items="{!v.listOfSearchRecords}" var="singleRec" indexVar="ind">
+														    <li role="presentation" class="slds-listbox__item" onclick="{!c.selectRecord}">
+														        <span id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+													              <span class="slds-media__body">  
+													                  <span class="slds-listbox__option-text slds-listbox__option-text_entity"><p id="{!ind}">{!singleRec.Name}</p></span>
+													              </span>
+														        </span>
+														    </li>
+											            </aura:iteration>
+											        </ul>
+											    </div> 
+									    </div>	
+									    <!-- END CUSTOM SEARCH INPUT -->
+								    </span>
+								</div>
+								<!-- save button goes here: -->
+								<div class="slds-col slds-size_1-of-1  slds-medium-size_1-of-2 slds-small-size_1-of-1 saveBtnDiv">
+									<p class="saveBtnBox">
+										<aura:if isTrue="{!v.showAttributesCard}">
+											<button id="saveButtonId" disabled="true" class="slds-button slds-button_neutral slds-button--brand" label="SALVA" onclick="{!c.confirmSave}">
+						                    	<span class="MySave" >	<lightning:buttonIcon  iconName="utility:save" size="medium" variant="bare" alternativeText="save"/></span> <span class="saveCatalogBtnText">{!$Label.c.OB_Save}</span> 
+						                    </button>
+						                </aura:if>
+									</p>
+								</div>
+							</div>
+							<!-- <h1 class="productNameClass">{!row.OB_Product__r.Name}</h1>
+							<p class="descriptionClass">{!row.OB_Product__r.NE__Description__c}</p> -->
+							<aura:if isTrue="{!v.attributeSpinner}"> 
+		                       <div class="slds-spinner_container">
+		                           <div class="slds-spinner--brand slds-spinner slds-spinner--medium slds-is-relative" role="alert">
+		                               <span class="slds-assistive-text">Loading...</span>
+		                               <div class="slds-spinner__dot-a"></div>
+		                               <div class="slds-spinner__dot-b"></div>
+		                           </div>
+		                       </div>
+				            </aura:if>
+							<aura:if isTrue="{!v.showAttributesCard}">
+								<div>
+									<p class="descriptionClass"><aura:unescapedHtml value="{!v.newRow.OB_Product__r.NE__Description__c}"/></p> 
+							 	</div>
+							 	<div class="slds-grid slds-gutters calendarAndEditingSection">
+									<div class="slds-col slds-size_1-of-2  slds-medium-size_1-of-5 slds-small-size_1-of-2"> 
+										<span>						
+											<lightning:input required="true" id="0_new" class="datesClass" type="date" name="NE__Start_Date__c" label="{!$Label.c.OB_SelectAStartDate}" value="{!v.newRow.NE__Start_Date__c}" onchange="{!c.onChangeDateNewRow}"/>
+										</span>	
+									</div>
+									<div class="slds-col slds-size_1-of-2  slds-medium-size_1-of-5 slds-small-size_1-of-2"> 
+										<span>	
+											<lightning:input id="1_new" class="datesClass"  type="date" name="NE__End_Date__c" label="{!$Label.c.OB_SelectAnEndDate}"  value="{!v.newRow.NE__End_Date__c}" onchange="{!c.onChangeDateNewRow}"/>
+										</span>	
+									</div>
+									<div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-5 slds-small-size_1-of-1"> 
+										<span>	
+	
+		                   				</span>
+	                   				</div>
+									<div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-5 slds-small-size_1-of-1"> 
+	                                    <div class="sequenceInputAndErrorMsg">
+		                                    <span>
+		                                        <p style="text-align: right;"><lightning:input label="{!$Label.c.OB_Sequence}" id="{!index+'_Sequence'}" class="attributesValues f217sequence sequenceClass" name="Sequence" type="text"  value="{!v.newRow.OB_Sequence__c}"  onblur="{!c.handleNewRowRightSequence}"/></p>
+		                                        <span id="newRow_SequenceError" class="errMsg slds-hide">
+		                                            <p style="text-align: right;">{!v.errorMessageSequence}</p>
+		                                        </span>
+		                                    </span> 
+	                                    </div>
+									</div>
+                                </div>
+                          </aura:if>
+                          </div>
+								<!-- Down Card goes here -->
+	                      	<aura:if isTrue="{!v.showAttributesCard}">      
+								<div class="slds-card__body downCard">
+									<div class="slds-grid slds-gutters slds-wrap ">
+										<!-- <div class="slds-col slds-size_1-of-12 "> 
+											<span>
+										
+											</span>
+										</div> -->
+										<!--<div class="slds-col slds-size_1-of-12"> 
+											<span>
+											
+											</span>
+										</div>-->
+										<div class="slds-col slds-size_1-of-3  slds-medium-size_3-of-12 slds-small-size_1-of-3"> 
+											<span> 
+											<!--     <p class="minLabelHeader">
+											    	<label class="labelAndTitles" >Voce</label>
+											    </p> -->
+											</span>
+										</div>
+										<div class="slds-col slds-size_1-of-3  slds-medium-size_1-of-12 slds-small-size_1-of-3"> 
+											<span>
+												<p>
+											    	<label class="attributesValues " >{!$Label.c.OB_Value}  </label>
+												</p>
+											</span>
+										</div>	
+										<div class="slds-col slds-size_1-of-3  slds-medium-size_1-of-12 slds-small-size_1-of-3">	
+											<span>
+												<p>
+													<label class="attributesValues"> {!$Label.c.OB_MaximumPrice}</label> 
+												</p>
+											</span>
+										</div>
+                                        <div class="slds-col slds-size_1-of-3  slds-medium-size_1-of-12 slds-small-size_1-of-3">	
+											<span>
+												<p>
+													<label class="attributesValues"> {!$Label.c.OB_Code}</label> 
+												</p>
+											</span>
+										</div>
+									<!-- 	<div class="slds-col slds-size_1-of-12 labelHeaderSubDivNoBoder"> 
+											<span> 	
+												<p class="labelHeaderText minLabelHeader">											  
+											    	<label class="labelAndTitles" >Minimo</label>	                           
+												</p>
+											</span>
+										</div>		
+										<div class="slds-col slds-size_1-of-12 labelHeaderSubDiv"> 
+											<span> 
+												<p class="labelHeaderText minLabelHeader">
+											    	<label class="labelAndTitles" >Massimo</label>
+												</p>
+											</span>
+										</div >
+										<div class="slds-col slds-size_1-of-12 labelHeader"> 
+											<span> 
+												<p class="labelHeaderText">
+											    	<label class="labelAndTitles" >Soglia minima</label>
+												</p>
+											</span>
+										</div>				
+										<div class="slds-col slds-size_1-of-12 labelHeader"> 
+											<span> 
+												<p class="labelHeaderText">
+													<label class="labelAndTitles" >Soglia massima</label>
+												</p>
+											</span>
+										</div>	 -->
+										<!-- <div class="slds-col slds-size_1-of-12 labelHeaderSubDiv"> 
+											<span> 
+												<p class="labelHeaderText">
+													<label class="labelAndTitles" >Data Inizio Validità</label>
+												</p>
+											</span>
+										</div>	
+										<div class="slds-col slds-size_1-of-12 labelHeaderSubDiv"> 
+											<span> 
+												<p class="labelHeaderText">
+													<label class="labelAndTitles" >Data Fine Validità</label>
+												</p>
+											</span>
+										</div>	 -->
+									<!-- 	<div class="slds-col slds-size_1-of-12 labelHeaderSubDivBorderLeft"> 
+											<span> 
+												<p class="labelHeaderText minLabelHeader">
+													<label class="editHeaderTable" >Modificabile?</label>
+												</p>
+											</span>
+										</div>	-->
+									</div> 
+								<!-- 	<aura:iteration items="{!v.families}" var="family" indexVar="famIndex">
+										<div class="slds-col slds-size_1-of-12"> 
+											<span> 
+												<div>
+											    	<span class="familyName" >{!family.NE__FamilyId__r.Name} </span>
+											    </div>
+											</span>
+										</div>	  -->
+										<aura:iteration items="{!v.attributesAndNewRows}" var="newAtt" indexVar="index3">
+										<!-- 	<aura:if isTrue="{!newAtt.attribute.NE__FamilyId__r.Name == family.NE__FamilyId__r.Name}"> -->
+											<div class="slds-grid slds-gutters slds-wrap calendarAndEditingSection attributesSectionDiv">
+											<!-- 	<div class="slds-col slds-size_1-of-12"> 
+													<span>
+																	
+													</span>
+												</div>		 -->
+											<!--	<div class="slds-col slds-size_1-of-12"> 
+													<span>
+																		
+													</span>
+												</div> -->
+												<div class="slds-col slds-size_1-of-3  slds-medium-size_3-of-12 slds-small-size_1-of-3"> 
+													<span> 
+														<div>
+													    	<p class="labelAndTitles" >{!newAtt.attribute.NE__PropId__r.Name} </p>
+													    </div>
+													</span>
+												</div>
+												<div class="slds-col slds-size_1-of-3  slds-medium-size_1-of-12 slds-small-size_1-of-3"> 
+												
+													<!-- 	<aura:if isTrue="{!newAtt.readOnly == 'true'}"> -->
+						                                	<lightning:input id="{!index3+'_2new'}" variant="label-hidden" class="attributesValues inputNumberReadonly" name="OB_Valore_Default__c" type="number"  value="{!newAtt.newRow.OB_Valore_Default__c}" readonly="readonly"/>   
+						                             <!--    	<aura:set attribute="else">
+						                                		<lightning:input messageWhenPatternMismatch="Too many characters!" maxlength="5" step="0.1" pattern=".{0,4}" id="{!index3+'_2new'}" class=" attributesValues inputNumber" name="OB_Valore_Default__c" type="number"  value="{!newAtt.newRow.OB_Valore_Default__c}" onblur="{!c.onChangeValueNewRow}"/>   
+						                                	</aura:set>
+														</aura:if> -->
+									<!-- 				<div>
+														<span class="inputDescLabel"><p style="text-align:right;">{!newAtt.attribute.NE__PropId__r.NE__Description__c} </p></span>
+													</div> -->
+													<span class="inputDescLabel"><p style="text-align:right;"><aura:unescapedHtml value="{!newAtt.attribute.NE__PropId__r.NE__Description__c}"/> </p></span>
+													
+												</div>	
+												<div class="slds-col slds-size_1-of-3  slds-medium-size_1-of-12 slds-small-size_1-of-3">
+													<span>
+													<!-- 	<aura:if isTrue="{!newAtt.readOnly == 'true'}"> -->
+							                            	<lightning:input id="{!index3+'_3new'}" variant="label-hidden" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Massimale__c" type="number"  value="{!newAtt.newRow.OB_Massimale__c}"  readonly="readonly"/>   
+													<!-- 		<aura:set attribute="else">
+																<lightning:input step="0.1" pattern=".{0,4}" id="{!index3+'_3new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Massimale__c" type="number"  value="{!newAtt.newRow.OB_Massimale__c}" onblur="{!c.onChangeValueNewRow}"/>  
+															</aura:set>
+															
+														</aura:if> -->
+													</span>
+												</div>
+                                                <div class="slds-col slds-size_1-of-3  slds-medium-size_1-of-12 slds-small-size_1-of-3">
+													<span>
+													<!-- 	<aura:if isTrue="{!newAtt.readOnly == 'true'}"> -->
+							                            	<lightning:input id="{!index3+'_4newCode'}" variant="label-hidden" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Codici__c" type="text"  value="{!newAtt.newRow.OB_Codici__c}"  onblur="{!c.onChangeValueNewRow}"/>   
+													<!-- 		<aura:set attribute="else">
+																<lightning:input step="0.1" pattern=".{0,4}" id="{!index3+'_3new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Massimale__c" type="number"  value="{!newAtt.newRow.OB_Massimale__c}" onblur="{!c.onChangeValueNewRow}"/>  
+															</aura:set>
+															
+														</aura:if> -->
+													</span>
+												</div>
+											<!--	<div class="slds-col slds-size_1-of-12"> 
+													<span>
+														<aura:if isTrue="{!newAtt.readOnly == 'true'}"> 
+						                                	<lightning:input id="{!index3+'_4new'}" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Minimo__c" type="number"  value="{!newAtt.newRow.OB_Minimo__c}" readonly="readonly"/>   
+															<aura:set attribute="else">
+																<lightning:input step="0.1" pattern=".{0,4}" id="{!index3+'_4new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Minimo__c" type="number"  value="{!newAtt.newRow.OB_Minimo__c}" onblur="{!c.onChangeValueNewRow}"/>  
+															</aura:set>
+														</aura:if> 
+													</span>
+												</div>		
+											 	<div class="slds-col slds-size_1-of-12"> 
+													<span> 
+						                                <aura:if isTrue="{!newAtt.readOnly == 'true'}">
+						                                	<lightning:input id="{!index3+'_5new'}" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Massimo__c" type="number"  value="{!newAtt.newRow.OB_Massimo__c}" readonly="readonly"/>   
+															<aura:set attribute="else">
+																<lightning:input step="0.1" pattern=".{0,4}" id="{!index3+'_5new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Massimo__c" type="number"  value="{!newAtt.newRow.OB_Massimo__c}" onblur="{!c.onChangeValueNewRow}"/> 
+															</aura:set>
+														</aura:if>
+													</span>
+												</div >		
+												<div class="slds-col slds-size_1-of-12"> 
+													<span> 
+														<aura:if isTrue="{!newAtt.readOnly == 'true'}">
+						                                	<lightning:input id="{!index3+'_6new'}" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Soglia_Min_Approvazione__c" type="number"  value="{!newAtt.newRow.OB_Soglia_Min_Approvazione__c}"  readonly="readonly"/>   								
+															<aura:set attribute="else">
+																<lightning:input step="0.1" pattern=".{0,4}" id="{!index3+'_6new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Soglia_Min_Approvazione__c" type="number"  value="{!newAtt.newRow.OB_Soglia_Min_Approvazione__c}" onblur="{!c.onChangeValueNewRow}" /> 
+															</aura:set>
+														</aura:if>
+													</span>
+												</div>	
+												<div class="slds-col slds-size_1-of-12"> 
+													<span> 
+														<aura:if isTrue="{!newAtt.readOnly == 'true'}">
+						                                	<lightning:input id="{!index3+'_7new'}" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Soglia_Max_Approvazione__c" type="number"  value="{!newAtt.newRow.OB_Soglia_Max_Approvazione__c}" onchange="{!c.onChangeValueNewRow}" readonly="readonly"/>   
+																<aura:set attribute="else">
+																	<lightning:input step="0.1" pattern=".{0,4}" id="{!index3+'_7new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Soglia_Max_Approvazione__c" type="number"  value="{!newAtt.newRow.OB_Soglia_Max_Approvazione__c}" onblur="{!c.onChangeValueNewRow}" />   
+																</aura:set>
+														</aura:if>
+													</span>
+												</div>	 -->
+												<!-- <div class="slds-col slds-size_1-of-12"> 
+													<span> 
+														<aura:if isTrue="{!newAtt.readOnly == 'true'}">
+						                                	<lightning:input id="{!index3+'_8new'}" class="slds-align_absolute-center attributesValues" type="date" name="NE__Start_Date__c" value="{!newAtt.newRow.NE__Start_Date__c}" disabled="true"/>   
+																<aura:set attribute="else">
+																	<lightning:input id="{!index3+'_8new'}" class="slds-align_absolute-center attributesValues" type="date" name="NE__Start_Date__c"  value="{!newAtt.newRow.NE__Start_Date__c}" onchange="{!c.onChangeValueNewRowDate}" />   
+																</aura:set>
+														</aura:if>
+													</span>
+												</div>		
+												<div class="slds-col slds-size_1-of-12"> 
+													<span> 
+														<aura:if isTrue="{!newAtt.readOnly == 'true'}">
+						                                	<lightning:input id="{!index3+'_9new'}" class="slds-align_absolute-center attributesValues" type="date" name="NE__End_Date__c" value="{!newAtt.newRow.NE__End_Date__c}" disabled="true"/>   
+																<aura:set attribute="else">
+																	<lightning:input id="{!index3+'_9new'}" class="slds-align_absolute-center attributesValues" type="date" name="NE__End_Date__c"  value="{!newAtt.newRow.NE__End_Date__c}" onchange="{!c.onChangeValueNewRowDate}" />   
+																</aura:set>
+														</aura:if>
+													</span>
+												</div>	 -->		
+											<!-- 	<div class="slds-col slds-size_1-of-12"> 
+													<span> 
+														<p class="labelHeaderText">
+															<span class="lockIconSpan" onclick="{!c.handleEditableRow}" id="{!newAtt.readOnly == 'true'? index3+'_true' : index3+'_false'}">   -->
+															<!-- {!index3+'_'+newAtt.newRow.Id} -->
+														<!-- 		<lightning:icon class="lockIcon" iconName="{!newAtt.readOnly == 'true'? 'utility:lock':'utility:unlock'}"  alternativeText="isLocked" />
+															</span>
+														</p>
+													</span> -->
+											<!-- 	</div>	 -->
+												<!-- <div class="slds-col slds-size_1-of-12"> 
+													<span> 
+												
+													</span>
+												</div> -->
+								</div>
+							</aura:iteration>
+						</div>
+					</aura:if>
+				</article>
+			</aura:if>
+						
+			<!-- END EMPTY CARD -->
+			<!--active/inactive checkbox section:  -->
+			<div class="slds-grid slds-gutters activationCheckSection">
+				<aura:if isTrue="{!!empty(v.parentChildrenRows)}">
+					<div class="slds-grid slds-gutters">
+						<div class="slds-col slds-size_1-of-1  slds-medium-size_1-of-1 slds-small-size_1-of-1">
+					    	<span>
+					    		<p class="headerDescription">{!$Label.c.OB_EnableDisableItemDesc}</p>
+					    	</span>
+				    	</div>
+						<div>
+							<span class="checkSel noClickAllowed" ></span>
+							<span>
+								<lightning:input type="checkbox" label="" checked="true" value="active/inactive" />
+		    				</span>	
+		    			</div>
+				    			<!-- <div class="slds-col">
+				    				<span>
+				    					<p class="headerDescription">- per riattivarlo, selezionalo o inizia a modificarlo.</p>
+				    				</span>
+				    			</div> -->
+			    		
+			    	</div>
+			    </aura:if>
+			</div>
+	
+	
+			<aura:if isTrue="{!!empty(v.parentChildrenRows)}">
+				<aura:iteration items="{!v.parentChildrenRows}" var="row" indexVar="index">
+					<article id="{!row.parent.Id+'_card'}" class="{!empty(row.cloneId) ? 'slds-card' : 'slds-card selectedCard'}">
+						<header class="slds-card__header slds-grid">	
+						</header>
+						<div class="slds-card__body upCard">
+							<div class="slds-grid slds-wrap slds-gutters">
+								<div>
+				    				<span>	
+				    					<aura:if isTrue="{!row.parent.NE__Active__c}">
+											<lightning:input id="{!index+'_ActCheck'}" type="checkbox" label="" checked="true" value="active/inactive" onclick="{!c.handleActivationRows}"/>
+				    						<aura:set attribute="else">
+				    							<lightning:input id="{!index+'_ActCheck'}" type="checkbox" label="" checked="false" value="active/inactive" onclick="{!c.handleActivationRows}"/>
+				    						</aura:set>
+				    					</aura:if>
+				    				</span>
+				    			</div>
+								<div class="slds-col"> 
+									<span>		
+										<h1 class="productNameClass">{!row.parent.OB_Product__r.Name}</h1> <!-- OB_Product__r.Name -->
+									</span>
+								</div>
+						  <!-- <div class="slds-col"> 
+									<span>
+										<div class="slds-grid slds-gutters">
+											<div class="">
+												<span>
+													<p class="sequenceClass">{!$Label.c.OB_Sequence}: </p>
+												</span>
+											</div>	
+											<div>	
+												<span>
+													<lightning:input id="{!index+'_Sequence'}" class="attributesValues f217sequence" name="Sequence" type="number" value="{!row.parent.OB_Sequence__c}" onblur="{!c.handleRightSequence}"/>
+												</span>
+											</div>
+										</div>
+									</span>
+								</div>-->
+								<div class="slds-col">
+									<span >
+										<p style="text-align: right;">
+						        			<lightning:buttonIcon name="{!index+'_delete'}"  iconName="utility:delete" size="large" variant="bare" alternativeText="Delete" iconClass="redIcon" onclick="{!c.deleteRow}"/>
+						        		</p>
+						        	</span>
+						        </div>
+							</div>
+							<div class="slds-grid slds-gutters calendarAndEditingSection">
+								<div class="slds-col slds-size_3-of-4"> 
+									<span>		
+										<p class="descriptionClass">{!row.parent.OB_Product__r.NE__Description__c}</p> <!-- OB_Componente__r.Ne__product_name__c, -->
+									</span>
+								</div>
+							<!--	<div class="slds-col slds-size_1-of-4"> 
+									<p class="sequenceClass">{!$Label.c.OB_Sequence}: <lightning:input id="{!index+'_Sequence'}" class="attributesValues f217sequence" name="Sequence" type="text"  value="{!row.parent.OB_Sequence__c}"  onblur="{!c.handleRightSequence}"/></p>
+									<span id="{!index+'_SequenceError'}" class="errMsg slds-hide">
+                               	 		<p style="text-align: right;">{!v.errorMessageSequence}</p>
+                               	 	</span>
+								</div>-->
+							
+                               	 
+                                
+							</div>
+							<div class="slds-grid slds-gutters slds-wrap calendarAndEditingSection">
+								<div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-5 slds-small-size_1-of-1"> 
+									<span>						
+										<lightning:input id="{!index+'_parentStartDate'}"  required="true" class="inputDateClass" type="date" name="inputStartDate" label="{!$Label.c.OB_SelectAStartDate}" value="{!row.parent.NE__Start_Date__c}" onblur="{!c.handleOnchangeStartDateOldRow}"/>
+									</span>	
+								</div>
+								<div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-5 slds-small-size_1-of-1"> 
+									<span>	
+										<lightning:input  id="{!index+'_parentEndDate'}" class="inputDateClass"  type="date" name="inputEndDate" label="{!$Label.c.OB_SelectAnEndDate}" value="{!row.parent.NE__End_Date__c}" onblur="{!c.handleOnchangeEndDateOldRow}"/>
+									</span>	
+								</div>
+								<div class="editingSection"> 
+								<!-- 	<span id="{!index+'_editBtn'}" onclick="{!c.handleEditAttributesRow}">	
+										<lightning:buttonIcon name="editBtn" iconName="utility:edit" size="medium" variant="bare" alternativeText="Edit" iconClass="blueIcon" />
+										<span class="editText">{!$Label.c.OB_Edit}</span>
+									</span>	 -->
+								</div>
+								<div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-5 slds-small-size_1-of-1 createNewBtn"> 
+									<span>	
+										<button id="{!index+'_newBtn'}" class="slds-button slds-button_neutral newBtn" label="Create new" onclick="{!c.createNewRow}">
+					                    		<p><span class="plusIcon">&#43;</span><span class="createNewText" >{!$Label.c.OB_New}</span> </p>
+	                   					</button>
+	                   				</span>
+	                   			</div>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-5 slds-small-size_1-of-1"> 
+                                    <div class="sequenceInputAndErrorMsg">
+	                                    <span>
+	                                        <p style="text-align: right;"><lightning:input label="{!$Label.c.OB_Sequence}" id="{!index+'_Sequence'}" class="attributesValues f217sequence sequenceClass" name="Sequence" type="text"  value="{!row.parent.OB_Sequence__c}"  onblur="{!c.handleRightSequence}"/></p>
+	                                        <span id="{!index+'_SequenceError'}" class="errMsg slds-hide">
+	                                            <p style="text-align: right;">{!v.errorMessageSequence}</p>
+	                                        </span>
+	                                    </span> 
+                                    </div>
+								</div>
+							</div>
+						</div>
+						<div class="slds-card__body downCard">
+							<div class="slds-grid slds-gutters slds-wrap  calendarAndEditingSection">	 
+							<!--	<div class="slds-col slds-size_1-of-12 "> 
+									<span>	
+							
+									</span>
+								</div>
+								<div class="slds-col slds-size_1-of-12 "> 
+									<span>
+									
+									</span>
+								</div>-->
+								<div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12 slds-small-size_1-of-1"> 
+									<span> 
+									 <!--    <p class="minLabelHeader">
+									    	<label class="labelAndTitles" >Voce</label>
+									    	<br> </br>
+									    </p> -->
+									</span>
+								</div>
+								<div class="slds-col slds-size_1-of-3 slds-medium-size_1-of-12 slds-small-size_1-of-3"> 
+									<span>
+										<p > <!-- class="minLabelHeader" -->
+									    	<label class="attributesValues " >{!$Label.c.OB_Value} </label>
+										</p>
+									</span>
+								</div>	
+								<div class="slds-col slds-size_1-of-3 slds-medium-size_1-of-12 slds-small-size_1-of-3">	
+									<span>
+										<p > <!-- class="labelHeaderText minLabelHeader" -->
+											<label class="attributesValues"> {!$Label.c.OB_MaximumPrice}</label> 
+										</p>
+									</span>
+								</div>
+                                <div class="slds-col slds-size_1-of-3 slds-medium-size_1-of-12 slds-small-size_1-of-3">	
+									<span>
+										<p > <!-- class="labelHeaderText minLabelHeader" -->
+											<label class="attributesValues"> {!$Label.c.OB_Code}</label> 
+										</p>
+									</span>
+								</div>
+								<!-- 	<div class="slds-col slds-size_1-of-12 labelHeaderSubDivNoBoder"> 
+										<span> 	
+											<p class="labelHeaderText minLabelHeader">											  
+										    	<label class="labelAndTitles" >Minimo</label>	                           
+											</p>
+										</span>
+									</div>		
+									<div class="slds-col slds-size_1-of-12 labelHeaderSubDiv"> 
+										<span> 
+											<p class="labelHeaderText minLabelHeader">
+										    	<label class="labelAndTitles" >Massimo</label>
+											</p>
+										</span>
+									</div >
+									<div class="slds-col slds-size_1-of-12 labelHeader"> 
+										<span> 
+											<p class="labelHeaderText">
+										    	<label class="labelAndTitles" >Soglia minima</label>
+											</p>
+										</span>
+									</div>				
+									<div class="slds-col slds-size_1-of-12 labelHeader"> 
+										<span> 
+											<p class="labelHeaderText">
+												<label class="labelAndTitles" >Soglia massima</label>
+											</p>
+										</span>
+									</div>	 -->
+									<!--<div class="slds-col slds-size_1-of-12 labelHeaderSubDiv"> 
+										<span> 
+										 <p class="labelHeaderText">
+												<label class="labelAndTitles" >Data Inizio Validità</label>
+											</p>
+										</span>
+									</div>	
+									<div class="slds-col slds-size_1-of-12 labelHeaderSubDiv"> 
+										<span> 
+										 	<p class="labelHeaderText">
+												<label class="labelAndTitles" >Data Fine Validità</label>
+											</p>
+										</span>
+									</div>	 -->
+								<!-- 	<div class="slds-col slds-size_1-of-12 labelHeaderSubDivBorderLeft"> 
+										<span> 
+											<p class="labelHeaderText minLabelHeader">
+												<label class="editHeaderTable" >Modificabile?</label>
+											</p>
+										</span>
+									</div>	 -->
+									<!-- <div class="slds-col slds-size_1-of-12 labelHeader"> 
+										<span> 
+									
+										</span>
+									</div> -->
+								</div>		
+				
+										<aura:iteration items="{!row.children}" var="child" indexVar="index2">
+											<!-- <aura:iteration items="{!v.childrenRowsfamilies}" var="family" indexVar="famIndex"> -->
+									
+											<!-- <aura:if isTrue="{!child.OB_Family__r.Name == family.NE__FamilyId__r.Name}">
+												<div class="slds-col slds-size_1-of-12"> 
+													<span> 
+														<div>					
+													    	<span class="familyName" >{!family.NE__FamilyId__r.Name} </span>
+													    </div>
+													</span>
+												</div> -->
+												
+												<!-- ITERATION OVER MATRIX PARAMETER ROWs CHILDREN : -->
+												<!-- <aura:if isTrue="{!child.OB_SelfLookup__c == row.parent.Id}"> --> 
+													<div class="{!child.addLine? 'slds-grid slds-gutters slds-wrap calendarAndEditingSection attributesSectionDi bottomLine': 'slds-grid slds-gutters slds-wrap calendarAndEditingSection attributesSectionDiv'}">
+													<!--	<div class="slds-col slds-size_1-of-12"> 
+															<span>
+																			
+															</span>
+														</div>	
+														<div class="slds-col slds-size_1-of-12"> 
+															<span>
+																			
+															</span>
+														</div>			-->
+														<div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12 slds-small-size_1-of-1"> 
+															<span> 
+																<div>
+															    	<p class="labelAndTitles" >{!child.OB_DynamicPropertyDefinition__r.Name} </p>
+															    </div>
+															</span>
+														</div>
+											
+															<div class="slds-col slds-size_1-of-3 slds-medium-size_1-of-12 slds-small-size_1-of-3"> 
+																<span>														
+																	<!--  <aura:if isTrue="{!child.OB_ReadOnly__c == true}">-->
+									                                	<lightning:input variant="label-hidden" id="{!index+'_'+index2+'-2new'}" class="attributesValues inputNumberReadonly" name="OB_Valore_Default__c" type="number"  value="{!child.OB_Valore_Default__c}" readonly="readonly"/>   
+									                              	</span>  
+									                                <!-- 	<aura:set attribute="else">
+									                                		<lightning:input  step="0.1" pattern=".{0,4}" id="{!index+'_'+index2+'-2new'}" class="attributesValues inputNumber" name="OB_Valore_Default__c" type="number"  value="{!child.OB_Valore_Default__c}" onblur="{!c.onChangeValueOldRow}"/>   
+									                                	</aura:set>
+																	</aura:if> -->
+																
+																	<span><p style="text-align:right;">{!child.OB_DynamicPropertyDefinition__r.NE__Description__c}</p> </span>
+															
+															
+															</div>	
+													
+															
+														 <div class="slds-col slds-size_1-of-3 slds-medium-size_1-of-12 slds-small-size_1-of-3">
+															<span>
+															<!-- 	<aura:if isTrue="{!child.OB_ReadOnly__c == true}"> -->
+									                            	<lightning:input variant="label-hidden" id="{!index+'_'+index2+'-3new'}" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Massimale__c" type="number"  value="{!child.OB_Massimale__c}" readonly="readonly"/>   
+																<!-- 	<aura:set attribute="else">
+																		<lightning:input step="0.1" pattern=".{0,4}" id="{!index+'_'+index2+'-3new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Massimale__c" type="number"  value="{!child.OB_Massimale__c}" onblur="{!c.onChangeValueOldRow}"/>  
+																	</aura:set>
+																</aura:if> -->
+															</span>
+														</div>
+                                                        <div class="slds-col slds-size_1-of-3 slds-medium-size_1-of-12 slds-small-size_1-of-3">
+															<span>
+															<!-- 	<aura:if isTrue="{!child.OB_ReadOnly__c == true}"> -->
+									                            	<lightning:input variant="label-hidden" id="{!index+'_'+index2+'-3newCode'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Codici__c" type="text"  value="{!child.OB_Codici__c}" onblur="{!c.onChangeValueOldRow}"/>   
+																<!-- 	<aura:set attribute="else">
+																		<lightning:input step="0.1" pattern=".{0,4}" id="{!index+'_'+index2+'-3new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Massimale__c" type="number"  value="{!child.OB_Massimale__c}" onblur="{!c.onChangeValueOldRow}"/>  
+																	</aura:set>
+																</aura:if> -->
+															</span>
+														</div>
+												<!-- 		<div class="slds-col slds-size_1-of-12"> 
+															<span>
+																<aura:if isTrue="{!child.OB_ReadOnly__c == true}">
+								                                	<lightning:input id="{!index+'_'+index2+'-4new'}" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Minimo__c" type="number"  value="{!child.OB_Minimo__c}"  readonly="readonly"/>   
+																	<aura:set attribute="else">
+																		<lightning:input step="0.1" pattern=".{0,4}" id="{!index+'_'+index2+'-4new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Minimo__c" type="number"  value="{!child.OB_Minimo__c}" onblur="{!c.onChangeValueOldRow}"/>  
+																	</aura:set>
+																</aura:if>
+															</span>
+														</div>		
+														<div class="slds-col slds-size_1-of-12"> 
+															<span> 
+								                                <aura:if isTrue="{!child.OB_ReadOnly__c == true}">
+								                                	<lightning:input id="{!index3+'-5new'}" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Massimo__c" type="number"  value="{!child.OB_Massimo__c}" readonly="readonly"/>   
+																	<aura:set attribute="else">
+																		<lightning:input step="0.1" pattern=".{0,4}" id="{!index+'_'+index2+'-5new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Massimo__c" type="number"  value="{!child.OB_Massimo__c}" onblur="{!c.onChangeValueOldRow}"/> 
+																	</aura:set>
+																</aura:if>
+															</span>
+														</div >		
+														<div class="slds-col slds-size_1-of-12"> 
+															<span> 
+																<aura:if isTrue="{!child.OB_ReadOnly__c == true}">
+								                                	<lightning:input id="{!index3+'-6new'}" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Soglia_Min_Approvazione__c" type="number"  value="{!child.OB_Soglia_Min_Approvazione__c}" readonly="readonly"/>   								
+																	<aura:set attribute="else">
+																		<lightning:input step="0.1" pattern=".{0,4}" id="{!index+'_'+index2+'-6new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Soglia_Min_Approvazione__c" type="number"  value="{!child.OB_Soglia_Min_Approvazione__c}" onblur="{!c.onChangeValueOldRow}" /> 
+																	</aura:set>
+																</aura:if>
+															</span>
+														</div>	
+														<div class="slds-col slds-size_1-of-12"> 
+															<span> 
+																<aura:if isTrue="{!child.OB_ReadOnly__c == true}">
+								                                	<lightning:input id="{!index3+'-7new'}" class="slds-align_absolute-center attributesValues inputNumberReadonly" name="OB_Soglia_Max_Approvazione__c" type="number"  value="{!child.OB_Soglia_Max_Approvazione__c}"  readonly="readonly"/>   
+																		<aura:set attribute="else">
+																			<lightning:input step="0.1" pattern=".{0,4}" id="{!index+'_'+index2+'-7new'}" class="slds-align_absolute-center attributesValues inputNumber" name="OB_Soglia_Max_Approvazione__c" type="number"  value="{!child.OB_Soglia_Max_Approvazione__c}" onblur="{!c.onChangeValueOldRow}"/>   
+																		</aura:set>
+																</aura:if>
+															</span>
+														</div>	 -->
+														<!-- <div class="slds-col slds-size_1-of-12"> 
+															<span> 
+																<aura:if isTrue="{!child.OB_ReadOnly__c == true}">
+								                                	<lightning:input id="{!index+'_'+index2+'-8new'}" class="slds-align_absolute-center attributesValues" type="date" name="NE__Start_Date__c" value="{!child.NE__Start_Date__c}" disabled="true"/>   
+																		<aura:set attribute="else">
+																			<lightning:input id="{!index+'_'+index2+'-8new'}" class="slds-align_absolute-center attributesValues" type="date" name="NE__Start_Date__c"  value="{!child.NE__Start_Date__c}" onchange="{!c.onChangeValueOldRowDate}" />   
+																		</aura:set>
+																</aura:if>
+															</span>
+														</div>		
+														<div class="slds-col slds-size_1-of-12"> 
+															<span> 
+															<aura:if isTrue="{!child.OB_ReadOnly__c == true}">
+								                                	<lightning:input id="{!index+'_'+index2+'-9new'}" class="slds-align_absolute-center attributesValues" type="date" name="NE__End_Date__c" value="{!child.NE__End_Date__c}" disabled="true"/>   
+																		<aura:set attribute="else">
+																			<lightning:input id="{!index+'_'+index2+'-9new'}" class="slds-align_absolute-center attributesValues" type="date" name="NE__End_Date__c"  value="{!child.NE__End_Date__c}" onchange="{!c.onChangeValueOldRowDate}" />   
+																		</aura:set>
+																</aura:if>
+															</span>
+														</div>		 -->		
+													<!-- 	<div class="slds-col slds-size_1-of-12"> 
+														<span> 
+															<p class="labelHeaderText">
+																<span class="lockIconSpan" onclick="{!c.handleEditableExistingRow}" id="{!child.OB_ReadOnly__c == true? index+'_'+index2+'-true' : index+'_'+index2+'-false'}">  
+															
+																	<lightning:icon class="lockIcon" iconName="{!child.OB_ReadOnly__c == true? 'utility:lock':'utility:unlock'}"  alternativeText="isLocked" />
+																</span>
+															</p>
+														</span>
+													</div>	  -->
+													<!-- <div class="slds-col slds-size_1-of-12"> 
+														<span>
+																			
+														</span>
+													</div>		 -->
+									
+										<!-- </aura:if>  -->
+									<!-- </aura:if> -->
+							<!-- 	</aura:iteration> -->
+							</div>
+							</aura:iteration>
+						</div>
+					</article>
+				</aura:iteration>
+			</aura:if>
+			<!-- END ITERATION OVER MATRIX PARAMETER ROW FIELDS -->
+		</div>
+	</div>
+
+<aura:set attribute="else">
+	<c:OB_ListiniTable/>
+</aura:set>	
+</aura:if>
+</aura:component>

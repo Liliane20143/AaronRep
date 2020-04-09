@@ -1,0 +1,33 @@
+<!-- Morittu Andrea, 20/08/2018 -->
+<aura:component access="global" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" controller ="OB_FinalSummary_CC" >
+    <!--giovanni spinelli 11/04/2019 add attribute to get object datamap from flow start-->
+    <aura:attribute name="wizardWrapper"            type="Object"    default="{}"    access="global"/>
+	<aura:attribute name="objectDataMap"            type="Object"    default="{}"    access="global"/>
+	<aura:attribute name="accId"                    type="String"    default="{!v.objectDataMap.merchant.Id}" /> 
+	<aura:attribute name="nextCheckout"             type="String"    default="{!v.objectDataMap.unbind.nextCheckout}" />
+	<aura:attribute name="objectKey"                type="String"    default=""      access="global"/>
+	<aura:attribute name="identifier"               type="String"    default=""      access="global"/>
+	<aura:attribute name="field"                    type="Object"    default="{}"    access="global"/>
+    <!--giovanni spinelli 11/04/2019 add attribute to get object datamap from flow end-->
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+ 	<!-- INSERIMENTO GRID PER CENTRARE TUTTA LA CUSTOM LABEL -->
+    <div class="slds-grid slds-gutters" aura:id="Prova1">
+        <div class="slds-col slds-size_2-of-8"></div>
+        <div class="slds-col slds-size_4-of-8">
+   
+	<!-- INSERIMENTO ICONA SUMMARY DA LIGHTNING DESIGN SYSTEM -->
+		<span>
+        <lightning:icon iconName="utility:summary" size="medium" alternativeText="Summary"/>
+        
+    <!-- INSERIMENTO DIV PREDEFINITO DI LIGHTNING DESIG SYSTEM CON CUSTOM LABEL ALL'INTERNO -->
+	<div class="slds-m-around_small">
+        <div class="slds-p-around_small">
+               {!$Label.c.OB_FinalSummaryLabel}
+        </div>
+    </div>
+		</span>
+		</div>
+    </div>
+    
+</aura:component>

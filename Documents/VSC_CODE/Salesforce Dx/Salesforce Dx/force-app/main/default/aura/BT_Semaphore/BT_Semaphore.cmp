@@ -1,0 +1,9 @@
+<aura:component >
+    <aura:attribute name="value" type="Boolean" default="false" />
+    <aura:attribute name="state" type="String" />
+    <aura:attribute name="size" type="String" default="medium" />
+    <aura:attribute name="variant" type="String" default="base" />
+    <aura:attribute name="class" type="String" />
+
+    <lightning:icon class="{!v.class}" iconName="{!(v.variant == 'tristate' ? (v.state == 'green' ? 'action:approval' : v.state == 'yellow' ? 'utility:warning' : v.state == 'red' ? 'action:close' : '') : (v.value ? 'action:approval' : 'action:close'))}" size="{!v.size}" />
+</aura:component>

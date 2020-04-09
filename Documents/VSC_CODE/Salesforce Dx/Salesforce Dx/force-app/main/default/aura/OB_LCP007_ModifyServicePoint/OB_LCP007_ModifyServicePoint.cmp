@@ -1,0 +1,18 @@
+<!--@author Damian Krzyzaniak <damian.krzyzaniak@accenture.com>-->
+<!--@date 15/07/2019-->
+<!--@task NEXI-184-->
+<!--@description Component that is Button on flexi page for operators. It shows maintenance edit service point in modal-->
+<aura:component description="OB_LCP007_ModifyServicePoint" implements="flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:hasRecordId"
+                controller="OB_LCC007_ModifyServicePoint">
+
+    <aura:attribute name="recordId" type="String" access="global" default="" description="Record id (Service point id)" />
+    <aura:attribute name="flowData" type="String" access="global" default="" description="JSON with all data required for maintenance edit service point" />
+    <aura:attribute name="flowStep" type="String" access="global" default="" description="Step of flow which should be set as in maintenance process" />
+
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+
+            <aura:if isTrue="{!not(empty(v.flowData))}">
+                <c:OB_Maintenance_EditServicePoint FlowData="{!v.flowData}" FlowStep="{!v.flowStep}" modifyServicePointId="{!v.recordId}" DisabledFields="['OB_MCC_Description__c']" fromShortCutSP="true" />
+            </aura:if>
+
+</aura:component>

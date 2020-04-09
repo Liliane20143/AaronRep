@@ -1,0 +1,120 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes"
+				access="global">
+
+	<aura:attribute name="objectDataMap" type="Object"  access="global"/>
+	<aura:attribute name="disabledInput_sp" type="Boolean" default="false" access="global"/>
+  <aura:attribute name="openModalMccCap"  type="Boolean" default="false" access="global" /> 
+  <aura:attribute name="modalMCCisOpen" type="boolean" default="true"/>
+    
+
+               <aura:if isTrue="{!v.modalMCCisOpen}">
+                    <div aura:id="modal" class="modalContainer" style="height: 800px;">
+                        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                            <div class="slds-modal__container">
+                                <header class="slds-modal__header">
+                                    <lightning:buttonIcon class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" 
+                                                          iconName="utility:close" 
+                                                          size="large" 
+                                                          alternativeText="Close" 
+                                                          variant="bare" 
+                                                          onclick="{!c.closeModel}"/>
+                                    <h1 id="modal-heading-01" class="slds-modal__footer">SEARCH MCC AND CAP MODAL  </h1>
+
+                                </header>
+                                <div class="slds-modal__content slds-p-around_medium slds-is-relative" style="height: 800px" id="modal-content-id-1">
+                                    <aura:if isTrue="{!!empty(v.messageIsEmpty)}">
+                                        <div class="slds-align_absolute-center" style="height: 1.5rem;">
+                                            <p style="color:rgb(0, 95, 178)">{!v.messageIsEmpty}</p>
+                                        </div> 
+                                    </aura:if>
+                                    <div class="slds-col" id= "dataTableId">
+                                        
+                                           <!-- <aura:if isTrue="{!v.resetTab}"> -->
+                                             <!-- INSERT MCC -->
+                                                <label for="inputNameSample1 " 
+                                                       class="slds-form-element__label" 
+                                                       value="{!$Label.c.OB_MCC_Description}">
+                                                  <abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_MCC_Description}
+                                                </label> 
+
+                                            <div class="slds-col">
+                                                <span><lightning:input variant="label-hidden" 
+                                                                        name="searchInput" 
+                                                                        value="{!v.objectDataMap.pv.OB_MCC_Description__c}" 
+                                                                        class="flow_required" 
+                                                                        />
+                                                                        <!--disabled='{!v.disabledInput_sp}'-->
+                                                </span>
+                                            </div>
+
+                                             <!-- INSERT MCC -->
+                                                <label for="inputNameSample1 " 
+                                                       class="slds-form-element__label" 
+                                                       value="Postal Code">
+                                                  <abbr class="slds-required" title="required">*</abbr><!--{!$Label.c.NE__Postal_Code__c} -->Postal Code
+                                                </label> 
+
+                                            <div class="slds-col">
+                                                <span><lightning:input variant="label-hidden" 
+                                                                        name="searchInput" 
+                                                                        value="{!v.objectDataMap.pv.NE__Postal_Code__c}" 
+                                                                        class="flow_required" 
+                                                                        disabled='{!v.disabledInput_sp}'/>
+                                                </span>
+                                            </div> 
+                                              <div class="slds-size_1-of-12 slds-p-around_small slds-col"      > 
+									                									                
+									          </div>
+                                           
+									                                    
+									        <div class="slds-size_1-of-12 slds-p-around_small slds-col"      style="margin-bottom: -7%;margin-top: -2%;  margin-left: 2.5%;"> 
+									                <lightning:button variant="neutral" 
+									                                  onclick="{! c.searchClick}" 
+									                                  iconName="utility:search"
+									                                  
+									                                  class="search-cf-button"/>
+                                                    <!-- disabled="{!if(empty(v.objectDataMap.merchant.NE__Fiscal_code__c), true)}" -->
+									                
+									                
+									             </div>
+
+
+
+
+
+
+                                    </div>
+
+                                          
+                                    <div class="slds-col--padded slds-size--1-of-2 slds-medium-size--5-of-6 slds-large-size--6-of-12" > 
+                                                    
+                                        <lightning:buttonIcon 
+                                                     class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" 
+                                                     iconName="utility:close" 
+                                                     size="large" 
+                                                     alternativeText="Close" 
+                                                     variant="bare"
+                                                     onclick="{! c.CloseClick}" />  
+                                                                     
+                                    </div>
+                                                                                      
+                                       
+                                    </div>
+                                    
+                                </div>
+                                <div class="slds-modal__footer">
+                                    <button class="slds-button slds-button--neutral" onclick="{!c.closeModel}" >Close</button>
+                                    
+                                </div>
+                           
+                            
+                        </section>
+                         </div>
+                        <div class="slds-backdrop slds-backdrop_open"></div>
+                        
+                   
+                </aura:if>
+ 			
+       
+
+</aura:component>

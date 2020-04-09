@@ -1,0 +1,55 @@
+<aura:component access="public">
+    <!--NEXI-274 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 26/08/2019 START changed attribute-->
+    <aura:attribute name="logRequestWrapper" type="Object[]" access="global" required="true" description="Object data to present"/>
+
+    <lightning:layout multipleRows="true" >
+        <aura:iteration items="{!v.logRequestWrapper.reducedData}" var="reducedDataObject">
+            <!--NEXI-274 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 26/08/2019 STOP-->
+            <lightning:layoutItem size="6" class="slds-section__title slds-p-around--xx-small">
+            {!$Label.c.OB_MAINTENANCE_BUTTON_PREVIOUS}&nbsp;{!reducedDataObject.objectName}:&nbsp;{!reducedDataObject.oldObjectLabel}
+            </lightning:layoutItem>
+            <lightning:layoutItem size="6" class="slds-section__title slds-p-around--xx-small">
+            {!$Label.c.OB_MAINTENANCE_BUTTON_CURRENT}&nbsp;{!reducedDataObject.objectName}:&nbsp;{!reducedDataObject.newObjectLabel}
+            </lightning:layoutItem>
+            <!--NEXI-274 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 26/08/2019 START added data to display-->
+            <aura:if isTrue="{! and( and( or(v.logRequestWrapper.changeServicePoint, v.logRequestWrapper.changeMerchant ), reducedDataObject.objecType == 'ExternalSourceMapping__c') ,
+                                     or( or( not(empty(reducedDataObject.companyCode)), not(empty(reducedDataObject.servicePointCode)) ), not(empty(reducedDataObject.source)) ) ) }">
+                <lightning:layout multipleRows="true" class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-form-element_stacked slds-hint-parent slds-p-bottom_medium" >
+                    <aura:if isTrue="{! not(empty(reducedDataObject.companyCode)) }">
+                        <lightning:layoutItem padding="small" size="12" class="slds-form-element__label slds-border_top">
+                            {! $Label.c.OB_MAINTENANCE_COMPANYCODECLIENTCODE }
+                        </lightning:layoutItem>
+                        <lightning:layoutItem padding="small" class="slds-form-element__control">
+                            {! reducedDataObject.companyCode }
+                        </lightning:layoutItem>
+                    </aura:if>
+                    <aura:if isTrue="{! not(empty(reducedDataObject.servicePointCode)) }">
+                        <lightning:layoutItem padding="small" size="12" class="slds-form-element__label slds-border_top">
+                            {! $Label.c.OB_MAINTENANCE_SERVICEPOINTCODESHOPCODE }
+                        </lightning:layoutItem>
+                        <lightning:layoutItem padding="small" class="slds-form-element__control">
+                            {! reducedDataObject.servicePointCode }
+                        </lightning:layoutItem>
+                    </aura:if>
+                    <aura:if isTrue="{! not(empty(reducedDataObject.source)) }">
+                        <lightning:layoutItem padding="small" size="12" class="slds-form-element__label slds-border_top">
+                            {! $Label.c.OB_Source }
+                        </lightning:layoutItem>
+                        <lightning:layoutItem padding="small" class="slds-form-element__control">
+                            {! reducedDataObject.source }
+                        </lightning:layoutItem>
+                    </aura:if>
+                </lightning:layout>
+            </aura:if>
+            <!--NEXI-274 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 26/08/2019 STOP-->
+            <lightning:layoutItem size="6" class="slds-p-around--xx-small">
+                <lightning:input value="{!reducedDataObject.action}" label="Action" disabled="true"/>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="6" class="slds-p-around--xx-small">
+                <lightning:input value="{!reducedDataObject.recordTypeName}" label="Role" disabled="true"/>
+            </lightning:layoutItem>
+            <c:OB_LCP008_Log_Request_View_Extract reducedData="{!reducedDataObject}"/>
+        </aura:iteration>
+    </lightning:layout>
+
+</aura:component>

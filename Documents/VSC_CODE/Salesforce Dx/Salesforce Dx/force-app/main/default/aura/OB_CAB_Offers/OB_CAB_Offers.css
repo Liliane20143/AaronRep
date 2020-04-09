@@ -1,0 +1,229 @@
+.THIS {
+}
+ .THIS .title{
+    /*font-family: 'Salesforce Sans Light','Salesforce Sans Regular','Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 2em;
+    color: #000000;
+
+ }
+
+.THIS .headerDescription{
+    /*font-family: 'Salesforce Sans Italic', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1em;
+    margin-top: 5%;
+}
+
+ .THIS .searchInputBox{
+    margin-left: 0;
+    margin-right: 0;
+
+ }
+ .THIS .searchABIinputBox{
+ 	padding-left:0;
+ }
+ 
+ .THIS .titleBox{
+    margin-top: 1%;
+    border-bottom: 1px solid rgb(221, 219, 218);
+    border-color: rgb(221, 219, 218);
+ }
+ 
+.THIS.offerCatalogContainer{
+	position: relative;
+    padding: 0;
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(221, 219, 218);
+    border-radius: .25rem;
+    background-clip: padding-box;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.10);
+    padding-left: 2%;
+    padding-right: 2%;
+    padding-bottom: 2%;
+}
+
+.THIS .offerName{
+    /*font-family: 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.8em;
+    color: #4F6A92;
+    text-align: left;
+}
+.THIS .offerDescription{
+    /*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-style: normal;
+    font-size: 1.1em;
+    margin-left: 2%;
+    margin-right: 2%;
+    margin-top: 2%;
+}
+
+.THIS .pClass{
+	/*font-family: 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.1em;
+    color: #000000;
+
+}
+
+.THIS .offerBox{
+	margin-top: 2%;
+display: table-cell;
+
+}
+
+.THIS .cardsWrapper{
+	margin-left: 2%;
+	margin-right: 2%;
+	margin-bottom: 2%;
+
+
+}
+
+.THIS .gutterCard{
+	margin-left: 0;
+	margin-right: 0;
+}
+.THIS .configureButtonDiv{
+    padding-bottom: 2%;
+    padding-top: 12%;
+}
+.THIS .overwriteConfigureButton{
+	/*font-family: 'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 700;
+    font-style: normal;
+    font-size: 1em;
+    color: #0070D2;
+    border-width: 1px; 
+    border-style: solid;
+    border-color: rgba(82, 158, 224, 1);
+    
+
+}
+
+.THIS .slds-card__body{
+	padding-right: 6%;
+    padding-left: 6%;
+    padding-top: 2%;
+    min-height: 350px;
+}
+
+.THIS .colClass{
+	padding-right: 0;
+    padding-left: 0;
+}
+
+.THIS .thumbnailimage{
+	border-radius: 100%;
+}
+
+.THIS .colOfferName{
+	padding-right: 0;
+}
+
+ 
+ 
+.THIS .searchInputClass {
+    /*font-family: 'Salesforce Sans Italic', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1em;
+    color: #999999;
+    text-align: left;
+}
+ 
+.THIS .pillSize{
+ width:100%;
+}
+
+.THIS .lookupSection{
+	 width: 100%;
+
+}
+
+.THIS .searchIcon > lightning-primitive-icon > svg > use{
+    fill: #0070D2;
+
+}
+.THIS .searchIcon {
+    top:40%;
+}
+.THIS .lookupAndOrderBySection{
+    margin-left: 2%;
+}
+
+.THIS .oderBySection{
+	padding-top: 2.3%
+}
+.THIS .ABIcode{
+	/*font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+	font-weight:700;
+	color:#000000;
+}
+
+.THIS .abiBankName{
+	/*font-family:'Salesforce Sans';*/
+	font-weight:400;
+}
+
+.THIS .noMatchMessage{
+	text-transform: uppercase;
+	/*font-family:'Salesforce Sans Bold', 'Salesforce Sans Regular', 'Salesforce Sans';*/
+	font-weight:700;
+	font-size: 1.2em;
+	color: #CC6600;
+}
+.THIS .noMatchSubMessage{
+	/*font-family:'Salesforce Sans';*/
+	font-weight:400;
+	font-size: 1.2em;
+	color: #CC6600;
+	font-size: 1em;
+}
+
+.THIS .lookupError:focus{
+	background-color: rgba(255, 232, 202, 1);
+    border-color: rgba(247, 182, 75, 1);
+}
+
+.THIS .lookupInputError{
+	border: 2px solid rgb(194, 57, 52);
+}
+.THIS .lookupInputError:focus{
+	border: 2px solid rgb(194, 57, 52);
+}
+
+
+.THIS .lookupError{
+	background-color: rgba(255, 232, 202, 1);
+    border-color: rgba(247, 182, 75, 1);
+}
+.THIS .noMatchWrapper{
+    margin-top: 5%;
+}
+/*.THIS .slds-gutters{
+	
+	margin-left:0;
+}
+.THIS .slds-col{
+	
+	margin-left:0;
+}
+.THIS .slds-gutters .slds-col {
+	padding-left:0;
+}*/
+/* For Firefox browser */
+.THIS input[type='number'] {  
+   -moz-appearance:textfield;
+}
+/* For webkit browsers like Chrome and Safari */
+.THIS input[type=number]::-webkit-inner-spin-button,
+.THIS input[type=number]::-webkit-outer-spin-button {
+   -webkit-appearance: none;
+   margin: 0;
+}

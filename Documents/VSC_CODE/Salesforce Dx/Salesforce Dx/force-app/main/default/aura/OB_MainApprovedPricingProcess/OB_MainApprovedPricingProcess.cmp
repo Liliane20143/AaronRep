@@ -1,0 +1,25 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" controller="OB_MainApprovedPricingProcessController">
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="confId" type="String"  access="global"/>
+    <aura:attribute name ="showDocuments" type="Boolean" default = "false" access = "global"/>
+    <aura:attribute name ="logReqId" type="String" default="" access="global"/>
+    <aura:attribute name ="data" type="NE__Order__c" default="{}" access="global"/>
+    <aura:attribute name="documentsLoaded" type="Boolean" default="false" access="global"/>
+    <!-- <aura:attribute name="isDocumentListEmpty"  type="Boolean" default="false" access="global"/> -->
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler  action="{!c.showDocuments}" event="c:OB_Document_Event"/>
+    
+    <aura:if isTrue="{!v.showDocuments}">
+     
+        <c:stampaDocumenti objectDataMap="{!v.objectDataMap}"/>
+        <!-- LUBRANO 2019/02/23  send info if document list is empty -->
+        <!-- <aura:if isTrue="{!v.documentsLoaded}"> -->
+            <c:uploadProductDocuments2 objectDataMap="{!v.objectDataMap}"/>
+        <!-- </aura:if> -->
+        
+   
+        <button id="nextBtnId" onclick="{! c.handleExit }" class="slds-button slds-float_right slds-button_neutral slds-button--brand" disabled="false">{!$Label.c.OB_NextLabel}</button>
+    </aura:if>  
+    <c:OB_ContinuationBrokerComponent/>
+</aura:component>

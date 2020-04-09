@@ -1,0 +1,62 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="OrderController" access="global">
+ 
+    <aura:attribute name="order" type="String" default=""/>
+    <aura:attribute name="orderItems" type="NE__OrderItem__c[]" />
+    <aura:attribute name="mydata" type="Object"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    <aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="nextCheckout" type="String" default="{!v.objectDataMap.unbind.nextCheckout}" />
+    <aura:attribute name="objectKey" type="String" default="" access="global"/>
+    <aura:attribute name="identifier" type="String" default="" access="global"/>
+    <aura:attribute name="field" type="Object" default="{}" access="global"/> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>  
+   
+    <aura:if isTrue="{!!empty(v.orderItems)}">   
+        <lightning:datatable data="{!v.orderItems}" 
+                             columns="{!v.mycolumns}" 
+                             keyField="id"/>
+    </aura:if>
+        <!--  
+    <form class="slds-form-stacked">          
+    
+
+        <lightning:input aura:id="orderform" label="Order Id"
+                         name="orderId"
+                         value="{!v.order}"
+                         required="true"/> 
+        
+        <lightning:button label="Search Order Items" 
+                          class="slds-m-top-medium"
+                          onclick="{!c.searchOrder}"/>
+    </form>
+    
+
+    <aura:if isTrue="{!!empty(v.orderItems)}">   
+  
+        <table style="width:75%;margin-left:15%;margin-right:15%;" class=" slds-table slds-table_bordered ">
+            <thead >
+                <tr class="slds-line-height_reset">
+                    <th style="background: rgb(243, 242, 242); font-weight:bold; width: 1rem;" aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Name" scope="col">
+                        <div class="slds-th__action slds-th__action_form" title="Item">Order</div>
+                    </th>
+                    <th style="background: rgb(243, 242, 242) ; font-weight:bold; width: 1rem;" aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Name" scope="col">
+                        <div class="slds-th__action slds-th__action_form" title="Attribute Name">Order Item Id</div>
+                    </th>
+                    <th style="background: rgb(243, 242, 242); font-weight:bold; width: 1rem;" aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Name" scope="col">
+                        <div class="slds-th__action slds-th__action_form" title="Value">Order Item Name</div>
+                    </th>
+                    <th style="background: rgb(243, 242, 242); font-weight:bold; width: 1rem;" aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps" aria-label="Name" scope="col">
+                        <div class="slds-th__action slds-th__action_form" title="Value">Product Name</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:OrderItemIteration orderItems = "{!v.orderItems}"
+                                      order= "{!v.order}"/>
+            </tbody>
+
+        </table>
+    </aura:if>
+-->
+</aura:component>

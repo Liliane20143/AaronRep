@@ -1,0 +1,15 @@
+<apex:page controller="OB_RedirectPageFlow_CC">
+ 
+
+	<!-- <apex:repeat value="{!theUrl}"> -->
+		
+		    
+			<script type = "text/javascript">
+
+			
+				window.open({!theUrl}, '_top');
+			
+			</script>	
+	
+	<!-- </apex:repeat> -->
+</apex:page>

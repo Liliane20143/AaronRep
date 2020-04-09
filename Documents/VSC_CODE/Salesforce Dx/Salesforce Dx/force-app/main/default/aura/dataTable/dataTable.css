@@ -1,0 +1,38 @@
+.THIS .slds-table_bordered {
+    border-collapse: collapse;
+}
+
+.THIS .slds-table_bordered td[role=gridcell] {
+    border-top: .5px solid rgb(178, 180, 179);
+    border-bottom: .5px solid rgb(178, 180, 179);
+}
+
+
+.THIS .slds-table td[role=gridcell].slds-has-focus {
+    box-shadow: rgb(0, 112, 210) 0 0 0 1px inset !important;
+}
+
+.THIS .slds-table_striped tbody tr>td.cell-higlighted {
+    background-color: #f3f2f2;
+}
+/*
+.THIS tbody tr > td .slds-input {
+    padding: 0;
+}
+*/
+.THIS .slds-table tbody tr.row-highlighted>td, .THIS .slds-table tbody tr.row-highlighted:hover>td {
+    background-color: #f3f2f2;
+}
+
+.THIS .slds-table tbody tr > td .slds-input {
+    line-height: 1rem;
+    min-height: calc(1rem + (1px * 2));
+    /*border: 0px solid white;
+    background-color: transparent;*/
+}
+/*
+.THIS .slds-table tbody tr > td .slds-input:focus, .THIS slds-table tbody tr > td .slds-input:active {
+    border-color: transparent;
+    box-shadow: none;
+    background-color: transparent;
+}*/

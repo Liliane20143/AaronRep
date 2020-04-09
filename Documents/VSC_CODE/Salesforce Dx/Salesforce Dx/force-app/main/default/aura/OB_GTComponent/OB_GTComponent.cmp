@@ -1,0 +1,29 @@
+<!-- Andrea Morittu, Salvatore Pianura 29/08/2018 
+		Component used in Step 2 -->
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" >
+	<aura:attribute name="objectDataMap" type="Object" default="{}" access="global"/>
+	<aura:attribute name="GTvalues" type="GTObjectWrapper[]" access="global"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+	<fieldset class="slds-form-element">
+	<div class="slds-form-element__control">
+		<aura:iteration items="{!v.GTvalues}" var="element" >
+		
+				<span class="slds-radio">
+					<input id="{!element.GTLabel}" type="radio" checked="{!element.isDefault}" value="{!element.GTLabel}" name="options" onclick="{!c.handleChange}"/>
+					<label class="slds-radio__label" for="{!element.GTLabel}">
+						<!-- Noemi Infantino Start 09/07/2019 F2WAVE2-91 -->
+						<div>
+							<span class="slds-radio_faux"></span>
+							<span class="slds-form-element__label" id="radioButtonElement">{!element.GTLabel}</span>
+						</div>
+					</label>
+				</span>
+				<br/>
+				<!-- Noemi Infantino End 09/07/2019 F2WAVE2-91 -->
+
+			<!--  <ui:inputRadio value="{!element.isDefault}" name="{!element.GTLabel}" label="{!element.GTLabel}" click="{!c.handleChange}"/> -->
+		</aura:iteration>
+		</div>
+	</fieldset>
+</aura:component>

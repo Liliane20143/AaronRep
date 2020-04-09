@@ -1,0 +1,13 @@
+<aura:component >
+    <aura:attribute name="orderItems" type="NE__OrderItem__c[]" />
+    <aura:attribute name="order" type="String"/>
+    
+    <td rowspan= "{!(v.orderItems.length + 1)}" scope="row" data-label="Order">
+        <lightning:formattedText value="{!v.order}" style="position: relative; top: 0;font-weight:bold;"/>
+    </td> 
+    <aura:iteration items="{!v.orderItems}" var="item">
+        <c:OrderItemComponent orderItem= "{!item}"
+                              order = "{!v.order}"
+                              orderItems= "{!v.orderItems}"/> 
+    </aura:iteration>
+</aura:component>

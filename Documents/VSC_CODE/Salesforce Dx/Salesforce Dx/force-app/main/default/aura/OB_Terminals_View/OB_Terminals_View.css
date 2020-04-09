@@ -1,0 +1,30 @@
+.THIS .rim {
+	width:15px;
+	height:15px;
+    border-radius:7.5px;
+
+
+}
+.THIS .rimYellow {
+    background:yellow;
+}
+.THIS .rimGreen {
+    background:green;
+}
+.THIS .rimRed {
+    background:red;
+}
+.THIS .border{
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+   
+}
+.THIS .buttom{
+    width: 6rem;
+    height: 1.5rem;
+    font-size: 7.5px;
+    text-align: center;
+    margin: auto; 
+
+   
+}

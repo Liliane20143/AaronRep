@@ -1,0 +1,26 @@
+/**
+ * Created by ripagano on 19/04/2018.
+ */
+.THIS .searchComboBox{
+      background-color: white;
+      /*background-image: url('https://i.imgur.com/upL9OeR.png');*/
+      /*background-position: 183px;*/
+      /*background-repeat: no-repeat;*/
+      display: inline-block !important;
+}
+
+.THIS .slds-input{
+  border: 0px !important;
+}
+
+.THIS .slds-combobox__form-element{
+  border: 1px solid rgb(221, 219, 218) !important;
+  border-radius: .25rem !important;
+  background-color: white;
+  max-width: 100%;
+}
+
+.THIS .slds-button{
+  background-color: white !important;
+  /*width: 40px;*/
+}

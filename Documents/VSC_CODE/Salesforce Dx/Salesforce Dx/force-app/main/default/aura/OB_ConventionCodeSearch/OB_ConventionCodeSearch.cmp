@@ -1,0 +1,123 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="OB_UpdateServicePointCode">
+    <aura:attribute name="isModalOpen" type="Boolean" default="false"/>
+    <aura:attribute name="searchByConvCode" type="String" default="" access="global"/>  
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="contextOutput" type="Object" access="global"/>
+    <aura:attribute name="codeList" type="List"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="maxRowSelection" type="Integer" default="1"/>
+    <aura:attribute name="assetSelected" type="String" access="global"/>
+    <aura:attribute name="noCodeSelected" type="Boolean" default="false"/>
+    <aura:attribute name="showError" type="Boolean" default="false"/>
+    <aura:attribute name="showAssetPricing" type="Boolean" default="false"/>
+    <aura:attribute name="bundleAssetId" type="String"/>
+    <aura:attribute name="pricingCloned" type="Boolean" default="false"/><!-- davide.franzini _ 08/05/2019 _ disable convCode search after pricing clone-->
+    <aura:attribute name="Spinner" type="boolean" default="false"/><!-- davide.franzini _ 08/05/2019 -->
+    <aura:attribute name="offer" type="Object" default="{}"/>   <!--09/10/19 francesca.ribezzi WN-551 adding offer  -->
+    <aura:attribute name="isConventionCodeOk" type="Boolean" default="true" access="global"/>   <!--09/10/19 francesca.ribezzi WN-551 adding check on save click - required  -->
+    <aura:attribute name="checkConventionCodeInput" type="Boolean" default="false" access="global"/>   <!--09/10/19 francesca.ribezzi WN-551 adding check if conventionCode is required -->
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <!--09/10/19 francesca.ribezzi -WN-551 - callHandleRedBorderErrors -->
+    <aura:handler name="change" value="{!v.checkConventionCodeInput }" 	action="{!c.callHandleRedBorderErrors}"/>
+
+    <!--davide.franzini _ 08/05/2019-->
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container" style="z-index:99;">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+
+    <div class="slds-size__1-of-1 slds-grid bankprofile-section">
+		<div class="slds-size__1-of-1 slds-grid bankprofile-section-inner">
+            <div class="slds-col">
+                <div class="slds-p-top--medium slds-p-left--medium slds-p-bottom--medium slds-form-element " >
+                    <label class="slds-form-element__label" for="" value="">
+                        {!$Label.c.OB_ConvCode}
+                    </label>
+                    <lightning:input aura:id="searchInputConvCodeId"	
+                                    id="inputSearchConvCode" 
+                                    name="searchConvCode" 
+                                    value="{!v.searchByConvCode}"
+                                    disabled="true"
+                                    label=""
+                                    variant="label-hidden"/> 
+                </div>
+            </div>
+            <div class="slds-col">
+                <div class="slds-p-top--medium slds-p-bottom--medium slds-form-element " id="search-code-conv">
+                    <label class="slds-form-element__label" for="" >&nbsp;</label>
+                    <lightning:buttonIcon iconName="utility:search" size="large" alternativeText="{!$Label.Bit2Archetypes.Search}" onclick="{!c.doSearch}" disabled="{!v.pricingCloned}"/> <!-- davide.franzini _ 08/05/2019 _ disable convCode search after pricing clone-->
+                </div>
+            </div>
+        </div>    
+    </div>
+    <aura:if isTrue="{!v.isModalOpen}">            
+        <!-- Modal/Popup Box starts here-->
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-modal--large slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal/Popup Box Header Starts here-->
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon iconName="utility:close"
+                                        onclick="{!c.closeModal}"
+                                        alternativeText="close"
+                                        variant="bare-inverse"
+                                        class="slds-modal__close"/>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!$Label.c.OB_ConvCodes}</h2>
+                </header>
+                <!--Modal/Popup Box Body Starts here-->
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <aura:if isTrue="{!v.showError}">
+                        <p style="color: blue; text-align: center; font-size: 18px;">{!$Label.c.OB_NoCodeFound}</p>
+                    </aura:if>
+                    <aura:if isTrue="{!v.noCodeSelected}">
+                        <p style="color: blue; text-align: center; font-size: 18px;">{!$Label.c.OB_NoCodeSelected}</p>
+                    </aura:if>
+                    <!--Data table here-->
+                    <aura:if isTrue="{!not(empty(v.codeList))}">
+                        <lightning:datatable
+                                        columns="{! v.columns }"
+                                        data="{! v.codeList }"
+                                        keyField="id"
+                                        maxRowSelection="{! v.maxRowSelection }"
+                                        onrowselection="{! c.getSelectedRecord }"/>
+                        <lightning:button aura:id="showAssetPricingBtn"  
+                                        variant="brand" 
+                                        class="slds-m-top_medium slds-float--right" 
+                                        label="{!$Label.c.OB_Pricing_Label}" 
+                                        title="Visualizza Prezzi" 
+                                        onclick="{!c.showAssetPricing}"  
+                                        disabled="false"/>
+                    </aura:if>                                      
+                </div>
+                <!--Modal/Popup Box Footer Starts here-->
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="brand"
+                                    class="slds-m-top_medium"
+                                    label="{!$Label.c.OB_Cancel}"
+                                    title="Cancel"
+                                    onclick="{!c.closeModal}"/>
+                    <!--lightning:button variant="brand"
+                                    class="slds-m-top_medium"
+                                    label="{!$Label.c.OB_Save}"
+                                    title="Save"
+                                    onclick="{!c.saveCode}"/-->
+                    <aura:if isTrue="{!not(empty(v.codeList))}">
+                        <lightning:button variant="brand" class="slds-m-top_medium" label="{!$Label.c.OB_Save}" title="Save" onclick="{!c.saveCode}"/>
+                    </aura:if>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+
+    <aura:if isTrue="{!v.showAssetPricing}"> 
+		<c:strike_modal size="large" primaryButtonLabel="Ok" secondaryButtonLabel="Cancel" showHeader="false" showFooter="false" showClose="true" showModal="{!v.showAssetPricing}" >
+			<c:OB_newCartPriceSummary  isReadOnly="true" isFlow="false" offerAssetId="{!v.bundleAssetId}" showStartDate="false"/>
+		</c:strike_modal> 
+	</aura:if>
+</aura:component>

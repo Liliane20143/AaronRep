@@ -1,0 +1,21 @@
+<aura:component controller="Plc_ActionManagerAppLauncherCnt" implements="lightning:isUrlAddressable">
+    <aura:handler name="init" value="{!this}" action="{!c.handleInitialize}" />
+
+    <!-- Modal Component attributes -->
+    <aura:attribute name="showModal" access="private" type="Boolean" default="false" />
+    <aura:attribute name="type" access="private" type="String" />
+    <aura:attribute name="message" access="private" type="String" />
+    <aura:attribute name="redirectTo" access="private" type="String" />
+    <aura:attribute name="fireEvent" access="private" type="Boolean" />
+    <!-- FB 29-08-2019: Adding spinner [START] -->
+    <aura:attribute name="showSpinner" access="private" type="Boolean" default="true"/>
+    <!-- FB 29-08-2019: Adding spinner [END] -->
+    <lightning:navigation aura:id="navService"/>
+    <!-- [START MOD 29/03/2019 11:13]@Author:francesco.bigoni@/webresults.it @Description: Adding attribute redirectBack -->
+    <c:Plc_ModalComponent showModal="{!v.showModal}" type="{!v.type}" message="{!v.message}"
+                          fireEvent="{!v.fireEvent}" redirectTo="{!v.redirectTo}" redirectBack="true"/>
+    <!-- [END MOD 29/03/2019 11:13]@Author:francesco.bigoni@/webresults.it @Description: Adding attribute redirectBack -->
+    <div aura:id="main-spinner" role="dialog" tabindex="-1" class="{!v.showSpinner ? 'slds-spinner_medium slds-fade-in-open' : 'slds-hide'}">
+        <lightning:spinner class="slds-is-fixed" variant="brand" size="large" alternativeText="text"/>
+    </div>
+</aura:component>

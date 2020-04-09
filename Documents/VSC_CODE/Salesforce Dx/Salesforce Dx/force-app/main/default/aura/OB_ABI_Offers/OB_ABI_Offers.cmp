@@ -1,0 +1,127 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:searchInterface,forceCommunity:availableForAllPageTypes" controller="OB_ABI_OffersController">
+
+	<aura:attribute name="bundleOffers" type="List"/>
+	<aura:attribute name="searchText" type="String" default=""/>
+	<aura:attribute name="selectedRecord" type="sObject" default="{}" description="Use,for store SELECTED sObject Record"/>
+    <aura:attribute name="listOfSearchRecords" type="List" description="Use,for store the list of search records which returns from apex class"/>
+    <aura:attribute name="SearchKeyWord" type="string"/>
+    <aura:attribute name="objectAPIName" type="string" default=""/>
+    <aura:attribute name="IconName" type="string" default=""/>
+    <aura:attribute name="label" type="string" default=""/>
+    <aura:attribute name="Message" type="String" default=""/>
+    <aura:attribute name="oRecord" type="sObject" />
+	<aura:attribute name="spinner" type="Boolean" default="false"/>
+	<aura:attribute name="hideListResults" type="Boolean" default="false"/>
+    <aura:attribute name="showNoMatchMessage" type="Boolean" default="false"/>
+   	<aura:attribute name="goToNextComponent" type="Boolean" default="false"/>
+   	<aura:attribute name="showErrorMessage" type="Boolean" default="false"/>
+	<!-- <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> -->
+
+	<aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+   	</aura:if> 
+   	
+
+		
+		<aura:if isTrue="{!v.goToNextComponent}">
+			<c:OB_OfferCatalogBank selectedABI="{!v.selectedRecord}"/>
+			<aura:set attribute="else">
+				<div class="offerCatalogContainer">
+	<!-- HEADER GOES HERE: -->
+	<div class="cardsContainer">
+		<div class="titleBox">
+		    <span>
+		    	<h1 class="title">{!$Label.c.OB_OffersCatalogNEXI}</h1>
+		    </span>
+		</div>
+				<div class="slds-grid slds-gutters searchInputBox">
+					<div class="slds-col slds-size_1-of-1  slds-medium-size_2-of-3 slds-small-size_1-of-1">
+				    	<span>
+				    		<div class="slds-grid slds-gutters slds-wrap">
+								<div class="slds-col slds-size_1-of-1  slds-medium-size_1-of-3 slds-small-size_1-of-1  searchABIinputBox">
+							    	<span>
+				    				<!-- CUSTOM SEARCH INPUT: -->
+									   <div onmouseleave="{!c.onblur}" aura:id="searchRes" class="slds-form-element slds-lookup slds-is-close lookupSection" data-select="single">
+									        <label class="slds-form-element__label" for="lookup-348">{!v.label}</label>
+									        <!--This part is for display search bar for lookup-->  
+									        <div class="slds-form-element__control">
+									            
+									            <div class="slds-input-has-icon slds-input-has-icon--right">
+									            
+									              <lightning:icon aura:id="searchIconId" class="slds-input__icon slds-show searchIcon" iconName="utility:search" size="small" alternativeText="search"/> 
+									                <!-- This markup is for when an record is selected -->
+									               <div aura:id="lookup-pill" class="slds-pill-container slds-hide">
+									                     <lightning:pill class="pillSize" label="{!v.selectedRecord.Name}" name="{!v.selectedRecord.Name}" onremove="{! c.clear }">
+									                          <aura:set attribute="media">
+									                             <lightning:icon iconName="{!v.IconName}" size="x-small" alternativeText="{!v.IconName}"/>
+									                          </aura:set>
+									                      </lightning:pill>
+									               </div>
+									                <div aura:id="lookupField" class="slds-show">
+									                   <ui:inputText maxlength="5" aura:id="lookupInputId" click="{!c.onfocus}" updateOn="keyup" keyup="{!c.keyPressController}" class="slds-lookup__search-input slds-input searchInputClass" value="{!v.SearchKeyWord}" placeholder="{!$Label.c.OB_Search+ ' ABI'}" />           	  
+									                </div> <!-- onblur="{!c.handleInputError}"  -->
+									            </div>
+									           
+									        </div>
+									        <!--LOOKUP RESULT LIST:--> 
+									        <aura:if isTrue="{!v.hideListResults}">
+									        	<!-- <section class="slds-popover slds-nubbin_top-left" role="dialog" aria-label="Dialog Title" aria-describedby="dialog-body-id-5"> -->
+											        <ul style="min-height:40px;margin-top:0px !important" class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-lookup__menu slds" role="listbox">
+											        
+											            <lightning:spinner class="slds-hide" variant="brand" size="small" aura:id="mySpinner"/>
+											            <center> {!v.Message}</center>
+											            <aura:iteration items="{!v.listOfSearchRecords}" var="singleRec" indexVar="ind">
+											
+														    <li  id="{!ind}" role="presentation" class="slds-listbox__item" onclick="{!c.selectRecord}">
+														        <span id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+														              <span class="slds-media__body">  
+														                  <span class="slds-listbox__option-text slds-listbox__option-text_entity"><p><span class="ABIcode">{!singleRec.Name}</span> <span class="abiBankName">&nbsp;-&nbsp;{!singleRec.NE__Value1__c}</span></p></span>
+														              </span>
+														        </span>
+														    </li>
+											            </aura:iteration>
+											      
+											        </ul> 
+												 <!--  </section> -->
+										   	</aura:if>
+										   	     <aura:if isTrue="{!v.showErrorMessage}">
+										                <div>
+										                	<p class="noMatchSubMessage">This value is not valid.</p>
+										                </div> 
+										            </aura:if>
+									        <!--END LOOKUP RESULT LIST-->  
+									    </div>
+											<!-- END CUSTOM SEARCH INPUT -->   
+				    				</span>
+				    			</div>
+				    			<div class="slds-col slds-size_1-of-1  slds-medium-size_2-of-3 slds-small-size_1-of-1 ">
+				    				<span>
+				    					<aura:if isTrue="{!v.showNoMatchMessage}">
+				    						<p class="noMatchWrapper"><span class="noMatchMessage">{!$Label.c.OB_NoResultMsg}</span><span class="noMatchSubMessage"> - {!$Label.c.OB_TryAgain}</span></p>
+				    						<aura:set attribute="else">
+				    							<p class="headerDescriptionABI">{!$Label.c.OB_inputABIDesc}</p>
+				    						</aura:set>
+				    					</aura:if>
+				    				</span>
+				    			</div>
+				    		</div>
+				    	</span> 
+					</div>    
+				</div>   	
+			<!-- HEADER ENDS HERE -->
+				</div>
+				</div>
+			</aura:set>
+		</aura:if>
+
+	
+
+	
+	
+</aura:component>

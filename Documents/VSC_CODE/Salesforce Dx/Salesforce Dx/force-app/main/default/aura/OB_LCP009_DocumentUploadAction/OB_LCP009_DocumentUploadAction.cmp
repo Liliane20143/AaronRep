@@ -1,0 +1,23 @@
+<!--- Created by wojciech.kucharek@accenture.com on 12.07.2019-->
+<!--- antonio.vatrano r1f3-97 add cntroller 28/09/2019-->
+<aura:component implements="force:lightningQuickAction,force:hasRecordId" controller = "OB_AttachedDocumentationsController">
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="objectDataMap" type="Object" access="global"/>
+    <aura:attribute name="showDocuments" type="Boolean" default="false"/>
+    <aura:attribute name="orderFields" type="List" default="[]" /> <!--NEXI-286 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 06/09/2019-->
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:if isTrue="{!v.showDocuments}">
+        <c:uploadProductDocuments2 objectDataMap='{!v.objectDataMap}'/>
+    </aura:if>
+
+    <!--NEXI-286 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 06/09/2019 START-->
+    <lightning:recordForm objectApiName="NE__Order__c"
+                          mode="readonly"
+                          recordId="{! v.recordId }"
+                          fields="{! v.orderFields }"
+                          onload="{! c.loadDocuments }"
+                          class="slds-hidden"
+    />
+    <!--NEXI-286 Joanna Mielczarek <joanna.mielczarek@accenture.com>, 06/09/2019 STOP-->
+</aura:component>

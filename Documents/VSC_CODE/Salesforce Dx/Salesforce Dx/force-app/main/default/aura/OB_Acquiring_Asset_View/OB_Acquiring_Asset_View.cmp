@@ -1,0 +1,132 @@
+<aura:component controller = "OB_Active_Asset_View" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global">
+    <aura:attribute name="posList"  type="List" access="global"/>
+    <aura:attribute name="enablementsList"  type="List" access="global"/>
+    <aura:attribute name="recordId" type="String" /> 
+    <aura:attribute name="servicePointId" type="String" /> 
+    <aura:attribute name="showTable" type="Boolean" default="true"/>
+    <aura:attribute name="isToShow" type="Boolean" default="false"/>
+    <aura:attribute name="isToShowAttribute" type="Boolean" default="false"/> 
+    <aura:attribute name="showDatatable" type="Boolean" default="true"/> 
+    <aura:attribute name="showOffer" type="Boolean" default="false"/> 
+    <aura:attribute name="openTab"  type="String" access="global" default="close"/>
+    <aura:attribute name="bundleIdMap" type="Object"/>
+    <aura:attribute name="mapItem" type="Object"/>
+    <aura:attribute name="attributesList"  type="Object" access="global"/>
+    <aura:attribute name="attributeColumns"  type="List" access="global"/>
+    <aura:attribute name="orderParameter" type="String"/>
+    <aura:attribute name="proposerABI" type="String"/>
+    <aura:attribute name="bundleId" type="String" />
+    <aura:attribute name="offerid" type="String"/>
+    <!--Start antonio.vatrano, antonio.vatrano@accenture.com - 11/04/2019 new attributes for OB_Maintenance_Summary  -->
+    <aura:attribute name="FlowData" type="String" default="" access="global"/>
+    <aura:attribute name="FlowStep" type="String" default="" access="global"/>
+    <aura:attribute name="isOperation" type="Boolean" default="false"/> 
+    <!--End antonio.vatrano, antonio.vatrano@accenture.com - 11/04/2019 new attributes for OB_Maintenance_Summary  -->
+    <aura:attribute name="bundleConfiguration" type="String" default="" access="global"/> <!--antonio.vatrano ri107 25/06/2019-->
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <aura:if isTrue="{!v.isOperation}">  <!-- antonio.vatrano, antonio.vatrano@accenture.com - 11/04/2019 view component only if the currentUser is Operation -->
+        <aura:if isTrue="{!v.isToShow}">
+        <div style="background : white;">
+            <div  class="slds-form slds-clearfix slds-form_compound" aura:id="MainDiv">
+                <div  class="slds-form-element__row slds-clearfix">
+                    <!--START elena.preteni 16/4/19 Custom Label Added-->
+                    <div class="slds-form-element slds-size_1-of-2 ">{!$Label.c.OB_AcquiringDetailsLabel}</div>
+                    <div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small"> 
+                        <lightning:button onclick="{!c.showOfferClick }" label="{!$Label.c.OB_Visualize_Offer}" class="slds-float_right  slds-button  slds-button--brand"></lightning:button>
+                     <!--END elena.preteni 16/4/19 Custom Label Added-->
+                    </div>
+                </div>
+            </div>
+            
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                <thead>
+                <tr class="slds-line-height_reset">
+                    <!--START elena.preteni 16/4/19 Custom Label Added-->
+                    <th class="" scope="col"><div  class="slds-truncate" title="Offerta"></div></th>
+                    <th class="" scope="col"><div  class="slds-truncate" title="POS">{!$Label.c.OB_Pos}</div></th>
+                    <th class="" scope="col"><div  class="slds-truncate" title="Abilitazioni">{!$Label.c.OB_MAINTENANCE_ENABLEMENTS_MODAL_TITLE}</div></th>
+                    <th class="" scope="col"><div  class="slds-truncate" title="Data di installazione">{!$Label.c.OB_MAINTENANCE_INSTALLATIONDATE}</div></th>
+                    <th class="" scope="col"><div  class="slds-truncate" title="Term id">{!$Label.c.OB_Termi_Id}</div></th>
+                    <th class="" scope="col"><div  class="slds-truncate" title="ABI">{!$Label.c.ABI}</div></th> 
+                    <th class="" scope="col"><div  class="slds-truncate" title="Client id">{!$Label.c.OB_ClientIDLabel}</div></th>
+                    <th class="" scope="col"><div  class="slds-truncate" title="Codice Stabilimento">{!$Label.c.OB_EnstabilishmentSIACodeLabel}</div></th>
+                    <th class="" scope="col"><div  class="slds-truncate" title="Codice convenzione">{!$Label.c.OB_MAINTENANCE_CONVENTIONCODE}</div></th>
+                    <th class="" scope="col"><div  class="slds-truncate" title="GT">{!$Label.c.OB_GT}</div></th>
+                    <th class="" scope="col"><div  class="slds-truncate" title="Stato">{!$Label.c.Status}</div></th>    
+                    <th class="" scope="col"><div  class="slds-truncate" title="Attributi"></div></th>  
+                     <!--END elena.preteni 16/4/19 Custom Label Added-->
+                </tr>
+            </thead>
+            <tbody>
+                <aura:iteration items="{!v.posList}" var="pos">     
+                    <tr  class="slds-hint-parent">
+                        <th scope="row" data-label="Offerta"><div  class="slds-truncate" title="Lens"><lightning:buttonIcon variant="bare" value="{!pos.id}" aura:id="{!pos.id}" onclick="{!c.showDetails}" class="slds-input__icon slds-show searchIcon" iconName="utility:chevrondown" size="xx-small"  alternativeText="View More"/></div></th>
+                        <td data-label="POS">{!pos.prodName}</td>
+                        <td data-label="Abilitazioni"></td>
+                        <td data-label="Data di installazione">{!pos.dataInstallazione}</td>
+                        <td data-label="Term id">{!pos.termId}</td>
+                        <td data-label="ABI">{!pos.abi}</td>
+                        <td data-label="Client id">{!pos.clientId}</td>
+                        <td data-label="Codice Stabilimento">{!pos.codiceStab}</td>
+                        <td data-label="Codice convenzione">{!pos.codiceConv}</td>
+                        <td data-label="GT">{!pos.gtPos}</td>
+                        <td data-label="Stato">{!pos.stato}</td>
+                        <td data-label="Attributi"> <lightning:buttonIcon  variant="bare" value="{!pos.id}" aura:id="{!pos.id}"  onclick="{!c.showAttribute}" class="slds-input__icon slds-show searchIcon" iconName="utility:search" size="xx-small"  alternativeText="Search"/> </td>
+                    </tr>
+                    {!v.body}
+                </aura:iteration> 
+            
+        
+            </tbody>
+            </table>
+            
+            <aura:if isTrue="{!v.isToShowAttribute}">
+                <c:strike_modal title="Attributi" size="large" primaryButtonLabel="Ok" secondaryButtonLabel="Cancel" showHeader="true" showFooter="false" showClose="true" showModal="{!v.isToShowAttribute}" >
+                    <aura:if isTrue="{!v.showDatatable}">
+                        <div>
+                            <lightning:datatable
+                            columns="{! v.attributeColumns }"
+                            data="{! v.attributesList }"
+                            keyField="Id"
+                            aura:id="attributeTable"
+                            hideCheckboxColumn="true"
+                            />
+                        </div>
+                        <aura:set attribute="else">
+                                Non ci sono attibuti da visualizzare
+                        </aura:set>
+                    </aura:if>
+                </c:strike_modal>
+            </aura:if>
+             <!--Start antonio.vatrano, antonio.vatrano@accenture.com - 11/04/2019 open modal with view of OB_Maintenance_Summary  -->
+            <aura:if isTrue="{!v.showOffer}">
+                <!-- Simone Misani 18/04/2019  add label on titile for stike modal  -->
+                <c:strike_modal title="{!$Label.c.OB_OfferAsset}" size="large" 
+                                primaryButtonLabel="Ok" 
+                                secondaryButtonLabel="Cancel" 
+                                showHeader="true"
+                                showFooter="false" showClose="true" 
+                                showModal="{!v.showOffer}">
+                    <!--Start elena.preteni 16/4/19 hideBackToSearch Added-->
+                    <!--Start antonio.vatrano 25/06/19 change recordId and modifyServicePointId-->
+                    <c:OB_Maintenance_Summary   recordId="{!v.servicePointId}" 
+                                                FlowData="{!v.FlowData}" 
+                                                FlowStep="{!v.FlowStep}" 
+                                                ViewMode="EDIT" 
+                                                modifyServicePointId="{!v.servicePointId}" 
+                                                proposerABI="{!v.proposerABI}"
+                                                showMainAnag="false"
+                                                bundleConfiguration="{!v.bundleConfiguration}" 
+                                                hideBackToSearch="true" />
+                    <!--END antonio.vatrano 25/06/19 change recordId and modifyServicePointId-->
+                    <!--End elena.preteni 16/4/19 hideBackToSearch Added-->
+
+                </c:strike_modal>
+            </aura:if>
+            <!--End antonio.vatrano, antonio.vatrano@accenture.com - 11/04/2019 open modal with view of OB_Maintenance_Summary  -->
+        </div>
+        </aura:if>
+    </aura:if>
+</aura:component>

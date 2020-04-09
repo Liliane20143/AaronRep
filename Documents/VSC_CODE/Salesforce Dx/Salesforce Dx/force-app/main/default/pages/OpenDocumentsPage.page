@@ -1,0 +1,39 @@
+<apex:page id="flexipage">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript">
+		var params = "{!$CurrentPage.parameters.params}";
+		console.log('params: '+params);
+		var token 	= params.split('?')[0]
+		console.log('TOKEN: ' + token);
+		var url = params.split('?')[1]
+		console.log('FE URL: '+ url);
+		var request = new XMLHttpRequest();
+		request.open("GET", url, true);
+		request.setRequestHeader("Content-Type", "application/json");
+		request.setRequestHeader("token", token);
+		request.onreadystatechange = function () {
+			if (request.readyState === 4 && request.status === 200){
+				try {
+					var res = JSON.parse(request.responseText);
+					console.log('RESPONSE HTTP: '+JSON.stringify(res) );
+					var base64PDF = res['documentStream'];
+					var raw = atob(base64PDF); 
+					var uint8Array = new Uint8Array(new ArrayBuffer(raw.length));
+					for (var i = 0; i < raw.length; i++){
+						uint8Array[i] = raw.charCodeAt(i);
+					}
+					var file = new Blob([uint8Array], { type: 'application/pdf' });
+					var fileURL = URL.createObjectURL(file);
+					window.open(fileURL);
+				}catch(exc) {
+					console.log(exc.message);
+				}
+				window.close();
+			}
+		};
+        request.send();
+    </script>
+  </meta>
+  <!--giovanni spinelli 22/08/2019 add message-->
+  <h1>{!$Label.OB_WaitOpenDoc}</h1>
+</apex:page>

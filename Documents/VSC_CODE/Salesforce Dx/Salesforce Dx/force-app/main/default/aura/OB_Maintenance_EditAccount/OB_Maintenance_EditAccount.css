@@ -1,0 +1,99 @@
+.THIS.slds-has-error .flow_required{
+    background-color: 	rgb(255, 255, 255)!important;
+    border: 			1px solid rgb(221, 219, 218)!important;
+    border-color: 		rgb(194, 57, 52)!important;
+    box-shadow: 		rgb(194, 57, 52) 0 0 0 1px inset!important;
+    background-clip: 	padding-box!important;
+}
+.THIS .error-input-message
+{
+	color: rgb(194, 57, 52)!important;
+/*    position: absolute!important;
+    z-index: 1!important;*/
+}
+.THIS .button-modify
+{
+	margin-top: 	2rem;
+}
+.THIS .cOB_FlowInputModal > div > div {     
+	padding: 		.25rem !important; 
+    margin-left: 	0.7%;
+} 
+
+.THIS .cOB_Maintenance_EditAccount .cOB_FlowInputModal>div>div {
+    padding-top: 	0.25rem;
+    padding-bottom: 0.25rem;
+    padding-left: 	0.6rem;
+}
+/*.THIS .cOB_FlowInputModal .slds-size--1-of-12 
+{     
+	width: auto !important; 
+} */ 
+
+/*.THIS .cOB_FlowInputModal .slds-size--11-of-12 {
+	width: auto !important; 
+} */
+
+/*.THIS .cOB_FlowInputModal .lens-search-mod-button {
+	width: 42px !important;
+}*/
+.THIS .cAutoCompleteComponentPostel .slds-p-around--medium {
+	padding: 	.25rem !important;    
+} 
+
+.THIS .cAutoCompleteComponentPostel .slds-size--1-of-12 {
+	width: 		auto !important; 
+} 
+
+.THIS .cAutoCompleteComponentPostel .slds-size--11-of-12 { 
+    width: 		auto !important; 
+} 
+
+.THIS .cOB_DocumentReleaseAddressComponent .slds-p-around--medium {
+	padding: 	.25rem !important;    
+}
+
+.THIS .cAutoCompleteComponentPostel .lens-search-country-button {
+	width: 		42px !important; 
+}
+
+/*Icon Container Class*/
+.THIS .cOB_FlowInputModal .lens-search-mod-button {
+	width: 		auto !important;
+}
+
+.THIS .close{
+    margin: 1rem;
+   /* color: white;*/
+    text-align: center;
+    width: auto;
+	height: auto;
+    white-space: nowrap;
+}
+.THIS .draft{
+    margin: 1rem;
+    color: rgb(0, 153, 222);
+    text-align: center;
+    width: auto;
+	height: auto;
+    white-space: nowrap;
+}
+.THIS .slds-modal__container 
+{
+    width: 90% !important;
+    max-width: unset !important;
+}
+.THIS .flow-section-separator
+{
+	margin-top: -1.4rem;
+	background-color: white;
+	height: 1px!important;
+	width: 100%!important;
+    padding-right: 0!important;
+    padding-bottom: 3%;
+}
+.THIS .flow-section-separator-container
+{
+	margin-left: -12px !important;
+	margin-top: 20px !important;
+}

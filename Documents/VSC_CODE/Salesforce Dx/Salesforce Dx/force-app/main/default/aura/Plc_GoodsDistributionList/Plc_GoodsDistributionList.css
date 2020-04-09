@@ -1,0 +1,12 @@
+.THIS .cell-break-line {
+	white-space: normal !important;
+}
+
+.THIS .secondary-row {
+	background-color: #ECEBEA;
+}
+
+.THIS .absolute-positioning {
+	position: absolute;
+    z-index: 1;
+}

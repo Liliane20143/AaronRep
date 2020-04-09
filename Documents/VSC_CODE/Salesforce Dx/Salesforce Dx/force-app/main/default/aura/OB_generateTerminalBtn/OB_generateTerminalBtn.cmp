@@ -1,0 +1,19 @@
+<aura:component controller="OB_OperationalData_CC">
+        <aura:attribute name="objectDataMap" type="Object"/>
+        <aura:attribute name="isMaintenance" type="Boolean" default="false"/>
+        <aura:attribute name="bankABI" type="String" />
+        <aura:attribute name="orderId" type="String"/>	
+        <aura:attribute name="posList" type="List" access="global"/>
+        <aura:attribute name="vasList" type="List"/>
+        <aura:attribute name="mapItemIdSuccessTerminalCall" type="Map" /> 
+        <aura:attribute name="mapItemIdTerminalId" type="Map" default="{}" access="global"/>
+        <aura:attribute name="orderABI" type="String" default="" access="global"/><!-- Simone Misani WN-295 29/08/2019  -->
+        <aura:attribute name="contextOutput" type="Object"/>
+        <aura:attribute name="isEnd" type="Boolean" default="false"/>
+        <aura:attribute name="index" type="Integer" access="global"/>
+        <aura:attribute name="itemName" type="String" description="POS or VAS"/>
+        <aura:attribute name="Spinner" type="Boolean" access="global" default="false"/>
+
+    <lightning:button label="{!$Label.c.OB_CallTerminalLabel}" onclick="{!c.generateTerminalId}"/>
+
+</aura:component>

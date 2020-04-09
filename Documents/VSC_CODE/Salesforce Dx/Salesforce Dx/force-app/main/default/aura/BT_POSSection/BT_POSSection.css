@@ -1,0 +1,37 @@
+.THIS .popover {
+	position: absolute;
+	left: 85%;
+	top: 0%;
+}
+
+.THIS .table-margin {
+	margin-left: 30px;
+}
+
+.THIS .pos-descr-column {
+	width: 24%;
+}
+
+.THIS .pos-descr-column .slds-truncate {
+	white-space: normal;
+	font-size: .75rem;
+}
+
+.THIS.offerPosDescription .slds-table_bordered .slds-rich-text-editor__output td {
+    border: unset;
+}
+
+.THIS.offerPosDescription {
+    max-width: 65%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.THIS.offerPosDescription .slds-rich-text-editor__output td, .THIS.offerPosDescription td, .THIS.offerPosDescription td .slds-truncate {
+    white-space: normal;
+}
+
+.THIS .offerPosCodesCell .slds-truncate {
+    font-size: 20px;
+    white-space: normal;
+}

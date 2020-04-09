@@ -1,0 +1,24 @@
+<aura:component controller="OB_operationActionsForSetup_CC" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:appHostable,force:hasRecordId">
+        
+    <aura:attribute name = "isOperationSetup" type = "Boolean" default = "false" access = "global"/>
+    <aura:attribute name = "isOperation"      type = "Boolean" default = "false" access = "global"/>
+    <aura:attribute name = "showButtonFlow"   type = "Boolean" default = "false" access = "global"/>
+    <aura:attribute name = "showResumeFlow"   type = "Boolean" default = "false" access = "global"/>
+    <aura:attribute name = "resubmit" 		  type = "Boolean" default = "false" access="global"/>
+    <aura:attribute name = "resubmitDisabled" type = "Boolean" default = "false" access="global"/>
+    <aura:attribute name = "recordId"         type = "String" /> 
+    <aura:attribute name = "historicWizard"   type = "Object"                    access="global"/>
+    
+
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    <aura:if isTrue="{!and(and(v.showButtonFlow,v.isOperationSetup),v.isOperation)}">
+        <lightning:button 	label="{!$Label.c.OB_ResumeFlow}" variant="brand" onclick="{!c.resumeTheFlow}"/>
+    </aura:if>
+    <aura:if isTrue="{!and(and(v.resubmit,v.isOperationSetup),v.isOperation)}">
+        <lightning:button aura:id="submit" label ="{!$Label.c.OB_Resubmit}" onclick="{!c.approvalProcess}" variant="brand" disabled="{!v.resubmitDisabled}" />
+    </aura:if>
+
+    <aura:if isTrue="{!v.showResumeFlow}">
+		{!v.body}
+	</aura:if>
+</aura:component>

@@ -1,0 +1,5 @@
+<design:component>
+    <design:attribute name="isReadOnly" label="READ ONLY"/>
+    <design:attribute name="callFilnetGetDocs" label="callFilenet"/>
+    <design:attribute name="fromLogDetail" label="fromLogDetail"/>
+</design:component>

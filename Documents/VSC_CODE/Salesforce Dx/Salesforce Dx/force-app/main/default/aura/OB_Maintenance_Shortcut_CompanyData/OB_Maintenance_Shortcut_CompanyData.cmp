@@ -1,0 +1,44 @@
+<!-- 
+        *@author antonio.vatrano antonio.vatrano@accenture.com
+        *@date 18/04/2019
+        *@new component shortcut for operation, where link OB_Maintenance_EditAccount
+-->
+
+<aura:component controller = "OB_Maintenance_Shortcut_Company_CC" implements="flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:appHostable,force:hasSObjectName,force:hasRecordId">
+    <aura:attribute name="recordId" type="String" access="global" default="" />
+    <aura:attribute name="retrieveDone" type="Boolean" access="global" default="false" />
+    <aura:attribute name="showModal" type="Boolean" access="global" default="false" />
+    <aura:attribute name="isMerchant" type="Boolean" access="global" default="false" />
+    <aura:attribute name="OperationUser" type="Boolean" access="global" default="false" />
+    <aura:attribute name="FlowData" type="string" access="global" default="" />
+    <aura:attribute name="FlowStep" type="string" access="global" default="" />
+
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/> 
+
+
+    <aura:if isTrue="{!and(v.OperationUser,v.isMerchant)}">
+         <!-- antonio.vatrano 18/04/2019 add label OB_ModifyCompany -->
+        <lightning:button class = "slds-align_absolute-center" variant="brand" label="{!$Label.c.OB_ModifyCompany}" title="{!$Label.c.OB_ModifyCompany}"
+            onclick="{! c.showModalModify}" />
+
+        <aura:if isTrue="{!v.showModal}">
+             <!-- antonio.vatrano 18/04/2019 add label OB_ModifyCompany -->
+            <c:strike_modal title="{!$Label.c.OB_ModifyCompany}" 
+                            primaryButtonLabel="Ok" secondaryButtonLabel="Cancel"
+                            showHeader="true" showFooter="false" 
+                            showClose="true" 
+                            showModal="{!v.showModal}" 
+                            size="large">
+                <aura:if isTrue="{!v.retrieveDone}">
+                    <!-- NEXI-97 Marta Stempien <marta.stempien@accenture.com> Remove OB_SAE__c and OB_ATECO__c fields from DisabledFields -->
+                    <c:OB_Maintenance_EditAccount   FlowData="{!v.FlowData}" 
+                                                    FlowStep="{!v.FlowStep}"
+                                                    DisabledFields="['NE__Fiscal_code__c','NE__VAT__c']"
+                                                    isFromOperation="true"
+                                                    isCompany = "true" />
+                </aura:if>
+            </c:strike_modal>
+        </aura:if>
+    </aura:if>
+
+</aura:component>

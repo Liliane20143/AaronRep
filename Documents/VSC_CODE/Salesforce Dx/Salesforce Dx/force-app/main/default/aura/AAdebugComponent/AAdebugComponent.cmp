@@ -1,0 +1,13 @@
+<!--
+ - Created by adrian.dlugolecki on 02.04.2019.
+ -->
+
+<aura:component description="AAdebugComponent" access="global">
+    <aura:attribute name="wizardWrapper"            type="Object"    default="{}"    access="global"/>
+    <aura:attribute name="objectDataMap"            type="Object"    default="{}"    access="global"/>
+    <aura:attribute name="objectKey"                type="String"    default=""      access="global"/>
+    <aura:attribute name="identifier"               type="String"    default=""      access="global"/>
+    <aura:attribute name="field"                    type="Object"    default="{}"    access="global"/>
+
+    <p>isCommunityUser: {!v.objectDataMap.isCommunityUser}</p>
+</aura:component>

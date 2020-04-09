@@ -1,0 +1,5 @@
+<aura:event type="COMPONENT" description="Raised when a simulation has to be saved" >
+    <aura:attribute name="sender" type="Object" />
+    <aura:attribute name="senderCallback" type="String" />
+    <aura:attribute name="callbackParams" type="Object[]" />
+</aura:event>

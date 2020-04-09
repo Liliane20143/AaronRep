@@ -1,0 +1,16 @@
+.THIS.fixed { 
+   position: fixed;
+}
+
+.THIS.sticky {
+    position: sticky;
+    top: 7rem;
+    padding-bottom: .25rem;
+    border-bottom: 1px solid rgb(224, 225, 221);
+    margin-bottom: 1rem;    
+}
+
+.THIS {
+    background-color:  white;
+    z-index: 99;
+}

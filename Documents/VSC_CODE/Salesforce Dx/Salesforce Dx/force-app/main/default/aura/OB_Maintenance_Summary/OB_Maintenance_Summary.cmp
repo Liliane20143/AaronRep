@@ -1,0 +1,303 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId" access="global" controller="OB_MaintenanceSummaryCC">
+	<aura:attribute name="FlowData" type="string"  /> <!-- JSON that contains the data data retrieved to search component -->
+	<aura:attribute name="FlowStep" type="string"  /> <!-- component inside property, used to show a partiular step --> 
+	<aura:attribute name="switchOnload" type="boolean" default="false" />
+	<aura:attribute name="InternalUser" type="string"/> <!-- true : is a user with Salesforce" license, false is a community user"--> 
+	<aura:attribute name ="modifyServicePointId" type="string" />
+
+	<aura:attribute name="AccountData" type="Object"  /> 
+	<aura:attribute name="ListOfServicePoint" type="Object"  />
+	<aura:attribute name="ServicePointColumns" type="List"  />
+	<aura:attribute name ="showTable" type="boolean" default="true" />
+
+	<aura:attribute name ="ServicePointSelectedRow" type="String" />
+	<aura:attribute name ="ViewMode" type="String" default="READONLY" />
+	<aura:attribute name="assetFilters"  type="Object" access="global"/>
+	<aura:attribute name="sortedBy"             type="String"               default="Name"/>
+	<aura:attribute name="sortedDirection"      type="String"               default="asc"/>
+	<!--PAGINATION ATTRIBUTE -->
+	<aura:attribute name="totalPages"			type	= "Integer"			default = ""									/>
+	<aura:attribute name="currentPageNumber"	type	= "Integer"			default = "1"									/>
+	<aura:attribute name="pageList"				type	= "List"			default = "[]"									/>
+	<aura:attribute name="allData"				type	= "Object"															/>
+	<aura:attribute name="data"					type	= "Object"															/>
+	<aura:attribute name="pageSize"				type	= "Integer"			default = "5"									/>
+	<aura:attribute name ="hasServicePoint"     type="boolean"              default="false" />
+	<!-- maintenance asset attributes: -->
+	<aura:attribute name ="showPriceSummary" type="boolean" default="false" />
+	<aura:attribute name ="goToFlowCart" type="boolean" default="false" />
+	<!--START Elena Preteni MAIN_62_R1F1-->
+	<aura:Attribute name ="proposerABI"  type="String"  access="global"/>
+	<!--END Elena Preteni MAIN_62_R1F1-->
+
+	<!--START Daniele Gandini 1/4/19-->
+	<aura:Attribute name ="UserWrapper"  type="Object" access="global"/>
+	<!--END Daniele Gandini 1/4/19-->
+	<aura:handler name="backSet" event="c:OB_backSet" action="{!c.handleBackSet}"/>
+	<aura:attribute name="spinner" type="boolean" default="true"/>	
+	<!--START Elena Preteni 1/4/19-->
+    <!-- performance, removed default-->
+	<aura:attribute name="lightningFromVF" type="string" />	
+	<aura:attribute name="recordId" type="String" />
+	<aura:attribute name ="showMainAnag" type="Boolean" default="true" />
+	<aura:attribute name="bundleConfiguration" type="string"  />
+	<!--END Elena Preteni 1/4/19-->
+	<!-- ANDREA MORITTU START 2019.05.07 - ID_Stream_6_Subentro -->
+	<aura:attribute name ="showBit2Flow" type="Boolean" default="false" access="global" />
+	<!-- ANDREA MORITTU END 2019.05.07 - ID_Stream_6_Subentro -->
+	<aura:attribute name ="hideBackToSearch" type="Boolean" default="false" /> 	<!-- Start antonio.vatrano antonio.vatrano@accenture.com add boolean to hide button 'backToSearch' in strikeModal -->
+	
+	<aura:handler name="init" value="{! this }" action="{! c.init }"/> 
+	<aura:handler name="change"				value	= "{!v.allData}"	action = "{!c.changeData}"						/>
+	
+	<aura:handler name="maintenanceEvent" event="c:OB_MaintenanceSummaryEvent" action="{!c.handleMaintenanceEvent}"/>
+	
+	<aura:handler event="c:OB_FlowCartEngineEvent" action="{!c.handleEngineEvent}"/>
+
+	<aura:handler event="c:OB_SpinnerEvent" action="{!c.handleSpinnerEvent}"/>
+
+	<!-- ANDREA MORITTU START 28.02.2019 EVENT FOR SELECT SERVICE POINT RADIO BUTTON -->
+	<aura:handler event="c:OB_PickServicePointId" action="{!c.getServicePointId}"/>
+	<!-- ANDREA MORITTU END 28.02.2019 EVENT FOR SELECT SERVICE POINT RADIO BUTTON -->
+	<!-- ANDREA MORITTU START 28-Aug-2019 - UX.194-->
+	<aura:attribute name="servicePointList"			type	= "Object"	access="global"/>
+	<aura:attribute name="showFilteredDataTable"	default="false" type= "Boolean"	access="global" />
+	<!--giovanni spinelli - start -27/09/2019-->
+	<aura:attribute name ="filterToRedirect"  	type="String"  								access="global"/>
+	<aura:attribute name ="myBaseURL"  			type="String"  								access="global"/>
+	<!--giovanni spinelli - end -27/09/2019-->
+	<!--giovanni spinelli - start - 03/10/2019-->
+	<aura:attribute name ="userProfile"  		type="String"  								access="global"/>
+	<!--giovanni spinelli - end -03/10/2019-->
+	
+	<!-- ANDREA.MORITTU START 2019.05.06 - ID_Stream_6_Subentro-->
+	<aura:handler event="c:OB_DestroyMaintenanceSummary" action="{!c.destroyWholeComponent}"/>
+	<!-- ANDREA.MORITTU END 2019.05.06 - ID_Stream_6_Subentro-->
+	<!-- ANDREA.MORITTU START 2019.05.06 - ID_Stream_6_Subentro-->
+	<aura:if isTrue="{!!v.showBit2Flow}" >
+		<div aura:id="mainComponentDiv">
+			<!-- 28/01/19 -->
+			<aura:if isTrue="{!!empty(v.AccountData)}">		
+                <!-- performance, removed accid, pass everything with parameters-->
+                <aura:if isTrue="{!!empty(v.lightningFromVF)}">
+					<NE:B2WGin_Core_Engine aura:id="coreEngine" disableRedirect="true" parameters="{!v.lightningFromVF}" />
+				</aura:if>
+           </aura:if>
+		</div>	
+	</aura:if>
+	<!-- ANDREA.MORITTU END 2019.05.06 - ID_Stream_6_Subentro-->
+	
+	<aura:if isTrue="{!!v.goToFlowCart}">
+		<!-- Start antonio.vatrano antonio.vatrano@accenture.com add aura:if to hide button 'backToSearch' in strikeModal -->
+		<aura:if isTrue="{!!v.hideBackToSearch}">
+			<lightning:buttonGroup class="slds-align_absolute-left" >	  
+				<lightning:button variant="neutral" aura:id="backToSearch" iconName="utility:back"  onclick="{! c.backToSearch }"  />   
+			</lightning:buttonGroup> <!--  label="{!$Label.c.OB_MAINTENANCE_BUTTON_BACKTOSEARCH}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_BACKTOSEARCH}" -->
+		</aura:if>
+		<!-- End antonio.vatrano antonio.vatrano@accenture.com add aura:if to hide button 'backToSearch' in strikeModal -->
+	</aura:if>	  
+	 <!-- showing account information -->
+	 <!--START francesca.ribezzi 22/03/19 adding aura if condition - NB: aura:id changed! -->
+	 <aura:if isTrue="{!v.showTable}"> 
+		<lightning:spinner variant="brand" size="large" class="slds-show" aura:id="spinnerId" alternativeText=" " style="position: fixed;"/>
+	</aura:if>
+	<!--END francesca.ribezzi-->
+
+	 <!--START elena preteni 2/4/19 added new condition showMainAnag-->
+	<aura:if isTrue="{!and(!v.showPriceSummary, v.showMainAnag )}">
+	 <!--END elena preteni 2/4/19 added new condition showMainAnag-->
+	<div class="slds-form slds-form_compound" aura:id="removeEntireSection">
+		<lightning:recordEditForm recordId="{!v.AccountData.Id}" objectApiName="Account">
+			<div class="slds-p-around_medium">
+				<div class="slds-form-element__row">
+					<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+						<lightning:inputField fieldName="NE__Fiscal_code__c" disabled="true"/>
+					</div>
+					<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+						<lightning:inputField fieldName="NE__VAT__c" disabled="true" />
+					</div>
+				</div>
+				<div class="slds-form-element__row">
+					<!-- ANDREA MORITTU START 30-Sept-2019 - EVO_Fix_CSSMaintenance(Untracked) -->
+					<div class="slds-grid slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+						<div class="slds-size_1-of-2">
+							<div class="slds-form-element__label slds-p-around_xx-small">{!$Label.c.Merchant_Name}</div>
+							<!-- <lightning:inputField fieldName="Name" disabled="true" variant="label-hidden" />  -->
+						</div>
+						<div class="slds-size_1-of-2">
+							<lightning:input id="customAccName" value="{!v.AccountData.Name}" disabled="true" variant="label-hidden" class="slds-p-around_xx-small"/>  
+						</div>
+					<!-- ANDREA MORITTU END 30-Sept-2019 - EVO_Fix_CSSMaintenance(Untracked) -->
+					</div>
+
+					<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+						<lightning:inputField fieldName="OB_Legal_Address_City__c" disabled="true" />
+					</div>
+				</div>
+				<div class="slds-form-element__row">
+					<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+						<lightning:inputField fieldName="OB_Legal_Address_State__c"  disabled="true" />
+					</div>
+					<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+						<lightning:inputField fieldName="OB_Legal_Address_Street__c" disabled="true" />
+					</div>
+				</div>
+				<div class="slds-form-element__row">
+					<div class="slds-form-element slds-size_1-of-2 slds-p-around_xx-small">
+						<lightning:inputField fieldName="OB_Legal_Address_ZIP__c" disabled="true" />
+					</div>
+				</div>
+			<!-- C.Q for futur use, insert here field to show only for internal users( Salesforce license)  
+				<aura:if isTrue="{!  v.InternalUser}" >
+				</aura:if> -->
+			</div>
+		</lightning:recordEditForm>
+			<div class="slds-align_absolute-center" >
+				<ul class="slds-button-group-row">
+					<li class="slds-button-group-item">
+						<!-- ANDREA MORITTU START 30-Sept-2019 - EVO_Fix_CSSMaintenance(Untracked) -->
+						<lightning:button class="CTAStyle" aura:id="UpdateAccount"  label="{!$Label.c.OB_MAINTENANCE_BUTTON_UPDATEACCOUNT}" title="{!$Label.c.OB_MAINTENANCE_BUTTON_UPDATEACCOUNT}" onclick="{!c.modifyAccount}" /> 
+						<!-- ANDREA MORITTU END 30-Sept-2019 - EVO_Fix_CSSMaintenance(Untracked) -->
+					</li>
+				</ul>
+			</div>
+			<div class="slds-p-around_medium">
+				<aura:if isTrue="{!v.showTable}">
+					<!--giovanni spinelli 11/10/2019-->
+					<div class="slds-align_absolute-center sectionTitle">
+						<ui:outputText value="{!$Label.c.OB_MAINTENANCE_SERVICEPOINT_TITLE}" />
+					</div>
+					<!--giovanni spinelli 11/10/2019-->
+				<aura:set attribute="else">
+					<div class="slds-align_absolute-center" >   
+						<ui:outputText value="{!$Label.c.OB_MAINTENANCE_LOGREQUEST_NODATA}" /> 
+					</div>
+				</aura:set>
+			</aura:if>
+			<!-- Start AV 30.01.2019 UAT_MAIN_85_R1F1-64  -->
+			<!-- ANDREA MORITTU START 28-Aug-2019 - UX.194 -->
+			<aura:if isTrue="{!and(not(empty(v.data))	,	v.data.length > 0)}">
+				<lightning:accordion activeSectionName="FILTERS" allowMultipleSectionsOpen="true">
+					<lightning:accordionSection name="FILTER" label="{!$Label.c.OB_FilterLabel}" aura:id="accordionSectionTitle">						
+						<!-- ANDREA MORITTU START 16-Oct-2019 - Change Layout of filter accordion -->
+						<div class="slds-size--1-of-1 slds-grid slds-grid_vertical-align-center">
+							<div class="slds-size--2-of-6 slds-p-around_small">
+								<lightning:input aura:id="Name" name="enter-search" label="{!join(' ', $Label.c.OB_Name, $Label.c.OB_LocationLabel)}" />					
+							</div>
+							<div class="slds-size--2-of-6 slds-p-around_small">
+								<lightning:input aura:id="OB_AddressFormula__c" name="enter-search" label="{!join(' ', $Label.c.OB_Address, $Label.c.OB_LocationLabel)}" />
+							</div>
+							<div class="slds-size--1-of-6 slds-grid slds-p-around_small" >
+                                <div class="slds-size--1-of-2 slds-p-around_small">
+                            		<lightning:button class="CTAStyle alignToGrid" label="{!$Label.c.OB_MAINTENANCE_SEARCH_BUTTON}" title="Brand action" onclick="{! c.filterResultController }"  />
+								</div>
+                                <div class="slds-size--1-of-2 slds-p-around_small">
+                                	<lightning:button class="CTAStyle_NoBorder alignToGrid paddingLeft" variant="base" label="{!$Label.c.OB_EmptyLabel}" title="Neutral action" onclick="{!c.resetResearch}"/>
+                                </div>
+                            </div>
+						</div>
+                        <!-- ANDREA MORITTU END 16-Oct-2019 - Change Layout of filter accordion -->
+					</lightning:accordionSection>
+				</lightning:accordion> 	
+			
+				</aura:if>
+				<!-- ANDREA MORITTU END 28-Aug-2019 - UX.194 -->			
+			<div id = "ServicePointDataTableDIV" aura:id="ServicePointDataTableDIV" ><!--style="height: 300px" --><!--data-->
+				<!-- ANDREA MORITTU 28-Aug-2019 - UX.194 - changed data of lightnign data table-->		
+				<aura:if isTrue="{!v.showFilteredDataTable}">
+					<aura:if isTrue="{!v.servicePointList.length > 0}">
+						<lightning:datatable	columns="{! v.ServicePointColumns }"
+												data="{!v.servicePointList}"
+												keyField="Id"
+												onsort="{!c.updateColumnSorting}"
+												sortedBy="{!v.sortedBy}"  
+												sortedDirection="{!v.sortedDirection}"
+												aura:id="servicePointTable"
+												maxRowSelection="1"
+												onrowaction="{! c.handleRowAction }"
+												onrowselection="{! c.updateSelectedRow }"
+												/><!--giovanni spinelli remove initialWidth-->
+						<aura:set attribute="else">
+								<div class="slds-align_absolute-center" style="height:5rem">
+									{!$Label.c.OB_NoDataFoundLabel}
+								</div>
+						</aura:set>
+					</aura:if>
+					<aura:set attribute="else">
+						<lightning:datatable	columns="{! v.ServicePointColumns }"
+												data="{!v.data}"
+												keyField="Id"
+												onsort="{!c.updateColumnSorting}"
+												sortedBy="{!v.sortedBy}"  
+												sortedDirection="{!v.sortedDirection}"
+												aura:id="servicePointTable"
+												maxRowSelection="1"
+												onrowaction="{! c.handleRowAction }"
+												onrowselection="{! c.updateSelectedRow }"
+												initialWidth="100" /><!--giovanni spinelli change initialWidth-->
+					</aura:set>
+				</aura:if>	
+			
+	<!--GIOVANNI SPINELLI - 15/12/2018 - PAGINATION START-->
+	<aura:if isTrue="{! v.totalPages > 1}">
+				<lightning:layoutItem padding="around-small" flexibility="auto">
+
+                            <lightning:button 	label="{!$Label.c.OB_MAINTENANCE_DATATABLE_FIRST}"
+                                                iconName="utility:left"
+                                                iconPosition="left"
+                                                onclick="{!c.onFirst}"
+                                                disabled="{! v.currentPageNumber == 1}"/>
+
+                            <lightning:button 	iconName="utility:chevronleft"
+                                                iconPosition="left"
+                                                onclick="{!c.onPrev}"
+                                                disabled="{! v.currentPageNumber == 1}"/>
+
+                            <aura:iteration items="{!v.pageList}" var="item" end="5">
+                                <span class="slds-p-horizontal_x-small">
+                                    <a onclick="{!c.processMe}" name="{!item}" class="{! (v.currentPageNumber == item) ? 'selected' : ''}">
+                                        {!item}
+                                    </a>
+                                </span>
+                            </aura:iteration>
+
+                            <lightning:button 	iconName="utility:chevronright"
+                                                iconPosition="right"
+                                                disabled="{! v.currentPageNumber == v.totalPages}"
+                                                onclick="{!c.onNext}"/>
+
+                            <lightning:button 	label="{!$Label.c.OB_MAINTENANCE_DATATABLE_LAST}"
+                                                iconName="utility:right"
+                                                iconPosition="right"
+                                                disabled="{! v.currentPageNumber == v.totalPages}"
+                                                onclick="{!c.onLast}"/>
+                        </lightning:layoutItem>
+                    </aura:if>
+				</div> 
+			</div>
+	
+	<!--GIOVANNI SPINELLI - 15/12/2018 - PAGINATION END-->
+	<!--giovanni 27/09/2019 new button fire flow - start-->
+		<div style="text-align: center;">
+			<!--giovanni 11/10/2019  - start-->	
+			<lightning:button label="{!$Label.c.OB_NewAgreementSP}" title="{!$Label.c.OB_NewAgreementSP}" iconName="utility:add" iconPosition="right"
+				variant="neutral" class="CTAStyle" onclick="{!c.fireFlow}" />
+			<lightning:helptext  content="{!$Label.c.OB_TooltipFireFlow}"/>	
+			<!--giovanni 11/10/2019  - end-->	
+		</div>
+	</div>
+	<!--giovanni 27/09/2019 new button fire flow - end-->
+</aura:if>
+	<aura:if isTrue="{!!empty(v.AccountData)}">
+		<div class="slds-p-around_medium">
+			<!-- ET 13-12 <c:OB_Maintenance_Asset_Summary ServicePointSelectedRow="{!v.ServicePointSelectedRow}" />-->
+			 <aura:if isTrue="{!v.switchOnload}">
+				<c:OB_Maintenance_Asset_Summary bundleConfiguration="{!v.bundleConfiguration}" recordId="{!v.recordId}" ServicePointSelectedRow="{!v.ServicePointSelectedRow}" showPriceSummary="{!v.showPriceSummary}" AccountData="{!v.AccountData}" proposerABI="{!v.proposerABI}"  aura:id = "priceSummary1" currentUser = "{!v.UserWrapper}"/><!---->
+			</aura:if> 
+			<aura:if isTrue="{!!v.switchOnload}">
+				<c:OB_Maintenance_Asset_Summary bundleConfiguration="{!v.bundleConfiguration}" recordId="{!v.recordId}" ServicePointSelectedRow="{!v.ServicePointSelectedRow}" showPriceSummary="{!v.showPriceSummary}" AccountData="{!v.AccountData}" proposerABI="{!v.proposerABI}" aura:id = "priceSummary2" currentUser = "{!v.UserWrapper}"/><!--AccountData="{!v.AccountData}"-->
+			</aura:if>  
+		</div>
+	</aura:if>
+
+</aura:component>

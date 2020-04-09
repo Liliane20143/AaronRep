@@ -1,0 +1,8 @@
+<aura:event type="APPLICATION" description="Event template">
+    <aura:attribute name="componentName" type="String"/>
+     <aura:attribute name="offertaSelected" type="String"/>
+    <aura:attribute name="offertaId" type="ID"/>
+    <aura:attribute name="CartServiceOutput" type="Object"/>
+    <aura:attribute name="listOfCategories" type="Object"/>
+    
+</aura:event>

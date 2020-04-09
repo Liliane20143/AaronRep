@@ -1,0 +1,67 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="AutoCompleteComponentController">
+    <!--<ltng:require scripts="{!join(',',
+                           $Resource.JQueryResourceCode,
+                           $Resource.EasyAutoComplete)}" /> -->
+    <ltng:require styles="{! $Resource.jqueryuiCSS}" 
+                  scripts="{!join(',', 
+                           $Resource.JQueryResourceCode ,   
+                           $Resource.jqueryuiJS)
+                           }"  afterScriptsLoaded="{!c.doInit}"/>
+    <!--<ltng:require scripts="{!$Resource.EasyAutoComplete}" />-->
+    
+    <aura:attribute name="Name" type="String" default=""/>
+    <aura:attribute name="MCCCode" type="String" default=""/>
+    <aura:attribute name="city" type="String" default=""/>
+    <aura:attribute name="street" type="String" default=""/>
+    <aura:attribute name="country" type="String" default=""/>
+    <aura:attribute name="zipcode" type="String" default=""/>
+    <aura:attribute name="listaCity" type="NE__Service_Point__c[]" />
+    <aura:attribute name="servicePoint" type="NE__Service_Point__c"/>
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    
+    
+    <div class="form">
+        
+        
+        
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col slds-size_6-of-12">
+                <div class="slds-form-element">
+                    <!--<lightning:input type="number" name="myNumber" label="{!$Label.c.Street}" />-->
+                    <label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.Street}">{!$Label.c.Street}</label>
+                    <div class="slds-form-element__control">
+                        <input id="street" class="slds-input" type="text" label="{!$Label.c.Street}" onchange="{!c.CompleteAddress}"/>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-col slds-size_6-of-12">
+                <div class="slds-form-element">
+                    <label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.City}">{!$Label.c.City}</label>
+                    <div class="slds-form-element__control">
+                        <input id="city" class="slds-input" type="text"  onchange="{!c.CompleteAddress}"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col slds-size_6-of-12">
+                <div class="slds-form-element">
+                    <label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.Country}">{!$Label.c.Country}</label>
+                    <div class="slds-form-element__control">
+                        <input id="country" class="slds-input" type="text" onchange="{!c.CompleteAddress}"/>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-col slds-size_6-of-12">
+                <div class="slds-form-element">
+                    <label class="slds-form-element__label" for="inputNameSample1" value="{!$Label.c.PostalCode}">{!$Label.c.PostalCode}</label>
+                    <div class="slds-form-element__control">
+                        <input id="Zipcode" class="slds-input" type="text" onchange="{!c.CompleteAddress}"/>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+    
+</aura:component>

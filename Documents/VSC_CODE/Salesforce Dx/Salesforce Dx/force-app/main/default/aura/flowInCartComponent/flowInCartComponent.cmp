@@ -1,0 +1,79 @@
+<aura:component controller="flowInCartController" implements="flexipage:availableForAllPageTypes" access="global">
+    <ltng:require styles="{!$Resource.OB_flowInCartCSS}" /> 
+    <!--<ltng:require scripts="{!$Resource.OB_Bit2winCartjs}" />-->
+   
+    
+    
+    <aura:attribute name="wizardWrapper" type="Object" default="{}" access="global"/>
+    <aura:attribute name="objectDataMap" type="Object"  default="{}" access="global"/>
+    <aura:attribute name="accId" type="String" default="{!v.objectDataMap.merchant.Id}" /> 
+     <!--<aura:attribute name="accId" type="String" default="0019E00000irxbpQAA" /> -->
+    
+    <aura:attribute name="nextCheckout" type="String" default="{!v.objectDataMap.unbind.nextCheckout}" /> 
+    <aura:attribute name="objectKey" type="String" default="" access="global"/>
+    <aura:attribute name="identifier" type="String" default="" access="global"/>
+    <aura:attribute name="field" type="Object" default="{}" access="global"/>
+    
+    
+    
+    <aura:attribute name="billAccId" 		type="String" access="global" />
+    <aura:attribute name="servAccId" 		type="String" access="global" />
+    <aura:attribute name="oppId" 			type="String" access="global" />
+    <aura:attribute name="orderId" 			type="String" default="{!v.objectDataMap.Configuration.Id}" access="global" />
+    <!--<aura:attribute name="orderId" 			type="String" default="a0y9E000002gozFQAQ" access="global" />-->
+    <aura:attribute name="confCurrency" 	type="String" access="global" />
+    <aura:attribute name="whatShow" 		type="String" access="global"		default="catalog" />
+    <aura:attribute name="cartSize" 		type="Integer" access="global" />
+    <aura:attribute name="quoteId" 			type="String"		access="global" />
+    
+    <aura:attribute name="cacheName"        type="String"       access="global" />
+    <aura:attribute name="useCache"         type="String"       access="global" />
+    <aura:attribute name="debuglevel"       type="String"       access="global" />
+     <aura:attribute name="lightningFromParam"       type="String"       access="global" default=""/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}" />
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}" />
+    <aura:handler event="NE:Bit2win_Event_ChangeCatalogView" action="{!c.changeCatalogView}" />
+    <aura:handler event="NE:Bit2win_Event_CategoryChanged" 		action="{!c.updateCartQty}" />
+    <aura:handler event="NE:Bit2win_Event_CartEvent" action="{!c.afterCheckout}" />
+    
+    
+    <!--<aura:handler name="init" value="{!this}" action="{!c.doInit}" />-->
+    <div id="header">
+        <img src="/resource/1525968781000/nexi_image?isdtp=p1" height="100%"
+             width="100%" />
+    </div>
+    <div aura:id="focusDiv">
+    </div>
+   <!-- {!v.nextCheckout} -->
+    <div aura:id="totalAppContainer" class="slds containerApp max-width-app-vertical" style="height: 100%; width:100%;/* overflow-y: hidden;margin-top:7px;*/">
+        <lightning:spinner aura:id="spinner" variant="brand" size="large"/>
+        <div id="lightning">
+        	<aura:if isTrue="{!empty(v.lightningFromParam) == false}">    
+            	<NE:B2WGin_Core_Engine aura:id="lightning" accId="{!v.accId}" parameters="{!v.lightningFromParam}" disableRedirect="true"/>
+        	</aura:if>
+        </div>
+        <div id="ConfigurationInfo">
+       <!--       <NE:Bit2win_ConfigurationInfo aura:id="ConfigurationInfo" accId="{#v.accId}"  />-->
+        </div>
+        <div id="Catalog">
+            <NE:Bit2win_Catalog aura:id="Catalog" accId="{!v.accId}" />
+        </div>
+        <div id="Cart">
+             <NE:Bit2win_Cart aura:id="Cart" accId="{!v.accId}" />
+        </div>
+        <div id="Configurator">
+                <NE:Bit2win_Configurator aura:id="Configurator" accId="{!v.accId}" />
+        </div>
+         <div id="BundleConfigurator">
+          <NE:Bit2win_BundleConfigurator aura:id="lightning"/>
+        </div>
+             <NE:Bit2win_ProductDescription aura:id="lightning"/>
+    </div>
+    
+    
+    
+    
+    
+</aura:component>

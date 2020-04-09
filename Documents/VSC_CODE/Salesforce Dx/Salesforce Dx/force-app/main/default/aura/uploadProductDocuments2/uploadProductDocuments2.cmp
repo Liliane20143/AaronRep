@@ -1,0 +1,51 @@
+<aura:component access="global" controller="StampaDocumentiController" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" >
+	<aura:attribute name="documentsList" type="String[]"/> 
+	<aura:attribute name="response" type="Object"/> 
+	<aura:attribute name="commercialProducts" type="NE__Product__c[]"/>
+	<aura:attribute name="objectDataMap" type="Object"   access="global"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:attribute name="myMap" type="Map" default="{}" access="global"/>
+	<aura:handler name="change" value="{!v.myMap}" action="{!c.checkAllTrue}"/>
+	<aura:handler name="change" value="{!v.objectDataMap.missingDocs}" action="{!c.showBanner}"/>
+	<aura:attribute name="isToUpdate" type="Boolean" default= "true" access="global"/>
+	<aura:attribute name="hasMessage" type="Boolean" default= "false" access="global"/>
+	<!--giovanni spinelli-->
+	<aura:attribute name="mapFileNet" 		type="Map" 		access="global" 	default="{}"/>
+	<aura:attribute name="compareMap" 		type="Map" 		access="global" 	default="{}"/>
+	<aura:attribute name="secondTime" 		type="Boolean" 	default= "false" 	access="global"/>
+	<!--giovanni spinelli-->
+	<!-- START gianluigi.virga 30/09/2019 -->
+	<aura:attribute name="contractsToDeprecate" type="List" default= "[]" access="global"/>
+	<!-- END gianluigi.virga 30/09/2019 -->
+
+	<aura:if isTrue="{!v.hasMessage}">
+		<div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+			<span class="slds-assistive-text">{!$Label.c.OB_MAINTENANCE_TOASTERROR}</span>
+			<span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small" title="Description of icon when needed">
+
+			</span>
+			<h2>{!$Label.c.OB_missingDocs}</h2>&#160;&#160;
+			<lightning:icon class="icon" iconName="utility:close"  variant="inverse" size="x-small"/>
+			<button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" onclic= "{!c.hideError}" title="{!$Label.c.OB_Close}">
+				<span class="slds-assistive-text">{!$Label.c.OB_Close}</span>
+			</button>
+		</div>
+	</aura:if>
+	
+	<div style="width:100%; margin-bottom: 15px;"> <!-- <daniele.gandini@accenture.com> - 25/06/2019 - LayoutFixes -->
+		<table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal"> 
+			<tbody>
+				<aura:if isTrue="{!!empty(v.documentsList)}">
+					<aura:iteration items="{!v.documentsList}" indexVar="index" var="doc">
+						<!--giovanni spinelli add compareMap-->
+						<c:ShowProductDocuments2 objectDataMap = "{!v.objectDataMap}" myMap="{!v.myMap}" documentsList="{!v.documentsList}" singleDoc="{!doc}" documentType="{!v.response}" compareMap="{!v.compareMap}"/>
+					</aura:iteration>
+				</aura:if> 
+			</tbody>		 
+		</table>
+		<div aura:id="messageError" class="slds-hide messageEmp1">
+			{!$Label.c.OB_NoDocToLoad}
+		</div>
+	</div>  
+	
+</aura:component>

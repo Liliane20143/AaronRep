@@ -1,0 +1,73 @@
+.THIS .label-hidden > label {
+    display: none;
+}
+.THIS .countryinputsearch input{
+    border-top-right-radius: 0!important;
+    border-bottom-right-radius: 0!important;
+    background-color:gre rgba(211, 211, 211, 0.87)!important;
+    z-index: 999!important;
+}
+.THIS .lens-search-country-button{
+    width: 51px!important;
+    height: 32px!important;
+    border-top-left-radius: 0!important;
+    border-bottom-left-radius: 0!important;
+}
+.THIS input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+
+/* For Firefox browser */
+.THIS input[type='number'] {  
+    -moz-appearance:textfield;
+ }
+ /* For webkit browsers like Chrome and Safari */
+ .THIS input[type=number]::-webkit-inner-spin-button,
+ .THIS input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+ }
+ .THIS .changemodal{
+    height:640px; 
+    width:768px;
+ }
+ .THIS .flowmodal{
+    height:640px;
+ }
+ /* button neutral */
+.THIS .CTAStyle {
+    font-size: 1.2em!important;
+    text-transform: uppercase!important;
+    font-weight: 600!important;
+    border-color: rgb(48, 58, 178);
+    border-width: 0.3125rem;
+    border-width: 0.0625rem;
+    color: rgb(48, 58, 178);
+}
+ /* button brand */
+.THIS .CTAStyle_BRAND {
+    font-size: 1.2em!important;
+    text-transform: uppercase!important;
+    font-weight: 600!important;
+    border-color: rgb(48, 58, 178);
+    border-width: 0.3125rem;
+    border-width: 0.0625rem; 
+    }
+ /* Button reset */
+.THIS .CTAStyle_NoBorder {
+    font-size: 1.2em!important;
+    text-transform: uppercase!important;
+    font-weight: 600!important;
+    border : none!important;
+}
+/* MODAL HEADER */
+.THIS .headerModalStyle{
+	font-family : Arial!important;
+	font-weight : 600!important;
+	text-transform : uppercase!important;
+	font-size : 0.8em!important;
+	color : #666!important;
+}

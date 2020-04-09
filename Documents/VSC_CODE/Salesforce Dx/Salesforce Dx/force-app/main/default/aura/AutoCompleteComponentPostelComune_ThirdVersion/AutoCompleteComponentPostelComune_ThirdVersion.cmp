@@ -1,0 +1,117 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="AutoCompleteComponentController">
+	
+	<ltng:require styles="{! $Resource.jqueryuiCSS}" scripts="{!join(',', $Resource.JQueryResourceCode ,  $Resource.jqueryuiJS) }"/>
+	
+	<!-- calling event handling action method. "name" attribute should be same
+   as mentioned on event registration in child component -->
+   <!-- <aura:handler name="cmpEvent" event="c:autoCompletComponentEvent" action="{!c.handleComponentEvent}"/>-->
+
+   	<!--lea.emalieu 05/09/2018  Start -->
+	<!--  <aura:handler name="change" value="{!v.objectDataMap}" action="{!c.objectDataMapChanges}"/> -->
+	<!--lea.emalieu 05/09/2018 End   -->
+	<aura:method name="reInit" action="{!c.doInit}" description="Runs the init method again ">
+    </aura:method>
+	<aura:method name="blankValue" action="{!c.blankValue}" description="Reset to blank the value">
+    </aura:method>
+	<aura:attribute name="disabledInput_sp" type="Boolean"/> 
+	<aura:attribute name="comuni" type="List" default="{}" access="global"/>
+	<aura:attribute name="responseCom" type="Object" default="{}" access="global"/>
+	<aura:attribute name="response" type="Object"  default="{}" access="global"/>
+	<aura:attribute name="triggleSpinner" type="Boolean" default = "false"/>
+	
+	<aura:attribute name="province" type="String" />
+	<aura:attribute name="comune" type="String"  />
+	<aura:attribute name="caps" type="List"  />
+	<aura:attribute name="cityString" type="String"/>
+    <aura:attribute name="cityId" type="String" default="comune"/>
+    <aura:attribute name="cityEEId" type="String" default="cityEE"/>
+	<!-- ############################################################################ -->
+	<!-- BIT2FLOW -->
+	<!-- ############################################################################ -->
+	<!-- <aura:attribute name="wizardWrapper" type="DynamicWizardWrapper" default="{}"/> -->
+	<aura:attribute name="objectDataMap" type="Object" default="{}"/>
+	<aura:attribute name="objectKey" type="String" default=""/>
+	<aura:attribute name="identifier" type="String" default=""/>
+	<aura:attribute name="field" type="Object" default="{}"/>
+	<aura:attribute name="addressMapping" type="Object" default="{!v.field.addressMapping}" access="global"/>
+	<aura:attribute name="isEE" type="Boolean" default="false" access="global"/>
+	<!-- ############################################################################ -->
+    
+    <aura:attribute name="filteredOptions" type="String[]" access="public" description="Options displayed as predictions"/>
+
+	<aura:registerEvent name="AutocompleteEvent" type="c:OB_AutocompleteEvent"/>
+	<aura:registerEvent name="OB_ContinuationRequest" type="c:OB_ContinuationRequest"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<!-- <aura:handler name="change" value="{!v.field}" action="{!c.fieldChanges}"/>  -->
+	
+	<div class="slds-p-around--medium slds-form-element">
+		<!-- START	micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+		<aura:if isTrue="{!v.addressMapping.sectionaddress=='sedelegale'}">
+			<label class="slds-form-element__label" for="{!$Label.c.OB_Legal_Address_City}">
+				<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Legal_Address_City}
+			</label>
+		</aura:if>
+		<aura:if isTrue="{!v.addressMapping.sectionaddress=='sedeamministrativa'}">
+			<label class="slds-form-element__label" for="{!$Label.c.OB_Administrative_Office_City}">
+				<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Administrative_Office_City}
+			</label>
+		</aura:if>
+		<aura:if isTrue="{!v.addressMapping.sectionaddress=='generaladdress'}">
+			<label class="slds-form-element__label" for="{!$Label.c.OB_Address_City}">
+				<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Address_City}
+			</label>
+		</aura:if>
+		<aura:if isTrue="{!v.addressMapping.sectionaddress=='documentrelease'}">
+			<label class="slds-form-element__label" for="{!$Label.c.OB_Document_Release_City}">
+				<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Document_Release_City}
+			</label>
+		</aura:if>
+		<aura:if isTrue="{!v.addressMapping.sectionaddress=='birthaddress'}">
+			<label class="slds-form-element__label" for="{!$Label.c.OB_Birth_City}">
+				<abbr class="slds-required" title="required">*</abbr>{!$Label.c.OB_Birth_City}
+			</label>
+		</aura:if>				
+		<!-- END	micol.ferrari 29/09/2018 - DYNAMIC LABELS -->
+
+		<div class="slds-form-element__control">
+			 <aura:if isTrue="{!v.isEE != true}">
+				<input id="{!v.cityId}"  
+					   value="{!v.cityString}"
+					   class="flow_required slds-input" 
+					   label =""
+					   type="text" 
+					   onchange="{!c.getValue}" 
+					   oninput="{!c.callCities}" 
+					   onkeydown="{!c.clearInput}"
+					   disabled="{!v.addressMapping.citydisabled}"
+						 onblur="{!c.comune}"
+						 name="Address City"
+					 
+					   /> 
+			</aura:if>
+			<aura:if isTrue="{!v.isEE == true}">
+				<input id="{!v.cityEEId}"  
+					   value="{!v.cityString}"
+					   class="flow_required slds-input" 
+					   label =""
+					   type="text" 
+					   onchange="{!c.getValueEE}" 
+					   disabled="{!v.addressMapping.citydisabled}"
+					   /> 
+			</aura:if>
+		</div>
+		<div class="slds-input__icon-group slds-input__icon-group_right" style = "width: 40px; height: 37px;">
+				<div role="status" class=" slds-spinner_brand slds-spinner_x-small slds-input__spinner">
+				  
+				  <aura:if isTrue="{! v.triggleSpinner}"> 
+					<div role="status" class="slds-spinner slds-spinner_brand slds-spinner_small">
+						<span class="slds-assistive-text">Loading</span>
+						<div  class="slds-spinner__dot-a"></div>
+						<div  class="slds-spinner__dot-b"></div>
+					</div>
+				  </aura:if>
+			  </div>
+		</div>
+	</div>    
+	 
+</aura:component>
